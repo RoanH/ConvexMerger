@@ -44,13 +44,13 @@ public class PlayfieldGenerator{
 	 * @return A list of convex objects representing the generated playfield.
 	 */
 	public List<ConvexObject> generatePlayfield(){
-		//TODO you may assume that the playfield is 0~1600 on the x-axis and 0~900 on the y-axis
-		//the goal is then to fill the entire playfield with convex objects that are made up of
-		//3 to 4 points, the object should not overlap, fill the entire playfield, be of varying
-		//sizes and not be too close to each other (they need to appear as distinct objects to the player)
-		//there is no requirement on the total number of objects, when generating random numbers use the
-		//provided random instance. Convex objects can vary in total area, but not by too much to prevent
-		//giving the first player an unfair advantage.
+		//TODO you may assume that the playfield is 0~1600 (Constants.PLAYFIELD_WIDTH) on the x-axis
+		//and 0~900 (Constants.PLAYFIELD_HEIGHT) on the y-axis the goal is then to fill the entire
+		//playfield with convex objects that are made up of 3 to 4 points, the object should not overlap,
+		//fill the entire playfield, be of varying sizes and not be too close to each other (they need to
+		//appear as distinct objects to the player) there is no requirement on the total number of objects,
+		//when generating random numbers use the provided random instance. Convex objects can vary in total
+		//area, but not by too much to prevent giving the first player an unfair advantage.
 		
 		return Arrays.asList(
 			new ConvexObject(0, 0, 50, 50, 10, 50),

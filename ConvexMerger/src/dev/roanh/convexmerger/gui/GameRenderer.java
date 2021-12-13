@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 import dev.roanh.convexmerger.game.GameState;
 
-public class GameRenderer extends JPanel{
+public class GameRenderer{
 	/**
 	 * Serial ID.
 	 */
@@ -16,8 +16,7 @@ public class GameRenderer extends JPanel{
 	
 	
 	
-	@Override
-	public void paintComponent(Graphics g){
+	public void render(Graphics g){
 		
 	}
 }
