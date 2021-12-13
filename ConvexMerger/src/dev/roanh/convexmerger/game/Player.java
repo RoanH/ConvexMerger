@@ -1,5 +1,9 @@
 package dev.roanh.convexmerger.game;
 
-public interface Player{
+import java.awt.Color;
 
+public abstract interface Player{
+
+	public abstract Color getColor();
+	
 }

@@ -2,6 +2,7 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,6 +72,6 @@ public class VerticalDecomposition{
 	 * @return The vertical decomposition lines.
 	 */
 	public List<Line2D> getDecompLines(){
-		return null;//TODO
+		return Collections.emptyList();//TODO
 	}
 }

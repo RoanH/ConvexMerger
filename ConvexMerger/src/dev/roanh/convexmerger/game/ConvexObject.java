@@ -30,4 +30,8 @@ public class ConvexObject{
 	public boolean isOwned(){
 		return owner != null;
 	}
+	
+	public boolean contains(double x, double y){
+		return shape.contains(x, y);
+	}
 }
