@@ -23,6 +23,20 @@ sourceCompatibility = 1.8
 version = 'v1.0'
 shadowJar.archiveName = 'ConvexMerger-' + version + '.jar'
 
+repositories{
+	//Local cache
+	if(project.hasProperty("nexusPublic")){
+		maven{
+			url "$nexusPublic"
+		}
+	}
+	mavenCentral();
+}
+
+dependencies{
+	implementation 'dev.roanh.util:util:2.0'
+}
+
 javadoc{
 	options.memberLevel = JavadocMemberLevel.PRIVATE
 }
