@@ -8,6 +8,7 @@ import java.util.List;
  * Vertical decomposition of a plane containing non-overlapping
  * convex objects. The decomposition supports efficient modifications
  * and querying of the convex objects.
+ * @author Roan
  * @author Emu
  */
 public class VerticalDecomposition{
