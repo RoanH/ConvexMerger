@@ -19,7 +19,7 @@ public class VerticalDecomposition{
 	 *        ever be added will be contained in (strictly inside,
 	 *        there will be no overlap with the edges).
 	 */
-	public VerticalDecomposition(Rectangle2D.Double bounds){
+	public VerticalDecomposition(Rectangle2D bounds){
 		//TODO
 	}
 	
@@ -69,7 +69,7 @@ public class VerticalDecomposition{
 	 * box will be included as well.
 	 * @return The vertical decomposition lines.
 	 */
-	public List<Line2D.Double> getDecompLines(){
+	public List<Line2D> getDecompLines(){
 		return null;//TODO
 	}
 }

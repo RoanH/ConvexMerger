@@ -12,4 +12,14 @@ public class ConvexObject{
 		shape.lineTo(x3, y3);
 		shape.closePath();
 	}
+	
+	/**
+	 * Gets a closed path representing the shape of
+	 * this convex object. The shape is guaranteed
+	 * to be convex.
+	 * @return The shape of this convex object.
+	 */
+	public Path2D getShape(){
+		return shape;
+	}
 }
