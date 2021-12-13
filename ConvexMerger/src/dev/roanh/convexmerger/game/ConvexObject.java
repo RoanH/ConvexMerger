@@ -4,7 +4,7 @@ import java.awt.geom.Path2D;
 
 public class ConvexObject{
 	private Path2D shape = new Path2D.Double(Path2D.WIND_NON_ZERO, 4);
-	private Owner owner = Owner.UNOWNED;
+	private Player owner = null;
 	
 	public ConvexObject(int x1, int y1, int x2, int y2, int x3, int y3){
 		shape.moveTo(x1, y1);
@@ -21,5 +21,13 @@ public class ConvexObject{
 	 */
 	public Path2D getShape(){
 		return shape;
+	}
+	
+	public Player getOwner(){
+		return owner;
+	}
+	
+	public boolean isOwned(){
+		return owner != null;
 	}
 }

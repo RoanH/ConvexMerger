@@ -5,6 +5,7 @@ import java.util.List;
 
 public class GameState{
 	private List<ConvexObject> objects = new ArrayList<ConvexObject>();
+	private List<Player> players = new ArrayList<Player>();
 	
 	
 	
