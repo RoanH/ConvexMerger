@@ -92,8 +92,12 @@ public class ConvexMerger{
 
 		@Override
 		public void mouseReleased(MouseEvent e){
-			// TODO Auto-generated method stub
-			
+			if(state.getActivePlayer().isHuman()){
+				ConvexObject obj = state.getObject(e.getX(), e.getY());//TODO may require transforms later
+				if(obj != null){
+					state.claimObject(obj);
+				}
+			}
 		}
 
 		@Override

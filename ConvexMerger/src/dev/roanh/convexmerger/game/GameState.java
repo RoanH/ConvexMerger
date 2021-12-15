@@ -10,6 +10,8 @@ public class GameState{
 	private List<ConvexObject> objects = new ArrayList<ConvexObject>();
 	private List<Player> players = new ArrayList<Player>();
 	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+	private int activePlayer = 0;
+	private ConvexObject selected = null;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = objects;
@@ -18,6 +20,55 @@ public class GameState{
 		decomp.rebuild();
 	}
 	
+	public void claimObject(ConvexObject obj){
+		if(!obj.isOwned()){
+			obj.setOwner(getActivePlayer());
+			if(selected != null){
+				selected.setSelected(false);
+				if(mergeObjects(obj, selected)){
+					endTurn();
+				}else{
+					//TODO show failed to merge retry
+				}
+			}else{
+				endTurn();
+			}
+		}else if(getActivePlayer().equals(obj.getOwner())){
+			if(selected == null){
+				obj.setSelected(true);
+				selected = obj;
+			}else{
+				if(obj.equals(selected)){
+					obj.setSelected(false);
+					selected = null;
+				}else{
+					selected.setSelected(false);
+					if(mergeObjects(obj, selected)){
+						endTurn();
+					}else{
+						//TODO show failed to merge retry
+					}
+				}
+			}
+		}else{
+			//TODO show cannot claim opponent object
+		}
+	}
+	
+	private void endTurn(){
+		selected = null;
+		//TODO next
+	}
+	
+	private boolean mergeObjects(ConvexObject first, ConvexObject second){
+		//TODO
+		
+		return true;//merge success
+	}
+	
+	public Player getActivePlayer(){
+		return players.get(activePlayer);
+	}
 	
 	public ConvexObject getObject(double x, double y){
 		//TODO remove when decomp done
@@ -36,4 +87,6 @@ public class GameState{
 	public List<Line2D> getVerticalDecompLines(){
 		return decomp.getDecompLines();
 	}
+	
+	
 }

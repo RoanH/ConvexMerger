@@ -10,4 +10,10 @@ public class HumanPlayer implements Player{
 		return null;
 	}
 
+	@Override
+	public boolean isHuman(){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
