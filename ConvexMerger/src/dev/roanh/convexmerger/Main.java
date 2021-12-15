@@ -8,6 +8,7 @@ public class Main{
 	public static void main(String[] args){
 		Util.installUI();
 		ConvexMerger game = new ConvexMerger();
+		game.initialiseGame();
 		game.showGame();
 		//TODO ...
 	}

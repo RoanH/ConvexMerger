@@ -11,6 +11,13 @@ public class GameState{
 	private List<Player> players = new ArrayList<Player>();
 	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 	
+	public GameState(List<ConvexObject> objects, List<Player> players){
+		this.objects = objects;
+		this.players = players;
+		objects.forEach(decomp::addObject);
+		decomp.rebuild();
+	}
+	
 	
 	public ConvexObject getObject(double x, double y){
 		//TODO remove when decomp done
