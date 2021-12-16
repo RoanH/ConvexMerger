@@ -90,14 +90,16 @@ public class GameState{
 		Point a = null;
 		Point b = null;
 		
-		for(int i = 0; i < hull.size(); i++){
+		int hullIdx = 0;
+		while(true){
 			Point p = iter.next();
-			if(!p.equals(hull.get(i))){
+			if(!p.equals(hull.get(hullIdx))){
 				iter.previous();
 				a = iter.previous();
-				b = hull.get(i);
+				b = hull.get(hullIdx);
 				break;
 			}
+			hullIdx++;
 		}
 		
 		int idx = 0;
@@ -112,10 +114,11 @@ public class GameState{
 		Point d = null;
 		
 		while(true){
+			hullIdx = (hullIdx + 1) % hull.size();
 			idx = (idx + 1) % right.size();
-			if(!iter.next().equals(right.get(idx))){
-				c = right.get(idx);
-				d = iter.hasNext() ? iter.next() : hull.get(0);
+			if(!hull.get(hullIdx).equals(right.get(idx))){
+				c = hull.get(hullIdx - 1);
+				d = hull.get(hullIdx);
 				break;
 			}
 		}
