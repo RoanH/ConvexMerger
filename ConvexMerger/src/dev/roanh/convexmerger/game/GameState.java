@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
@@ -64,6 +65,8 @@ public class GameState{
 	}
 	
 	private boolean mergeObjects(ConvexObject first, ConvexObject second){
+		List<Point> left = first.getPoints();
+		List<Point> right = second.getPoints();
 		List<Point> points = new ArrayList<Point>();
 		points.addAll(first.getPoints());
 		points.addAll(second.getPoints());
@@ -71,6 +74,42 @@ public class GameState{
 		List<Point> hull = ConvexUtil.computeConvexHull(points);
 		objects.remove(first);
 		objects.remove(second);
+		
+		if(!left.contains(hull.get(0))){
+			List<Point> tmp = left;
+			left = right;
+			right = tmp;
+		}
+		
+		Iterator<Point> iter = left.iterator();
+		while(!iter.next().equals(hull.get(0))){
+		}
+		
+		Point a = null;
+		Point b = null;
+		
+		for(int i = 1; i < hull.size(); i++){
+			Point p = iter.next();
+			if(!p.equals(hull.get(i))){
+				a = p;
+				b = hull.get(i + 1);
+				break;
+			}
+		}
+		
+		//TODO wrap back
+		
+		int idx = 0;
+		for(int i = 0; i < right.size(); i++){
+			
+		}
+		
+		for(Point point : left){
+			if(point.equals(hull.get(0))){
+				
+			}
+		}
+		
 		objects.add(new ConvexObject(hull));//TODO mark owned
 		
 		System.out.println("merged");
