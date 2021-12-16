@@ -3,10 +3,16 @@ package dev.roanh.convexmerger.game;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Defines a convex object shown in the game
+ * the points on the boundary of the object
+ * are given in clockwise order.
+ * @author Roan
+ */
 public class ConvexObject{
 	private List<Point> points;
 	private Path2D shape = new Path2D.Double(Path2D.WIND_NON_ZERO, 4);
@@ -14,22 +20,20 @@ public class ConvexObject{
 	private boolean selected = false;
 	
 	public ConvexObject(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
-		this(new int[]{x1, y1, x2, y2, x3, y3, x4, y4});
+		this(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point(x1, y1),
+			new Point(x2, y2),
+			new Point(x3, y3),
+			new Point(x4, y4)
+		)));
 	}
 	
 	public ConvexObject(int x1, int y1, int x2, int y2, int x3, int y3){
-		this(new int[]{x1, y1, x2, y2, x3, y3});
-	}
-	
-	private ConvexObject(int[] data){
-		points = new ArrayList<Point>(4);
-		points.add(new Point(data[0], data[1]));
-		shape.moveTo(data[0], data[1]);
-		for(int i = 2; i < data.length; i += 2){
-			points.add(new Point(data[i], data[i + 1]));
-			shape.lineTo(data[i], data[i + 1]);
-		}
-		shape.closePath();
+		this(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point(x1, y1),
+			new Point(x2, y2),
+			new Point(x3, y3)
+		)));
 	}
 	
 	public ConvexObject(List<Point> data){
