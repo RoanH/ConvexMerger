@@ -1,6 +1,7 @@
 package dev.roanh.convexmerger.game;
 
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class ConvexUtil{
 			
 			Point endpoint = points.get(0);
 			for(Point point : points){
-				if(endpoint.equals(hullPoint) || computeOrientation(hullPoint, point, endpoint) < 0){
+				if(endpoint.equals(hullPoint) || Line2D.relativeCCW(hullPoint.x, hullPoint.y, endpoint.x, endpoint.y, point.x, point.y) == 1){
 					endpoint = point;
 				}
 			}
@@ -30,19 +31,5 @@ public class ConvexUtil{
 		}while(!hull.get(0).equals(hullPoint));
 		
 		return hull;
-	}
-	
-	/**
-	 * Finds the orientation of an ordered triplet of points.
-	 * The orientation being, collinear, clockwise or counterclockwise.
-	 * @param p The first point.
-	 * @param q The second point.
-	 * @param r The third point.
-	 * @return A value equal to 0 if the three points are collinear, a
-	 *         value less than 0 if the points are counter clockwise and
-	 *         a value greater than 0 if the points are clockwise.
-	 */
-	private static final int computeOrientation(Point p, Point q, Point r){
-		return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 	}
 }
