@@ -22,7 +22,7 @@ public class GameState{
 	}
 	
 	public void claimObject(ConvexObject obj){
-		System.out.println("Handle claim: " + obj);
+		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			obj.setOwner(getActivePlayer());
 			if(selected != null){
@@ -59,6 +59,7 @@ public class GameState{
 	
 	private void endTurn(){
 		selected = null;
+		activePlayer = (activePlayer + 1) % players.size();
 		//TODO next
 	}
 	
@@ -67,9 +68,12 @@ public class GameState{
 		points.addAll(first.getPoints());
 		points.addAll(second.getPoints());
 		
+		List<Point> hull = ConvexUtil.computeConvexHull(points);
+		objects.remove(first);
+		objects.remove(second);
+		objects.add(new ConvexObject(hull));//TODO mark owned
 		
-		
-		
+		System.out.println("merged");
 		
 		
 		//TODO

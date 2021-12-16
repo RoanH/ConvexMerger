@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConvexObject{
-	private List<Point> points = new ArrayList<Point>(4);
+	private List<Point> points;
 	private Path2D shape = new Path2D.Double(Path2D.WIND_NON_ZERO, 4);
 	private Player owner = null;
 	private boolean selected = false;
@@ -20,11 +20,21 @@ public class ConvexObject{
 	}
 	
 	private ConvexObject(int[] data){
+		points = new ArrayList<Point>(4);
 		points.add(new Point(data[0], data[1]));
 		shape.moveTo(data[0], data[1]);
 		for(int i = 2; i < data.length; i += 2){
 			points.add(new Point(data[i], data[i + 1]));
 			shape.lineTo(data[i], data[i + 1]);
+		}
+		shape.closePath();
+	}
+	
+	public ConvexObject(List<Point> data){
+		points = data;
+		shape.moveTo(data.get(0).x, data.get(0).y);
+		for(int i = 1; i < data.size(); i++){
+			shape.lineTo(data.get(i).x, data.get(i).y);
 		}
 		shape.closePath();
 	}
