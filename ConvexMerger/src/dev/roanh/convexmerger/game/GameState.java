@@ -21,6 +21,7 @@ public class GameState{
 	}
 	
 	public void claimObject(ConvexObject obj){
+		System.out.println("Handle claim: " + obj);
 		if(!obj.isOwned()){
 			obj.setOwner(getActivePlayer());
 			if(selected != null){
@@ -71,6 +72,7 @@ public class GameState{
 	}
 	
 	public ConvexObject getObject(double x, double y){
+		System.out.println("get");
 		//TODO remove when decomp done
 		for(ConvexObject obj : objects){
 			if(obj.contains(x, y)){

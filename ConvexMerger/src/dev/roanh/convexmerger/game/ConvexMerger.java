@@ -1,4 +1,4 @@
-package dev.roanh.convexmerger.gui;
+package dev.roanh.convexmerger.game;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,10 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.GameState;
-import dev.roanh.convexmerger.game.HumanPlayer;
-import dev.roanh.convexmerger.game.PlayfieldGenerator;
 
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
@@ -66,6 +62,7 @@ public class ConvexMerger{
 			
 			for(ConvexObject obj : state.getObjects()){
 				//TODO temp
+				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
 				g.fill(obj.getShape());
 			}
 			
@@ -92,10 +89,12 @@ public class ConvexMerger{
 
 		@Override
 		public void mouseReleased(MouseEvent e){
+			System.out.println("release");
 			if(state.getActivePlayer().isHuman()){
 				ConvexObject obj = state.getObject(e.getX(), e.getY());//TODO may require transforms later
 				if(obj != null){
 					state.claimObject(obj);
+					repaint();
 				}
 			}
 		}

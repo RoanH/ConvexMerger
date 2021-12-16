@@ -6,14 +6,11 @@ public class HumanPlayer implements Player{
 
 	@Override
 	public Color getColor(){
-		// TODO Auto-generated method stub
-		return null;
+		return Color.RED;//TODO just for testing
 	}
 
 	@Override
 	public boolean isHuman(){
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
-
 }
