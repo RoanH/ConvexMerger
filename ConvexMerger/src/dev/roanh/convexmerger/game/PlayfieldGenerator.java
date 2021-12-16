@@ -54,7 +54,10 @@ public class PlayfieldGenerator{
 		
 		return Arrays.asList(
 			new ConvexObject(0, 0, 50, 50, 10, 50),
-			new ConvexObject(100, 100, 150, 100, 200, 150)
+			new ConvexObject(100, 100, 150, 100, 200, 150),
+			new ConvexObject(200, 300, 500, 550, 400, 450),
+			new ConvexObject(1000, 800, 1500, 900, 1200, 850),
+			new ConvexObject(700, 700, 900, 300, 800, 600)
 		);
 	}
 }
