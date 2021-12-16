@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,15 @@ public class GameState{
 	}
 	
 	private boolean mergeObjects(ConvexObject first, ConvexObject second){
+		List<Point> points = new ArrayList<Point>();
+		points.addAll(first.getPoints());
+		points.addAll(second.getPoints());
+		
+		
+		
+		
+		
+		
 		//TODO
 		
 		return true;//merge success
