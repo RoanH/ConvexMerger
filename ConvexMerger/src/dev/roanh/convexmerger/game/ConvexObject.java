@@ -1,8 +1,10 @@
 package dev.roanh.convexmerger.game;
 
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ConvexObject{
@@ -75,5 +77,20 @@ public class ConvexObject{
 	
 	public boolean contains(double x, double y){
 		return shape.contains(x, y);
+	}
+	
+	public boolean intersects(Point a, Point b){
+		Iterator<Point> iter = points.iterator();
+		Point last = iter.next();
+		
+		while(iter.hasNext()){
+			Point point = iter.next();
+			if(Line2D.linesIntersect(a.x, a.y, b.x, b.y, last.x, last.y, point.x, point.y)){
+				return true;
+			}
+			last = point;
+		}
+		
+		return false;
 	}
 }
