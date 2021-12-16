@@ -97,16 +97,23 @@ public class GameState{
 			}
 		}
 		
-		//TODO wrap back
-		
 		int idx = 0;
 		for(int i = 0; i < right.size(); i++){
-			
+			if(right.get(i).equals(b)){
+				idx = i;
+				break;
+			}
 		}
 		
-		for(Point point : left){
-			if(point.equals(hull.get(0))){
-				
+		Point c = null;
+		Point d = null;
+		
+		while(true){
+			idx = (idx + 1) % right.size();
+			if(!iter.next().equals(right.get(idx))){
+				c = right.get(idx);
+				d = iter.hasNext() ? iter.next() : hull.get(0);
+				break;
 			}
 		}
 		
