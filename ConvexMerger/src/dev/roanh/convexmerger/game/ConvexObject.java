@@ -97,4 +97,9 @@ public class ConvexObject{
 		
 		return false;
 	}
+	
+	@Override
+	public String toString(){
+		return "ConvexObject[owner=" + owner + ",points=" + points + "]";
+	}
 }

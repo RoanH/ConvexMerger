@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import dev.roanh.convexmerger.Constants;
 
@@ -72,7 +73,7 @@ public class GameState{
 		points.addAll(second.getPoints());
 		
 		List<Point> hull = ConvexUtil.computeConvexHull(points);
-		objects.remove(first);
+		objects.remove(first);//TODO
 		objects.remove(second);
 		
 		if(!left.contains(hull.get(0))){
@@ -81,18 +82,20 @@ public class GameState{
 			right = tmp;
 		}
 		
-		Iterator<Point> iter = left.iterator();
+		ListIterator<Point> iter = left.listIterator();
 		while(!iter.next().equals(hull.get(0))){
 		}
+		iter.previous();
 		
 		Point a = null;
 		Point b = null;
 		
-		for(int i = 1; i < hull.size(); i++){
+		for(int i = 0; i < hull.size(); i++){
 			Point p = iter.next();
 			if(!p.equals(hull.get(i))){
-				a = p;
-				b = hull.get(i + 1);
+				iter.previous();
+				a = iter.previous();
+				b = hull.get(i);
 				break;
 			}
 		}
@@ -119,7 +122,9 @@ public class GameState{
 		
 		objects.add(new ConvexObject(hull));//TODO mark owned
 		
-		System.out.println("merged");
+		System.out.println("merged : " + first + " and second " + second + " into " + hull + " lines " + a + "-" + b + " and " + c + "-" + d);
+		
+		
 		
 		
 		//TODO
