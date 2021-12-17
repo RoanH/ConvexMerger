@@ -47,6 +47,10 @@ public class ConvexMerger{
 		frame.pack();
 		Insets insets = frame.getInsets();
 		frame.setMinimumSize(new Dimension(
+			16 * Constants.MIN_SIZE + insets.left + insets.right,
+			TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom)
+		);
+		frame.setSize(new Dimension(
 			16 * Constants.INIT_SIZE + insets.left + insets.right,
 			TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom)
 		);

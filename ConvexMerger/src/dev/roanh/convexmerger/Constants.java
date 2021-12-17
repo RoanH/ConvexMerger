@@ -25,7 +25,11 @@ public final class Constants{
 	 */
 	public static final Rectangle2D DECOMP_BOUNDS = new Rectangle2D.Double(-1.0D, -1.0D, PLAYFIELD_WIDTH + 1.0D, PLAYFIELD_HEIGHT + 1.0D);
 	/**
+	 * Minimum frame size scaling factor
+	 */
+	public static final int MIN_SIZE = 40;
+	/**
 	 * Initial frame size scaling factor
 	 */
-	public static final int INIT_SIZE = 80/2;
+	public static final int INIT_SIZE = 80;
 }
