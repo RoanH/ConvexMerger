@@ -202,6 +202,6 @@ public class ConvexObject{
 	
 	@Override
 	public String toString(){
-		return "ConvexObject[owner=" + owner + ",points=" + points + "]";
+		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.x + "," + p.y + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";
 	}
 }
