@@ -1,7 +1,7 @@
 package dev.roanh.convexmerger.game;
 
 public enum MessageDialog{
-	ALREADY_OWNED("Already Claimed", "This object was already claimed another player."),
+	ALREADY_OWNED("Already Claimed", "This object was already claimed by another player."),
 	MERGE_INTERSECTS("Invalid Merge", "Your merge intersects other objects on its boundary.");
 	
 	private final String title;
