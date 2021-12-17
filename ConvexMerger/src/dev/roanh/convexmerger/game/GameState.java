@@ -65,6 +65,8 @@ public class GameState{
 		selected = null;
 		activePlayer = (activePlayer + 1) % players.size();
 		//TODO next
+		
+		players.forEach(System.out::println);
 	}
 	
 	/**
