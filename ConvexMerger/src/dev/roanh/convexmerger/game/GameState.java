@@ -25,7 +25,9 @@ public class GameState{
 	public MessageDialog claimObject(ConvexObject obj){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
-			obj.setOwner(getActivePlayer());
+			Player player = getActivePlayer();
+			obj.setOwner(player);
+			player.addArea(obj.getArea());
 			if(selected != null){
 				selected.setSelected(false);
 				if(mergeObjects(obj, selected)){
@@ -137,21 +139,26 @@ public class GameState{
 		
 		//valid
 		ConvexObject merged = new ConvexObject(hull);
-		merged.setOwner(first.getOwner());
+		Player player = first.getOwner();
+		merged.setOwner(player);
 		objects.remove(first);
 		objects.remove(second);
 		decomp.removeObject(first);
 		decomp.removeObject(second);
+		player.removeArea(first.getArea());
+		player.removeArea(second.getArea());
 		Iterator<ConvexObject> iterator = objects.iterator();
 		while(iterator.hasNext()){
 			ConvexObject obj = iterator.next();
 			if(merged.contains(obj)){
 				iterator.remove();
 				decomp.removeObject(obj);
+				player.removeArea(obj.getArea());
 			}
 		}
 		objects.add(merged);
 		decomp.addObject(merged);
+		player.addArea(merged.getArea());
 		
 		return true;
 	}
