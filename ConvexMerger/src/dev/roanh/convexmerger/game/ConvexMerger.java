@@ -51,6 +51,7 @@ public class ConvexMerger{
 	
 	
 	private final class GamePanel extends JPanel implements MouseListener{
+		private MessageDialog activeDialog = null;
 		
 		private GamePanel(){
 			this.addMouseListener(this);
@@ -60,6 +61,8 @@ public class ConvexMerger{
 			//TODO temp
 			g.setColor(Color.BLACK);
 			g.drawRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+			g.setColor(Color.white);//TODO texture?
+			g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
 			for(ConvexObject obj : state.getObjects()){
 				//TODO temp
@@ -70,6 +73,13 @@ public class ConvexMerger{
 			g.setColor(Color.BLACK);
 			for(Line2D line : state.getVerticalDecompLines()){
 				g.draw(line);
+			}
+			
+			if(activeDialog != null){
+				//TODO center and make look nice
+				g.setColor(new Color(0.0F, 0.0F, 0.0F, 0.5F));
+				g.drawString(activeDialog.getTitle(), 10, 100);
+				g.drawString(activeDialog.getSubtitle(), 10, 150);
 			}
 		}
 		
@@ -91,11 +101,13 @@ public class ConvexMerger{
 
 		@Override
 		public void mouseReleased(MouseEvent e){
-			System.out.println("release");
-			if(state.getActivePlayer().isHuman()){
+			if(activeDialog != null){
+				activeDialog = null;
+				repaint();
+			}else if(state.getActivePlayer().isHuman()){
 				ConvexObject obj = state.getObject(e.getX(), e.getY());//TODO may require transforms later
 				if(obj != null){
-					state.claimObject(obj);
+					activeDialog = state.claimObject(obj);
 					repaint();
 				}
 			}

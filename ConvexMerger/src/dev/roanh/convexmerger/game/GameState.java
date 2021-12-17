@@ -31,8 +31,6 @@ public class GameState{
 				if(mergeObjects(obj, selected)){
 					endTurn();
 				}else{
-					//TODO show failed to merge retry
-					System.out.println("Invalid merge");
 					return MessageDialog.MERGE_INTERSECTS;
 				}
 			}else{
@@ -51,14 +49,12 @@ public class GameState{
 					if(mergeObjects(obj, selected)){
 						endTurn();
 					}else{
-						//TODO show failed to merge retry
-						System.out.println("Invalid merge");
 						return MessageDialog.MERGE_INTERSECTS;
 					}
 				}
 			}
 		}else{
-			//TODO show cannot claim opponent object
+			return MessageDialog.ALREADY_OWNED;
 		}
 		return null;
 	}
