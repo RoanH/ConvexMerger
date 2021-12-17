@@ -33,6 +33,7 @@ public class GameState{
 					endTurn();
 				}else{
 					//TODO show failed to merge retry
+					System.out.println("Invalid merge");
 				}
 			}else{
 				endTurn();
@@ -51,6 +52,7 @@ public class GameState{
 						endTurn();
 					}else{
 						//TODO show failed to merge retry
+						System.out.println("Invalid merge");
 					}
 				}
 			}
@@ -73,9 +75,8 @@ public class GameState{
 		points.addAll(second.getPoints());
 		
 		List<Point> hull = ConvexUtil.computeConvexHull(points);
-		objects.remove(first);//TODO
-		objects.remove(second);
 		
+		//figure out the newly added line segments
 		if(!left.contains(hull.get(0))){
 			List<Point> tmp = left;
 			left = right;
@@ -123,7 +124,18 @@ public class GameState{
 			}
 		}
 		
-		objects.add(new ConvexObject(hull));//TODO mark owned
+		//check if the new hull is valid
+		for(ConvexObject obj : objects){
+			if(!obj.equals(first) && !obj.equals(second) && (obj.intersects(a, b) || obj.intersects(c, d))){
+				return false;
+			}
+		}
+		
+		ConvexObject merged = new ConvexObject(hull);
+		
+		objects.add(merged);//TODO mark owned
+		objects.remove(first);//TODO
+		objects.remove(second);
 		
 		System.out.println("merged : " + first + " and second " + second + " into " + hull + " lines " + a + "-" + b + " and " + c + "-" + d);
 		
