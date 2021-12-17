@@ -27,5 +27,5 @@ public final class Constants{
 	/**
 	 * Initial frame size scaling factor
 	 */
-	public static final int INIT_SIZE = 80;
+	public static final int INIT_SIZE = 80/2;
 }

@@ -7,10 +7,12 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 import javax.swing.JFrame;
@@ -111,6 +113,29 @@ public class ConvexMerger{
 			}
 		}
 		
+		/**
+		 * Translates the given point from windows coordinate space
+		 * to game coordinate space.
+		 * @param x The x coordinate of the point to translate.
+		 * @param y The y coordinate of the point to translate.
+		 * @return The point translated to game space.
+		 */
+		private Point2D translateToGameSpace(double x, double y){
+			double sx = (double)this.getWidth() / (double)Constants.PLAYFIELD_WIDTH;
+			double sy = (double)(this.getHeight() - TOP_SPACE) / (double)Constants.PLAYFIELD_HEIGHT;
+			if(sx < sy){
+				return new Point2D.Double(
+					x * (1.0D / sx),
+					(y - TOP_SPACE) * (1.0D / sx)
+				);
+			}else{
+				return new Point2D.Double(
+					(x - ((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy) / 2.0D)) * (1.0D / sy),
+					(y - TOP_SPACE) * (1.0D / sy)
+				);
+			}
+		}
+		
 		@Override
 		public void paintComponent(Graphics g1){
 			Graphics2D g = (Graphics2D)g1;
@@ -133,7 +158,7 @@ public class ConvexMerger{
 				activeDialog = null;
 				repaint();
 			}else if(state.getActivePlayer().isHuman()){
-				ConvexObject obj = state.getObject(e.getX(), e.getY() - TOP_SPACE);//TODO may require transforms later
+				ConvexObject obj = state.getObject(translateToGameSpace(e.getX(), e.getY()));
 				if(obj != null){
 					activeDialog = state.claimObject(obj);
 					repaint();

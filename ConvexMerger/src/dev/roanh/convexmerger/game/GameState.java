@@ -2,6 +2,7 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Point;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -172,6 +173,11 @@ public class GameState{
 	
 	public Player getActivePlayer(){
 		return players.get(activePlayer);
+	}
+	
+	public ConvexObject getObject(Point2D p){
+		System.out.println("pt: " + p);
+		return getObject(p.getX(), p.getY());
 	}
 	
 	public ConvexObject getObject(double x, double y){
