@@ -200,6 +200,21 @@ public class ConvexObject{
 		return true;
 	}
 	
+	/**
+	 * Computes the area of this convex object.
+	 * @return The area for this convex object.
+	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
+	 */
+	public double getArea(){
+		double area = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			int j = (i + 1) % points.size();
+			area += points.get(i).x * points.get(j).y;
+			area -= points.get(i).y * points.get(j).x;
+		}
+		return area / 2.0D;
+	}
+	
 	@Override
 	public String toString(){
 		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.x + "," + p.y + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";
