@@ -67,6 +67,13 @@ public class GameState{
 		//TODO next
 	}
 	
+	/**
+	 * Attempts to merge the given two convex objects.
+	 * @param first The first object to merge.
+	 * @param second The second object to merge.
+	 * @return True if the merge was valid and did not
+	 *         have any other convex objects on its boundary.
+	 */
 	private boolean mergeObjects(ConvexObject first, ConvexObject second){
 		List<Point> left = first.getPoints();
 		List<Point> right = second.getPoints();
@@ -118,7 +125,7 @@ public class GameState{
 			hullIdx = (hullIdx + 1) % hull.size();
 			idx = (idx + 1) % right.size();
 			if(!hull.get(hullIdx).equals(right.get(idx))){
-				c = hull.get(hullIdx - 1);
+				c = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
 				d = hull.get(hullIdx);
 				break;
 			}
@@ -131,20 +138,25 @@ public class GameState{
 			}
 		}
 		
+		//valid
 		ConvexObject merged = new ConvexObject(hull);
-		
-		objects.add(merged);//TODO mark owned
-		objects.remove(first);//TODO
+		merged.setOwner(first.getOwner());
+		objects.remove(first);
 		objects.remove(second);
+		decomp.removeObject(first);
+		decomp.removeObject(second);
+		Iterator<ConvexObject> iterator = objects.iterator();
+		while(iterator.hasNext()){
+			ConvexObject obj = iterator.next();
+			if(merged.contains(obj)){
+				iterator.remove();
+				decomp.removeObject(obj);
+			}
+		}
+		objects.add(merged);
+		decomp.addObject(merged);
 		
-		System.out.println("merged : " + first + " and second " + second + " into " + hull + " lines " + a + "-" + b + " and " + c + "-" + d);
-		
-		
-		
-		
-		//TODO
-		
-		return true;//merge success
+		return true;
 	}
 	
 	public Player getActivePlayer(){
@@ -152,7 +164,6 @@ public class GameState{
 	}
 	
 	public ConvexObject getObject(double x, double y){
-		System.out.println("get");
 		//TODO remove when decomp done
 		for(ConvexObject obj : objects){
 			if(obj.contains(x, y)){
@@ -169,6 +180,4 @@ public class GameState{
 	public List<Line2D> getVerticalDecompLines(){
 		return decomp.getDecompLines();
 	}
-	
-	
 }

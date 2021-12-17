@@ -83,6 +83,13 @@ public class ConvexObject{
 		return shape.contains(x, y);
 	}
 	
+	/**
+	 * Checks if this convex object intersects the line segment
+	 * defined by the given end points.
+	 * @param a The first endpoint of the line segment.
+	 * @param b The second endpoint of the line segment.
+	 * @return True if this object intersects the given line segment.
+	 */
 	public boolean intersects(Point a, Point b){
 		Iterator<Point> iter = points.iterator();
 		Point last = iter.next();
@@ -96,6 +103,22 @@ public class ConvexObject{
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Checks if the given convex object is fully
+	 * contained within this convex object.
+	 * @param other The object to check.
+	 * @return True if this convex object contains
+	 *         the other given convex object.
+	 */
+	public boolean contains(ConvexObject other){
+		for(Point p : other.points){
+			if(!shape.contains(p)){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override
