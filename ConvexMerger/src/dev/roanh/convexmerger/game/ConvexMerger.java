@@ -2,8 +2,11 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,6 +19,9 @@ import javax.swing.JPanel;
 import dev.roanh.convexmerger.Constants;
 
 public class ConvexMerger{
+	private static final int TOP_SPACE = 150;
+	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
+	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
 	
@@ -36,7 +42,12 @@ public class ConvexMerger{
 		
 		frame.add(content);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(800, 600);
+		frame.pack();
+		Insets insets = frame.getInsets();
+		frame.setMinimumSize(new Dimension(
+			16 * Constants.INIT_SIZE + insets.left + insets.right,
+			TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom)
+		);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
@@ -51,6 +62,10 @@ public class ConvexMerger{
 	
 	
 	private final class GamePanel extends JPanel implements MouseListener{
+		/**
+		 * Serial ID.
+		 */
+		private static final long serialVersionUID = 5749409248962652951L;
 		private MessageDialog activeDialog = null;
 		
 		private GamePanel(){
@@ -58,7 +73,20 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
+			g.setColor(Color.RED);
+			g.fillRect(0, 0, this.getWidth(), TOP_SPACE);
+			
 			//TODO temp
+			
+			g.translate(0, TOP_SPACE);
+			double sx = (double)this.getWidth() / (double)Constants.PLAYFIELD_WIDTH;
+			double sy = (double)(this.getHeight() - TOP_SPACE) / (double)Constants.PLAYFIELD_HEIGHT;
+			if(sx < sy){
+				g.scale(sx, sx);
+			}else{
+				g.translate((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy) / 2.0D, 0.0D);
+				g.scale(sy, sy);
+			}
 			g.setColor(Color.BLACK);
 			g.drawRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			g.setColor(Color.white);//TODO texture?
@@ -105,7 +133,7 @@ public class ConvexMerger{
 				activeDialog = null;
 				repaint();
 			}else if(state.getActivePlayer().isHuman()){
-				ConvexObject obj = state.getObject(e.getX(), e.getY());//TODO may require transforms later
+				ConvexObject obj = state.getObject(e.getX(), e.getY() - TOP_SPACE);//TODO may require transforms later
 				if(obj != null){
 					activeDialog = state.claimObject(obj);
 					repaint();

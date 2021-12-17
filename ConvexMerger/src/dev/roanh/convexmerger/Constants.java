@@ -24,4 +24,8 @@ public final class Constants{
 	 * ensures that all convex objects are fully contained.
 	 */
 	public static final Rectangle2D DECOMP_BOUNDS = new Rectangle2D.Double(-1.0D, -1.0D, PLAYFIELD_WIDTH + 1.0D, PLAYFIELD_HEIGHT + 1.0D);
+	/**
+	 * Initial frame size scaling factor
+	 */
+	public static final int INIT_SIZE = 80;
 }
