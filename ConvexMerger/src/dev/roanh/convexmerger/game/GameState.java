@@ -67,6 +67,11 @@ public class GameState{
 		//TODO next
 		
 		players.forEach(System.out::println);
+		
+		if(objects.stream().allMatch(ConvexObject::isOwned)){
+			//TODO verify no merges are possible
+			System.out.println("soft game end (no more unowned objects)");
+		}
 	}
 	
 	/**
