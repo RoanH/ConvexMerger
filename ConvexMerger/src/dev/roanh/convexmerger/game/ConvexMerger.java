@@ -1,7 +1,10 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -9,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
@@ -24,6 +28,7 @@ public class ConvexMerger{
 	private static final int TOP_SPACE = 150;
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
+	private static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
 	
@@ -95,13 +100,21 @@ public class ConvexMerger{
 			}
 			g.setColor(Color.BLACK);
 			g.drawRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-			g.setColor(Color.white);//TODO texture?
+			g.setColor(Color.WHITE);//TODO texture?
 			g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
+			Composite comp = g.getComposite();
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));
 			for(ConvexObject obj : state.getObjects()){
-				//TODO temp
 				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
 				g.fill(obj.getShape());
+			}
+			g.setComposite(comp);
+			
+			g.setStroke(POLY_STROKE);
+			for(ConvexObject obj : state.getObjects()){
+				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
+				g.draw(obj.getShape());
 			}
 			
 			g.setColor(Color.BLACK);
