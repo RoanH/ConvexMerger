@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import dev.roanh.convexmerger.Constants;
 
@@ -23,7 +22,7 @@ public class GameState{
 		decomp.rebuild();
 	}
 	
-	public void claimObject(ConvexObject obj){
+	public MessageDialog claimObject(ConvexObject obj){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			obj.setOwner(getActivePlayer());
@@ -34,6 +33,7 @@ public class GameState{
 				}else{
 					//TODO show failed to merge retry
 					System.out.println("Invalid merge");
+					return MessageDialog.MERGE_INTERSECTS;
 				}
 			}else{
 				endTurn();
@@ -53,12 +53,14 @@ public class GameState{
 					}else{
 						//TODO show failed to merge retry
 						System.out.println("Invalid merge");
+						return MessageDialog.MERGE_INTERSECTS;
 					}
 				}
 			}
 		}else{
 			//TODO show cannot claim opponent object
 		}
+		return null;
 	}
 	
 	private void endTurn(){
@@ -90,27 +92,26 @@ public class GameState{
 			right = tmp;
 		}
 		
-		ListIterator<Point> iter = left.listIterator();
-		while(!iter.next().equals(hull.get(0))){
+		int idx = 0;
+		while(!left.get(idx).equals(hull.get(0))){
+			idx++;
 		}
-		iter.previous();
 		
 		Point a = null;
 		Point b = null;
 		
 		int hullIdx = 0;
 		while(true){
-			Point p = iter.next();
-			if(!p.equals(hull.get(hullIdx))){
-				iter.previous();
-				a = iter.previous();
+			hullIdx++;
+			idx = (idx + 1) % left.size();
+			if(!left.get(idx).equals(hull.get(hullIdx))){
+				a = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
 				b = hull.get(hullIdx);
 				break;
 			}
-			hullIdx++;
 		}
 		
-		int idx = 0;
+		idx = 0;
 		for(int i = 0; i < right.size(); i++){
 			if(right.get(i).equals(b)){
 				idx = i;
