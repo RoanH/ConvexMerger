@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -92,55 +93,11 @@ public class GameState{
 		List<Point> hull = ConvexUtil.computeConvexHull(points);
 		
 		//figure out the newly added line segments
-		if(!left.contains(hull.get(0))){
-			List<Point> tmp = left;
-			left = right;
-			right = tmp;
-		}
-		
-		int idx = 0;
-		while(!left.get(idx).equals(hull.get(0))){
-			idx++;
-		}
-		
-		Point a = null;
-		Point b = null;
-		
-		int hullIdx = 0;
-		while(true){
-			hullIdx++;
-			idx = (idx + 1) % left.size();
-			if(!left.get(idx).equals(hull.get(hullIdx))){
-				a = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
-				b = hull.get(hullIdx);
-				break;
-			}
-		}
-		
-		idx = 0;
-		for(int i = 0; i < right.size(); i++){
-			if(right.get(i).equals(b)){
-				idx = i;
-				break;
-			}
-		}
-		
-		Point c = null;
-		Point d = null;
-		
-		while(true){
-			hullIdx = (hullIdx + 1) % hull.size();
-			idx = (idx + 1) % right.size();
-			if(!hull.get(hullIdx).equals(right.get(idx))){
-				c = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
-				d = hull.get(hullIdx);
-				break;
-			}
-		}
+		Point[] lines = computeMergeLines(left, right, hull);
 		
 		//check if the new hull is valid
 		for(ConvexObject obj : objects){
-			if(!obj.equals(first) && !obj.equals(second) && (obj.intersects(a, b) || obj.intersects(c, d))){
+			if(!obj.equals(first) && !obj.equals(second) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
 				return false;
 			}
 		}
@@ -171,6 +128,57 @@ public class GameState{
 		return true;
 	}
 	
+	private Point[] computeMergeLines(List<Point> left, List<Point> right, List<Point> hull){
+		//figure out the newly added line segments
+		if(!left.contains(hull.get(0))){
+			List<Point> tmp = left;
+			left = right;
+			right = tmp;
+		}
+
+		int idx = 0;
+		while(!left.get(idx).equals(hull.get(0))){
+			idx++;
+		}
+
+		Point a = null;
+		Point b = null;
+
+		int hullIdx = 0;
+		while(true){
+			hullIdx++;
+			idx = (idx + 1) % left.size();
+			if(!left.get(idx).equals(hull.get(hullIdx))){
+				a = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
+				b = hull.get(hullIdx);
+				break;
+			}
+		}
+
+		idx = 0;
+		for(int i = 0; i < right.size(); i++){
+			if(right.get(i).equals(b)){
+				idx = i;
+				break;
+			}
+		}
+
+		Point c = null;
+		Point d = null;
+
+		while(true){
+			hullIdx = (hullIdx + 1) % hull.size();
+			idx = (idx + 1) % right.size();
+			if(!hull.get(hullIdx).equals(right.get(idx))){
+				c = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
+				d = hull.get(hullIdx);
+				break;
+			}
+		}
+
+		return new Point[]{a, b, c, d};
+	}
+	
 	public Player getActivePlayer(){
 		return players.get(activePlayer);
 	}
@@ -196,5 +204,35 @@ public class GameState{
 	
 	public List<Line2D> getVerticalDecompLines(){
 		return decomp.getDecompLines();
+	}
+	
+	public List<Line2D> getHelperLines(int x, int y){
+		if(selected != null){
+			List<Point> points = new ArrayList<Point>();
+			points.addAll(selected.getPoints());
+			
+			Point p = new Point(x, y);
+			if(points.contains(p) || selected.contains(p.getX(), p.getY())){
+				return null;
+			}
+			points.add(p);
+			
+			List<Point> hull = ConvexUtil.computeConvexHull(points);
+			for(int i = 0; i < hull.size(); i++){
+				if(hull.get(i).equals(p)){
+					Point prev = hull.get((i == 0 ? hull.size() : i) - 1);
+					Point next = hull.get((i + 1) % hull.size());
+					return Arrays.asList(
+						new Line2D.Double(p.getX(), p.getY(), prev.getX(), prev.getY()),
+						new Line2D.Double(p.getX(), p.getY(), next.getX(), next.getY())
+					);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public boolean isSelectingSecond(){
+		return selected != null;
 	}
 }
