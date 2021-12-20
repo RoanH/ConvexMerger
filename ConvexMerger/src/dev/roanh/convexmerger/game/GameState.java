@@ -231,4 +231,8 @@ public class GameState{
 		}
 		return null;
 	}
+	
+	public boolean isSelectingSecond(){
+		return selected != null;
+	}
 }
