@@ -90,10 +90,12 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
+			//TODO temp
 			g.setColor(Color.RED);
 			g.fillRect(0, 0, this.getWidth(), TOP_SPACE);
 			
-			//TODO temp
+			g.setColor(Color.BLACK);
+			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
 			g.translate(BORDER_SIZE, TOP_SPACE + BORDER_SIZE);
 			double sx = (double)(this.getWidth() - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_WIDTH;
@@ -190,7 +192,9 @@ public class ConvexMerger{
 				ConvexObject obj = state.getObject(translateToGameSpace(e.getX(), e.getY()));
 				if(obj != null){
 					activeDialog = state.claimObject(obj);
-					helperLines = null;
+					if(activeDialog == null){
+						helperLines = null;
+					}
 					repaint();
 				}
 			}
