@@ -201,6 +201,23 @@ public class ConvexObject{
 	}
 	
 	/**
+	 * Checks if the given convex object intersects
+	 * this convex object.
+	 * @param other The object to check for
+	 *        intersection with.
+	 * @return True if this convex object intersects
+	 *         the other given convex object.
+	 */
+	public boolean intersects(ConvexObject other){
+		for(Point p : other.points){
+			if(shape.contains(p)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Computes the area of this convex object.
 	 * @return The area for this convex object.
 	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
