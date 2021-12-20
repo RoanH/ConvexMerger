@@ -53,12 +53,16 @@ public class PlayfieldGenerator{
 		//when generating random numbers use the provided random instance. Convex objects can vary in total
 		//area, but not by too much to prevent giving the first player an unfair advantage.
 		
+		// generate random number of objects
+		// The area size has to be more or less same for every object
+		
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
 		objects.add(new ConvexObject(0, 0, 50, 50, 10, 50));
 		objects.add(new ConvexObject(100, 100, 150, 100, 200, 150));
 		objects.add(new ConvexObject(200, 300, 500, 550, 400, 450));
 		objects.add(new ConvexObject(1000, 800, 1500, 900, 1200, 850));
 		objects.add(new ConvexObject(700, 700, 900, 300, 800, 600));
+		//random.
 		return objects;
 	}
 }
