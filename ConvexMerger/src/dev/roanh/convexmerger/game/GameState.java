@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -209,13 +210,25 @@ public class GameState{
 		if(selected != null){
 			List<Point> points = new ArrayList<Point>();
 			points.addAll(selected.getPoints());
-			points.add(new Point(x, y));
 			
+			Point p = new Point(x, y);
+			if(points.contains(p) || selected.contains(p.getX(), p.getY())){
+				return null;
+			}
+			points.add(p);
 			
-			
-			
-		}else{
-			return null;
+			List<Point> hull = ConvexUtil.computeConvexHull(points);
+			for(int i = 0; i < hull.size(); i++){
+				if(hull.get(i).equals(p)){
+					Point prev = hull.get((i == 0 ? hull.size() : i) - 1);
+					Point next = hull.get((i + 1) % hull.size());
+					return Arrays.asList(
+						new Line2D.Double(p.getX(), p.getY(), prev.getX(), prev.getY()),
+						new Line2D.Double(p.getX(), p.getY(), next.getX(), next.getY())
+					);
+				}
+			}
 		}
+		return null;
 	}
 }
