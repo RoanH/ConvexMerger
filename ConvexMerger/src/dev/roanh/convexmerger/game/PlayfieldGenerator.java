@@ -53,16 +53,49 @@ public class PlayfieldGenerator{
 		//when generating random numbers use the provided random instance. Convex objects can vary in total
 		//area, but not by too much to prevent giving the first player an unfair advantage.
 		
+		// x: 0 - 1600
+		// y: 0 - 900
 		// generate random number of objects
 		// The area size has to be more or less same for every object
 		
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
-		objects.add(new ConvexObject(0, 0, 50, 50, 10, 50));
-		objects.add(new ConvexObject(100, 100, 150, 100, 200, 150));
-		objects.add(new ConvexObject(200, 300, 500, 550, 400, 450));
-		objects.add(new ConvexObject(1000, 800, 1500, 900, 1200, 850));
-		objects.add(new ConvexObject(700, 700, 900, 300, 800, 600));
-		//random.
+		//objects.add(new ConvexObject(0, 0, 60, 0, 50, 50, 10, 50));
+		//objects.add(new ConvexObject(100, 100, 150, 100, 200, 150));
+		//objects.add(new ConvexObject(200, 300, 500, 550, 400, 450));
+		//objects.add(new ConvexObject(1000, 800, 1500, 900, 1200, 850));
+		//objects.add(new ConvexObject(700, 700, 900, 300, 800, 600));
+		
+		//int randomNumObject = random.nextInt(1)+1;
+		//System.out.println(randomNumObject);
+		
+		int xMin = 0;
+		int xMax = 1600;
+		int yMin = 0;
+		int yMax = 900;
+		
+		int min = 2;	// adjust this number
+		int max = 4;	// adjust this number
+		int randomNumObject = random.nextInt(max - min) + min; // generate random number of convex  objects in the play field
+		do {
+			int randomTriQuad = random.nextInt(2);
+			if(randomTriQuad==0) {
+				// for generating convex quadrilateral
+				objects.add(new ConvexObject(0, 0, 60, 0, 50, 50, 10, 50));		// TODO: THIS CONVEX QUAD HAS TO BE RANDOMIZED
+				// TODO: CHECK AREA
+				// TODO: CHECK THE INTERSECTION
+				randomNumObject--;
+			} else {
+				// for generating triangles 
+				objects.add(new ConvexObject(100, 100, 150, 100, 200, 150));	// TODO: THIS TRINANGLE HAS TO BE RANDOMIZED
+				// TODO: CHECK AREA
+				// TODO: CHECK THE INTERSECTION
+				randomNumObject--;
+			}
+		} while(randomNumObject>0);
+		
+		System.out.println(objects.get(0).getArea());
+		System.out.println(objects.get(0).intersects(objects.get(1)));
+		
 		return objects;
 	}
 }
