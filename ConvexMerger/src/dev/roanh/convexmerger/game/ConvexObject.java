@@ -209,12 +209,16 @@ public class ConvexObject{
 	 *         the other given convex object.
 	 */
 	public boolean intersects(ConvexObject other){
-		for(Point p : other.points){
-			if(shape.contains(p)){
-				return true;
+		if(contains(other)){
+			return true;
+		}else{
+			for(int i = 1; i < points.size(); i++){
+				if(other.intersects(points.get(i - 1), points.get(i))){
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
 	}
 	
 	/**

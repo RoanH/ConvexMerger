@@ -15,9 +15,11 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -30,6 +32,7 @@ public class ConvexMerger{
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+	private static final Stroke HELPER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
 	
@@ -73,22 +76,26 @@ public class ConvexMerger{
 	}
 	
 	
-	private final class GamePanel extends JPanel implements MouseListener{
+	private final class GamePanel extends JPanel implements MouseListener, MouseMotionListener{
 		/**
 		 * Serial ID.
 		 */
 		private static final long serialVersionUID = 5749409248962652951L;
 		private MessageDialog activeDialog = null;
+		private List<Line2D> helperLines = null;
 		
 		private GamePanel(){
 			this.addMouseListener(this);
+			this.addMouseMotionListener(this);
 		}
 		
 		public void renderGame(Graphics2D g){
+			//TODO temp
 			g.setColor(Color.RED);
 			g.fillRect(0, 0, this.getWidth(), TOP_SPACE);
 			
-			//TODO temp
+			g.setColor(Color.BLACK);
+			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
 			g.translate(BORDER_SIZE, TOP_SPACE + BORDER_SIZE);
 			double sx = (double)(this.getWidth() - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_WIDTH;
@@ -120,6 +127,13 @@ public class ConvexMerger{
 			g.setColor(Color.BLACK);
 			for(Line2D line : state.getVerticalDecompLines()){
 				g.draw(line);
+			}
+			
+			if(helperLines != null){
+				g.setStroke(HELPER_STROKE);
+				for(Line2D line : helperLines){
+					g.draw(line);
+				}
 			}
 			
 			if(activeDialog != null){
@@ -178,6 +192,9 @@ public class ConvexMerger{
 				ConvexObject obj = state.getObject(translateToGameSpace(e.getX(), e.getY()));
 				if(obj != null){
 					activeDialog = state.claimObject(obj);
+					if(activeDialog == null){
+						helperLines = null;
+					}
 					repaint();
 				}
 			}
@@ -189,6 +206,19 @@ public class ConvexMerger{
 
 		@Override
 		public void mouseExited(MouseEvent e){
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e){
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e){
+			if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
+				Point2D pos = translateToGameSpace(e.getX(), e.getY());
+				helperLines = state.getHelperLines((int)Math.round(pos.getX()), (int)Math.round(pos.getY()));
+				repaint();
+			}
 		}
 	}
 }
