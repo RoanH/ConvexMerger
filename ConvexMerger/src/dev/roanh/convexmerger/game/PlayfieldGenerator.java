@@ -59,97 +59,54 @@ public class PlayfieldGenerator{
 		// The area size has to be more or less same for every object
 		
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
-		//objects.add(new ConvexObject(0, 0, 60, 0, 50, 50, 10, 50));
-		//objects.add(new ConvexObject(100, 100, 150, 100, 200, 150));
-		//objects.add(new ConvexObject(200, 300, 500, 550, 400, 450));
-		//objects.add(new ConvexObject(1000, 800, 1500, 900, 1200, 850));
-		//objects.add(new ConvexObject(700, 700, 900, 300, 800, 600));
-		
-		//int randomNumObject = random.nextInt(1)+1;
-		//System.out.println(randomNumObject);
 
-
-		int xMin = 0;
-		int xMax = 1600;
-		int yMin = 0;
-		int yMax = 900;
+		int xMin = 0;		// the minimum scale value in the x-axis
+		int xMax = 1600;	// the maximum scale value in the x-axis
+		int yMin = 0;		// the minimum scale value in the y-axis
+		int yMax = 900;		// the maximum scale value in the y-axis
 		
-		int offset = 100;
+		int offset = 100;	// offset to make sure the generated objects are not beyond the screen
 
-		int rangeMin = 0;
-		int rangeMax = 100;
+		int rangeMin = 0;	// minimum value in the range of a vertex in a object 
+		int rangeMax = 100;	// maximum value in the range of a vertex in a object
 		
-		int maxLoop = 500;
-		int i = 1;
-		int numPolygons = 100;
+//		int maxLoop = 1000;	// maximum loop for terminating the do-while loop
+		int numPolygons = 1000;	// maximum number of objects to be generated 
 		
 		do {
-			// generate the center of the triangle or quadrilateral randomly
+			// generate the center (x,y) of the triangle or quadrilateral randomly
 			int centerX = random.nextInt((xMax - offset) - (xMin + offset)) + (xMin + offset);
 			int centerY = random.nextInt((yMax - offset) - (yMin + offset)) + (yMin + offset);
 			
-			// top right
+			// top right of the triangle or quadrilateral	
 			int topRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
 			int topRightY = centerY + (random.nextInt(rangeMax - rangeMin) + rangeMin);
 			
-			// top left
+			// top left of the triangle or quadrilateral
 			int topLeftX = centerX + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
 			int topLeftY = centerY + (random.nextInt(rangeMax - rangeMin) + rangeMin);
 			
-			// bottom left
+			// bottom left of the triangle or quadrilateral
 			int bottomLeftX = centerX + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
 			int bottomLeftY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
 			
-			// bottom right
+			// bottom right of the triangle or quadrilateral
 			int bottomRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
 			int bottomRightY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
 			
+			// add the generated triangle or quadrilateral into the the objects arraylist
 			objects.add(new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY));
-			
-//			System.out.println(objects.size());
 			
 			// eliminate the triangle or convex quadrilateral that intersects with other triangle or quadrilateral
 			for(int k = 0; k < objects.size()-1; k++) {
 				if(objects.get(objects.size()-1).intersects(objects.get(k))) {
-					objects.remove(objects.size()-1);
+					objects.remove(objects.size()-1);	// remove the newly generated triangle or quadrilateral if it intersected with other triangle or quadrilateral 
 					break;
 				}
 			}
 			
-			i++;
-			if(i > maxLoop) {
-				break;
-			}
-			
 			numPolygons--;
 		} while(numPolygons > 0);
-		
-/*		
-		int min = 2;	// adjust this number
-		int max = 4;	// adjust this number
-		int randomNumObject = random.nextInt(max - min) + min; // generate random number of convex  objects in the play field
-		do {
-			int randomTriQuad = random.nextInt(2);
-			if(randomTriQuad==0) {
-				// for generating convex quadrilateral
-				objects.add(new ConvexObject(0, 0, 60, 0, 50, 50, 10, 50));		// TODO: THIS CONVEX QUAD HAS TO BE RANDOMIZED
-				// TODO: CHECK AREA
-				// TODO: CHECK THE INTERSECTION
-				randomNumObject--;
-			} else {
-				// for generating triangles 
-				objects.add(new ConvexObject(100, 100, 150, 100, 200, 150));	// TODO: THIS TRINANGLE HAS TO BE RANDOMIZED
-				// TODO: CHECK AREA
-				// TODO: CHECK THE INTERSECTION
-				randomNumObject--;
-			}
-		} while(randomNumObject>0);
-		
-		System.out.println(objects.get(0).getArea());
-		System.out.println(objects.get(0).intersects(objects.get(1)));
-*/		
-		
-		// objects.add(new ConvexObject(100, 0, 100, 100, 0, 100, 200, 200));	// TESTING: the nonconvex quadrilateral will turn to triangle
 		
 		return objects;
 	}
