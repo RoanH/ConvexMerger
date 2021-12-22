@@ -71,7 +71,11 @@ public class PlayfieldGenerator{
 		int rangeMax = 100;	// maximum value in the range of a vertex in a object
 		
 //		int maxLoop = 1000;	// maximum loop for terminating the do-while loop
-		int numPolygons = 1000;	// maximum number of objects to be generated 
+//		int numPolygons = 1000;	// maximum number of objects to be generated 
+		
+		double totalArea = 0.0;	// total area of all generated objects
+		
+		double totalAreaCoverage = 0.4;	// recommend ~0.5
 		
 		do {
 			// generate the center (x,y) of the triangle or quadrilateral randomly
@@ -94,19 +98,31 @@ public class PlayfieldGenerator{
 			int bottomRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
 			int bottomRightY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
 			
+			// calculate the length between points
+			// for avoiding generation of tin long triangle or quadrilateral
+			double lengthX = Math.sqrt(Math.pow(topRightX - topLeftX, 2) + Math.pow(topRightY - topLeftY, 2));
+			double lengthY = Math.sqrt(Math.pow(topLeftX - bottomLeftX, 2) + Math.pow(topLeftY - bottomLeftY, 2));
+			if(Math.max(lengthX/lengthY, lengthY/lengthX) > 3.0) {
+				continue;
+			}
+			
 			// add the generated triangle or quadrilateral into the the objects arraylist
 			objects.add(new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY));
+			
+			double area = objects.get(objects.size()-1).getArea();
+			totalArea += area;
 			
 			// eliminate the triangle or convex quadrilateral that intersects with other triangle or quadrilateral
 			for(int k = 0; k < objects.size()-1; k++) {
 				if(objects.get(objects.size()-1).intersects(objects.get(k))) {
-					objects.remove(objects.size()-1);	// remove the newly generated triangle or quadrilateral if it intersected with other triangle or quadrilateral 
+					objects.remove(objects.size()-1);	// remove the newly generated triangle or quadrilateral if it intersected with other triangle or quadrilateral
+					totalArea -= area;
 					break;
 				}
 			}
 			
-			numPolygons--;
-		} while(numPolygons > 0);
+			// numPolygons--;	// numPolygons > 0
+		} while(totalArea < (xMax*yMax)*totalAreaCoverage);		
 		
 		return objects;
 	}
