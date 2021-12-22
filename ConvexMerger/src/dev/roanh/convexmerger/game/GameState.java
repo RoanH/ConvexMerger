@@ -84,48 +84,32 @@ public class GameState{
 	 *         have any other convex objects on its boundary.
 	 */
 	private boolean mergeObjects(ConvexObject first, ConvexObject second){
-		List<Point> left = first.getPoints();
-		List<Point> right = second.getPoints();
-		List<Point> points = new ArrayList<Point>();
-		points.addAll(first.getPoints());
-		points.addAll(second.getPoints());
-		
-		List<Point> hull = ConvexUtil.computeConvexHull(points);
-		
-		//figure out the newly added line segments
-		Point[] lines = ConvexUtil.computeMergeLines(left, right, hull);
-		
-		//check if the new hull is valid
-		for(ConvexObject obj : objects){
-			if(!obj.equals(first) && !obj.equals(second) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
-				return false;
+		ConvexObject merged = first.merge(this, second);
+		if(merged != null){
+			Player player = first.getOwner();
+			merged.setOwner(player);
+			objects.remove(first);
+			objects.remove(second);
+			decomp.removeObject(first);
+			decomp.removeObject(second);
+			player.removeArea(first.getArea());
+			player.removeArea(second.getArea());
+			Iterator<ConvexObject> iterator = objects.iterator();
+			while(iterator.hasNext()){
+				ConvexObject obj = iterator.next();
+				if(merged.contains(obj)){
+					iterator.remove();
+					decomp.removeObject(obj);
+					player.removeArea(obj.getArea());
+				}
 			}
+			objects.add(merged);
+			decomp.addObject(merged);
+			player.addArea(merged.getArea());
+			return true;
+		}else{
+			return false;
 		}
-		
-		//valid
-		ConvexObject merged = new ConvexObject(hull);
-		Player player = first.getOwner();
-		merged.setOwner(player);
-		objects.remove(first);
-		objects.remove(second);
-		decomp.removeObject(first);
-		decomp.removeObject(second);
-		player.removeArea(first.getArea());
-		player.removeArea(second.getArea());
-		Iterator<ConvexObject> iterator = objects.iterator();
-		while(iterator.hasNext()){
-			ConvexObject obj = iterator.next();
-			if(merged.contains(obj)){
-				iterator.remove();
-				decomp.removeObject(obj);
-				player.removeArea(obj.getArea());
-			}
-		}
-		objects.add(merged);
-		decomp.addObject(merged);
-		player.addArea(merged.getArea());
-		
-		return true;
 	}
 	
 	public Player getActivePlayer(){

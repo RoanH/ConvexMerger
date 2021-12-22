@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -160,6 +161,49 @@ public class ConvexObject{
 	 */
 	public boolean contains(double x, double y){
 		return shape.contains(x, y);
+	}
+	
+	/**
+	 * Merges this object with the given object.
+	 * @param other The object to merge with.
+	 * @return The resulting merged convex object.
+	 * @see #merge(GameState, ConvexObject)
+	 */
+	public ConvexObject merge(ConvexObject other){
+		return merge(null, other);
+	}
+	
+	/**
+	 * Attempts to merge this object with the given
+	 * object while checking that the boundary of the
+	 * resulting merged object does not intersect any
+	 * other objects in the given game state.
+	 * @param state The game state to check with if the
+	 *        resulting object has any intersections. Can
+	 *        be <code>null</code> to skip this check.
+	 * @param other The object to merge with.
+	 * @return The resulting merged convex object.
+	 * @see #merge(ConvexObject)
+	 */
+	public ConvexObject merge(GameState state, ConvexObject other){
+		List<Point> right = other.getPoints();
+		List<Point> combined = new ArrayList<Point>();
+		combined.addAll(points);
+		combined.addAll(other.getPoints());
+		
+		List<Point> hull = ConvexUtil.computeConvexHull(combined);
+		Point[] lines = ConvexUtil.computeMergeLines(points, right, hull);
+		
+		if(state != null){
+			//check if the new hull is valid
+			for(ConvexObject obj : state.getObjects()){
+				if(!obj.equals(this) && !obj.equals(other) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
+					return null;
+				}
+			}
+		}
+		
+		return new ConvexObject(hull);
 	}
 	
 	/**

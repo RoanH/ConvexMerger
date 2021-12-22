@@ -56,6 +56,7 @@ public class ConvexUtil{
 	 *         hull of the two given convex hulls. The
 	 *         first two points make up one of the line
 	 *         segments and the other two the other.
+	 * @see #computeMergeLines(List, List, List)
 	 */
 	public static final Point[] computeMergeLines(List<Point> first, List<Point> second){
 		List<Point> points = new ArrayList<Point>();
@@ -68,6 +69,8 @@ public class ConvexUtil{
 	 * Computes the two lines that would be required to
 	 * combine the two given convex hulls into a single
 	 * convex hull using the convex hull of both objects.
+	 * It is required that the left most point of the
+	 * combined hull is the first point in the given hull.
 	 * @param first The first convex hull.
 	 * @param second The second convex hull.
 	 * @param hull The convex hull constructed by merging
@@ -77,6 +80,7 @@ public class ConvexUtil{
 	 *         hull of the two given convex hulls. The
 	 *         first two points make up one of the line
 	 *         segments and the other two the other.
+	 * @see #computeMergeLines(List, List)
 	 */
 	public static final Point[] computeMergeLines(List<Point> first, List<Point> second, List<Point> hull){
 		if(!first.contains(hull.get(0))){
