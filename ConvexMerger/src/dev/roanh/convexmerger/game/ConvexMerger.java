@@ -106,6 +106,7 @@ public class ConvexMerger{
 			}
 			
 			g.setColor(Theme.BACKGROUND);
+			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
 			for(ConvexObject obj : state.getObjects()){
