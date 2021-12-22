@@ -280,6 +280,15 @@ public class ConvexObject{
 		return area / 2.0D;
 	}
 	
+	/**
+	 * Tests if this convex object is owned by the given player.
+	 * @param player The player to check.
+	 * @return True if the given player owns this object.
+	 */
+	public boolean isOwnedBy(Player player){
+		return player.equals(owner);
+	}
+	
 	@Override
 	public String toString(){
 		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.x + "," + p.y + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";
