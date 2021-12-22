@@ -4,6 +4,12 @@ import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Simple AI that follows the greedy
+ * strategy of maximising area again
+ * in every turn.
+ * @author Roan
+ */
 public class GreedyPlayer extends Player{
 
 	protected GreedyPlayer(){
@@ -42,6 +48,17 @@ public class GreedyPlayer extends Player{
 							}
 							if(obj.isOwnedBy(this)){
 								area -= obj.getArea();
+							}
+							
+							for(ConvexObject check : state.getObjects()){
+								if(!obj.equals(other) && !obj.equals(obj) && combined.contains(check)){
+									if(check.isOwnedBy(this)){
+										area -= check.getArea();
+									}else if(check.isOwned()){
+										//stealing is good
+										area += check.getArea();
+									}
+								}
 							}
 							
 							if(first == null || area > increase){
