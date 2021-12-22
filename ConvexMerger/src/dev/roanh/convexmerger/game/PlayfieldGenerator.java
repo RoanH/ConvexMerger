@@ -67,12 +67,46 @@ public class PlayfieldGenerator{
 		
 		//int randomNumObject = random.nextInt(1)+1;
 		//System.out.println(randomNumObject);
-		
+
+
 		int xMin = 0;
 		int xMax = 1600;
 		int yMin = 0;
 		int yMax = 900;
 		
+		int offset = 100;
+
+		int rangeMin = 0;
+		int rangeMax = 100;
+		
+		int i = 100;
+		do {
+			// generate the center of the triangle or quadrilateral randomly
+			int centerX = random.nextInt((xMax - offset) - (xMin + offset)) + (xMin + offset);
+			int centerY = random.nextInt((yMax - offset) - (yMin + offset)) + (yMin + offset);
+			
+			// top right
+			int topRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
+			int topRightY = centerY + (random.nextInt(rangeMax - rangeMin) + rangeMin);
+			
+			// top left
+			int topLeftX = centerX + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
+			int topLeftY = centerY + (random.nextInt(rangeMax - rangeMin) + rangeMin);
+			
+			// bottom left
+			int bottomLeftX = centerX + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
+			int bottomLeftY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
+			
+			// bottom right
+			int bottomRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
+			int bottomRightY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
+			
+			objects.add(new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY));
+			
+			i--;
+		} while(i>0);
+		
+/*		
 		int min = 2;	// adjust this number
 		int max = 4;	// adjust this number
 		int randomNumObject = random.nextInt(max - min) + min; // generate random number of convex  objects in the play field
@@ -95,6 +129,9 @@ public class PlayfieldGenerator{
 		
 		System.out.println(objects.get(0).getArea());
 		System.out.println(objects.get(0).intersects(objects.get(1)));
+*/		
+		
+		// objects.add(new ConvexObject(100, 0, 100, 100, 0, 100, 200, 200));	// TESTING: the nonconvex quadrilateral will turn to triangle
 		
 		return objects;
 	}
