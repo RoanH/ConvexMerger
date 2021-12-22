@@ -3,11 +3,13 @@ package dev.roanh.convexmerger.game;
 import java.awt.Color;
 import java.util.concurrent.ThreadLocalRandom;
 
+import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+
 public class HumanPlayer extends Player{
 	private static int ID = 1;
 
-	public HumanPlayer(){
+	public HumanPlayer(PlayerTheme theme){
 		//TODO color is temporary
-		super(true, "Player " + (ID++), new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255)));
+		super(true, "Player " + (ID++), theme);
 	}
 }

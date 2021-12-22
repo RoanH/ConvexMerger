@@ -1,21 +1,21 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.Color;
+import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public abstract class Player{
 	private String name;
 	private boolean human;
-	private Color color;
+	private PlayerTheme theme;
 	private double area;
 
-	protected Player(boolean human, String name, Color color){
+	protected Player(boolean human, String name, PlayerTheme theme){
 		this.human = human;
-		this.color = color;
+		this.theme = theme;
 		this.name = name;
 	}
 
-	public Color getColor(){
-		return color;
+	public PlayerTheme getTheme(){
+		return theme;
 	}
 
 	public boolean isHuman(){

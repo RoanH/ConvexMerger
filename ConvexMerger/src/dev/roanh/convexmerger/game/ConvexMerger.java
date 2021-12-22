@@ -25,14 +25,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public class ConvexMerger{
 	private static final int TOP_SPACE = 150;
 	private static final int BORDER_SIZE = 10;
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
-	private static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-	private static final Stroke HELPER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
 	
@@ -71,7 +70,7 @@ public class ConvexMerger{
 		
 		
 		//TODO this is just fixed static data
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(new HumanPlayer(), new GreedyPlayer()));
+		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(new HumanPlayer(PlayerTheme.P1), new GreedyPlayer(PlayerTheme.P2)));
 		
 	}
 	
@@ -90,8 +89,7 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
-			//TODO temp
-			g.setColor(Color.RED);
+			g.setColor(Theme.MENU_BODY);
 			g.fillRect(0, 0, this.getWidth(), TOP_SPACE);
 			
 			g.setColor(Color.BLACK);
@@ -107,20 +105,17 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			g.setColor(Color.WHITE);//TODO texture?
+			g.setColor(Theme.BACKGROUND);
 			g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
-			Composite comp = g.getComposite();
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));
 			for(ConvexObject obj : state.getObjects()){
-				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
+				g.setColor(Theme.getPlayerBody(obj));
 				g.fill(obj.getShape());
 			}
-			g.setComposite(comp);
 			
-			g.setStroke(POLY_STROKE);
+			g.setStroke(Theme.POLY_STROKE);
 			for(ConvexObject obj : state.getObjects()){
-				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
+				g.setColor(Theme.getPlayerOutline(obj));
 				g.draw(obj.getShape());
 			}
 			
@@ -130,7 +125,7 @@ public class ConvexMerger{
 			}
 			
 			if(helperLines != null){
-				g.setStroke(HELPER_STROKE);
+				g.setStroke(Theme.HELPER_STROKE);
 				for(Line2D line : helperLines){
 					g.draw(line);
 				}
