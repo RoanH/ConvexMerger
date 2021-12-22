@@ -30,6 +30,7 @@ public class GameState{
 		if(!obj.isOwned()){
 			if(selected != null){
 				selected.setSelected(false);
+				selected = null;
 				if(mergeObjects(selected, obj)){
 					endTurn();
 				}else{
