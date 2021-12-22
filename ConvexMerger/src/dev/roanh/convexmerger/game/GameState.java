@@ -93,7 +93,7 @@ public class GameState{
 		List<Point> hull = ConvexUtil.computeConvexHull(points);
 		
 		//figure out the newly added line segments
-		Point[] lines = computeMergeLines(left, right, hull);
+		Point[] lines = ConvexUtil.computeMergeLines(left, right, hull);
 		
 		//check if the new hull is valid
 		for(ConvexObject obj : objects){
@@ -126,57 +126,6 @@ public class GameState{
 		player.addArea(merged.getArea());
 		
 		return true;
-	}
-	
-	private Point[] computeMergeLines(List<Point> left, List<Point> right, List<Point> hull){
-		//figure out the newly added line segments
-		if(!left.contains(hull.get(0))){
-			List<Point> tmp = left;
-			left = right;
-			right = tmp;
-		}
-
-		int idx = 0;
-		while(!left.get(idx).equals(hull.get(0))){
-			idx++;
-		}
-
-		Point a = null;
-		Point b = null;
-
-		int hullIdx = 0;
-		while(true){
-			hullIdx++;
-			idx = (idx + 1) % left.size();
-			if(!left.get(idx).equals(hull.get(hullIdx))){
-				a = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
-				b = hull.get(hullIdx);
-				break;
-			}
-		}
-
-		idx = 0;
-		for(int i = 0; i < right.size(); i++){
-			if(right.get(i).equals(b)){
-				idx = i;
-				break;
-			}
-		}
-
-		Point c = null;
-		Point d = null;
-
-		while(true){
-			hullIdx = (hullIdx + 1) % hull.size();
-			idx = (idx + 1) % right.size();
-			if(!hull.get(hullIdx).equals(right.get(idx))){
-				c = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
-				d = hull.get(hullIdx);
-				break;
-			}
-		}
-
-		return new Point[]{a, b, c, d};
 	}
 	
 	public Player getActivePlayer(){
