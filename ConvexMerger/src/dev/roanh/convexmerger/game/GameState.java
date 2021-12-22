@@ -30,7 +30,7 @@ public class GameState{
 		if(!obj.isOwned()){
 			if(selected != null){
 				selected.setSelected(false);
-				if(mergeObjects(obj, selected)){
+				if(mergeObjects(selected, obj)){
 					endTurn();
 				}else{
 					return MessageDialog.MERGE_INTERSECTS;
@@ -84,8 +84,8 @@ public class GameState{
 	
 	/**
 	 * Attempts to merge the given two convex objects.
-	 * @param first The first object to merge.
-	 * @param second The second object to merge.
+	 * @param first The first object to merge (already owned).
+	 * @param second The second object to merge (could be unowned).
 	 * @return True if the merge was valid and did not
 	 *         have any other convex objects on its boundary.
 	 */
