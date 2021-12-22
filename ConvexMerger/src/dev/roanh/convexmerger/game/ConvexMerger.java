@@ -90,6 +90,20 @@ public class ConvexMerger{
 			g.setColor(Color.BLACK);
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
+			g.setColor(Color.WHITE);
+			int yoff = 20;
+			for(Player player : state.getPlayers()){
+				g.drawString(player.getName() + ": " + (int)Math.round(player.getArea()), 10, yoff);
+				yoff += 20;
+			}
+			
+			if(activeDialog != null){
+				//TODO center and make look nice
+				g.drawString(activeDialog.getTitle(), 10, 100);
+				g.drawString(activeDialog.getSubtitle(), 10, 120);
+				g.drawString("Click anywhere to continue playing.", 10, 140);
+			}
+			
 			g.translate(BORDER_SIZE, TOP_SPACE + BORDER_SIZE);
 			double sx = (double)(this.getWidth() - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_WIDTH;
 			double sy = (double)(this.getHeight() - TOP_SPACE - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_HEIGHT;
@@ -126,13 +140,6 @@ public class ConvexMerger{
 				for(Line2D line : helperLines){
 					g.draw(line);
 				}
-			}
-			
-			if(activeDialog != null){
-				//TODO center and make look nice
-				g.setColor(new Color(0.0F, 0.0F, 0.0F, 0.5F));
-				g.drawString(activeDialog.getTitle(), 10, 100);
-				g.drawString(activeDialog.getSubtitle(), 10, 150);
 			}
 		}
 		

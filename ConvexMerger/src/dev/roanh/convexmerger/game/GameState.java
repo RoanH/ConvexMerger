@@ -55,11 +55,16 @@ public class GameState{
 					if(mergeObjects(obj, selected)){
 						endTurn();
 					}else{
+						selected = null;
 						return MessageDialog.MERGE_INTERSECTS;
 					}
 				}
 			}
 		}else{
+			if(selected != null){
+				selected.setSelected(false);
+				selected = null;
+			}
 			return MessageDialog.ALREADY_OWNED;
 		}
 		return null;
@@ -178,5 +183,9 @@ public class GameState{
 	
 	public Stream<ConvexObject> stream(){
 		return objects.stream();
+	}
+	
+	public List<Player> getPlayers(){
+		return players;
 	}
 }
