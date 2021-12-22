@@ -108,6 +108,7 @@ public class PlayfieldGenerator{
 			
 //			System.out.println(objects.size());
 			
+			// eliminate the triangle or convex quadrilateral that intersects with other triangle or quadrilateral
 			for(int k = 0; k < objects.size()-1; k++) {
 				if(objects.get(objects.size()-1).intersects(objects.get(k))) {
 					objects.remove(objects.size()-1);
