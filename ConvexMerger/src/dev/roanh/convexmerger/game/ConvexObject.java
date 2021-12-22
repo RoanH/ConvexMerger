@@ -3,8 +3,8 @@ package dev.roanh.convexmerger.game;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -163,6 +163,48 @@ public class ConvexObject{
 	}
 	
 	/**
+	 * Merges this object with the given object.
+	 * @param other The object to merge with.
+	 * @return The resulting merged convex object.
+	 * @see #merge(GameState, ConvexObject)
+	 */
+	public ConvexObject merge(ConvexObject other){
+		return merge(null, other);
+	}
+	
+	/**
+	 * Attempts to merge this object with the given
+	 * object while checking that the boundary of the
+	 * resulting merged object does not intersect any
+	 * other objects in the given game state.
+	 * @param state The game state to check with if the
+	 *        resulting object has any intersections. Can
+	 *        be <code>null</code> to skip this check.
+	 * @param other The object to merge with.
+	 * @return The resulting merged convex object.
+	 * @see #merge(ConvexObject)
+	 */
+	public ConvexObject merge(GameState state, ConvexObject other){
+		List<Point> combined = new ArrayList<Point>();
+		combined.addAll(points);
+		combined.addAll(other.getPoints());
+		
+		List<Point> hull = ConvexUtil.computeConvexHull(combined);
+		Point[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
+		
+		if(state != null){
+			//check if the new hull is valid
+			for(ConvexObject obj : state.getObjects()){
+				if(!obj.equals(this) && !obj.equals(other) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
+					return null;
+				}
+			}
+		}
+		
+		return new ConvexObject(hull);
+	}
+	
+	/**
 	 * Checks if this convex object intersects the line segment
 	 * defined by the given end points.
 	 * @param a The first endpoint of the line segment.
@@ -170,15 +212,12 @@ public class ConvexObject{
 	 * @return True if this object intersects the given line segment.
 	 */
 	public boolean intersects(Point a, Point b){
-		Iterator<Point> iter = points.iterator();
-		Point last = iter.next();
-		
-		while(iter.hasNext()){
-			Point point = iter.next();
-			if(Line2D.linesIntersect(a.x, a.y, b.x, b.y, last.x, last.y, point.x, point.y)){
+		for(int i = 0; i < points.size(); i++){
+			Point p = points.get(i);
+			Point q = points.get((i + 1) % points.size());
+			if(Line2D.linesIntersect(a.x, a.y, b.x, b.y, p.x, p.y, q.x, q.y)){
 				return true;
 			}
-			last = point;
 		}
 		
 		return false;
@@ -212,8 +251,8 @@ public class ConvexObject{
 		if(contains(other)){
 			return true;
 		}else{
-			for(int i = 1; i < points.size(); i++){
-				if(other.intersects(points.get(i - 1), points.get(i))){
+			for(int i = 0; i < points.size(); i++){
+				if(other.intersects(points.get(i), points.get((i + 1) % points.size()))){
 					return true;
 				}
 			}
@@ -234,6 +273,15 @@ public class ConvexObject{
 			area -= points.get(i).y * points.get(j).x;
 		}
 		return area / 2.0D;
+	}
+	
+	/**
+	 * Tests if this convex object is owned by the given player.
+	 * @param player The player to check.
+	 * @return True if the given player owns this object.
+	 */
+	public boolean isOwnedBy(Player player){
+		return player.equals(owner);
 	}
 	
 	@Override

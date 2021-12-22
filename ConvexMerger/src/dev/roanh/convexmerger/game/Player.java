@@ -38,6 +38,10 @@ public abstract class Player{
 		return name;
 	}
 	
+	public boolean owns(ConvexObject obj){
+		return obj.isOwnedBy(this);
+	}
+	
 	@Override
 	public String toString(){
 		return "Player[name=\"" + name + "\",human=" + human + ",area=" + area + "]";

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 
@@ -27,17 +28,17 @@ public class GameState{
 	public MessageDialog claimObject(ConvexObject obj){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
-			Player player = getActivePlayer();
-			obj.setOwner(player);
-			player.addArea(obj.getArea());
 			if(selected != null){
 				selected.setSelected(false);
-				if(mergeObjects(obj, selected)){
+				if(mergeObjects(selected, obj)){
 					endTurn();
 				}else{
 					return MessageDialog.MERGE_INTERSECTS;
 				}
 			}else{
+				Player player = getActivePlayer();
+				obj.setOwner(player);
+				player.addArea(obj.getArea());
 				endTurn();
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){
@@ -74,109 +75,47 @@ public class GameState{
 			//TODO verify no merges are possible
 			System.out.println("soft game end (no more unowned objects)");
 		}
+		
+		if(!getActivePlayer().isHuman()){
+			//TODO this is very temporary
+			((GreedyPlayer)getActivePlayer()).executeMove(this);
+		}
 	}
 	
 	/**
 	 * Attempts to merge the given two convex objects.
-	 * @param first The first object to merge.
-	 * @param second The second object to merge.
+	 * @param first The first object to merge (already owned).
+	 * @param second The second object to merge (could be unowned).
 	 * @return True if the merge was valid and did not
 	 *         have any other convex objects on its boundary.
 	 */
 	private boolean mergeObjects(ConvexObject first, ConvexObject second){
-		List<Point> left = first.getPoints();
-		List<Point> right = second.getPoints();
-		List<Point> points = new ArrayList<Point>();
-		points.addAll(first.getPoints());
-		points.addAll(second.getPoints());
-		
-		List<Point> hull = ConvexUtil.computeConvexHull(points);
-		
-		//figure out the newly added line segments
-		Point[] lines = computeMergeLines(left, right, hull);
-		
-		//check if the new hull is valid
-		for(ConvexObject obj : objects){
-			if(!obj.equals(first) && !obj.equals(second) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
-				return false;
+		ConvexObject merged = first.merge(this, second);
+		if(merged != null){
+			Player player = first.getOwner();
+			merged.setOwner(player);
+			objects.remove(first);
+			objects.remove(second);
+			decomp.removeObject(first);
+			decomp.removeObject(second);
+			player.removeArea(first.getArea());
+			player.removeArea(second.getArea());
+			Iterator<ConvexObject> iterator = objects.iterator();
+			while(iterator.hasNext()){
+				ConvexObject obj = iterator.next();
+				if(merged.contains(obj)){
+					iterator.remove();
+					decomp.removeObject(obj);
+					player.removeArea(obj.getArea());
+				}
 			}
+			objects.add(merged);
+			decomp.addObject(merged);
+			player.addArea(merged.getArea());
+			return true;
+		}else{
+			return false;
 		}
-		
-		//valid
-		ConvexObject merged = new ConvexObject(hull);
-		Player player = first.getOwner();
-		merged.setOwner(player);
-		objects.remove(first);
-		objects.remove(second);
-		decomp.removeObject(first);
-		decomp.removeObject(second);
-		player.removeArea(first.getArea());
-		player.removeArea(second.getArea());
-		Iterator<ConvexObject> iterator = objects.iterator();
-		while(iterator.hasNext()){
-			ConvexObject obj = iterator.next();
-			if(merged.contains(obj)){
-				iterator.remove();
-				decomp.removeObject(obj);
-				player.removeArea(obj.getArea());
-			}
-		}
-		objects.add(merged);
-		decomp.addObject(merged);
-		player.addArea(merged.getArea());
-		
-		return true;
-	}
-	
-	private Point[] computeMergeLines(List<Point> left, List<Point> right, List<Point> hull){
-		//figure out the newly added line segments
-		if(!left.contains(hull.get(0))){
-			List<Point> tmp = left;
-			left = right;
-			right = tmp;
-		}
-
-		int idx = 0;
-		while(!left.get(idx).equals(hull.get(0))){
-			idx++;
-		}
-
-		Point a = null;
-		Point b = null;
-
-		int hullIdx = 0;
-		while(true){
-			hullIdx++;
-			idx = (idx + 1) % left.size();
-			if(!left.get(idx).equals(hull.get(hullIdx))){
-				a = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
-				b = hull.get(hullIdx);
-				break;
-			}
-		}
-
-		idx = 0;
-		for(int i = 0; i < right.size(); i++){
-			if(right.get(i).equals(b)){
-				idx = i;
-				break;
-			}
-		}
-
-		Point c = null;
-		Point d = null;
-
-		while(true){
-			hullIdx = (hullIdx + 1) % hull.size();
-			idx = (idx + 1) % right.size();
-			if(!hull.get(hullIdx).equals(right.get(idx))){
-				c = hull.get((hullIdx == 0 ? hull.size() : hullIdx) - 1);
-				d = hull.get(hullIdx);
-				break;
-			}
-		}
-
-		return new Point[]{a, b, c, d};
 	}
 	
 	public Player getActivePlayer(){
@@ -234,5 +173,9 @@ public class GameState{
 	
 	public boolean isSelectingSecond(){
 		return selected != null;
+	}
+	
+	public Stream<ConvexObject> stream(){
+		return objects.stream();
 	}
 }
