@@ -75,6 +75,11 @@ public class GameState{
 			//TODO verify no merges are possible
 			System.out.println("soft game end (no more unowned objects)");
 		}
+		
+		if(!getActivePlayer().isHuman()){
+			//TODO this is very temporary
+			((GreedyPlayer)getActivePlayer()).executeMove(this);
+		}
 	}
 	
 	/**

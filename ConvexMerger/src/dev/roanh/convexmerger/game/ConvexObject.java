@@ -186,13 +186,12 @@ public class ConvexObject{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
-		List<Point> right = other.getPoints();
 		List<Point> combined = new ArrayList<Point>();
 		combined.addAll(points);
 		combined.addAll(other.getPoints());
 		
 		List<Point> hull = ConvexUtil.computeConvexHull(combined);
-		Point[] lines = ConvexUtil.computeMergeLines(points, right, hull);
+		Point[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
 		
 		if(state != null){
 			//check if the new hull is valid
