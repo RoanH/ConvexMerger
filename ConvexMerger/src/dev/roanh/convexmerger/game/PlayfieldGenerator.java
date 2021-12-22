@@ -79,7 +79,10 @@ public class PlayfieldGenerator{
 		int rangeMin = 0;
 		int rangeMax = 100;
 		
-		int i = 100;
+		int maxLoop = 500;
+		int i = 1;
+		int numPolygons = 100;
+		
 		do {
 			// generate the center of the triangle or quadrilateral randomly
 			int centerX = random.nextInt((xMax - offset) - (xMin + offset)) + (xMin + offset);
@@ -103,8 +106,22 @@ public class PlayfieldGenerator{
 			
 			objects.add(new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY));
 			
-			i--;
-		} while(i>0);
+//			System.out.println(objects.size());
+			
+			for(int k = 0; k < objects.size()-1; k++) {
+				if(objects.get(objects.size()-1).intersects(objects.get(k))) {
+					objects.remove(objects.size()-1);
+					break;
+				}
+			}
+			
+			i++;
+			if(i > maxLoop) {
+				break;
+			}
+			
+			numPolygons--;
+		} while(numPolygons > 0);
 		
 /*		
 		int min = 2;	// adjust this number
