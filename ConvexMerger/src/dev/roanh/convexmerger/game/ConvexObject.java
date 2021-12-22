@@ -248,7 +248,7 @@ public class ConvexObject{
 	 *         the other given convex object.
 	 */
 	public boolean intersects(ConvexObject other){
-		if(contains(other)){
+		if(contains(other) || other.contains(this)){
 			return true;
 		}else{
 			for(int i = 0; i < points.size(); i++){
