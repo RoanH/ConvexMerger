@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -213,15 +212,12 @@ public class ConvexObject{
 	 * @return True if this object intersects the given line segment.
 	 */
 	public boolean intersects(Point a, Point b){
-		Iterator<Point> iter = points.iterator();
-		Point last = iter.next();
-		
-		while(iter.hasNext()){
-			Point point = iter.next();
-			if(Line2D.linesIntersect(a.x, a.y, b.x, b.y, last.x, last.y, point.x, point.y)){
+		for(int i = 0; i < points.size(); i++){
+			Point p = points.get(i);
+			Point q = points.get((i + 1) % points.size());
+			if(Line2D.linesIntersect(a.x, a.y, b.x, b.y, p.x, p.y, q.x, q.y)){
 				return true;
 			}
-			last = point;
 		}
 		
 		return false;
@@ -255,8 +251,8 @@ public class ConvexObject{
 		if(contains(other)){
 			return true;
 		}else{
-			for(int i = 1; i < points.size(); i++){
-				if(other.intersects(points.get(i - 1), points.get(i))){
+			for(int i = 0; i < points.size(); i++){
+				if(other.intersects(points.get(i), points.get((i + 1) % points.size()))){
 					return true;
 				}
 			}

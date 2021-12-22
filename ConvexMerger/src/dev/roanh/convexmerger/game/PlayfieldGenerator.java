@@ -59,7 +59,6 @@ public class PlayfieldGenerator{
 		objects.add(new ConvexObject(200, 300, 500, 550, 400, 450));
 		objects.add(new ConvexObject(1000, 800, 1500, 900, 1200, 850));
 		objects.add(new ConvexObject(700, 700, 900, 300, 800, 600));
-		objects.add(new ConvexObject(1000, 100, 1000, 200, 1200, 300));
 		return objects;
 	}
 }
