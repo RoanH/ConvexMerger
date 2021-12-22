@@ -28,9 +28,6 @@ public class GameState{
 	public MessageDialog claimObject(ConvexObject obj){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
-			Player player = getActivePlayer();
-			obj.setOwner(player);
-			player.addArea(obj.getArea());
 			if(selected != null){
 				selected.setSelected(false);
 				if(mergeObjects(obj, selected)){
@@ -39,6 +36,9 @@ public class GameState{
 					return MessageDialog.MERGE_INTERSECTS;
 				}
 			}else{
+				Player player = getActivePlayer();
+				obj.setOwner(player);
+				player.addArea(obj.getArea());
 				endTurn();
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){
