@@ -1,8 +1,9 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 /**
  * Simple AI that follows the greedy
@@ -12,8 +13,8 @@ import java.util.stream.Collectors;
  */
 public class GreedyPlayer extends Player{
 
-	protected GreedyPlayer(){
-		super(false, "Isla", Color.GRAY);
+	protected GreedyPlayer(PlayerTheme theme){
+		super(false, "Isla", theme);
 	}
 	
 	public void executeMove(GameState state){

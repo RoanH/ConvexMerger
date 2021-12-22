@@ -1,18 +1,13 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -25,14 +20,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public class ConvexMerger{
 	private static final int TOP_SPACE = 150;
 	private static final int BORDER_SIZE = 10;
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
-	private static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-	private static final Stroke HELPER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
 	
@@ -71,7 +65,7 @@ public class ConvexMerger{
 		
 		
 		//TODO this is just fixed static data
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(new HumanPlayer(), new GreedyPlayer()));
+		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(new HumanPlayer(PlayerTheme.P1), new GreedyPlayer(PlayerTheme.P2)));
 		
 	}
 	
@@ -90,12 +84,25 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
-			//TODO temp
-			g.setColor(Color.RED);
+			g.setColor(Theme.MENU_BODY);
 			g.fillRect(0, 0, this.getWidth(), TOP_SPACE);
 			
 			g.setColor(Color.BLACK);
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
+			
+			g.setColor(Color.WHITE);
+			int yoff = 20;
+			for(Player player : state.getPlayers()){
+				g.drawString(player.getName() + ": " + (int)Math.round(player.getArea()), 10, yoff);
+				yoff += 20;
+			}
+			
+			if(activeDialog != null){
+				//TODO center and make look nice
+				g.drawString(activeDialog.getTitle(), 10, 100);
+				g.drawString(activeDialog.getSubtitle(), 10, 120);
+				g.drawString("Click anywhere to continue playing.", 10, 140);
+			}
 			
 			g.translate(BORDER_SIZE, TOP_SPACE + BORDER_SIZE);
 			double sx = (double)(this.getWidth() - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_WIDTH;
@@ -107,20 +114,18 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			g.setColor(Color.WHITE);//TODO texture?
+			g.setColor(Theme.BACKGROUND);
+			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
-			Composite comp = g.getComposite();
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));
 			for(ConvexObject obj : state.getObjects()){
-				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
+				g.setColor(Theme.getPlayerBody(obj));
 				g.fill(obj.getShape());
 			}
-			g.setComposite(comp);
 			
-			g.setStroke(POLY_STROKE);
+			g.setStroke(Theme.POLY_STROKE);
 			for(ConvexObject obj : state.getObjects()){
-				g.setColor(obj.isOwned() ? obj.getOwner().getColor() : Color.BLACK);
+				g.setColor(Theme.getPlayerOutline(obj));
 				g.draw(obj.getShape());
 			}
 			
@@ -130,17 +135,11 @@ public class ConvexMerger{
 			}
 			
 			if(helperLines != null){
-				g.setStroke(HELPER_STROKE);
+				g.setStroke(Theme.HELPER_STROKE);
+				g.setColor(state.getActivePlayer().getTheme().getOutline());
 				for(Line2D line : helperLines){
 					g.draw(line);
 				}
-			}
-			
-			if(activeDialog != null){
-				//TODO center and make look nice
-				g.setColor(new Color(0.0F, 0.0F, 0.0F, 0.5F));
-				g.drawString(activeDialog.getTitle(), 10, 100);
-				g.drawString(activeDialog.getSubtitle(), 10, 150);
 			}
 		}
 		
@@ -192,9 +191,7 @@ public class ConvexMerger{
 				ConvexObject obj = state.getObject(translateToGameSpace(e.getX(), e.getY()));
 				if(obj != null){
 					activeDialog = state.claimObject(obj);
-					if(activeDialog == null){
-						helperLines = null;
-					}
+					helperLines = null;
 					repaint();
 				}
 			}
