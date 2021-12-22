@@ -126,6 +126,7 @@ public class ConvexMerger{
 			
 			if(helperLines != null){
 				g.setStroke(Theme.HELPER_STROKE);
+				g.setColor(state.getActivePlayer().getTheme().getOutline());
 				for(Line2D line : helperLines){
 					g.draw(line);
 				}

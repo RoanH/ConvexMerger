@@ -8,7 +8,7 @@ public final class Theme{
 	public static final Color BACKGROUND = new Color(21, 25, 30);
 	public static final Color MENU_BODY = new Color(31, 37, 46);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-	public static final Stroke HELPER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
 	
 	
 	
