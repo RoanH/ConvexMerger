@@ -192,9 +192,7 @@ public class ConvexMerger{
 				ConvexObject obj = state.getObject(translateToGameSpace(e.getX(), e.getY()));
 				if(obj != null){
 					activeDialog = state.claimObject(obj);
-					if(activeDialog == null){
-						helperLines = null;
-					}
+					helperLines = null;
 					repaint();
 				}
 			}
