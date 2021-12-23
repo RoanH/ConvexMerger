@@ -1,7 +1,11 @@
 package dev.roanh.convexmerger.game;
 
+import static dev.roanh.convexmerger.game.Theme.PlayerTheme.*;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.LinearGradientPaint;
 import java.awt.Stroke;
 
 public final class Theme{
@@ -15,26 +19,107 @@ public final class Theme{
 	
 	
 	public static final Color getPlayerBody(ConvexObject obj){
-		return (obj.isOwned() ? obj.getOwner().getTheme() : PlayerTheme.UNOWNED).getBody();
+		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getBody();
 	}
 	
 	public static final Color getPlayerOutline(ConvexObject obj){
-		return (obj.isOwned() ? obj.getOwner().getTheme() : PlayerTheme.UNOWNED).getOutline();
+		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getOutline();
+	}
+	
+	public static final LinearGradientPaint constructBorderGradient(GameState state, int width){
+		switch(state.getPlayerCount()){
+		case 0:
+		case 1:
+		case 2:
+			return new LinearGradientPaint(
+				0.0F,
+				0.0F,
+				width,
+				0.0F,
+				new float[]{
+					0.0F,
+					0.1F,
+					0.9F,
+					1.0F
+				},
+				new Color[]{
+					P1.gradient,
+					P1.gradient,
+					P2.gradient,
+					P2.gradient
+				}
+			);
+		case 3:
+			return new LinearGradientPaint(
+				0.0F,
+				0.0F,
+				width,
+				0.0F,
+				new float[]{
+					0.0F,
+					0.07F,
+					0.5F,
+					0.93F,
+					1.0F
+				},
+				new Color[]{
+					P1.gradient,
+					P1.gradient,
+					P2.gradient,
+					P3.gradient,
+					P3.gradient
+				}
+			);
+		case 4:
+		default:
+			return new LinearGradientPaint(
+				0.0F,
+				0.0F,
+				width,
+				0.0F,
+				new float[]{
+					0.0F,
+					0.05F,
+					0.35F,
+					0.65F,
+					0.95F,
+					1.0F
+				},
+				new Color[]{
+					P1.gradient,
+					P1.gradient,
+					P2.gradient,
+					P3.gradient,
+					P4.gradient,
+					P4.gradient
+				}
+			);
+		}
 	}
 	
 	public static enum PlayerTheme{
 		UNOWNED(129, 129, 129, 0.75D, 191, 191, 191, 0.90D),
-		P1(214, 9, 177, 0.75D, 255, 115, 236, 0.90D),
-		P2(11, 171, 229, 0.75D, 0, 217, 255, 0.90D),
-		P3(227, 131, 18, 0.75D, 255, 198, 28, 0.90D),
-		P4(10, 196, 50, 0.75D, 30, 250, 85, 0.90D);
+		P1(214, 9, 177, 0.75D, 255, 115, 236, 0.90D, 234, 108, 217),
+		P2(11, 171, 229, 0.75D, 0, 217, 255, 0.90D, 5, 208, 245),
+		P3(227, 131, 18, 0.75D, 255, 198, 28, 0.90D, 19, 242, 75),
+		P4(10, 196, 50, 0.75D, 30, 250, 85, 0.90D, 247, 207, 5);
 		
 		private final Color body;
 		private final Color outline;
+		private final Color gradient;
+		
+		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa, int gr, int gg, int gb){
+			this(br, bg, bb, ba, or, og, ob, oa, new Color(gr, gg, gb));
+		}
 		
 		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa){
+			this(br, bg, bb, ba, or, og, ob, oa, null);
+		}
+		
+		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa, Color gradient){
 			body = new Color(br, bg, bb, (int)(ba * 255.0D));
 			outline = new Color(or, og, ob, (int)(oa * 255.0D));
+			this.gradient = gradient;
 		}
 		
 		public Color getBody(){
