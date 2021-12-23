@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -27,6 +28,8 @@ public class ConvexMerger{
 	private static final int SIDE_OFFSET = 20;
 	private static final int TOP_OFFSET = 30;
 	private static final int BOTTOM_OFFSET = 50;
+	private static final int TOP_SIDE_TRIANGLE = 50;
+	private static final int TOP_MIDDLE_OFFSET = 30;
 	
 	
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
@@ -89,10 +92,18 @@ public class ConvexMerger{
 		
 		public void renderGame(Graphics2D g){
 			g.setColor(Theme.MENU_BODY);
-			g.fillRect(0, 0, this.getWidth(), TOP_SPACE);
+			Polygon top = new Polygon(new int[10], new int[10], 10);
+			top.addPoint(0, 0);
+			top.addPoint(0, TOP_SIDE_TRIANGLE + TOP_SPACE);
+			top.addPoint(TOP_SIDE_TRIANGLE, TOP_SPACE);
+			//TODO middle stuff
+			top.addPoint(this.getWidth() - TOP_SIDE_TRIANGLE, TOP_SPACE);
+			top.addPoint(this.getWidth(), TOP_SIDE_TRIANGLE + TOP_SPACE);
+			top.addPoint(this.getWidth(), 0);
+			g.fill(top);
 			
-			g.setColor(Color.BLACK);
-			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
+			//g.setColor(Color.BLACK);
+			//g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
 			g.setColor(Color.WHITE);
 			int yoff = 20;
