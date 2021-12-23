@@ -23,8 +23,12 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public class ConvexMerger{
-	private static final int TOP_SPACE = 150;
-	private static final int BORDER_SIZE = 10;
+	private static final int TOP_SPACE = 100;
+	private static final int SIDE_OFFSET = 20;
+	private static final int TOP_OFFSET = 30;
+	private static final int BOTTOM_OFFSET = 50;
+	
+	
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private JFrame frame = new JFrame(Constants.TITLE);
@@ -50,12 +54,12 @@ public class ConvexMerger{
 		frame.pack();
 		Insets insets = frame.getInsets();
 		frame.setMinimumSize(new Dimension(
-			16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * BORDER_SIZE,
-			TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + 2 * BORDER_SIZE)
+			16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * SIDE_OFFSET,
+			TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + TOP_OFFSET + BOTTOM_OFFSET)
 		);
 		frame.setSize(new Dimension(
-			16 * Constants.INIT_SIZE + insets.left + insets.right + 2 * BORDER_SIZE,
-			TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom + 2 * BORDER_SIZE)
+			16 * Constants.INIT_SIZE + insets.left + insets.right + 2 * SIDE_OFFSET,
+			TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom + TOP_OFFSET + BOTTOM_OFFSET)
 		);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
@@ -99,18 +103,18 @@ public class ConvexMerger{
 			
 			if(activeDialog != null){
 				//TODO center and make look nice
-				g.drawString(activeDialog.getTitle(), 10, 100);
-				g.drawString(activeDialog.getSubtitle(), 10, 120);
-				g.drawString("Click anywhere to continue playing.", 10, 140);
+				g.drawString(activeDialog.getTitle(), 100, 10);
+				g.drawString(activeDialog.getSubtitle(), 100, 30);
+				g.drawString("Click anywhere to continue playing.", 100, 50);
 			}
 			
-			g.translate(BORDER_SIZE, TOP_SPACE + BORDER_SIZE);
-			double sx = (double)(this.getWidth() - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_WIDTH;
-			double sy = (double)(this.getHeight() - TOP_SPACE - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_HEIGHT;
+			g.translate(SIDE_OFFSET, TOP_SPACE + TOP_OFFSET);
+			double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
+			double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
 			if(sx < sy){
 				g.scale(sx, sx);
 			}else{
-				g.translate((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy - 2 * BORDER_SIZE) / 2.0D, 0.0D);
+				g.translate((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy - 2 * SIDE_OFFSET) / 2.0D, 0.0D);
 				g.scale(sy, sy);
 			}
 			
@@ -151,17 +155,17 @@ public class ConvexMerger{
 		 * @return The point translated to game space.
 		 */
 		private Point2D translateToGameSpace(double x, double y){
-			double sx = (double)(this.getWidth() - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_WIDTH;
-			double sy = (double)(this.getHeight() - TOP_SPACE - 2 * BORDER_SIZE) / (double)Constants.PLAYFIELD_HEIGHT;
+			double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
+			double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
 			if(sx < sy){
 				return new Point2D.Double(
-					(x - BORDER_SIZE) / sx,
-					(y - TOP_SPACE - BORDER_SIZE) / sx
+					(x - SIDE_OFFSET) / sx,
+					(y - TOP_SPACE - TOP_OFFSET) / sx
 				);
 			}else{
 				return new Point2D.Double(
-					(x - ((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy - 2 * BORDER_SIZE) / 2.0D) - BORDER_SIZE) / sy,
-					(y - TOP_SPACE - BORDER_SIZE) / sy
+					(x - ((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy - 2 * SIDE_OFFSET) / 2.0D) - SIDE_OFFSET) / sy,
+					(y - TOP_SPACE - TOP_OFFSET) / sy
 				);
 			}
 		}
