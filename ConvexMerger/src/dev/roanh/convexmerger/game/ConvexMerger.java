@@ -12,6 +12,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -26,6 +27,7 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public class ConvexMerger{
+	private static final boolean SHOW_CENTROID = false;
 	private static final int TOP_SPACE = 100;
 	private static final int SIDE_OFFSET = 20 + 1;
 	private static final int TOP_OFFSET = 30 + 1;
@@ -215,6 +217,11 @@ public class ConvexMerger{
 			for(ConvexObject obj : state.getObjects()){
 				g.setColor(Theme.getPlayerBody(obj));
 				g.fill(obj.getShape());
+				if(SHOW_CENTROID){
+					g.setColor(Color.BLACK);
+					Point2D c = obj.getCentroid();
+					g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));	
+				}
 			}
 			
 			g.setStroke(Theme.POLY_STROKE);

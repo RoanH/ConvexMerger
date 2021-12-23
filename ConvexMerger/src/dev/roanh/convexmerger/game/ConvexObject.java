@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -259,6 +260,25 @@ public class ConvexObject{
 	 */
 	public boolean isOwnedBy(Player player){
 		return player.equals(owner);
+	}
+	
+	/**
+	 * Computes the centroid of this convex object.
+	 * @return The centroid of this convex object.
+	 */
+	public Point2D getCentroid(){
+		double cx = 0.0D;
+		double cy = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			Point p1 = points.get(i);
+			Point p2 = points.get((i + 1) % points.size());
+			double factor = (p1.x * p2.y - p2.x * p1.y);
+			cx += (p1.x + p2.x) * factor;
+			cy += (p1.y + p2.y) * factor;
+		}
+
+		double area = 6.0D * getArea();
+		return new Point2D.Double(cx / area, cy / area);
 	}
 	
 	@Override
