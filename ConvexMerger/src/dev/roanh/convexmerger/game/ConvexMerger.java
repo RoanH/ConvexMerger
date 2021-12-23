@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +31,8 @@ public class ConvexMerger{
 	private static final int BOTTOM_OFFSET = 50;
 	private static final int TOP_SIDE_TRIANGLE = 50;
 	private static final int TOP_MIDDLE_OFFSET = 30;
-	
+	private static final int BUTTON_HEIGHT = 50;
+	private static final int BUTTON_WIDTH = 150;
 	
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
@@ -72,7 +74,12 @@ public class ConvexMerger{
 		
 		
 		//TODO this is just fixed static data
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(new HumanPlayer(PlayerTheme.P1), new GreedyPlayer(PlayerTheme.P2)));
+		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
+			new HumanPlayer(PlayerTheme.P1),
+			new GreedyPlayer(PlayerTheme.P2),
+			new GreedyPlayer(PlayerTheme.P3),
+			new GreedyPlayer(PlayerTheme.P4)
+		));
 		
 	}
 	
@@ -82,6 +89,8 @@ public class ConvexMerger{
 		 * Serial ID.
 		 */
 		private static final long serialVersionUID = 5749409248962652951L;
+		private Polygon infoPoly = null;
+		private Polygon menuPoly = null;
 		private MessageDialog activeDialog = null;
 		private List<Line2D> helperLines = null;
 		
@@ -113,6 +122,49 @@ public class ConvexMerger{
 				},
 				10 - 4
 			);
+			
+			infoPoly = new Polygon(
+				new int[]{
+					this.getWidth(),
+					this.getWidth() - BUTTON_WIDTH,
+					this.getWidth() - BUTTON_WIDTH + BUTTON_HEIGHT,
+					this.getWidth()
+				},
+				new int[]{
+					this.getHeight(),
+					this.getHeight(),
+					this.getHeight() - BUTTON_HEIGHT,
+					this.getHeight() - BUTTON_HEIGHT
+				},
+				4
+			);
+			g.fill(infoPoly);
+			
+			menuPoly = new Polygon(
+				new int[]{
+					0,
+					0,
+					BUTTON_WIDTH - BUTTON_HEIGHT,
+					BUTTON_WIDTH
+				},
+				new int[]{
+					this.getHeight(),
+					this.getHeight() - BUTTON_HEIGHT,
+					this.getHeight() - BUTTON_HEIGHT,
+					this.getHeight()
+				},
+				4
+			);
+			g.fill(menuPoly);
+			
+			g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
+			
+			Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
+			infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1]);
+			for(int i = 2; i < infoPoly.npoints; i++){
+				infoPath.lineTo(infoPoly.xpoints[i], infoPoly.ypoints[i]);
+			}
+			g.draw(infoPath);
 			
 			
 			//g.setColor(Color.BLACK);
