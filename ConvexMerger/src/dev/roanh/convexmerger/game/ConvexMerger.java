@@ -92,15 +92,28 @@ public class ConvexMerger{
 		
 		public void renderGame(Graphics2D g){
 			g.setColor(Theme.MENU_BODY);
-			Polygon top = new Polygon(new int[10], new int[10], 10);
-			top.addPoint(0, 0);
-			top.addPoint(0, TOP_SIDE_TRIANGLE + TOP_SPACE);
-			top.addPoint(TOP_SIDE_TRIANGLE, TOP_SPACE);
-			//TODO middle stuff
-			top.addPoint(this.getWidth() - TOP_SIDE_TRIANGLE, TOP_SPACE);
-			top.addPoint(this.getWidth(), TOP_SIDE_TRIANGLE + TOP_SPACE);
-			top.addPoint(this.getWidth(), 0);
-			g.fill(top);
+			g.fillPolygon(
+				new int[]{
+					0,
+					0,
+					TOP_SIDE_TRIANGLE,
+					//TODO middle
+					this.getWidth() - TOP_SIDE_TRIANGLE,
+					this.getWidth(),
+					this.getWidth()
+				},
+				new int[]{
+					0,
+					TOP_SIDE_TRIANGLE + TOP_SPACE,
+					TOP_SPACE,
+					//TODO middle
+					TOP_SPACE,
+					TOP_SIDE_TRIANGLE + TOP_SPACE,
+					0
+				},
+				10 - 4
+			);
+			
 			
 			//g.setColor(Color.BLACK);
 			//g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
