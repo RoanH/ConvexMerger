@@ -26,6 +26,10 @@ public class GameState{
 	}
 	
 	public MessageDialog claimObject(ConvexObject obj){
+		return claimObject(obj, obj.getCentroid());
+	}
+	
+	public MessageDialog claimObject(ConvexObject obj, Point2D location){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			if(selected != null){
@@ -39,6 +43,7 @@ public class GameState{
 				Player player = getActivePlayer();
 				obj.setOwner(player);
 				player.addArea(obj.getArea());
+				obj.setAnimation(new SelectAnimation(obj, location));
 				endTurn();
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){

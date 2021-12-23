@@ -291,9 +291,12 @@ public class ConvexObject{
 		this.animation = animation;
 	}
 	
-	public void runAnimation(Graphics2D g){
+	public boolean runAnimation(Graphics2D g){
 		if(animation.run(g)){
 			animation = null;
+			return false;
+		}else{
+			return true;
 		}
 	}
 	
