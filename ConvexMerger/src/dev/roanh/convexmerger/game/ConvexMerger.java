@@ -15,6 +15,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Path2D.Double;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,9 +27,9 @@ import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public class ConvexMerger{
 	private static final int TOP_SPACE = 100;
-	private static final int SIDE_OFFSET = 20;
-	private static final int TOP_OFFSET = 30;
-	private static final int BOTTOM_OFFSET = 50;
+	private static final int SIDE_OFFSET = 20 + 1;
+	private static final int TOP_OFFSET = 30 + 1;
+	private static final int BOTTOM_OFFSET = 50 + 1;
 	private static final int TOP_SIDE_TRIANGLE = 50;
 	private static final int TOP_MIDDLE_OFFSET = 30;
 	private static final int BUTTON_HEIGHT = 50;
@@ -100,9 +101,11 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
+			g.setColor(Theme.BACKGROUND);
+			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
+			
 			g.setColor(Theme.MENU_BODY);
-			g.fillPolygon(
-				new int[]{
+			Polygon topPoly = new Polygon(new int[]{
 					0,
 					0,
 					TOP_SIDE_TRIANGLE,
@@ -122,6 +125,7 @@ public class ConvexMerger{
 				},
 				10 - 4
 			);
+			g.fill(topPoly);
 			
 			infoPoly = new Polygon(
 				new int[]{
@@ -160,11 +164,23 @@ public class ConvexMerger{
 			g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
 			
 			Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
-			infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1]);
-			for(int i = 2; i < infoPoly.npoints; i++){
-				infoPath.lineTo(infoPoly.xpoints[i], infoPoly.ypoints[i]);
-			}
+			infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1] - 1);
+			infoPath.lineTo(infoPoly.xpoints[2], infoPoly.ypoints[2] - 1);
+			infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3]);
 			g.draw(infoPath);
+			
+			Path2D menuPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
+			menuPath.moveTo(menuPoly.xpoints[1], menuPoly.ypoints[1] - 1);
+			menuPath.lineTo(menuPoly.xpoints[2], menuPoly.ypoints[2] - 1);
+			menuPath.lineTo(menuPoly.xpoints[3] + 1, menuPoly.ypoints[3]);
+			g.draw(menuPath);
+			
+			Path2D topPath = new Path2D.Double(Path2D.WIND_NON_ZERO, topPoly.npoints - 2);
+			topPath.moveTo(topPoly.xpoints[1], topPoly.ypoints[1] + 1);
+			for(int i = 2; i < topPoly.npoints - 1; i++){
+				topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i] + 1);
+			}
+			g.draw(topPath);
 			
 			
 			//g.setColor(Color.BLACK);
@@ -194,9 +210,7 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			g.setColor(Theme.BACKGROUND);
 			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-			g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
 			for(ConvexObject obj : state.getObjects()){
 				g.setColor(Theme.getPlayerBody(obj));
