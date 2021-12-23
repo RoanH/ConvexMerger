@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -28,6 +29,7 @@ public class ConvexObject{
 	 * The player that owns this object.
 	 */
 	private Player owner = null;
+	private Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -279,6 +281,20 @@ public class ConvexObject{
 
 		double area = 6.0D * getArea();
 		return new Point2D.Double(cx / area, cy / area);
+	}
+	
+	public boolean hasAnimation(){
+		return animation != null;
+	}
+	
+	public void setAnimation(Animation animation){
+		this.animation = animation;
+	}
+	
+	public void runAnimation(Graphics2D g){
+		if(animation.run(g)){
+			animation = null;
+		}
 	}
 	
 	@Override
