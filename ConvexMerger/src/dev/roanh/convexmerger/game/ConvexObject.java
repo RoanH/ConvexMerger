@@ -27,10 +27,6 @@ public class ConvexObject{
 	 * The player that owns this object.
 	 */
 	private Player owner = null;
-	/**
-	 * Whether or not this object is selected by the active player.
-	 */
-	private boolean selected = false;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -130,25 +126,6 @@ public class ConvexObject{
 	 */
 	public void setOwner(Player player){
 		owner = player;
-	}
-	
-	/**
-	 * Gets if this object is currently selected
-	 * by the active player.
-	 * @return True if this object is selected
-	 *         by the active player.
-	 */
-	public boolean isSelected(){
-		return selected;
-	}
-	
-	/**
-	 * Sets if this object is currently selected by
-	 * the active player.
-	 * @param selected True if this object is selected.
-	 */
-	public void setSelected(boolean selected){
-		this.selected = selected;
 	}
 	
 	/**

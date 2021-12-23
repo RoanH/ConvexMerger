@@ -29,7 +29,6 @@ public class GameState{
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			if(selected != null){
-				selected.setSelected(false);
 				if(mergeObjects(selected, obj)){
 					endTurn();
 				}else{
@@ -44,14 +43,11 @@ public class GameState{
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){
 			if(selected == null){
-				obj.setSelected(true);
 				selected = obj;
 			}else{
 				if(obj.equals(selected)){
-					obj.setSelected(false);
 					selected = null;
 				}else{
-					selected.setSelected(false);
 					if(mergeObjects(obj, selected)){
 						endTurn();
 					}else{
@@ -62,7 +58,6 @@ public class GameState{
 			}
 		}else{
 			if(selected != null){
-				selected.setSelected(false);
 				selected = null;
 			}
 			return MessageDialog.ALREADY_OWNED;
