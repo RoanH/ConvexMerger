@@ -107,7 +107,9 @@ public class GameState{
 				if(merged.contains(obj)){
 					iterator.remove();
 					decomp.removeObject(obj);
-					player.removeArea(obj.getArea());
+					if(obj.isOwned()){
+						obj.getOwner().removeArea(obj.getArea());
+					}
 				}
 			}
 			objects.add(merged);
