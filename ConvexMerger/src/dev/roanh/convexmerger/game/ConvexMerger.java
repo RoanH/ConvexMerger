@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -198,9 +199,11 @@ public class ConvexMerger{
 			}
 			g.draw(topPath);
 			
-			
-			//g.setColor(Color.BLACK);
-			//g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
+			g.setFont(Theme.PRIDI_REGULAR_18);
+			g.setColor(state.getActivePlayer().getTheme().getOutline());
+			FontMetrics fm = g.getFontMetrics();
+			String msg = state.isSelectingSecond() ? "Merge with an object" : "Select an object";
+			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
 			
 			g.setColor(Color.WHITE);
 			int yoff = 20;
