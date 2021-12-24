@@ -49,6 +49,16 @@ public class ConvexMerger{
 	private static final int TOP_MIDDLE_WIDTH = 200;//even
 	private static final int BUTTON_HEIGHT = 50;
 	private static final int BUTTON_WIDTH = 150;
+	private static final int PLAYER_ICON_SIZE = 24;
+	private static final int CROWN_ICON_SIZE = 18;
+	/**
+	 * Number of pixels between the player icon and the text.
+	 */
+	private static final int ICON_TEXT_SPACING = 4;
+	/**
+	 * Number of pixels from the left text border to the player info.
+	 */
+	private static final int PLAYER_TEXT_OFFSET = 24;
 	
 	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
@@ -145,7 +155,7 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
-			boolean isAnimationActive = false;
+			boolean isAnimationActive = true;//TODO make false
 
 			//render playfield background
 			g.setColor(Theme.BACKGROUND);
@@ -245,18 +255,44 @@ public class ConvexMerger{
 			String msg = state.isSelectingSecond() ? "Merge with an object" : "Select an object";
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
 			
-			//TODO temp text
-			g.setColor(Color.WHITE);
-			int yoff = 20;
-			for(Player player : state.getPlayers()){
-				g.drawString(player.getName() + ": " + (int)Math.round(player.getArea()), 10, yoff);
-				yoff += 20;
+			//render player data
+			List<Player> players = state.getPlayers();
+			for(int i = 0; i < players.size(); i++){
+				Player player = players.get(i);
+				int x = ((i * this.getWidth()) / players.size());
+				g.setClip(x, 0, this.getWidth() / players.size(), TOP_SPACE);
+				
+				//offset
+				g.setFont(Theme.PRIDI_MEDIUM_24);//TODO technically needs spacing
+				fm = g.getFontMetrics();
+				int y = (TOP_SPACE - fm.getHeight() - CROWN_ICON_SIZE) / 2;
+				x += PLAYER_TEXT_OFFSET;
+				
+				//player icon and name
+				g.setColor(Color.RED);
+				g.fillRect(x, y, PLAYER_ICON_SIZE, PLAYER_ICON_SIZE);//TODO player icon
+				g.setColor(player.getTheme().getOutline());
+				g.drawString(player.getName(), x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + PLAYER_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+				
+				//new offset
+				y += fm.getHeight();
+				g.setFont(Theme.PRIDI_REGULAR_18);
+				fm = g.getFontMetrics();
+				
+				//crown icon
+				g.setColor(Color.RED);
+				g.fillRect(x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, CROWN_ICON_SIZE, CROWN_ICON_SIZE);
+				
+				//player score
+				String area = "0";
+				for(int total = (int)Math.round(player.getArea()); total != 0; total /= 1000){
+					area = area.equals("0") ? "" : ("." + area);
+					area = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + area;
+				}
+				g.setColor(Theme.SCORE_COLOR);
+				g.drawString(area, x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + CROWN_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 			}
-			
-			for(int i = 1; i < state.getPlayerCount(); i++){
-				int x = (i * this.getWidth()) / state.getPlayerCount();
-				g.drawLine(x, 0, x, TOP_SPACE);
-			}
+			g.setClip(null);
 			
 			//TODO temp dialog
 			if(activeDialog != null){
@@ -340,7 +376,7 @@ public class ConvexMerger{
 		
 		@Override
 		public void paintComponent(Graphics g1){
-			Graphics2D g = (Graphics2D)g1;
+			Graphics2D g = (Graphics2D)g1.create();
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 			renderGame(g);
