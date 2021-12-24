@@ -4,16 +4,20 @@ import static dev.roanh.convexmerger.game.Theme.PlayerTheme.*;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.GradientPaint;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.LinearGradientPaint;
 import java.awt.Stroke;
+import java.io.IOException;
 
 public final class Theme{
 	public static final Color BACKGROUND = new Color(21, 25, 30);
 	public static final Color MENU_BODY = new Color(31, 37, 46);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
-	
+	public static final Font PRIDI_REGULAR_24;
+	public static final Font PRIDI_REGULAR_18;
+	public static final Font PRIDI_MEDIUM_24;
 	
 	
 	
@@ -24,6 +28,18 @@ public final class Theme{
 	
 	public static final Color getPlayerOutline(ConvexObject obj){
 		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getOutline();
+	}
+	
+	static{
+		try{
+			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
+			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
+			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
+			PRIDI_MEDIUM_24 = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf")).deriveFont(24.0F);
+		}catch(IOException | FontFormatException e){
+			//this should not happen
+			throw new RuntimeException("Failed to load fonts", e);
+		}
 	}
 	
 	public static final LinearGradientPaint constructBorderGradient(GameState state, int width){
