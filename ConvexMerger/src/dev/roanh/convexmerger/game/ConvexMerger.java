@@ -8,8 +8,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -79,6 +84,35 @@ public class ConvexMerger{
 		);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
+			private Dimension lastSize = null;
+			private Point lastLocation = null;
+			
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e){
+				if(e.getKeyCode() == KeyEvent.VK_F11 && e.getID() == KeyEvent.KEY_RELEASED){
+					if(frame.isUndecorated()){
+						frame.setVisible(false);
+						frame.dispose();
+						frame.setUndecorated(false);
+						frame.setSize(lastSize);
+						frame.setLocation(lastLocation);
+						frame.setVisible(true);
+					}else{
+						lastSize = frame.getSize();
+						lastLocation = frame.getLocation();
+						frame.setVisible(false);
+						frame.dispose();
+						frame.setUndecorated(true);
+						frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+						frame.setLocationRelativeTo(null);
+						frame.setVisible(true);
+					}
+				}
+				return false;
+			}
+		});
 	}
 	
 	public void initialiseGame(){
@@ -111,9 +145,13 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
+			boolean isAnimationActive = false;
+
+			//render playfield background
 			g.setColor(Theme.BACKGROUND);
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
+			//render UI shapes
 			g.setColor(Theme.MENU_BODY);
 			int sideOffset = Math.floorDiv(this.getWidth(), 2) - (TOP_MIDDLE_WIDTH / 2);
 			Polygon topPoly = new Polygon(new int[]{
@@ -178,6 +216,7 @@ public class ConvexMerger{
 			);
 			g.fill(menuPoly);
 			
+			//render UI borders
 			g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
 			
 			Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
@@ -199,12 +238,14 @@ public class ConvexMerger{
 			}
 			g.draw(topPath);
 			
+			//render action hint
 			g.setFont(Theme.PRIDI_REGULAR_18);
 			g.setColor(state.getActivePlayer().getTheme().getOutline());
 			FontMetrics fm = g.getFontMetrics();
 			String msg = state.isSelectingSecond() ? "Merge with an object" : "Select an object";
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
 			
+			//TODO temp text
 			g.setColor(Color.WHITE);
 			int yoff = 20;
 			for(Player player : state.getPlayers()){
@@ -212,6 +253,12 @@ public class ConvexMerger{
 				yoff += 20;
 			}
 			
+			for(int i = 1; i < state.getPlayerCount(); i++){
+				int x = (i * this.getWidth()) / state.getPlayerCount();
+				g.drawLine(x, 0, x, TOP_SPACE);
+			}
+			
+			//TODO temp dialog
 			if(activeDialog != null){
 				//TODO center and make look nice
 				g.drawString(activeDialog.getTitle(), 100, 10);
@@ -219,6 +266,7 @@ public class ConvexMerger{
 				g.drawString("Click anywhere to continue playing.", 100, 50);
 			}
 			
+			//render the game
 			g.translate(SIDE_OFFSET, TOP_SPACE + TOP_OFFSET);
 			double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
 			double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
@@ -229,7 +277,6 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			boolean isAnimationActive = false;
 			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
 			for(ConvexObject obj : state.getObjects()){
@@ -250,7 +297,7 @@ public class ConvexMerger{
 				}
 			}
 			
-			g.setColor(Color.BLACK);
+			g.setColor(Color.WHITE);
 			for(Line2D line : state.getVerticalDecompLines()){
 				g.draw(line);
 			}
