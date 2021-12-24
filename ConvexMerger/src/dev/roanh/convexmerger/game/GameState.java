@@ -43,7 +43,7 @@ public class GameState{
 				Player player = getActivePlayer();
 				obj.setOwner(player);
 				player.addArea(obj.getArea());
-				obj.setAnimation(new SelectAnimation(obj, location));
+				obj.setAnimation(new ClaimAnimation(obj, location));
 				endTurn();
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){
