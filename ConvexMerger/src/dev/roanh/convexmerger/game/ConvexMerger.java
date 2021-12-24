@@ -40,6 +40,7 @@ public class ConvexMerger{
 	private static final int BOTTOM_OFFSET = 50 + 1;
 	private static final int TOP_SIDE_TRIANGLE = 50;
 	private static final int TOP_MIDDLE_OFFSET = 30;
+	private static final int TOP_MIDDLE_WIDTH = 200;//even
 	private static final int BUTTON_HEIGHT = 50;
 	private static final int BUTTON_WIDTH = 150;
 	
@@ -113,11 +114,15 @@ public class ConvexMerger{
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
 			g.setColor(Theme.MENU_BODY);
+			int sideOffset = Math.floorDiv(this.getWidth(), 2) - (TOP_MIDDLE_WIDTH / 2);
 			Polygon topPoly = new Polygon(new int[]{
 					0,
 					0,
 					TOP_SIDE_TRIANGLE,
-					//TODO middle
+					sideOffset - TOP_MIDDLE_OFFSET,
+					sideOffset,
+					this.getWidth() - sideOffset,
+					this.getWidth() - sideOffset + TOP_MIDDLE_OFFSET,
 					this.getWidth() - TOP_SIDE_TRIANGLE,
 					this.getWidth(),
 					this.getWidth()
@@ -126,12 +131,15 @@ public class ConvexMerger{
 					0,
 					TOP_SIDE_TRIANGLE + TOP_SPACE,
 					TOP_SPACE,
-					//TODO middle
+					TOP_SPACE,
+					TOP_SPACE + TOP_MIDDLE_OFFSET,
+					TOP_SPACE + TOP_MIDDLE_OFFSET,
+					TOP_SPACE,
 					TOP_SPACE,
 					TOP_SIDE_TRIANGLE + TOP_SPACE,
 					0
 				},
-				10 - 4
+				10
 			);
 			g.fill(topPoly);
 			
