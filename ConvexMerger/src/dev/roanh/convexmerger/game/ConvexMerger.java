@@ -155,7 +155,7 @@ public class ConvexMerger{
 		}
 		
 		public void renderGame(Graphics2D g){
-			boolean isAnimationActive = true;//TODO make false
+			boolean isAnimationActive = false;
 
 			//render playfield background
 			g.setColor(Theme.BACKGROUND);
@@ -291,7 +291,7 @@ public class ConvexMerger{
 				double dx = x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING;
 				double dy = y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
 				g.translate(dx, dy);
-				player.getScoreAnimation().run(g);
+				isAnimationActive |= player.getScoreAnimation().run(g);
 				g.translate(-dx, -dy);
 			}
 			g.setClip(null);
