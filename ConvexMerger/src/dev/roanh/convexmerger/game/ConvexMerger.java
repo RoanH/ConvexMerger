@@ -1,5 +1,8 @@
 package dev.roanh.convexmerger.game;
 
+import static dev.roanh.convexmerger.game.Theme.CROWN_ICON_SIZE;
+import static dev.roanh.convexmerger.game.Theme.PLAYER_ICON_SIZE;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -49,8 +52,6 @@ public class ConvexMerger{
 	private static final int TOP_MIDDLE_WIDTH = 200;//even
 	private static final int BUTTON_HEIGHT = 50;
 	private static final int BUTTON_WIDTH = 150;
-	private static final int PLAYER_ICON_SIZE = 24;
-	private static final int CROWN_ICON_SIZE = 18;
 	/**
 	 * Number of pixels between the player icon and the text.
 	 */
@@ -281,7 +282,8 @@ public class ConvexMerger{
 				
 				//crown icon
 				g.setColor(Color.RED);
-				g.fillRect(x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, CROWN_ICON_SIZE, CROWN_ICON_SIZE);
+				//g.fillRect(x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, CROWN_ICON_SIZE, CROWN_ICON_SIZE);
+				g.drawImage(Theme.CROWN_ICON, x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, this);
 				
 				//player score
 				String area = "0";

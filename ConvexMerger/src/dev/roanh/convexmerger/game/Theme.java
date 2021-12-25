@@ -2,13 +2,20 @@ package dev.roanh.convexmerger.game;
 
 import static dev.roanh.convexmerger.game.Theme.PlayerTheme.*;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.LinearGradientPaint;
 import java.awt.Stroke;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
 
 public final class Theme{
 	public static final Color BACKGROUND = new Color(21, 25, 30);
@@ -19,6 +26,9 @@ public final class Theme{
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
 	public static final Font PRIDI_MEDIUM_24;
+	public static final int PLAYER_ICON_SIZE = 24;
+	public static final int CROWN_ICON_SIZE = 18;
+	public static final BufferedImage CROWN_ICON;
 	
 	
 	
@@ -29,18 +39,6 @@ public final class Theme{
 	
 	public static final Color getPlayerOutline(ConvexObject obj){
 		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getOutline();
-	}
-	
-	static{
-		try{
-			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
-			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
-			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
-			PRIDI_MEDIUM_24 = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf")).deriveFont(24.0F);
-		}catch(IOException | FontFormatException e){
-			//this should not happen
-			throw new RuntimeException("Failed to load fonts", e);
-		}
 	}
 	
 	public static final LinearGradientPaint constructBorderGradient(GameState state, int width){
@@ -111,6 +109,36 @@ public final class Theme{
 					P4.gradient
 				}
 			);
+		}
+	}
+	
+	private static final BufferedImage loadImage(InputStream in, int size, Color color) throws IOException{
+		BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage raw = ImageIO.read(in);
+		Image data = raw.getScaledInstance(size, size, BufferedImage.SCALE_SMOOTH);
+		
+		Graphics2D g = img.createGraphics();
+		g.drawImage(data, 0, 0, null);
+		g.setComposite(AlphaComposite.SrcAtop);
+		g.setColor(color);
+		g.fillRect(0, 0, size, size);
+		g.dispose();
+		data.flush();
+		raw.flush();
+		
+		return img;
+	}
+	
+	static{
+		try{
+			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
+			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
+			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
+			PRIDI_MEDIUM_24 = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf")).deriveFont(24.0F);
+			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, new Color(237, 214, 9));
+		}catch(IOException | FontFormatException e){
+			//this should not happen
+			throw new RuntimeException("Failed to load fonts or icons", e);
 		}
 	}
 	
