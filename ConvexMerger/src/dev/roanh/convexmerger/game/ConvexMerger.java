@@ -282,6 +282,9 @@ public class ConvexMerger{
 				//crown icon
 				if(Double.compare(player.getArea(), max) >= 0){
 					g.drawImage(Theme.CROWN_ICON, x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, this);
+					g.setColor(Theme.SCORE_COLOR_LEAD);
+				}else{
+					g.setColor(Theme.SCORE_COLOR);
 				}
 				
 				//player score
@@ -290,7 +293,6 @@ public class ConvexMerger{
 					area = area.equals("0") ? "" : ("." + area);
 					area = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + area;
 				}
-				g.setColor(Theme.SCORE_COLOR);
 				g.drawString(area, x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + CROWN_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 			}
 			g.setClip(null);

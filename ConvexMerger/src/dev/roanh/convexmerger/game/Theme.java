@@ -21,6 +21,7 @@ public final class Theme{
 	public static final Color BACKGROUND = new Color(21, 25, 30);
 	public static final Color MENU_BODY = new Color(31, 37, 46);
 	public static final Color SCORE_COLOR = new Color(255, 255, 255, (3 * 255) / 4);
+	public static final Color SCORE_COLOR_LEAD = new Color(255, 255, 255, (9 * 255) / 10);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
 	public static final Font PRIDI_REGULAR_24;
