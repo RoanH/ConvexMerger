@@ -1,4 +1,4 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.ui;
 
 public enum MessageDialog{
 	ALREADY_OWNED("Already Claimed", "This object was already claimed by another player."),

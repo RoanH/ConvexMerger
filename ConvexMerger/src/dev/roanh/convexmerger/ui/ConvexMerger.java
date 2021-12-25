@@ -1,7 +1,7 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.game.Theme.CROWN_ICON_SIZE;
-import static dev.roanh.convexmerger.game.Theme.PLAYER_ICON_SIZE;
+import static dev.roanh.convexmerger.ui.Theme.CROWN_ICON_SIZE;
+import static dev.roanh.convexmerger.ui.Theme.PLAYER_ICON_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -36,7 +36,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.player.GreedyPlayer;
+import dev.roanh.convexmerger.player.HumanPlayer;
+import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class ConvexMerger{
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();

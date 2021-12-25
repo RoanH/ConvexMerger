@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.ClaimAnimation;
+import dev.roanh.convexmerger.player.GreedyPlayer;
+import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.ui.MessageDialog;
 
 public class GameState{
 	private List<ConvexObject> objects = new ArrayList<ConvexObject>();

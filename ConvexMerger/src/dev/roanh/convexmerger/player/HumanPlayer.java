@@ -1,6 +1,6 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.player;
 
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class HumanPlayer extends Player{
 	private static int ID = 1;

@@ -1,9 +1,11 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.player;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Simple AI that follows the greedy
@@ -13,7 +15,7 @@ import dev.roanh.convexmerger.game.Theme.PlayerTheme;
  */
 public class GreedyPlayer extends Player{
 
-	protected GreedyPlayer(PlayerTheme theme){
+	public GreedyPlayer(PlayerTheme theme){
 		super(false, "Isla", theme);
 	}
 	

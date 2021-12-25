@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.player.Player;
+
 /**
  * Defines a convex object shown in the game
  * the points on the boundary of the object

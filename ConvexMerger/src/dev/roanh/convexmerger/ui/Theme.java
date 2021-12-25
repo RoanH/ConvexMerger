@@ -1,6 +1,6 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.game.Theme.PlayerTheme.*;
+import static dev.roanh.convexmerger.ui.Theme.PlayerTheme.*;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
 
 public final class Theme{
 	public static final Color BACKGROUND = new Color(21, 25, 30);

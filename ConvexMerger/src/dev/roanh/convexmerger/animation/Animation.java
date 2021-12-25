@@ -1,4 +1,4 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.animation;
 
 import java.awt.Graphics2D;
 

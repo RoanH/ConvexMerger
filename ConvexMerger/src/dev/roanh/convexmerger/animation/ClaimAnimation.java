@@ -1,4 +1,4 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.animation;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -6,7 +6,9 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
 
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.ui.Theme;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Animation shown when claiming a single object.

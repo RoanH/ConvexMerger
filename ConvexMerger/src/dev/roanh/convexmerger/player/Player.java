@@ -1,6 +1,8 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.player;
 
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.animation.ScoreAnimation;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public abstract class Player{
 	private ScoreAnimation scoreAnimation = new ScoreAnimation(this);

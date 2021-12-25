@@ -1,6 +1,8 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.animation;
 
 import java.awt.Graphics2D;
+
+import dev.roanh.convexmerger.player.Player;
 
 public class ScoreAnimation implements Animation{
 	private static final int SCORE_PER_MS = 100;
