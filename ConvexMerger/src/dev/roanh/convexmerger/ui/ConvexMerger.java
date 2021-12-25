@@ -74,6 +74,7 @@ public class ConvexMerger{
 	private GameState state;
 	private Object turnLock = new Object();
 	
+	private boolean ended = false;//TODO temp
 	
 	
 	
@@ -161,33 +162,29 @@ public class ConvexMerger{
 		
 		@Override
 		public void run(){
-			Player player;
-			do{
-				frame.repaint();
-				player = state.getActivePlayer();
-				System.out.println("turn of: " + player);
-				if(player.isHuman()){
-					synchronized(turnLock){
-						try{
+			try{
+				Player player = null;
+				do{
+					if(player != null && player.isHuman()){
+						synchronized(turnLock){
 							turnLock.wait();
-						}catch(InterruptedException e){
-							// TODO Auto-generated catch block
-							e.printStackTrace();
 						}
-						System.out.println("resume");
 					}
-				}else if(player.isAI()){
-					try{
+					frame.repaint();
+					player = state.getActivePlayer();
+					if(player.isAI()){
 						Thread.sleep(400);
-					}catch(InterruptedException e){
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
-				}
-			}while(player.executeMove());
-			
+				}while(player.executeMove());
+			}catch(InterruptedException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			System.out.println("game end");
-			
+			ended = true;
+			frame.repaint();
+
 		}
 	}
 	
@@ -305,7 +302,7 @@ public class ConvexMerger{
 			g.setFont(Theme.PRIDI_REGULAR_18);
 			g.setColor(state.getActivePlayer().getTheme().getOutline());
 			FontMetrics fm = g.getFontMetrics();
-			String msg = state.isSelectingSecond() ? "Merge with an object" : "Select an object";
+			String msg = ended ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
 			
 			//render player data
