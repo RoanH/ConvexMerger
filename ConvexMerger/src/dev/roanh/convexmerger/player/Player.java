@@ -134,9 +134,9 @@ public abstract class Player{
 			return increase;
 		}
 		
-		public void execute(){
+		public ConvexObject execute(){
 			state.claimObject(first);
-			state.claimObject(second);
+			return state.claimObject(second).getResult();
 		}
 	}
 }

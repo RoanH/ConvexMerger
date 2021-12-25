@@ -61,7 +61,7 @@ public class ClaimAnimation implements Animation{
 				new float[]{
 					0.0F,
 					Math.min(0.998F, (elapsed / DURATION) + 0.001F),
-					Math.min(0.999F, 2.0F * (elapsed / DURATION) + 0.001F),
+					Math.min(0.999F, 2.0F * (elapsed / DURATION) + 0.002F),
 					1.0F
 				},
 				new Color[]{

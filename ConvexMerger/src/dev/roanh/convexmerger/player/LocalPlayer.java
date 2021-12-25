@@ -2,7 +2,14 @@ package dev.roanh.convexmerger.player;
 
 import dev.roanh.convexmerger.game.ConvexObject;
 
+/**
+ * AI that focuses on maximising local area gain.
+ * @author Roan
+ */
 public class LocalPlayer extends Player{
+	/**
+	 * Object currently being worked on.
+	 */
 	private ConvexObject target = null;
 
 	public LocalPlayer(){
@@ -17,10 +24,10 @@ public class LocalPlayer extends Player{
 		
 		MergeOption merge = findBestMergeFrom(target);
 		if(merge != null){
-			merge.execute();
+			target = merge.execute();
 			return true;
 		}
-		
+
 		return claimLargestUnowned();
 	}
 	
@@ -29,7 +36,7 @@ public class LocalPlayer extends Player{
 		if(target == null){
 			return false;
 		}else{
-			state.claimObject(target);
+			target = state.claimObject(target).getResult();
 			return true;
 		}
 	}
