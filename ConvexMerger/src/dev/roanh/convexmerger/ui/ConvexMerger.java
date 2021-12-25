@@ -136,15 +136,15 @@ public class ConvexMerger{
 		
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(PlayerTheme.P1),
-			new GreedyPlayer(PlayerTheme.P2),
-			new GreedyPlayer(PlayerTheme.P3),
-			new GreedyPlayer(PlayerTheme.P4)
+			new HumanPlayer(state, PlayerTheme.P1),
+			new GreedyPlayer(state, PlayerTheme.P2),
+			new GreedyPlayer(state, PlayerTheme.P3),
+			new GreedyPlayer(state, PlayerTheme.P4)
 		));
 		
 	}
 	
-	
+	//TODO extract
 	private final class GamePanel extends JPanel implements MouseListener, MouseMotionListener{
 		/**
 		 * Serial ID.

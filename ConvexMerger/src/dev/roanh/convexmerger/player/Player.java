@@ -2,19 +2,22 @@ package dev.roanh.convexmerger.player;
 
 import dev.roanh.convexmerger.animation.ScoreAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public abstract class Player{
+	protected GameState state;
 	private ScoreAnimation scoreAnimation = new ScoreAnimation(this);
 	private String name;
 	private boolean human;
 	private PlayerTheme theme;
 	private double area;
 
-	protected Player(boolean human, String name, PlayerTheme theme){
+	protected Player(GameState game, boolean human, String name, PlayerTheme theme){
 		this.human = human;
 		this.theme = theme;
 		this.name = name;
+		state = game;
 	}
 
 	public PlayerTheme getTheme(){
@@ -52,6 +55,8 @@ public abstract class Player{
 	public ScoreAnimation getScoreAnimation(){
 		return scoreAnimation;
 	}
+	
+	public abstract boolean executeMove();
 	
 	@Override
 	public String toString(){

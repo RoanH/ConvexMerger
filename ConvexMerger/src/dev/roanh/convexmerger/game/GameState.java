@@ -88,7 +88,7 @@ public class GameState{
 		
 		if(!getActivePlayer().isHuman()){
 			//TODO this is very temporary
-			((GreedyPlayer)getActivePlayer()).executeMove(this);
+			getActivePlayer().executeMove();
 		}
 	}
 	

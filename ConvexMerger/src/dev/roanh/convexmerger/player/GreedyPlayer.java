@@ -15,11 +15,12 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  */
 public class GreedyPlayer extends Player{
 
-	public GreedyPlayer(PlayerTheme theme){
-		super(false, "Isla", theme);
+	public GreedyPlayer(GameState game, PlayerTheme theme){
+		super(game, false, "Isla", theme);
 	}
 	
-	public void executeMove(GameState state){
+	@Override
+	public boolean executeMove(){
 		System.out.println("START AI TURN");
 		List<ConvexObject> owned = state.stream().filter(this::owns).collect(Collectors.toList());
 		
@@ -78,14 +79,18 @@ public class GreedyPlayer extends Player{
 				if(first != null){
 					state.claimObject(first);
 					state.claimObject(second);
+					return true;
 				}
-				return;
+				return false;
 			}
 		}
 		
 		//claiming the largest object is best
 		if(max != null){
 			state.claimObject(max);
+			return true;
+		}else{
+			return false;
 		}
 	}
 }
