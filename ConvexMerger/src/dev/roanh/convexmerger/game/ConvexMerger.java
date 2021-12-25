@@ -25,7 +25,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Path2D.Double;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -258,6 +257,7 @@ public class ConvexMerger{
 			
 			//render player data
 			List<Player> players = state.getPlayers();
+			double max = players.stream().mapToDouble(Player::getArea).max().getAsDouble();
 			for(int i = 0; i < players.size(); i++){
 				Player player = players.get(i);
 				int x = ((i * this.getWidth()) / players.size());
@@ -281,9 +281,9 @@ public class ConvexMerger{
 				fm = g.getFontMetrics();
 				
 				//crown icon
-				g.setColor(Color.RED);
-				//g.fillRect(x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, CROWN_ICON_SIZE, CROWN_ICON_SIZE);
-				g.drawImage(Theme.CROWN_ICON, x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, this);
+				if(Double.compare(player.getArea(), max) >= 0){
+					g.drawImage(Theme.CROWN_ICON, x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, this);
+				}
 				
 				//player score
 				String area = "0";
