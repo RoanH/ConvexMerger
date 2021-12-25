@@ -72,7 +72,7 @@ public class ConvexMerger{
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
-	private Object turnLock;
+	private Object turnLock = new Object();
 	
 	
 	
@@ -139,26 +139,55 @@ public class ConvexMerger{
 		
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			//new HumanPlayer(),
+			new HumanPlayer(),
 			new LocalPlayer(),
 			new GreedyPlayer()//,
 			//new GreedyPlayer()
 		));
 		
 		//TODO
-		executor.scheduleAtFixedRate(()->{
-			state.getActivePlayer().executeMove();
-			frame.repaint();
-		}, 5000, 200, TimeUnit.MILLISECONDS);
+//		executor.scheduleAtFixedRate(()->{
+//			state.getActivePlayer().executeMove();
+//			frame.repaint();
+//		}, 5000, 200, TimeUnit.MILLISECONDS);
 		
-		
+		GameThread thread = new GameThread();
+		thread.setName("GameThread");
+		thread.setDaemon(true);
+		thread.start();
 	}
 	
 	private final class GameThread extends Thread{
 		
 		@Override
 		public void run(){
-			//TODO
+			Player player;
+			do{
+				frame.repaint();
+				player = state.getActivePlayer();
+				System.out.println("turn of: " + player);
+				if(player.isHuman()){
+					synchronized(turnLock){
+						try{
+							turnLock.wait();
+						}catch(InterruptedException e){
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						System.out.println("resume");
+					}
+				}else if(player.isAI()){
+					try{
+						Thread.sleep(400);
+					}catch(InterruptedException e){
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}while(player.executeMove());
+			
+			System.out.println("game end");
+			
 		}
 	}
 	
@@ -429,7 +458,9 @@ public class ConvexMerger{
 					activeDialog = result.getMessage();
 					helperLines = null;
 					if(result != ClaimResult.EMPTY){
-						turnLock.notify();
+						synchronized(turnLock){
+							turnLock.notify();
+						}
 					}
 					repaint();
 				}

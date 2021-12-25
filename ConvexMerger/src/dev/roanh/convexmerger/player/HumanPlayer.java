@@ -10,6 +10,6 @@ public class HumanPlayer extends Player{
 	@Override
 	public boolean executeMove(){
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 }
