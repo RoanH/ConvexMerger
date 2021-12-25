@@ -16,7 +16,11 @@ public class ScoreAnimation implements Animation{
 	@Override
 	public boolean run(Graphics2D g){
 		long time = System.currentTimeMillis();
-		area = Math.min(player.getArea(), area + (time - last) * SCORE_PER_MS);
+		if(area <= player.getArea()){
+			area = Math.min(player.getArea(), area + (time - last) * SCORE_PER_MS);
+		}else{
+			area = Math.max(player.getArea(), area - (time - last) * SCORE_PER_MS);
+		}
 		
 		String str = "0";
 		for(int total = (int)Math.round(area); total != 0; total /= 1000){
@@ -26,6 +30,6 @@ public class ScoreAnimation implements Animation{
 		g.drawString(str, 0, 0);
 		
 		last = time;
-		return Double.compare(area, player.getArea()) < 0;
+		return Double.compare(area, player.getArea()) != 0;
 	}
 }
