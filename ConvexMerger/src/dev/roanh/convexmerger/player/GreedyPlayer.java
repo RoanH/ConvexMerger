@@ -22,14 +22,7 @@ public class GreedyPlayer extends Player{
 		List<ConvexObject> owned = state.stream().filter(this::owns).collect(Collectors.toList());
 		
 		//find the single largest object
-		ConvexObject max = null;
-		for(ConvexObject obj : state.getObjects()){
-			if(!obj.isOwned()){
-				if(max == null || obj.getArea() > max.getArea()){
-					max = obj;
-				}
-			}
-		}
+		ConvexObject max = findLargestUnownedObject();
 		
 		//merge any of our owned objects with something else to get the largest area
 		if(!owned.isEmpty()){

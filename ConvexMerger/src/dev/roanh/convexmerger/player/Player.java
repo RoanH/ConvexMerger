@@ -60,6 +60,18 @@ public abstract class Player{
 	public ScoreAnimation getScoreAnimation(){
 		return scoreAnimation;
 	}
+	
+	protected ConvexObject findLargestUnownedObject(){
+		ConvexObject max = null;
+		for(ConvexObject obj : state.getObjects()){
+			if(!obj.isOwned()){
+				if(max == null || obj.getArea() > max.getArea()){
+					max = obj;
+				}
+			}
+		}
+		return max;
+	}
 		
 	@Override
 	public String toString(){
