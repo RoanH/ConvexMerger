@@ -1,5 +1,9 @@
 package dev.roanh.convexmerger.player;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import dev.roanh.convexmerger.animation.ScoreAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
@@ -59,6 +63,10 @@ public abstract class Player{
 	
 	public ScoreAnimation getScoreAnimation(){
 		return scoreAnimation;
+	}
+	
+	public Stream<ConvexObject> stream(){
+		return state.stream().filter(this::owns);
 	}
 	
 	protected ConvexObject findLargestUnownedObject(){

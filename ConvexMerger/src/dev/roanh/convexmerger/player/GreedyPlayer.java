@@ -19,7 +19,7 @@ public class GreedyPlayer extends Player{
 	
 	@Override
 	public boolean executeMove(){
-		List<ConvexObject> owned = state.stream().filter(this::owns).collect(Collectors.toList());
+		List<ConvexObject> owned = stream().collect(Collectors.toList());
 		
 		//find the single largest object
 		ConvexObject max = findLargestUnownedObject();
