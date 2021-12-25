@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import dev.roanh.convexmerger.game.Theme.PlayerTheme;
 
 public abstract class Player{
+	private ScoreAnimation scoreAnimation = new ScoreAnimation(this);
 	private String name;
 	private boolean human;
 	private PlayerTheme theme;
@@ -44,6 +45,10 @@ public abstract class Player{
 	
 	public boolean owns(ConvexObject obj){
 		return obj.isOwnedBy(this);
+	}
+	
+	public ScoreAnimation getScoreAnimation(){
+		return scoreAnimation;
 	}
 	
 	@Override

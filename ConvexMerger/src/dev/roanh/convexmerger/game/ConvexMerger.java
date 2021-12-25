@@ -293,7 +293,12 @@ public class ConvexMerger{
 					area = area.equals("0") ? "" : ("." + area);
 					area = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + area;
 				}
-				g.drawString(area, x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + CROWN_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+				
+				double dx = x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING;
+				double dy = y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
+				g.translate(dx, dy);
+				player.getScoreAnimation().run(g);
+				g.translate(-dx, -dy);
 			}
 			g.setClip(null);
 			
