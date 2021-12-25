@@ -72,6 +72,7 @@ public class ConvexMerger{
 	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
+	private Object turnLock;
 	
 	
 	
@@ -138,12 +139,27 @@ public class ConvexMerger{
 		
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(),
-			new LocalPlayer()//,
-			//new GreedyPlayer(),
+			//new HumanPlayer(),
+			new LocalPlayer(),
+			new GreedyPlayer()//,
 			//new GreedyPlayer()
 		));
 		
+		//TODO
+		executor.scheduleAtFixedRate(()->{
+			state.getActivePlayer().executeMove();
+			frame.repaint();
+		}, 5000, 200, TimeUnit.MILLISECONDS);
+		
+		
+	}
+	
+	private final class GameThread extends Thread{
+		
+		@Override
+		public void run(){
+			//TODO
+		}
 	}
 	
 	//TODO extract
@@ -412,6 +428,9 @@ public class ConvexMerger{
 					ClaimResult result = state.claimObject(obj, loc);
 					activeDialog = result.getMessage();
 					helperLines = null;
+					if(result != ClaimResult.EMPTY){
+						turnLock.notify();
+					}
 					repaint();
 				}
 			}

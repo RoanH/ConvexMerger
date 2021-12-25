@@ -100,10 +100,10 @@ public class GameState{
 			System.out.println("soft game end (no more unowned objects)");
 		}
 		
-		if(!getActivePlayer().isHuman()){
-			//TODO this is very temporary
-			getActivePlayer().executeMove();
-		}
+//		if(!getActivePlayer().isHuman()){
+//			//TODO this is very temporary
+//			getActivePlayer().executeMove();
+//		}
 	}
 	
 	/**
