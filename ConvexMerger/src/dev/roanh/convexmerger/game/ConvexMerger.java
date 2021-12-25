@@ -288,12 +288,6 @@ public class ConvexMerger{
 				}
 				
 				//player score
-				String area = "0";
-				for(int total = (int)Math.round(player.getArea()); total != 0; total /= 1000){
-					area = area.equals("0") ? "" : ("." + area);
-					area = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + area;
-				}
-				
 				double dx = x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING;
 				double dy = y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
 				g.translate(dx, dy);
