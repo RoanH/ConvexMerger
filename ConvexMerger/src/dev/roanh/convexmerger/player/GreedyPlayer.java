@@ -25,54 +25,18 @@ public class GreedyPlayer extends Player{
 		ConvexObject max = findLargestUnownedObject();
 		
 		//merge any of our owned objects with something else to get the largest area
-		if(!owned.isEmpty()){
-			ConvexObject first = null;
-			ConvexObject second = null;
-			double increase = 0.0D;
-			
-			for(ConvexObject obj : owned){
-				for(ConvexObject other : state.getObjects()){
-					if(!other.isOwned() || (other.isOwnedBy(this) && !other.equals(obj))){
-						ConvexObject combined = obj.merge(state, other);
-						if(combined != null){
-							double area = combined.getArea();
-							
-							if(other.isOwnedBy(this)){
-								area -= other.getArea();
-							}
-							if(obj.isOwnedBy(this)){
-								area -= obj.getArea();
-							}
-							
-							for(ConvexObject check : state.getObjects()){
-								if(!obj.equals(other) && !obj.equals(obj) && combined.contains(check)){
-									if(check.isOwnedBy(this)){
-										area -= check.getArea();
-									}else if(check.isOwned()){
-										//stealing is good
-										area += check.getArea();
-									}
-								}
-							}
-							
-							if(first == null || area > increase){
-								increase = area;
-								first = obj;
-								second = other;
-							}
-						}
-					}
-				}
+		MergeOption bestMerge = null;
+
+		for(ConvexObject obj : owned){
+			MergeOption option = findBestMergeFrom(obj);
+			if(option != null && (bestMerge == null || option.getIncrease() > bestMerge.getIncrease())){
+				bestMerge = option;
 			}
-			
-			if(max == null || increase >= max.getArea()){
-				if(first != null){
-					state.claimObject(first);
-					state.claimObject(second);
-					return true;
-				}
-				return false;
-			}
+		}
+
+		if(bestMerge != null && (max == null || bestMerge.getIncrease() > max.getArea())){
+			bestMerge.execute();
+			return true;
 		}
 		
 		//claiming the largest object is best

@@ -72,9 +72,71 @@ public abstract class Player{
 		}
 		return max;
 	}
+	
+	protected MergeOption findBestMergeFrom(ConvexObject obj){
+		ConvexObject first = null;
+		ConvexObject second = null;
+		double increase = 0.0D;
+		
+		for(ConvexObject other : state.getObjects()){
+			if(!other.isOwned() || (other.isOwnedBy(this) && !other.equals(obj))){
+				ConvexObject combined = obj.merge(state, other);
+				if(combined != null){
+					double area = combined.getArea();
+					
+					if(other.isOwnedBy(this)){
+						area -= other.getArea();
+					}
+					if(obj.isOwnedBy(this)){
+						area -= obj.getArea();
+					}
+					
+					for(ConvexObject check : state.getObjects()){
+						if(!obj.equals(other) && !obj.equals(obj) && combined.contains(check)){
+							if(check.isOwnedBy(this)){
+								area -= check.getArea();
+							}else if(check.isOwned()){
+								//stealing is good
+								area += check.getArea();
+							}
+						}
+					}
+					
+					if(first == null || area > increase){
+						increase = area;
+						first = obj;
+						second = other;
+					}
+				}
+			}
+		}
+		
+		return first == null ? null : new MergeOption(first, second, increase);
+	}
 		
 	@Override
 	public String toString(){
 		return "Player[name=\"" + name + "\",human=" + human + ",area=" + area + "]";
+	}
+	
+	protected class MergeOption{
+		private ConvexObject first = null;
+		private ConvexObject second = null;
+		private double increase = 0.0D;
+		
+		private MergeOption(ConvexObject first, ConvexObject second, double increase){
+			this.first = first;
+			this.second = second;
+			this.increase = increase;
+		}
+		
+		public double getIncrease(){
+			return increase;
+		}
+		
+		public void execute(){
+			state.claimObject(first);
+			state.claimObject(second);
+		}
 	}
 }

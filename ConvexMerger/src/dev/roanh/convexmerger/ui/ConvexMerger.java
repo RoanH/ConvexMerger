@@ -138,9 +138,9 @@ public class ConvexMerger{
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
 			new HumanPlayer(),
-			new GreedyPlayer(),
-			new GreedyPlayer(),
-			new GreedyPlayer()
+			new GreedyPlayer()//,
+			//new GreedyPlayer(),
+			//new GreedyPlayer()
 		));
 		
 	}

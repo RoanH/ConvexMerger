@@ -12,10 +12,7 @@ public class LocalPlayer extends Player{
 	@Override
 	public boolean executeMove(){
 		if(target == null){
-			target = findLargestUnownedObject();
-			if(target == null){
-				
-			}
+			return claimLargestUnowned();
 		}
 		
 		
@@ -28,5 +25,15 @@ public class LocalPlayer extends Player{
 		
 		
 		return false;
+	}
+	
+	private boolean claimLargestUnowned(){
+		target = findLargestUnownedObject();
+		if(target == null){
+			return false;
+		}else{
+			state.claimObject(target);
+			return true;
+		}
 	}
 }
