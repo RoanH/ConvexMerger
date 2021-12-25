@@ -11,10 +11,15 @@ import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
-import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.MessageDialog;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
+/**
+ * Class managing the main game state, data,
+ * players and general control flow.
+ * @author Roan
+ */
 public class GameState{
 	private List<ConvexObject> objects = new ArrayList<ConvexObject>();
 	private List<Player> players = new ArrayList<Player>();
@@ -26,22 +31,27 @@ public class GameState{
 		this.objects = objects;
 		this.players = players;
 		objects.forEach(decomp::addObject);
+		for(int i = 0; i < players.size(); i++){
+			players.get(i).init(this, PlayerTheme.get(i + 1));;
+		}
 		decomp.rebuild();
 	}
 	
-	public MessageDialog claimObject(ConvexObject obj){
+	public ClaimResult claimObject(ConvexObject obj){
 		return claimObject(obj, obj.getCentroid());
 	}
 	
-	public MessageDialog claimObject(ConvexObject obj, Point2D location){
+	public ClaimResult claimObject(ConvexObject obj, Point2D location){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			if(selected != null){
-				if(mergeObjects(selected, obj)){
+				ConvexObject merged = mergeObjects(selected, obj);
+				if(merged != null){
 					endTurn();
+					return ClaimResult.of(merged);
 				}else{
 					selected = null;
-					return MessageDialog.MERGE_INTERSECTS;
+					return ClaimResult.of(MessageDialog.MERGE_INTERSECTS);
 				}
 			}else{
 				Player player = getActivePlayer();
@@ -49,19 +59,24 @@ public class GameState{
 				player.addArea(obj.getArea());
 				obj.setAnimation(new ClaimAnimation(obj, location));
 				endTurn();
+				return ClaimResult.of(obj);
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){
 			if(selected == null){
 				selected = obj;
+				return ClaimResult.EMPTY;
 			}else{
 				if(obj.equals(selected)){
 					selected = null;
+					return ClaimResult.EMPTY;
 				}else{
-					if(mergeObjects(obj, selected)){
+					ConvexObject merged = mergeObjects(obj, selected);
+					if(merged != null){
 						endTurn();
+						return ClaimResult.of(merged);
 					}else{
 						selected = null;
-						return MessageDialog.MERGE_INTERSECTS;
+						return ClaimResult.of(MessageDialog.MERGE_INTERSECTS);
 					}
 				}
 			}
@@ -69,9 +84,8 @@ public class GameState{
 			if(selected != null){
 				selected = null;
 			}
-			return MessageDialog.ALREADY_OWNED;
+			return ClaimResult.of(MessageDialog.ALREADY_OWNED);
 		}
-		return null;
 	}
 	
 	private void endTurn(){
@@ -96,10 +110,11 @@ public class GameState{
 	 * Attempts to merge the given two convex objects.
 	 * @param first The first object to merge (already owned).
 	 * @param second The second object to merge (could be unowned).
-	 * @return True if the merge was valid and did not
-	 *         have any other convex objects on its boundary.
+	 * @return The convex object that is the result of merging the
+	 *         two given objects, or <code>null</code> if the merge
+	 *         was not possible.
 	 */
-	private boolean mergeObjects(ConvexObject first, ConvexObject second){
+	private ConvexObject mergeObjects(ConvexObject first, ConvexObject second){
 		ConvexObject merged = first.merge(this, second);
 		if(merged != null){
 			Player player = first.getOwner();
@@ -124,9 +139,9 @@ public class GameState{
 			objects.add(merged);
 			decomp.addObject(merged);
 			player.addArea(merged.getArea());
-			return true;
+			return merged;
 		}else{
-			return false;
+			return null;
 		}
 	}
 	

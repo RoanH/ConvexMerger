@@ -195,5 +195,9 @@ public final class Theme{
 		public Color getOutline(){
 			return outline;
 		}
+		
+		public static final PlayerTheme get(int i){
+			return values()[i];
+		}
 	}
 }

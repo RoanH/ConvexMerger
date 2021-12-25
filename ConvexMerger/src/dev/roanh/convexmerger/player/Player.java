@@ -13,12 +13,17 @@ public abstract class Player{
 	private PlayerTheme theme;
 	private double area;
 
-	protected Player(GameState game, boolean human, String name, PlayerTheme theme){
+	protected Player(boolean human, String name){
 		this.human = human;
-		this.theme = theme;
 		this.name = name;
+	}
+	
+	public void init(GameState game, PlayerTheme theme){
+		this.theme = theme;
 		state = game;
 	}
+	
+	public abstract boolean executeMove();
 
 	public PlayerTheme getTheme(){
 		return theme;
@@ -55,9 +60,7 @@ public abstract class Player{
 	public ScoreAnimation getScoreAnimation(){
 		return scoreAnimation;
 	}
-	
-	public abstract boolean executeMove();
-	
+		
 	@Override
 	public String toString(){
 		return "Player[name=\"" + name + "\",human=" + human + ",area=" + area + "]";

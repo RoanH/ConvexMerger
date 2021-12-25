@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.GameState;
-import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Simple AI that follows the greedy
@@ -15,13 +13,12 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  */
 public class GreedyPlayer extends Player{
 
-	public GreedyPlayer(GameState game, PlayerTheme theme){
-		super(game, false, "Isla", theme);
+	public GreedyPlayer(){
+		super(false, "Isla");
 	}
 	
 	@Override
 	public boolean executeMove(){
-		System.out.println("START AI TURN");
 		List<ConvexObject> owned = state.stream().filter(this::owns).collect(Collectors.toList());
 		
 		//find the single largest object

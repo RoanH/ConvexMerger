@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
@@ -136,10 +137,10 @@ public class ConvexMerger{
 		
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(state, PlayerTheme.P1),
-			new GreedyPlayer(state, PlayerTheme.P2),
-			new GreedyPlayer(state, PlayerTheme.P3),
-			new GreedyPlayer(state, PlayerTheme.P4)
+			new HumanPlayer(),
+			new GreedyPlayer(),
+			new GreedyPlayer(),
+			new GreedyPlayer()
 		));
 		
 	}
@@ -407,7 +408,8 @@ public class ConvexMerger{
 				Point2D loc = translateToGameSpace(e.getX(), e.getY());
 				ConvexObject obj = state.getObject(loc);
 				if(obj != null){
-					activeDialog = state.claimObject(obj, loc);
+					ClaimResult result = state.claimObject(obj, loc);
+					activeDialog = result.getMessage();
 					helperLines = null;
 					repaint();
 				}
