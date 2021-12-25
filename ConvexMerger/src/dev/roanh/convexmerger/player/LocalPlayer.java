@@ -15,16 +15,13 @@ public class LocalPlayer extends Player{
 			return claimLargestUnowned();
 		}
 		
+		MergeOption merge = findBestMergeFrom(target);
+		if(merge != null){
+			merge.execute();
+			return true;
+		}
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		return false;
+		return claimLargestUnowned();
 	}
 	
 	private boolean claimLargestUnowned(){
