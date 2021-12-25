@@ -152,6 +152,8 @@ public final class Theme{
 		private final Color body;
 		private final Color outline;
 		private final Color gradient;
+		private final BufferedImage ai;
+		private final BufferedImage human;
 		
 		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa, int gr, int gg, int gb){
 			this(br, bg, bb, ba, or, og, ob, oa, new Color(gr, gg, gb));
@@ -165,6 +167,21 @@ public final class Theme{
 			body = new Color(br, bg, bb, (int)(ba * 255.0D));
 			outline = new Color(or, og, ob, (int)(oa * 255.0D));
 			this.gradient = gradient;
+			try{
+				ai = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE, outline);
+				human = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/human.png"), PLAYER_ICON_SIZE, outline);
+			}catch(IOException e){
+				//should not happen
+				throw new RuntimeException("Failed to load icons", e);
+			}
+		}
+		
+		public BufferedImage getIconAI(){
+			return ai;
+		}
+		
+		public BufferedImage getIconHuman(){
+			return human;
 		}
 		
 		public Color getBody(){

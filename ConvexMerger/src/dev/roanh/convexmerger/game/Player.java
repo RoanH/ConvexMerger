@@ -22,6 +22,10 @@ public abstract class Player{
 		return human;
 	}
 	
+	public boolean isAI(){
+		return !human;
+	}
+	
 	public void addArea(double area){
 		this.area += area;
 	}

@@ -270,8 +270,7 @@ public class ConvexMerger{
 				x += PLAYER_TEXT_OFFSET;
 				
 				//player icon and name
-				g.setColor(Color.RED);
-				g.fillRect(x, y, PLAYER_ICON_SIZE, PLAYER_ICON_SIZE);//TODO player icon
+				g.drawImage(player.isAI() ? player.getTheme().getIconAI() : player.getTheme().getIconHuman(), x, y, this);
 				g.setColor(player.getTheme().getOutline());
 				g.drawString(player.getName(), x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + PLAYER_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 				
