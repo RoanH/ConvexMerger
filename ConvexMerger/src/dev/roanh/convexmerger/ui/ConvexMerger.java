@@ -300,7 +300,7 @@ public class ConvexMerger{
 			
 			//render action hint
 			g.setFont(Theme.PRIDI_REGULAR_18);
-			g.setColor(state.getActivePlayer().getTheme().getOutline());
+			g.setColor(ended ? PlayerTheme.UNOWNED.getOutline() : state.getActivePlayer().getTheme().getOutline());
 			FontMetrics fm = g.getFontMetrics();
 			String msg = ended ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
