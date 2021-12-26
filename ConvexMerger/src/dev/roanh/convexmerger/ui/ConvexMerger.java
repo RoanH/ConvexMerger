@@ -21,6 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -191,20 +192,40 @@ public class ConvexMerger{
 		private Polygon menuPoly = null;
 		private MessageDialog activeDialog = null;
 		private List<Line2D> helperLines = null;
+		private boolean animationRunning;
 		
 		private GamePanel(){
 			this.addMouseListener(this);
 			this.addMouseMotionListener(this);
 		}
 		
-		public void renderGame(Graphics2D g){
-			boolean isAnimationActive = false;
+		private void renderGame(Graphics2D g){
+			animationRunning = false;
 
 			//render playfield background
 			g.setColor(Theme.BACKGROUND);
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
 			//render UI shapes
+			renderInterface(g);
+			
+			//TODO temp dialog
+			if(activeDialog != null){
+				//TODO center and make look nice
+				g.drawString(activeDialog.getTitle(), 100, 10);
+				g.drawString(activeDialog.getSubtitle(), 100, 30);
+				g.drawString("Click anywhere to continue playing.", 100, 50);
+			}
+			
+			//render the game
+			renderPlayfield(g);
+			
+			if(animationRunning){
+				executor.schedule(()->this.repaint(), ANIMATION_RATE, TimeUnit.MILLISECONDS);
+			}
+		}
+		
+		private void renderInterface(Graphics2D g){
 			g.setColor(Theme.MENU_BODY);
 			int sideOffset = Math.floorDiv(this.getWidth(), 2) - (TOP_MIDDLE_WIDTH / 2);
 			Polygon topPoly = new Polygon(new int[]{
@@ -334,20 +355,14 @@ public class ConvexMerger{
 				double dx = x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING;
 				double dy = y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
 				g.translate(dx, dy);
-				isAnimationActive |= player.getScoreAnimation().run(g);
+				animationRunning |= player.getScoreAnimation().run(g);
 				g.translate(-dx, -dy);
 			}
 			g.setClip(null);
-			
-			//TODO temp dialog
-			if(activeDialog != null){
-				//TODO center and make look nice
-				g.drawString(activeDialog.getTitle(), 100, 10);
-				g.drawString(activeDialog.getSubtitle(), 100, 30);
-				g.drawString("Click anywhere to continue playing.", 100, 50);
-			}
-			
-			//render the game
+		}
+		
+		private void renderPlayfield(Graphics2D g){
+			AffineTransform transform = g.getTransform();
 			g.translate(SIDE_OFFSET, TOP_SPACE + TOP_OFFSET);
 			double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
 			double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
@@ -363,7 +378,7 @@ public class ConvexMerger{
 			//TODO fix comod
 			for(ConvexObject obj : state.getObjects()){
 				if(obj.hasAnimation()){
-					isAnimationActive |= obj.runAnimation(g);
+					animationRunning |= obj.runAnimation(g);
 				}else{
 					obj.render(g);
 				}
@@ -388,9 +403,7 @@ public class ConvexMerger{
 				}
 			}
 			
-			if(isAnimationActive){
-				executor.schedule(()->this.repaint(), ANIMATION_RATE, TimeUnit.MILLISECONDS);
-			}
+			g.setTransform(transform);
 		}
 		
 		/**
