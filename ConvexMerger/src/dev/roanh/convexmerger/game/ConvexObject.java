@@ -11,6 +11,7 @@ import java.util.List;
 
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.ui.Theme;
 
 /**
  * Defines a convex object shown in the game
@@ -301,6 +302,14 @@ public class ConvexObject{
 			animation = null;
 			return false;
 		}
+	}
+	
+	public void render(Graphics2D g){
+		g.setColor(Theme.getPlayerBody(this));
+		g.fill(shape);
+		g.setStroke(Theme.POLY_STROKE);
+		g.setColor(Theme.getPlayerOutline(this));
+		g.draw(shape);
 	}
 	
 	@Override

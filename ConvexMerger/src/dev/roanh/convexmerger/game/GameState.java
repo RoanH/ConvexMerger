@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
+import dev.roanh.convexmerger.animation.MergeAnimation;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.MessageDialog;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
@@ -125,20 +126,25 @@ public class GameState{
 			decomp.removeObject(second);
 			player.removeArea(first.getArea());
 			player.removeArea(second.getArea());
+			
 			Iterator<ConvexObject> iterator = objects.iterator();
+			List<ConvexObject> contained = new ArrayList<ConvexObject>();
 			while(iterator.hasNext()){
 				ConvexObject obj = iterator.next();
 				if(merged.contains(obj)){
 					iterator.remove();
 					decomp.removeObject(obj);
+					contained.add(obj);
 					if(obj.isOwned()){
 						obj.getOwner().removeArea(obj.getArea());
 					}
 				}
 			}
+			
 			objects.add(merged);
 			decomp.addObject(merged);
 			player.addArea(merged.getArea());
+			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			return merged;
 		}else{
 			return null;

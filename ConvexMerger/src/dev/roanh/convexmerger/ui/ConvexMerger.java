@@ -367,15 +367,12 @@ public class ConvexMerger{
 			
 			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			
+			//TODO fix comod
 			for(ConvexObject obj : state.getObjects()){
 				if(obj.hasAnimation()){
 					isAnimationActive |= obj.runAnimation(g);
 				}else{
-					g.setColor(Theme.getPlayerBody(obj));
-					g.fill(obj.getShape());
-					g.setStroke(Theme.POLY_STROKE);
-					g.setColor(Theme.getPlayerOutline(obj));
-					g.draw(obj.getShape());
+					obj.render(g);
 				}
 				
 				if(SHOW_CENTROID){
