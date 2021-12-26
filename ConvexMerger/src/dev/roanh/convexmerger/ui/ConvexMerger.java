@@ -44,6 +44,7 @@ import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.LocalPlayer;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.player.SmallPlayer;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class ConvexMerger{
@@ -136,8 +137,8 @@ public class ConvexMerger{
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
 			new HumanPlayer(),
-			new LocalPlayer(),
-			new GreedyPlayer()//,
+			new SmallPlayer()//,
+			//new GreedyPlayer()//,
 			//new GreedyPlayer()
 		));
 		

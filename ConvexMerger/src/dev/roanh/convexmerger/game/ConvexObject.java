@@ -332,6 +332,10 @@ public class ConvexObject{
 		g.draw(shape);
 	}
 	
+	public boolean canClaim(){
+		return owner == null;
+	}
+	
 	@Override
 	public String toString(){
 		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.x + "," + p.y + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";

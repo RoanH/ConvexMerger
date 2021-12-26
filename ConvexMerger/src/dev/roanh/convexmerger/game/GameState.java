@@ -6,7 +6,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
@@ -132,12 +131,9 @@ public class GameState{
 			player.removeArea(first.getArea());
 			player.removeArea(second.getArea());
 			
-			Iterator<ConvexObject> iterator = objects.iterator();
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
-			while(iterator.hasNext()){
-				ConvexObject obj = iterator.next();
+			for(ConvexObject obj : objects){
 				if(merged.contains(obj)){
-					iterator.remove();
 					decomp.removeObject(obj);
 					contained.add(obj);
 					if(obj.isOwned()){
@@ -145,6 +141,7 @@ public class GameState{
 					}
 				}
 			}
+			objects.removeAll(contained);
 			
 			objects.add(merged);
 			decomp.addObject(merged);

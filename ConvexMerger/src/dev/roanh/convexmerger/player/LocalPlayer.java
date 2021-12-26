@@ -10,16 +10,20 @@ public class LocalPlayer extends Player{
 	/**
 	 * Object currently being worked on.
 	 */
-	private ConvexObject target = null;
+	protected ConvexObject target = null;
 
 	public LocalPlayer(){
 		super(false, "Elaina");
 	}
 	
+	protected LocalPlayer(String name){
+		super(false, name);
+	}
+	
 	@Override
 	public boolean executeMove(){
 		if(target == null){
-			return claimLargestUnowned();
+			return claimNewObject();
 		}
 		
 		MergeOption merge = findBestMergeFrom(target);
@@ -28,10 +32,10 @@ public class LocalPlayer extends Player{
 			return true;
 		}
 
-		return claimLargestUnowned();
+		return claimNewObject();
 	}
 	
-	private boolean claimLargestUnowned(){
+	protected boolean claimNewObject(){
 		target = findLargestUnownedObject();
 		if(target == null){
 			return false;

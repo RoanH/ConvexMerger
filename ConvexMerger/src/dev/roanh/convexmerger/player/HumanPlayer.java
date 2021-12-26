@@ -1,6 +1,6 @@
 package dev.roanh.convexmerger.player;
 
-import java.util.Objects;
+import dev.roanh.convexmerger.game.ConvexObject;
 
 public class HumanPlayer extends Player{
 	private static int ID = 1;
@@ -11,6 +11,6 @@ public class HumanPlayer extends Player{
 
 	@Override
 	public boolean executeMove(){
-		return findLargestUnownedObject() != null || stream().map(this::findBestMergeFrom).anyMatch(Objects::nonNull);
+		return state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent();
 	}
 }

@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.player;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,15 +71,31 @@ public abstract class Player{
 	}
 	
 	protected ConvexObject findLargestUnownedObject(){
+		return findLargestUnownedObject(Double::compare);
+	}
+	
+	protected ConvexObject findLargestUnownedObject(Comparator<Double> comparator){
 		ConvexObject max = null;
 		for(ConvexObject obj : state.getObjects()){
 			if(!obj.isOwned()){
-				if(max == null || obj.getArea() > max.getArea()){
+				if(max == null || comparator.compare(obj.getArea(), max.getArea()) > 0){
 					max = obj;
 				}
 			}
 		}
 		return max;
+	}
+	
+	protected boolean hasMergeFrom(ConvexObject obj){
+		for(ConvexObject other : state.getObjects()){
+			if((!other.isOwned() || other.isOwnedBy(this)) && !other.equals(obj)){
+				ConvexObject combined = obj.merge(state, other);
+				if(combined != null){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	protected MergeOption findBestMergeFrom(ConvexObject obj){
@@ -87,7 +104,7 @@ public abstract class Player{
 		double increase = 0.0D;
 		
 		for(ConvexObject other : state.getObjects()){
-			if(!other.isOwned() || (other.isOwnedBy(this) && !other.equals(obj))){
+			if((!other.isOwned() || other.isOwnedBy(this)) && !other.equals(obj)){
 				ConvexObject combined = obj.merge(state, other);
 				if(combined != null){
 					double area = combined.getArea();
