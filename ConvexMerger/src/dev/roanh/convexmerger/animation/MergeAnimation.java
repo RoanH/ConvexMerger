@@ -55,7 +55,7 @@ public class MergeAnimation extends ClaimAnimation{
 		
 		
 		// TODO Auto-generated method stub
-		return true;
+		return elapsed <= LINE_DURATION;
 	}
 
 	private Point2D interpolate(Point2D source, Point2D target, float fraction){
