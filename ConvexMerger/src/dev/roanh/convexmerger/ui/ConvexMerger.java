@@ -215,9 +215,9 @@ public class ConvexMerger{
 			//TODO temp dialog
 			if(activeDialog != null){
 				//TODO center and make look nice
-				g.drawString(activeDialog.getTitle(), 100, 10);
-				g.drawString(activeDialog.getSubtitle(), 100, 30);
-				g.drawString("Click anywhere to continue playing.", 100, 50);
+				g.drawString(activeDialog.getTitle(), 100, 10 + 120);
+				g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
+				g.drawString("Click anywhere to continue playing.", 100, 50 + 120);
 			}
 			
 			if(animationRunning){
@@ -463,6 +463,8 @@ public class ConvexMerger{
 					}
 					repaint();
 				}
+			}else{
+				activeDialog = MessageDialog.NO_TURN;
 			}
 		}
 
