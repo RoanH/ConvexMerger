@@ -307,9 +307,9 @@ public class ConvexMerger{
 			g.draw(menuPath);
 			
 			Path2D topPath = new Path2D.Double(Path2D.WIND_NON_ZERO, topPoly.npoints - 2);
-			topPath.moveTo(topPoly.xpoints[1], topPoly.ypoints[1] + 1);
+			topPath.moveTo(topPoly.xpoints[1], topPoly.ypoints[1]);
 			for(int i = 2; i < topPoly.npoints - 1; i++){
-				topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i] + 1);
+				topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i]);
 			}
 			g.draw(topPath);
 			
