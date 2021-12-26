@@ -206,6 +206,9 @@ public class ConvexMerger{
 			g.setColor(Theme.BACKGROUND);
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
+			//render the game
+			renderPlayfield(g);
+			
 			//render UI shapes
 			renderInterface(g);
 			
@@ -216,9 +219,6 @@ public class ConvexMerger{
 				g.drawString(activeDialog.getSubtitle(), 100, 30);
 				g.drawString("Click anywhere to continue playing.", 100, 50);
 			}
-			
-			//render the game
-			renderPlayfield(g);
 			
 			if(animationRunning){
 				executor.schedule(()->this.repaint(), ANIMATION_RATE, TimeUnit.MILLISECONDS);
@@ -292,6 +292,7 @@ public class ConvexMerger{
 			
 			//render UI borders
 			g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
+			g.setStroke(Theme.BORDER_STROKE);
 			
 			Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
 			infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1] - 1);
@@ -372,8 +373,6 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-			
 			//TODO fix comod
 			for(ConvexObject obj : state.getObjects()){
 				if(obj.hasAnimation()){
@@ -403,6 +402,7 @@ public class ConvexMerger{
 			}
 			
 			g.setTransform(transform);
+			g.setClip(null);
 		}
 		
 		/**
