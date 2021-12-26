@@ -4,12 +4,33 @@ import java.awt.Graphics2D;
 
 import dev.roanh.convexmerger.player.Player;
 
+/**
+ * Animation that shows the player score increasing or decreasing.
+ * @author Roan
+ */
 public class ScoreAnimation implements Animation{
+	/**
+	 * Number of score points to add each millisecond.
+	 */
 	private static final int SCORE_PER_MS = 51;
+	/**
+	 * Player whose score to display.
+	 */
 	private Player player;
+	/**
+	 * Current area claimed by the player as
+	 * shown by the animation.
+	 */
 	private double area;
+	/**
+	 * Timestamp the last animation frame was rendered.
+	 */
 	private long last = -1L;
 	
+	/**
+	 * Constructs a new score animation for the given player.
+	 * @param player The player whose score to animate.
+	 */
 	public ScoreAnimation(Player player){
 		this.player = player;
 		area = player.getArea();
