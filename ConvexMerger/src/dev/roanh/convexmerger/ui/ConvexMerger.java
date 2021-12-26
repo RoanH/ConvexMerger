@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ClaimResult;
@@ -145,12 +144,6 @@ public class ConvexMerger{
 			new GreedyPlayer()//,
 			//new GreedyPlayer()
 		));
-		
-		//TODO
-//		executor.scheduleAtFixedRate(()->{
-//			state.getActivePlayer().executeMove();
-//			frame.repaint();
-//		}, 5000, 200, TimeUnit.MILLISECONDS);
 		
 		GameThread thread = new GameThread();
 		thread.setName("GameThread");

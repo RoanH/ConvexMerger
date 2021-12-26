@@ -22,10 +22,26 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * @author Roan
  */
 public class GameState{
+	/**
+	 * The convex objects in this game.
+	 */
 	private List<ConvexObject> objects = new ArrayList<ConvexObject>();
+	/**
+	 * The players playing in this game.
+	 */
 	private List<Player> players = new ArrayList<Player>();
+	/**
+	 * The vertical decomposition for the game state.
+	 */
 	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+	/**
+	 * The index of the player whose turn it is.
+	 */
 	private int activePlayer = 0;
+	/**
+	 * The convex object currently selected by the player,
+	 * or <code>null</code> if there is no selected object.
+	 */
 	private ConvexObject selected = null;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
@@ -33,7 +49,7 @@ public class GameState{
 		this.players = players;
 		objects.forEach(decomp::addObject);
 		for(int i = 0; i < players.size(); i++){
-			players.get(i).init(this, PlayerTheme.get(i + 1));;
+			players.get(i).init(this, PlayerTheme.get(i + 1));
 		}
 		decomp.rebuild();
 	}
@@ -43,7 +59,6 @@ public class GameState{
 	}
 	
 	public ClaimResult claimObject(ConvexObject obj, Point2D location){
-		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			if(selected != null){
 				ConvexObject merged = mergeObjects(selected, obj);
@@ -92,19 +107,6 @@ public class GameState{
 	private void endTurn(){
 		selected = null;
 		activePlayer = (activePlayer + 1) % players.size();
-		//TODO next
-		
-		players.forEach(System.out::println);
-		
-		if(objects.stream().allMatch(ConvexObject::isOwned)){
-			//TODO verify no merges are possible
-			System.out.println("soft game end (no more unowned objects)");
-		}
-		
-//		if(!getActivePlayer().isHuman()){
-//			//TODO this is very temporary
-//			getActivePlayer().executeMove();
-//		}
 	}
 	
 	/**
