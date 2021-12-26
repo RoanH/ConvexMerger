@@ -287,14 +287,29 @@ public class ConvexObject{
 		return new Point2D.Double(cx / area, cy / area);
 	}
 	
+	/**
+	 * Checks if this convex object has an active animation.
+	 * @return True if this convex object has an active animation.
+	 */
 	public boolean hasAnimation(){
 		return animation != null;
 	}
 	
+	/**
+	 * Sets the active animation for this convex object.
+	 * @param animation The new active animation.
+	 */
 	public void setAnimation(Animation animation){
 		this.animation = animation;
 	}
 	
+	/**
+	 * Renders the animation for this convex object
+	 * using the given graphics instance.
+	 * @param g The graphics instance to use.
+	 * @return True if the animation still has frames
+	 *         remaining, false otherwise.
+	 */
 	public boolean runAnimation(Graphics2D g){
 		if(animation.run(g)){
 			return true;
@@ -304,6 +319,11 @@ public class ConvexObject{
 		}
 	}
 	
+	/**
+	 * Renders this convex object using the given
+	 * graphics instance.
+	 * @param g The graphics instance to use.
+	 */
 	public void render(Graphics2D g){
 		g.setColor(Theme.getPlayerBody(this));
 		g.fill(shape);
