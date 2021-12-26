@@ -80,6 +80,6 @@ public class ClaimAnimation implements Animation{
 		g.setColor(elapsed * 2.0F > DURATION ? Theme.getPlayerOutline(obj) : PlayerTheme.UNOWNED.getOutline());
 		g.draw(obj.getShape());
 		
-		return elapsed > DURATION;
+		return elapsed <= DURATION;
 	}
 }
