@@ -5,10 +5,10 @@ import java.awt.Graphics2D;
 import dev.roanh.convexmerger.player.Player;
 
 public class ScoreAnimation implements Animation{
-	private static final int SCORE_PER_MS = 100;
+	private static final int SCORE_PER_MS = 51;
 	private Player player;
 	private double area;
-	private long last = System.currentTimeMillis();
+	private long last = -1L;
 	
 	public ScoreAnimation(Player player){
 		this.player = player;
@@ -17,6 +17,10 @@ public class ScoreAnimation implements Animation{
 
 	@Override
 	public boolean run(Graphics2D g){
+		if(last == -1L){
+			last = System.currentTimeMillis();
+		}
+		
 		long time = System.currentTimeMillis();
 		if(area <= player.getArea()){
 			area = Math.min(player.getArea(), area + (time - last) * SCORE_PER_MS);
@@ -31,7 +35,12 @@ public class ScoreAnimation implements Animation{
 		}
 		g.drawString(str, 0, 0);
 		
-		last = time;
-		return Double.compare(area, player.getArea()) != 0;
+		if(Double.compare(area, player.getArea()) != 0){
+			last = time;
+			return true;
+		}else{
+			last = -1L;
+			return false;
+		}
 	}
 }

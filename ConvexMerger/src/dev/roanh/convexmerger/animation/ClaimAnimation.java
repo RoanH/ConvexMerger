@@ -18,7 +18,7 @@ public class ClaimAnimation implements Animation{
 	/**
 	 * Number of milliseconds the animation plays for.
 	 */
-	private static final float DURATION = 300.0F;
+	private static final float DURATION = 250.0F;
 	/**
 	 * Millisecond time this animation started.
 	 */
@@ -44,7 +44,7 @@ public class ClaimAnimation implements Animation{
 	public ClaimAnimation(ConvexObject selected, Point2D location){
 		obj = selected;
 		loc = location;
-		start = System.currentTimeMillis() + 1L;
+		start = System.currentTimeMillis();
 		for(Point p : selected.getPoints()){
 			dist = Math.max(dist, (float)location.distance(p));
 		}
