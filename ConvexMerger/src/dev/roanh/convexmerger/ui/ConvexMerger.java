@@ -74,11 +74,6 @@ public class ConvexMerger{
 	private GameState state;
 	private Object turnLock = new Object();
 	
-	private boolean ended = false;//TODO temp
-	
-	
-	
-	
 	public void showGame(){
 		
 		
@@ -169,14 +164,14 @@ public class ConvexMerger{
 					if(player.isAI()){
 						Thread.sleep(400);
 					}
-				}while(player.executeMove());
+					state.executePlayerTurn();
+				}while(!state.isFinished());
 			}catch(InterruptedException e){
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			System.out.println("game end");
-			ended = true;
 			frame.repaint();
 
 		}
@@ -315,9 +310,9 @@ public class ConvexMerger{
 			
 			//render action hint
 			g.setFont(Theme.PRIDI_REGULAR_18);
-			g.setColor(ended ? PlayerTheme.UNOWNED.getOutline() : state.getActivePlayer().getTheme().getOutline());
+			g.setColor(state.isFinished() ? PlayerTheme.UNOWNED.getOutline() : state.getActivePlayer().getTheme().getOutline());
 			FontMetrics fm = g.getFontMetrics();
-			String msg = ended ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
+			String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
 			
 			//render player data
@@ -463,7 +458,7 @@ public class ConvexMerger{
 					repaint();
 				}
 			}else{
-				activeDialog = ended ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
+				activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
 			}
 		}
 

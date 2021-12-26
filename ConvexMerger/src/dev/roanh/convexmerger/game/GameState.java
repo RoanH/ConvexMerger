@@ -45,6 +45,7 @@ public class GameState{
 	 * or <code>null</code> if there is no selected object.
 	 */
 	private ConvexObject selected = null;
+	private boolean ended = false;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
@@ -222,5 +223,13 @@ public class GameState{
 	
 	public int getPlayerCount(){
 		return players.size();
+	}
+	
+	public void executePlayerTurn(){
+		ended = !getActivePlayer().executeMove();
+	}
+	
+	public boolean isFinished(){
+		return ended;
 	}
 }
