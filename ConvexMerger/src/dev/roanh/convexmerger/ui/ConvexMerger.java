@@ -352,11 +352,10 @@ public class ConvexMerger{
 				}
 				
 				//player score
-				double dx = x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING;
-				double dy = y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
-				g.translate(dx, dy);
+				AffineTransform transform = g.getTransform();
+				g.translate(x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D);
 				animationRunning |= player.getScoreAnimation().run(g);
-				g.translate(-dx, -dy);
+				g.setTransform(transform);
 			}
 			g.setClip(null);
 		}
