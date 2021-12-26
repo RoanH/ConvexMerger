@@ -217,7 +217,7 @@ public class ConvexMerger{
 				//TODO center and make look nice
 				g.drawString(activeDialog.getTitle(), 100, 10 + 120);
 				g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
-				g.drawString("Click anywhere to continue playing.", 100, 50 + 120);
+				g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
 			}
 			
 			if(animationRunning){
@@ -464,7 +464,7 @@ public class ConvexMerger{
 					repaint();
 				}
 			}else{
-				activeDialog = MessageDialog.NO_TURN;
+				activeDialog = ended ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
 			}
 		}
 
