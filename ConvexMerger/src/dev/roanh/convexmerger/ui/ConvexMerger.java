@@ -373,7 +373,6 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			//TODO fix comod
 			for(ConvexObject obj : state.getObjects()){
 				if(obj.hasAnimation()){
 					animationRunning |= obj.runAnimation(g);

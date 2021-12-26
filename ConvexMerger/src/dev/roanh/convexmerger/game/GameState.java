@@ -5,8 +5,10 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
@@ -25,7 +27,7 @@ public class GameState{
 	/**
 	 * The convex objects in this game.
 	 */
-	private List<ConvexObject> objects = new ArrayList<ConvexObject>();
+	private List<ConvexObject> objects;
 	/**
 	 * The players playing in this game.
 	 */
@@ -45,8 +47,8 @@ public class GameState{
 	private ConvexObject selected = null;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
-		this.objects = objects;
-		this.players = players;
+		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
+		this.players = Collections.unmodifiableList(players);
 		objects.forEach(decomp::addObject);
 		for(int i = 0; i < players.size(); i++){
 			players.get(i).init(this, PlayerTheme.get(i + 1));
