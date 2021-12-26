@@ -296,10 +296,10 @@ public class ConvexObject{
 	
 	public boolean runAnimation(Graphics2D g){
 		if(animation.run(g)){
+			return true;
+		}else{
 			animation = null;
 			return false;
-		}else{
-			return true;
 		}
 	}
 	
