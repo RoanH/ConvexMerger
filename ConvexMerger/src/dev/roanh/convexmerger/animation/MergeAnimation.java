@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Path2D.Double;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -20,6 +21,8 @@ public class MergeAnimation extends ClaimAnimation{
 	private ConvexObject owned;
 	private ConvexObject target;
 	private Point[] mergeLines;
+	
+	private List<ConvexObject> contained;
 	
 	private long start;
 	
@@ -35,7 +38,7 @@ public class MergeAnimation extends ClaimAnimation{
 		this.owned = owned;
 		this.target = target;
 		
-		//TODO handle contained
+		this.contained = contained;
 		
 		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), result.getPoints());
 		List<List<Point>> mergeBounds = ConvexUtil.computeMergeBounds(owned.getPoints(), target.getPoints(), mergeLines);
@@ -60,7 +63,7 @@ public class MergeAnimation extends ClaimAnimation{
 		}
 		
 		long elapsed = System.currentTimeMillis() - start;
-		float factor = Math.min(1.0F, elapsed / LINE_DURATION);
+		float factor = Math.min(2.0F, elapsed / LINE_DURATION);
 		
 		//owned.render(g);
 		//target.render(g);
@@ -69,22 +72,43 @@ public class MergeAnimation extends ClaimAnimation{
 		g.fill(owned.getShape());
 		g.fill(target.getShape());
 		
+		Composite composite = g.getComposite();
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.0F, 1.0F - factor)));
+		g.draw(firstInner);
+		g.draw(secondInner);
+		for(ConvexObject obj : contained){
+			obj.render(g);
+		}
+		
+		g.setComposite(composite);
+		
+		if(factor >= 1.0F){
+			g.setColor(Theme.getPlayerBody(owned));
+			
+			Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
+			path.moveTo(mergeLines[3].getX(), mergeLines[3].getY());
+			path.lineTo(mergeLines[0].getX(), mergeLines[0].getY());
+			Point2D side = interpolate(mergeLines[0], mergeLines[1], factor - 1.0F);
+			path.lineTo(side.getX(), side.getY());
+			path.closePath();
+			g.fill(path);
+			
+			path = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
+			path.moveTo(mergeLines[1].getX(), mergeLines[1].getY());
+			path.lineTo(mergeLines[2].getX(), mergeLines[2].getY());
+			side = interpolate(mergeLines[2], mergeLines[3], factor = 1.0F);
+			path.lineTo(side.getX(), side.getY());
+			path.closePath();
+			g.fill(path);
+		}
+		
 		g.setColor(Theme.getPlayerOutline(owned));
 		g.setStroke(Theme.POLY_STROKE);
 		g.draw(new Line2D.Double(mergeLines[0],	interpolate(mergeLines[0], mergeLines[1], factor)));
 		g.draw(new Line2D.Double(mergeLines[2],	interpolate(mergeLines[2], mergeLines[3], factor)));
 		
-		Composite composite = g.getComposite();
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0F - factor));
-		g.draw(firstInner);
-		g.draw(secondInner);
-		
-		g.setComposite(composite);
-		
 		g.draw(firstOuter);
 		g.draw(secondOuter);
-		
-		
 		
 		
 		
@@ -103,7 +127,7 @@ public class MergeAnimation extends ClaimAnimation{
 
 	private Point2D interpolate(Point2D source, Point2D target, float fraction){
 		return new Point2D.Double(
-			clamp(source.getX(), target.getX(), source.getX() + (target.getX() - source.getX()) * fraction),//TODO clamp redundant?
+			clamp(source.getX(), target.getX(), source.getX() + (target.getX() - source.getX()) * fraction),
 			clamp(source.getY(), target.getY(), source.getY() + (target.getY() - source.getY()) * fraction)
 		);
 	}

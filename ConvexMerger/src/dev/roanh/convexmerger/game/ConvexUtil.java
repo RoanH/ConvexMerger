@@ -135,13 +135,13 @@ public class ConvexUtil{
 		return new Point[]{a, b, c, d};
 	}
 	
-	public static List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second){
+	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second){
 		return computeMergeBounds(first, second, computeMergeLines(first, second));
 	}
 	
 	//requires correct call, as in, pa is associated with first
 	//mr line 1 has to be rooted at the given hull, flipped perspective for the other line -- has to be left
-	public static List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second, Point[] mergeLines){//pa = 0, pb = 3
+	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second, Point[] mergeLines){//pa = 0, pb = 3
 		if(!first.contains(mergeLines[0])){//TODO debatable
 			List<Point> tmp = first;
 			first = second;
@@ -159,7 +159,7 @@ public class ConvexUtil{
 		);
 	}
 	
-	public static List<List<Point>> computeMergeBounds(List<Point> hull, Point a, Point b){
+	public static final List<List<Point>> computeMergeBounds(List<Point> hull, Point a, Point b){
 		List<Point> first = new ArrayList<Point>();
 		List<Point> second = new ArrayList<Point>();
 		
