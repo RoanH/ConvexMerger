@@ -124,10 +124,10 @@ public class ConvexMerger{
 	public void initialiseGame(){
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			//new HumanPlayer(),
-			new SmallPlayer()//,
-			//new LocalPlayer(),
-			//new GreedyPlayer()
+			new HumanPlayer(),
+			new SmallPlayer(),
+			new LocalPlayer(),
+			new GreedyPlayer()
 		));
 		
 		GameThread thread = new GameThread();
