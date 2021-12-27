@@ -174,17 +174,21 @@ public class ConvexUtil{
 			idx++;
 		}
 		
-		do{
-			idx = (idx + 1) % hull.size();
-			first.add(hull.get(idx));
-		}while(!hull.get(idx).equals(b));
-		
 		//outer segment
 		second.add(b);
-		do{
-			idx = (idx + 1) % hull.size();
-			second.add(hull.get(idx));
-		}while(!hull.get(idx).equals(a));
+		
+		//extend both
+		if(!a.equals(b)){
+			do{
+				idx = (idx + 1) % hull.size();
+				first.add(hull.get(idx));
+			}while(!hull.get(idx).equals(b));
+			
+			do{
+				idx = (idx + 1) % hull.size();
+				second.add(hull.get(idx));
+			}while(!hull.get(idx).equals(a));
+		}
 		
 		return Arrays.asList(first, second);
 	}

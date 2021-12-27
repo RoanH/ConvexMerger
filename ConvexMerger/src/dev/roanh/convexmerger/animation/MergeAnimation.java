@@ -1,13 +1,11 @@
 package dev.roanh.convexmerger.animation;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Path2D.Double;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -37,7 +35,6 @@ public class MergeAnimation extends ClaimAnimation{
 		target.setOwner(owned.getOwner());
 		this.owned = owned;
 		this.target = target;
-		
 		this.contained = contained;
 		
 		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), result.getPoints());
@@ -46,9 +43,7 @@ public class MergeAnimation extends ClaimAnimation{
 		firstOuter = createPath(mergeBounds.get(1));
 		secondInner = createPath(mergeBounds.get(2));
 		secondOuter = createPath(mergeBounds.get(3));
-		
-		
-		
+		start = System.currentTimeMillis();
 	}
 
 	@Override
@@ -65,21 +60,19 @@ public class MergeAnimation extends ClaimAnimation{
 		long elapsed = System.currentTimeMillis() - start;
 		float factor = Math.min(2.0F, elapsed / LINE_DURATION);
 		
-		//owned.render(g);
-		//target.render(g);
-		
 		g.setColor(Theme.getPlayerBody(owned));
 		g.fill(owned.getShape());
 		g.fill(target.getShape());
 		
 		Composite composite = g.getComposite();
+		g.setStroke(Theme.POLY_STROKE);
+		g.setColor(Theme.getPlayerOutline(owned));
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0.0F, 1.0F - factor)));
 		g.draw(firstInner);
 		g.draw(secondInner);
 		for(ConvexObject obj : contained){
 			obj.render(g);
 		}
-		
 		g.setComposite(composite);
 		
 		if(factor >= 1.0F){
@@ -96,7 +89,7 @@ public class MergeAnimation extends ClaimAnimation{
 			path = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
 			path.moveTo(mergeLines[1].getX(), mergeLines[1].getY());
 			path.lineTo(mergeLines[2].getX(), mergeLines[2].getY());
-			side = interpolate(mergeLines[2], mergeLines[3], factor = 1.0F);
+			side = interpolate(mergeLines[2], mergeLines[3], factor - 1.0F);
 			path.lineTo(side.getX(), side.getY());
 			path.closePath();
 			g.fill(path);
