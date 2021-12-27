@@ -6,7 +6,6 @@ import static dev.roanh.convexmerger.ui.Theme.PLAYER_ICON_SIZE;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -68,23 +67,13 @@ public class ConvexMerger{
 	 * Number of pixels from the left text border to the player info.
 	 */
 	private static final int PLAYER_TEXT_OFFSET = 24;
-	
-	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
-	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
 	private Object turnLock = new Object();
 	
 	public void showGame(){
-		
-		
-		
 		JPanel content = new JPanel(new BorderLayout());
-		
-		
 		content.add(new GamePanel(), BorderLayout.CENTER);
-		
-		
 		
 		frame.add(content);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -132,8 +121,6 @@ public class ConvexMerger{
 	}
 	
 	public void initialiseGame(){
-		
-		
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
 			new HumanPlayer(),
@@ -293,7 +280,7 @@ public class ConvexMerger{
 			Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
 			infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1] - 1);
 			infoPath.lineTo(infoPoly.xpoints[2], infoPoly.ypoints[2] - 1);
-			infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3]);
+			infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3] - 1);
 			g.draw(infoPath);
 			
 			Path2D menuPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
