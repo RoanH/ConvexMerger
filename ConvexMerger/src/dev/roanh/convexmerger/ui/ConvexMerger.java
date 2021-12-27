@@ -59,6 +59,7 @@ public class ConvexMerger{
 	private static final int TOP_MIDDLE_WIDTH = 200;//even
 	private static final int BUTTON_HEIGHT = 50;
 	private static final int BUTTON_WIDTH = 150;
+	private static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
 	 * Number of pixels between the player icon and the text.
 	 */
@@ -124,9 +125,9 @@ public class ConvexMerger{
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
 			new HumanPlayer(),
-			new SmallPlayer(),
-			new LocalPlayer(),
-			new GreedyPlayer()
+			new SmallPlayer()//,
+			//new LocalPlayer(),
+			//new GreedyPlayer()
 		));
 		
 		GameThread thread = new GameThread();
@@ -301,7 +302,7 @@ public class ConvexMerger{
 			g.setColor(state.isFinished() ? PlayerTheme.UNOWNED.getOutline() : state.getActivePlayer().getTheme().getOutline());
 			FontMetrics fm = g.getFontMetrics();
 			String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
-			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
+			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
 			
 			//render player data
 			List<Player> players = state.getPlayers();
@@ -431,7 +432,7 @@ public class ConvexMerger{
 			if(activeDialog != null){
 				activeDialog = null;
 				repaint();
-			}else if(state.getActivePlayer().isHuman()){
+			}else if(state.getActivePlayer().isHuman() && !state.isFinished()){
 				Point2D loc = translateToGameSpace(e.getX(), e.getY());
 				ConvexObject obj = state.getObject(loc);
 				if(obj != null){
