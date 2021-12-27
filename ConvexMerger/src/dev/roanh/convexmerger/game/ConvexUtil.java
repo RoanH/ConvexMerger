@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -132,5 +133,59 @@ public class ConvexUtil{
 		}
 
 		return new Point[]{a, b, c, d};
+	}
+	
+	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second){
+		return computeMergeBounds(first, second, computeMergeLines(first, second));
+	}
+	
+	//TODO does this consider segments of side 1?
+	//requires correct call, as in, pa is associated with first
+	//mr line 1 has to be rooted at the given hull, flipped perspective for the other line -- has to be left
+	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second, Point[] mergeLines){//pa = 0, pb = 3
+		if(!first.contains(mergeLines[0])){//TODO debatable
+			List<Point> tmp = first;
+			first = second;
+			second = tmp;
+		}
+		
+		List<List<Point>> left = computeMergeBounds(first, mergeLines[0], mergeLines[3]);
+		List<List<Point>> right = computeMergeBounds(second, mergeLines[1], mergeLines[2]);
+		
+		return Arrays.asList(
+			left.get(0),
+			left.get(1),
+			right.get(1),
+			right.get(0)
+		);
+	}
+	
+	public static final List<List<Point>> computeMergeBounds(List<Point> hull, Point a, Point b){
+		List<Point> first = new ArrayList<Point>();
+		List<Point> second = new ArrayList<Point>();
+		
+		//inner segment
+		int idx = 0;
+		while(true){
+			if(hull.get(idx).equals(a)){
+				first.add(hull.get(idx));
+				break;
+			}
+			idx++;
+		}
+		
+		do{
+			idx = (idx + 1) % hull.size();
+			first.add(hull.get(idx));
+		}while(!hull.get(idx).equals(b));
+		
+		//outer segment
+		second.add(b);
+		do{
+			idx = (idx + 1) % hull.size();
+			second.add(hull.get(idx));
+		}while(!hull.get(idx).equals(a));
+		
+		return Arrays.asList(first, second);
 	}
 }

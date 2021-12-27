@@ -1,12 +1,11 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.game.Theme.CROWN_ICON_SIZE;
-import static dev.roanh.convexmerger.game.Theme.PLAYER_ICON_SIZE;
+import static dev.roanh.convexmerger.ui.Theme.CROWN_ICON_SIZE;
+import static dev.roanh.convexmerger.ui.Theme.PLAYER_ICON_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -21,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -33,10 +33,18 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.game.ClaimResult;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.player.GreedyPlayer;
+import dev.roanh.convexmerger.player.HumanPlayer;
+import dev.roanh.convexmerger.player.LocalPlayer;
+import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.player.SmallPlayer;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class ConvexMerger{
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -51,6 +59,7 @@ public class ConvexMerger{
 	private static final int TOP_MIDDLE_WIDTH = 200;//even
 	private static final int BUTTON_HEIGHT = 50;
 	private static final int BUTTON_WIDTH = 150;
+	private static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
 	 * Number of pixels between the player icon and the text.
 	 */
@@ -59,26 +68,13 @@ public class ConvexMerger{
 	 * Number of pixels from the left text border to the player info.
 	 */
 	private static final int PLAYER_TEXT_OFFSET = 24;
-	
-	private static final Font MSG_TITLE = new Font("Dialog", Font.PLAIN, 20);
-	private static final Font MSG_SUBTITLE = new Font("Dialog", Font.PLAIN, 14);
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;
-	
-	
-	
-	
+	private Object turnLock = new Object();
 	
 	public void showGame(){
-		
-		
-		
 		JPanel content = new JPanel(new BorderLayout());
-		
-		
 		content.add(new GamePanel(), BorderLayout.CENTER);
-		
-		
 		
 		frame.add(content);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,19 +122,51 @@ public class ConvexMerger{
 	}
 	
 	public void initialiseGame(){
-		
-		
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(PlayerTheme.P1),
-			new GreedyPlayer(PlayerTheme.P2),
-			new GreedyPlayer(PlayerTheme.P3),
-			new GreedyPlayer(PlayerTheme.P4)
+			new HumanPlayer(),
+			new SmallPlayer(),
+			new LocalPlayer(),
+			new GreedyPlayer()
 		));
 		
+		GameThread thread = new GameThread();
+		thread.setName("GameThread");
+		thread.setDaemon(true);
+		thread.start();
 	}
 	
+	private final class GameThread extends Thread{
+		
+		@Override
+		public void run(){
+			try{
+				Player player = null;
+				do{
+					if(player != null && player.isHuman()){
+						synchronized(turnLock){
+							turnLock.wait();
+						}
+					}
+					frame.repaint();
+					player = state.getActivePlayer();
+					if(player.isAI()){
+						Thread.sleep(400);
+					}
+					state.executePlayerTurn();
+				}while(!state.isFinished());
+			}catch(InterruptedException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			System.out.println("game end");
+			frame.repaint();
+
+		}
+	}
 	
+	//TODO extract
 	private final class GamePanel extends JPanel implements MouseListener, MouseMotionListener{
 		/**
 		 * Serial ID.
@@ -148,20 +176,40 @@ public class ConvexMerger{
 		private Polygon menuPoly = null;
 		private MessageDialog activeDialog = null;
 		private List<Line2D> helperLines = null;
+		private boolean animationRunning;
 		
 		private GamePanel(){
 			this.addMouseListener(this);
 			this.addMouseMotionListener(this);
 		}
 		
-		public void renderGame(Graphics2D g){
-			boolean isAnimationActive = false;
+		private void renderGame(Graphics2D g){
+			animationRunning = false;
 
 			//render playfield background
 			g.setColor(Theme.BACKGROUND);
 			g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 			
+			//render the game
+			renderPlayfield(g);
+			
 			//render UI shapes
+			renderInterface(g);
+			
+			//TODO temp dialog
+			if(activeDialog != null){
+				//TODO center and make look nice
+				g.drawString(activeDialog.getTitle(), 100, 10 + 120);
+				g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
+				g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
+			}
+			
+			if(animationRunning){
+				executor.schedule(()->this.repaint(), ANIMATION_RATE, TimeUnit.MILLISECONDS);
+			}
+		}
+		
+		private void renderInterface(Graphics2D g){
 			g.setColor(Theme.MENU_BODY);
 			int sideOffset = Math.floorDiv(this.getWidth(), 2) - (TOP_MIDDLE_WIDTH / 2);
 			Polygon topPoly = new Polygon(new int[]{
@@ -228,11 +276,12 @@ public class ConvexMerger{
 			
 			//render UI borders
 			g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
+			g.setStroke(Theme.BORDER_STROKE);
 			
 			Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
 			infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1] - 1);
 			infoPath.lineTo(infoPoly.xpoints[2], infoPoly.ypoints[2] - 1);
-			infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3]);
+			infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3] - 1);
 			g.draw(infoPath);
 			
 			Path2D menuPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
@@ -242,18 +291,18 @@ public class ConvexMerger{
 			g.draw(menuPath);
 			
 			Path2D topPath = new Path2D.Double(Path2D.WIND_NON_ZERO, topPoly.npoints - 2);
-			topPath.moveTo(topPoly.xpoints[1], topPoly.ypoints[1] + 1);
+			topPath.moveTo(topPoly.xpoints[1], topPoly.ypoints[1]);
 			for(int i = 2; i < topPoly.npoints - 1; i++){
-				topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i] + 1);
+				topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i]);
 			}
 			g.draw(topPath);
 			
 			//render action hint
 			g.setFont(Theme.PRIDI_REGULAR_18);
-			g.setColor(state.getActivePlayer().getTheme().getOutline());
+			g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
 			FontMetrics fm = g.getFontMetrics();
-			String msg = state.isSelectingSecond() ? "Merge with an object" : "Select an object";
-			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent());
+			String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
+			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
 			
 			//render player data
 			List<Player> players = state.getPlayers();
@@ -271,7 +320,7 @@ public class ConvexMerger{
 				
 				//player icon and name
 				g.drawImage(player.isAI() ? player.getTheme().getIconAI() : player.getTheme().getIconHuman(), x, y, this);
-				g.setColor(player.getTheme().getOutline());
+				g.setColor(player.getTheme().getTextColor());
 				g.drawString(player.getName(), x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + PLAYER_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 				
 				//new offset
@@ -288,23 +337,16 @@ public class ConvexMerger{
 				}
 				
 				//player score
-				double dx = x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING;
-				double dy = y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
-				g.translate(dx, dy);
-				isAnimationActive |= player.getScoreAnimation().run(g);
-				g.translate(-dx, -dy);
+				AffineTransform transform = g.getTransform();
+				g.translate(x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D);
+				animationRunning |= player.getScoreAnimation().run(g);
+				g.setTransform(transform);
 			}
 			g.setClip(null);
-			
-			//TODO temp dialog
-			if(activeDialog != null){
-				//TODO center and make look nice
-				g.drawString(activeDialog.getTitle(), 100, 10);
-				g.drawString(activeDialog.getSubtitle(), 100, 30);
-				g.drawString("Click anywhere to continue playing.", 100, 50);
-			}
-			
-			//render the game
+		}
+		
+		private void renderPlayfield(Graphics2D g){
+			AffineTransform transform = g.getTransform();
 			g.translate(SIDE_OFFSET, TOP_SPACE + TOP_OFFSET);
 			double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
 			double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
@@ -315,17 +357,11 @@ public class ConvexMerger{
 				g.scale(sy, sy);
 			}
 			
-			g.clipRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-			
 			for(ConvexObject obj : state.getObjects()){
 				if(obj.hasAnimation()){
-					isAnimationActive |= obj.runAnimation(g);
+					animationRunning |= obj.runAnimation(g);
 				}else{
-					g.setColor(Theme.getPlayerBody(obj));
-					g.fill(obj.getShape());
-					g.setStroke(Theme.POLY_STROKE);
-					g.setColor(Theme.getPlayerOutline(obj));
-					g.draw(obj.getShape());
+					obj.render(g);
 				}
 				
 				if(SHOW_CENTROID){
@@ -348,9 +384,8 @@ public class ConvexMerger{
 				}
 			}
 			
-			if(isAnimationActive){
-				executor.schedule(()->this.repaint(), ANIMATION_RATE, TimeUnit.MILLISECONDS);
-			}
+			g.setTransform(transform);
+			g.setClip(null);
 		}
 		
 		/**
@@ -397,14 +432,22 @@ public class ConvexMerger{
 			if(activeDialog != null){
 				activeDialog = null;
 				repaint();
-			}else if(state.getActivePlayer().isHuman()){
+			}else if(state.getActivePlayer().isHuman() && !state.isFinished()){
 				Point2D loc = translateToGameSpace(e.getX(), e.getY());
 				ConvexObject obj = state.getObject(loc);
 				if(obj != null){
-					activeDialog = state.claimObject(obj, loc);
+					ClaimResult result = state.claimObject(obj, loc);
+					activeDialog = result.getMessage();
 					helperLines = null;
+					if(result != ClaimResult.EMPTY){
+						synchronized(turnLock){
+							turnLock.notify();
+						}
+					}
 					repaint();
 				}
+			}else{
+				activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
 			}
 		}
 

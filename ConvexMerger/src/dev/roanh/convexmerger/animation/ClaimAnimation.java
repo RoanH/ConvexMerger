@@ -1,4 +1,4 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.animation;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -6,7 +6,9 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
 
-import dev.roanh.convexmerger.game.Theme.PlayerTheme;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.ui.Theme;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Animation shown when claiming a single object.
@@ -16,7 +18,7 @@ public class ClaimAnimation implements Animation{
 	/**
 	 * Number of milliseconds the animation plays for.
 	 */
-	private static final float DURATION = 300.0F;
+	private static final float DURATION = 250.0F;
 	/**
 	 * Millisecond time this animation started.
 	 */
@@ -42,7 +44,7 @@ public class ClaimAnimation implements Animation{
 	public ClaimAnimation(ConvexObject selected, Point2D location){
 		obj = selected;
 		loc = location;
-		start = System.currentTimeMillis() + 1L;
+		start = System.currentTimeMillis();
 		for(Point p : selected.getPoints()){
 			dist = Math.max(dist, (float)location.distance(p));
 		}
@@ -59,7 +61,7 @@ public class ClaimAnimation implements Animation{
 				new float[]{
 					0.0F,
 					Math.min(0.998F, (elapsed / DURATION) + 0.001F),
-					Math.min(0.999F, 2.0F * (elapsed / DURATION) + 0.001F),
+					Math.min(0.999F, 2.0F * (elapsed / DURATION) + 0.002F),
 					1.0F
 				},
 				new Color[]{
@@ -78,6 +80,6 @@ public class ClaimAnimation implements Animation{
 		g.setColor(elapsed * 2.0F > DURATION ? Theme.getPlayerOutline(obj) : PlayerTheme.UNOWNED.getOutline());
 		g.draw(obj.getShape());
 		
-		return elapsed > DURATION;
+		return elapsed <= DURATION;
 	}
 }

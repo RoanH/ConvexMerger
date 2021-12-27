@@ -1,6 +1,6 @@
 package dev.roanh.convexmerger;
 
-import dev.roanh.convexmerger.game.ConvexMerger;
+import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.util.Util;
 
 public class Main{
