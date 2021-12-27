@@ -36,6 +36,39 @@ public class PlayfieldGenerator{
 	public PlayfieldGenerator(long seed){
 		random = new Random(seed);
 	}
+	
+	/**
+	 * Function to check if 3 points are collinear
+	 */
+	public boolean collinear(int x1, int y1, int x2,
+							int y2, int x3, int y3){
+		double area = Math.abs(0.5*(x1 * (y2 - y3) +
+				x2 * (y3 - y1) +
+				x3 * (y1 - y2)));
+		if(area < 0.000003) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Function to determine the approximate minimum area for an object
+	 */
+	public double areaObject(int rMax) {
+		double area;
+		int divNum = 6;
+		double x1 = (Math.sqrt(2)/2)*(double) rMax;
+		double y1 = -(Math.sqrt(2)/2)*(double) rMax;
+		double x2 = -(Math.sqrt(2)/2)*(double) rMax;
+		double y2 = -(Math.sqrt(2)/2)*(double) rMax;
+		double x3 = 0;
+		double y3 = (double) rMax;
+		// shoelace formula (for area of triangle)
+		// the computed area is divided by divNum to set the minimum requirement area for an object
+		area = Math.abs((0.5*(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2)))/divNum);
+		System.out.println(area);
+		return area;
+	}
 
 	/**
 	 * Generates a new game playfield with convex objects made up of 3 to 4 points.
@@ -64,22 +97,26 @@ public class PlayfieldGenerator{
 		int xMax = 1600;	// the maximum scale value in the x-axis
 		int yMin = 0;		// the minimum scale value in the y-axis
 		int yMax = 900;		// the maximum scale value in the y-axis
-		
-		int offset = 100;	// offset to make sure the generated objects are not beyond the screen
 
+		// WARNING: the smaller rangeMax, longer time it takes to generate the playfield
+		// it depends on the total area coverage (totalAreaCoverage) setting as well
 		int rangeMin = 0;	// minimum value in the range of a vertex in a object 
-		int rangeMax = 100;	// maximum value in the range of a vertex in a object
+		int rangeMax = 30;	// maximum value in the range of a vertex in a object (recommended more than or equal to 20)
+		
+		int offset = rangeMax;	// offset to make sure the generated objects are not beyond the screen
 		
 //		int maxLoop = 1000;	// maximum loop for terminating the do-while loop
-//		int numPolygons = 1000;	// maximum number of objects to be generated 
+//		int numPolygons = 10;	// maximum number of objects to be generated 
 		
 		double totalArea = 0.0;	// minimum total area of all generated objects
 		
+		// WARNING: the larger the total area coverage, longer time it takes to generate the playfield
+		// it depends on the range max (rangeMax) setting as well
 		double totalAreaCoverage = 0.45;	// percentage minimum area coverage of all generated objects (recommended less than or equal to 0.5)
 		
 		double diagonalLengthRatio = 1.8;	// ratio between the length of both diagonals in an object
 		
-		double areaObject = 5000;	// minimum generated object area
+		double areaObject = areaObject(rangeMax);	// minimum generated object area by calling function areaObjet()
 		
 		do {
 			// generate the center (x,y) of the triangle or quadrilateral randomly
@@ -112,6 +149,18 @@ public class PlayfieldGenerator{
 				continue;
 			}
 			
+			// check if 3 points are collinear
+			// continue to the next iteration of the do-while loop if the 3 points are collinear 
+			if(collinear(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY)) {
+				continue;
+			} else if(collinear(topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)){
+				continue;
+			} else if(collinear(topRightX, topRightY, topLeftX, topLeftY, bottomRightX, bottomRightY)) {
+				continue;
+			} else if(collinear(topRightX, topRightY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)) {
+				continue;
+			}
+			
 			// add the generated triangle or quadrilateral into the the objects arraylist
 			objects.add(new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY));
 			
@@ -136,8 +185,8 @@ public class PlayfieldGenerator{
 			}
 			
 			// numPolygons--;	// while(numPolygons > 0);	// use this setting if the maximum output of the number of objects is chosen
-		} while(totalArea < (xMax*yMax)*totalAreaCoverage);		
-		
+		} while(totalArea < (xMax*yMax)*totalAreaCoverage);
+				
 		return objects;
 	}
 }
