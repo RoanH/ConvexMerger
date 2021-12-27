@@ -12,7 +12,7 @@ sourceSets{
 			srcDirs = ['src']
 		}
 		resources{
-			srcDirs = ['src']
+			srcDirs = ['assets']
 		}
 	}
 }

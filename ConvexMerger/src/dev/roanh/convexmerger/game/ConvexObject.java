@@ -1,8 +1,10 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,10 +29,7 @@ public class ConvexObject{
 	 * The player that owns this object.
 	 */
 	private Player owner = null;
-	/**
-	 * Whether or not this object is selected by the active player.
-	 */
-	private boolean selected = false;
+	private Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -130,25 +129,6 @@ public class ConvexObject{
 	 */
 	public void setOwner(Player player){
 		owner = player;
-	}
-	
-	/**
-	 * Gets if this object is currently selected
-	 * by the active player.
-	 * @return True if this object is selected
-	 *         by the active player.
-	 */
-	public boolean isSelected(){
-		return selected;
-	}
-	
-	/**
-	 * Sets if this object is currently selected by
-	 * the active player.
-	 * @param selected True if this object is selected.
-	 */
-	public void setSelected(boolean selected){
-		this.selected = selected;
 	}
 	
 	/**
@@ -282,6 +262,42 @@ public class ConvexObject{
 	 */
 	public boolean isOwnedBy(Player player){
 		return player.equals(owner);
+	}
+	
+	/**
+	 * Computes the centroid of this convex object.
+	 * @return The centroid of this convex object.
+	 */
+	public Point2D getCentroid(){
+		double cx = 0.0D;
+		double cy = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			Point p1 = points.get(i);
+			Point p2 = points.get((i + 1) % points.size());
+			double factor = (p1.x * p2.y - p2.x * p1.y);
+			cx += (p1.x + p2.x) * factor;
+			cy += (p1.y + p2.y) * factor;
+		}
+
+		double area = 6.0D * getArea();
+		return new Point2D.Double(cx / area, cy / area);
+	}
+	
+	public boolean hasAnimation(){
+		return animation != null;
+	}
+	
+	public void setAnimation(Animation animation){
+		this.animation = animation;
+	}
+	
+	public boolean runAnimation(Graphics2D g){
+		if(animation.run(g)){
+			animation = null;
+			return false;
+		}else{
+			return true;
+		}
 	}
 	
 	@Override

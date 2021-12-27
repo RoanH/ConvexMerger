@@ -26,10 +26,13 @@ public class GameState{
 	}
 	
 	public MessageDialog claimObject(ConvexObject obj){
+		return claimObject(obj, obj.getCentroid());
+	}
+	
+	public MessageDialog claimObject(ConvexObject obj, Point2D location){
 		System.out.println("Handle claim: " + obj + " / " + getActivePlayer() + " / " + obj.getOwner());
 		if(!obj.isOwned()){
 			if(selected != null){
-				selected.setSelected(false);
 				if(mergeObjects(selected, obj)){
 					endTurn();
 				}else{
@@ -40,18 +43,16 @@ public class GameState{
 				Player player = getActivePlayer();
 				obj.setOwner(player);
 				player.addArea(obj.getArea());
+				obj.setAnimation(new ClaimAnimation(obj, location));
 				endTurn();
 			}
 		}else if(getActivePlayer().equals(obj.getOwner())){
 			if(selected == null){
-				obj.setSelected(true);
 				selected = obj;
 			}else{
 				if(obj.equals(selected)){
-					obj.setSelected(false);
 					selected = null;
 				}else{
-					selected.setSelected(false);
 					if(mergeObjects(obj, selected)){
 						endTurn();
 					}else{
@@ -62,7 +63,6 @@ public class GameState{
 			}
 		}else{
 			if(selected != null){
-				selected.setSelected(false);
 				selected = null;
 			}
 			return MessageDialog.ALREADY_OWNED;
@@ -112,7 +112,9 @@ public class GameState{
 				if(merged.contains(obj)){
 					iterator.remove();
 					decomp.removeObject(obj);
-					player.removeArea(obj.getArea());
+					if(obj.isOwned()){
+						obj.getOwner().removeArea(obj.getArea());
+					}
 				}
 			}
 			objects.add(merged);
@@ -187,5 +189,9 @@ public class GameState{
 	
 	public List<Player> getPlayers(){
 		return players;
+	}
+	
+	public int getPlayerCount(){
+		return players.size();
 	}
 }
