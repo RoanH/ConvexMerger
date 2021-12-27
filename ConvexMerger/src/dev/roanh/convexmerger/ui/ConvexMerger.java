@@ -124,7 +124,7 @@ public class ConvexMerger{
 	public void initialiseGame(){
 		//TODO this is just fixed static data
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(),
+			//new HumanPlayer(),
 			new SmallPlayer()//,
 			//new LocalPlayer(),
 			//new GreedyPlayer()
@@ -299,7 +299,7 @@ public class ConvexMerger{
 			
 			//render action hint
 			g.setFont(Theme.PRIDI_REGULAR_18);
-			g.setColor(state.isFinished() ? PlayerTheme.UNOWNED.getOutline() : state.getActivePlayer().getTheme().getOutline());
+			g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getOutline());
 			FontMetrics fm = g.getFontMetrics();
 			String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);

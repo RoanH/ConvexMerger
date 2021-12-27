@@ -25,6 +25,7 @@ public final class Theme{
 	public static final Color MENU_BODY = new Color(31, 37, 46);
 	public static final Color SCORE_COLOR = new Color(255, 255, 255, (3 * 255) / 4);
 	public static final Color SCORE_COLOR_LEAD = new Color(255, 255, 255, (9 * 255) / 10);
+	public static final Color CROWN_COLOR = new Color(237, 214, 9);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
@@ -140,7 +141,7 @@ public final class Theme{
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			PRIDI_MEDIUM_24 = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf")).deriveFont(24.0F);
-			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, new Color(237, 214, 9));
+			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
 			throw new RuntimeException("Failed to load fonts or icons", e);
