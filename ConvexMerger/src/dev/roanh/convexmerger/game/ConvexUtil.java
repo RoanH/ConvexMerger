@@ -139,6 +139,7 @@ public class ConvexUtil{
 		return computeMergeBounds(first, second, computeMergeLines(first, second));
 	}
 	
+	//TODO does this consider segments of side 1?
 	//requires correct call, as in, pa is associated with first
 	//mr line 1 has to be rooted at the given hull, flipped perspective for the other line -- has to be left
 	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second, Point[] mergeLines){//pa = 0, pb = 3

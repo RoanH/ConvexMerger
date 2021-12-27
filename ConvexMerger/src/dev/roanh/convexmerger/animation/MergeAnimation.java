@@ -110,10 +110,7 @@ public class MergeAnimation extends ClaimAnimation{
 		g.draw(firstOuter);
 		g.draw(secondOuter);
 		
-		
-		
-		// TODO Auto-generated method stub
-		return true;//elapsed <= LINE_DURATION;
+		return elapsed <= 2 * LINE_DURATION;
 	}
 	
 	private <T extends Point2D> Path2D createPath(List<T> points){

@@ -299,7 +299,7 @@ public class ConvexMerger{
 			
 			//render action hint
 			g.setFont(Theme.PRIDI_REGULAR_18);
-			g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getOutline());
+			g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
 			FontMetrics fm = g.getFontMetrics();
 			String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
 			g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
@@ -320,7 +320,7 @@ public class ConvexMerger{
 				
 				//player icon and name
 				g.drawImage(player.isAI() ? player.getTheme().getIconAI() : player.getTheme().getIconHuman(), x, y, this);
-				g.setColor(player.getTheme().getOutline());
+				g.setColor(player.getTheme().getTextColor());
 				g.drawString(player.getName(), x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + PLAYER_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 				
 				//new offset

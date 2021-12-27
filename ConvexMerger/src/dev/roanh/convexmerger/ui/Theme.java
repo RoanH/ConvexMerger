@@ -149,29 +149,31 @@ public final class Theme{
 	}
 	
 	public static enum PlayerTheme{
-		UNOWNED(129, 129, 129, 0.75D, 191, 191, 191, 0.90D),
-		P1(214, 9, 177, 0.75D, 255, 115, 236, 0.90D, 234, 108, 217),
-		P2(11, 171, 229, 0.75D, 0, 217, 255, 0.90D, 5, 208, 245),
-		P3(10, 196, 50, 0.75D, 30, 250, 85, 0.90D, 19, 242, 75),
-		P4(227, 131, 18, 0.75D, 255, 198, 28, 0.90D, 247, 207, 5);
+		UNOWNED(102, 103, 104, 174, 175, 175, 191, 191, 191),
+		P1(166, 13, 140, 235, 106, 218, 255, 115, 236, 234, 108, 217),
+		P2(14, 135, 180, 2, 197, 232, 0, 217, 255, 5, 208, 245),
+		P3(13, 153, 45, 22, 207, 68, 30, 250, 85, 19, 242, 75),
+		P4(175, 104, 21, 243, 187, 27, 255, 198, 28, 247, 207, 5);
 		
+		private final Color text;
 		private final Color body;
 		private final Color outline;
 		private final Color gradient;
 		private final BufferedImage ai;
 		private final BufferedImage human;
 		
-		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa, int gr, int gg, int gb){
-			this(br, bg, bb, ba, or, og, ob, oa, new Color(gr, gg, gb));
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int gr, int gg, int gb){
+			this(br, bg, bb, or, og, ob, tr, tg, tb, new Color(gr, gg, gb));
 		}
 		
-		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa){
-			this(br, bg, bb, ba, or, og, ob, oa, null);
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb){
+			this(br, bg, bb, or, og, ob, tr, tg, tb, null);
 		}
 		
-		private PlayerTheme(int br, int bg, int bb, double ba, int or, int og, int ob, double oa, Color gradient){
-			body = new Color(br, bg, bb, (int)(ba * 255.0D));
-			outline = new Color(or, og, ob, (int)(oa * 255.0D));
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, Color gradient){
+			body = new Color(br, bg, bb);
+			outline = new Color(or, og, ob);
+			text = new Color(tr, tg, tb, (9 * 255) / 10);
 			this.gradient = gradient;
 			try{
 				ai = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE, outline);
@@ -188,6 +190,10 @@ public final class Theme{
 		
 		public BufferedImage getIconHuman(){
 			return human;
+		}
+		
+		public Color getTextColor(){
+			return text;
 		}
 		
 		public Color getBody(){
