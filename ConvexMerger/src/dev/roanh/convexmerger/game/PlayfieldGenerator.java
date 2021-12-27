@@ -98,10 +98,19 @@ public class PlayfieldGenerator{
 		int yMin = 0;		// the minimum scale value in the y-axis
 		int yMax = 900;		// the maximum scale value in the y-axis
 
+		// variables rangeMin and rangeMax Can be adjusted by user
 		// WARNING: the smaller rangeMax, longer time it takes to generate the playfield
 		// it depends on the total area coverage (totalAreaCoverage) setting as well
 		int rangeMin = 0;	// minimum value in the range of a vertex in a object 
-		int rangeMax = 30;	// maximum value in the range of a vertex in a object (recommended more than or equal to 20)
+		int rangeMax = 25;	// maximum value in the range of a vertex in a object (recommended more than or equal to 20)
+		
+		// variable totalAreaCoverage can be adjusted by user 
+		// WARNING: the larger the total area coverage, longer time it takes to generate the playfield
+		// it depends on the range max (rangeMax) setting as well
+		double totalAreaCoverage = 0.45;	// percentage minimum area coverage of all generated objects (recommended less than or equal to 0.5)
+
+		// NOT recommend to be adjusted by the user
+		double diagonalLengthRatio = 1.5;	// ratio between the length of both diagonals in an object (recommended between 1.0 and 1.8)
 		
 		int offset = rangeMax;	// offset to make sure the generated objects are not beyond the screen
 		
@@ -109,12 +118,6 @@ public class PlayfieldGenerator{
 //		int numPolygons = 10;	// maximum number of objects to be generated 
 		
 		double totalArea = 0.0;	// minimum total area of all generated objects
-		
-		// WARNING: the larger the total area coverage, longer time it takes to generate the playfield
-		// it depends on the range max (rangeMax) setting as well
-		double totalAreaCoverage = 0.45;	// percentage minimum area coverage of all generated objects (recommended less than or equal to 0.5)
-		
-		double diagonalLengthRatio = 1.8;	// ratio between the length of both diagonals in an object
 		
 		double areaObject = areaObject(rangeMax);	// minimum generated object area by calling function areaObjet()
 		
