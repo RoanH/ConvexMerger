@@ -13,26 +13,84 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.ConvexUtil;
 import dev.roanh.convexmerger.ui.Theme;
 
+/**
+ * Animation that plays when two objects are merged
+ * into a single object (along with contained objects).
+ * @author Roan
+ */
 public class MergeAnimation extends ClaimAnimation{
+	/**
+	 * Number of milliseconds the merge line drawing
+	 * phase lasts for.
+	 */
 	private static final float LINE_DURATION = 250.0F;
+	/**
+	 * Number of milliseconds the body merge drawing
+	 * phase lasts for.
+	 */
 	private static final float FLOW_DURATION = 400.0F;
+	/**
+	 * Whether or not the target object was unclaimed before.
+	 */
 	private boolean unclaimed;
+	/**
+	 * The already owned object in the merge.
+	 */
 	private ConvexObject owned;
+	/**
+	 * The target object of the merge (possibly unowned)
+	 */
 	private ConvexObject target;
+	/**
+	 * The merge lines used to construct the result object.
+	 */
 	private Point[] mergeLines;
-	
+	/**
+	 * A list of objects contained within the merge area.
+	 */
 	private List<ConvexObject> contained;
-	
+	/**
+	 * Time in milliseconds when the animation started.
+	 */
 	private long start;
-	
+	/**
+	 * Path for the outer (not internal after the merge)
+	 * hull segment of the first (leftmost) object
+	 */
 	private Path2D firstOuter;
+	/**
+	 * Path for the inner (internal after the merge)
+	 * hull segment of the first (leftmost) object
+	 */
 	private Path2D firstInner;
+	/**
+	 * Path for the outer (not internal after the merge)
+	 * hull segment of the second object
+	 */
 	private Path2D secondOuter;
+	/**
+	 * Path for the inner (internal after the merge)
+	 * hull segment of the second object
+	 */
 	private Path2D secondInner;
-	
+	/**
+	 * Points defining the inner hull segment of the first object.
+	 * @see #firstInner
+	 */
 	private List<Point> firstInnerData;
+	/**
+	 * Points defining the inner hull segment of the second object.
+	 * @see #secondInner
+	 */
 	private List<Point> secondInnerData;
 		
+	/**
+	 * Constructs a new merge animation with the given event data.
+	 * @param owned The owned object the merge was started from.
+	 * @param target The target object of the merge.
+	 * @param result The result of the merge.
+	 * @param contained The objects contained within the merge area.
+	 */
 	public MergeAnimation(ConvexObject owned, ConvexObject target, ConvexObject result, List<ConvexObject> contained){
 		super(target, target.getCentroid());
 		unclaimed = !target.isOwned();
@@ -59,10 +117,12 @@ public class MergeAnimation extends ClaimAnimation{
 			for(ConvexObject obj : contained){
 				obj.render(g);
 			}
+			
 			if(!super.run(g)){
 				unclaimed = false;
 				start = System.currentTimeMillis();
 			}
+			
 			return true;
 		}
 		
@@ -86,59 +146,11 @@ public class MergeAnimation extends ClaimAnimation{
 		
 		if(factor >= 1.0F){
 			float flowFactor = Math.min(1.0F, (elapsed - LINE_DURATION) / FLOW_DURATION);
+			
+			//draw flow polygons
 			g.setColor(Theme.getPlayerBody(owned));
-			
-			//first half
-			Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, firstInnerData.size() + 2);
-			Point2D firstSlope = computeSlope(mergeLines[0], mergeLines[1], flowFactor);
-			Point2D secondSlope = computeSlope(mergeLines[3], mergeLines[2], flowFactor);
-			Point2D slope = new Point2D.Double((firstSlope.getX() + secondSlope.getX()) / 2.0D, (firstSlope.getY() + secondSlope.getY()) / 2.0D);
-			
-			path.moveTo(mergeLines[3].getX(), mergeLines[3].getY());
-			path.lineTo(mergeLines[0].getX(), mergeLines[0].getY());
-			path.lineTo(firstInnerData.get(0).getX() + firstSlope.getX(), firstInnerData.get(0).getY() + firstSlope.getY());
-			for(int i = 1; i < firstInnerData.size() - 1; i++){
-				clipAdd(
-					path,
-					firstInnerData.get(i),
-					slope,
-					mergeLines[1],
-					mergeLines[2],
-					firstInnerData.get(0),
-					firstSlope,
-					firstInnerData.get(firstInnerData.size() - 1),
-					secondSlope
-				);
-			}
-			path.lineTo(firstInnerData.get(firstInnerData.size() - 1).getX() + secondSlope.getX(), firstInnerData.get(firstInnerData.size() - 1).getY() + secondSlope.getY());
-			path.closePath();
-			g.fill(path);
-			
-			//second half
-			path = new Path2D.Double(Path2D.WIND_NON_ZERO, secondInnerData.size() + 2);
-			firstSlope = computeSlope(mergeLines[2], mergeLines[3], flowFactor);
-			secondSlope = computeSlope(mergeLines[1], mergeLines[0], flowFactor);
-			slope = new Point2D.Double((firstSlope.getX() + secondSlope.getX()) / 2.0D, (firstSlope.getY() + secondSlope.getY()) / 2.0D);
-			
-			path.moveTo(mergeLines[1].getX(), mergeLines[1].getY());
-			path.lineTo(mergeLines[2].getX(), mergeLines[2].getY());
-			path.lineTo(secondInnerData.get(0).getX() + firstSlope.getX(), secondInnerData.get(0).getY() + firstSlope.getY());
-			for(int i = 1; i < secondInnerData.size() - 1; i++){
-				clipAdd(
-					path,
-					secondInnerData.get(i),
-					slope,
-					mergeLines[0],
-					mergeLines[3],
-					secondInnerData.get(0),
-					firstSlope,
-					secondInnerData.get(secondInnerData.size() - 1),
-					secondSlope
-				);
-			}
-			path.lineTo(secondInnerData.get(secondInnerData.size() - 1).getX() + secondSlope.getX(), secondInnerData.get(secondInnerData.size() - 1).getY() + secondSlope.getY());
-			path.closePath();
-			g.fill(path);
+			g.fill(computeFlowPath(firstInnerData, mergeLines[0], mergeLines[1], mergeLines[3], mergeLines[2], flowFactor));
+			g.fill(computeFlowPath(secondInnerData, mergeLines[2], mergeLines[3], mergeLines[1], mergeLines[0], flowFactor));
 			
 			//prevent seem lines
 			g.setColor(Theme.getPlayerBody(owned));
@@ -156,7 +168,35 @@ public class MergeAnimation extends ClaimAnimation{
 		g.draw(secondOuter);
 		
 		return elapsed <= LINE_DURATION + FLOW_DURATION;
-	}	
+	}
+	
+	private Path2D computeFlowPath(List<Point> data, Point2D firstStart, Point2D firstEnd, Point2D secondStart, Point2D secondEnd, float flowFactor){
+		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, data.size() + 2);
+		Point2D firstSlope = computeSlope(firstStart, firstEnd, flowFactor);
+		Point2D secondSlope = computeSlope(secondStart, secondEnd, flowFactor);
+		Point2D slope = new Point2D.Double((firstSlope.getX() + secondSlope.getX()) / 2.0D, (firstSlope.getY() + secondSlope.getY()) / 2.0D);
+		
+		path.moveTo(secondStart.getX(), secondStart.getY());
+		path.lineTo(firstStart.getX(), firstStart.getY());
+		path.lineTo(data.get(0).getX() + firstSlope.getX(), data.get(0).getY() + firstSlope.getY());
+		for(int i = 1; i < data.size() - 1; i++){
+			clipAdd(
+				path,
+				data.get(i),
+				slope,
+				firstEnd,
+				secondEnd,
+				data.get(0),
+				firstSlope,
+				data.get(data.size() - 1),
+				secondSlope
+			);
+		}
+		path.lineTo(data.get(data.size() - 1).getX() + secondSlope.getX(), data.get(data.size() - 1).getY() + secondSlope.getY());
+		path.closePath();
+		
+		return path;
+	}
 
 	private void clipAdd(Path2D path, Point2D p, Point2D slope, Point2D a, Point2D b, Point2D firstBase, Point2D firstSlope, Point2D secondBase, Point2D secondSlope){
 		Point2D target = new Point2D.Double(p.getX() + slope.getX(), p.getY() + slope.getY());
@@ -223,6 +263,13 @@ public class MergeAnimation extends ClaimAnimation{
 		);
 	}
 	
+	/**
+	 * Clamps the given value to be between the given bounds.
+	 * @param a The first bound value.
+	 * @param b The second bound value.
+	 * @param val The value to clamp.
+	 * @return The clamped value.
+	 */
 	private double clamp(double a, double b, double val){
 		return Math.max(Math.min(a, b), Math.min(Math.max(a, b), val));
 	}
