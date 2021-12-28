@@ -79,9 +79,7 @@ public class PlayfieldGenerator{
 	public List<ConvexObject> generatePlayfield(){
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
 
-		int xMin = 0; // the minimum scale value in the x-axis
 		int xMax = 1600; // the maximum scale value in the x-axis
-		int yMin = 0; // the minimum scale value in the y-axis
 		int yMax = 900; // the maximum scale value in the y-axis
 
 		// variables rangeMin and rangeMax Can be adjusted by user
@@ -109,8 +107,8 @@ public class PlayfieldGenerator{
 
 		do{
 			// generate the center (x,y) of the triangle or quadrilateral randomly
-			int centerX = random.nextInt((xMax - offset) - (xMin + offset)) + (xMin + offset);
-			int centerY = random.nextInt((yMax - offset) - (yMin + offset)) + (yMin + offset);
+			int centerX = random.nextInt((xMax - offset) - offset) + offset;
+			int centerY = random.nextInt((yMax - offset) - offset) + offset;
 
 			// top right of the triangle or quadrilateral	
 			int topRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
