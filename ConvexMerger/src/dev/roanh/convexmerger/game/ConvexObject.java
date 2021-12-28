@@ -1,7 +1,6 @@
 package dev.roanh.convexmerger.game;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -24,7 +23,7 @@ public class ConvexObject{
 	 * The points that make up this convex object, starting
 	 * with the left most point in counter clockwise order.
 	 */
-	private List<Point> points;
+	private List<Point2D> points;
 	/**
 	 * The shape of this convex object.
 	 */
@@ -48,10 +47,10 @@ public class ConvexObject{
 	 */
 	public ConvexObject(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
 		this(ConvexUtil.computeConvexHull(Arrays.asList(
-			new Point(x1, y1),
-			new Point(x2, y2),
-			new Point(x3, y3),
-			new Point(x4, y4)
+			new Point2D.Double(x1, y1),
+			new Point2D.Double(x2, y2),
+			new Point2D.Double(x3, y3),
+			new Point2D.Double(x4, y4)
 		)));
 	}
 	
@@ -66,9 +65,9 @@ public class ConvexObject{
 	 */
 	public ConvexObject(int x1, int y1, int x2, int y2, int x3, int y3){
 		this(ConvexUtil.computeConvexHull(Arrays.asList(
-			new Point(x1, y1),
-			new Point(x2, y2),
-			new Point(x3, y3)
+			new Point2D.Double(x1, y1),
+			new Point2D.Double(x2, y2),
+			new Point2D.Double(x3, y3)
 		)));
 	}
 	
@@ -78,11 +77,11 @@ public class ConvexObject{
 	 * clockwise order with the first point being the left most point.
 	 * @param data The point data.
 	 */
-	public ConvexObject(List<Point> data){
+	public ConvexObject(List<Point2D> data){
 		points = data;
-		shape.moveTo(data.get(0).x, data.get(0).y);
+		shape.moveTo(data.get(0).getX(), data.get(0).getY());
 		for(int i = 1; i < data.size(); i++){
-			shape.lineTo(data.get(i).x, data.get(i).y);
+			shape.lineTo(data.get(i).getX(), data.get(i).getY());
 		}
 		shape.closePath();
 	}
@@ -103,7 +102,7 @@ public class ConvexObject{
 	 * order and the first point is the leftmost point.
 	 * @return The points that define this convex object.
 	 */
-	public List<Point> getPoints(){
+	public List<Point2D> getPoints(){
 		return points;
 	}
 	
@@ -169,12 +168,12 @@ public class ConvexObject{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
-		List<Point> combined = new ArrayList<Point>();
+		List<Point2D> combined = new ArrayList<Point2D>();
 		combined.addAll(points);
 		combined.addAll(other.getPoints());
 		
-		List<Point> hull = ConvexUtil.computeConvexHull(combined);
-		Point[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
+		List<Point2D> hull = ConvexUtil.computeConvexHull(combined);
+		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
 		
 		if(state != null){
 			//check if the new hull is valid
@@ -195,11 +194,11 @@ public class ConvexObject{
 	 * @param b The second endpoint of the line segment.
 	 * @return True if this object intersects the given line segment.
 	 */
-	public boolean intersects(Point a, Point b){
+	public boolean intersects(Point2D a, Point2D b){
 		for(int i = 0; i < points.size(); i++){
-			Point p = points.get(i);
-			Point q = points.get((i + 1) % points.size());
-			if(Line2D.linesIntersect(a.x, a.y, b.x, b.y, p.x, p.y, q.x, q.y)){
+			Point2D p = points.get(i);
+			Point2D q = points.get((i + 1) % points.size());
+			if(Line2D.linesIntersect(a.getX(), a.getY(), b.getX(), b.getY(), p.getX(), p.getY(), q.getX(), q.getY())){
 				return true;
 			}
 		}
@@ -215,7 +214,7 @@ public class ConvexObject{
 	 *         the other given convex object.
 	 */
 	public boolean contains(ConvexObject other){
-		for(Point p : other.points){
+		for(Point2D p : other.points){
 			if(!shape.contains(p)){
 				return false;
 			}
@@ -253,8 +252,8 @@ public class ConvexObject{
 		double area = 0.0D;
 		for(int i = 0; i < points.size(); i++){
 			int j = (i + 1) % points.size();
-			area += points.get(i).x * points.get(j).y;
-			area -= points.get(i).y * points.get(j).x;
+			area += points.get(i).getX() * points.get(j).getY();
+			area -= points.get(i).getY() * points.get(j).getX();
 		}
 		return area / 2.0D;
 	}
@@ -276,11 +275,11 @@ public class ConvexObject{
 		double cx = 0.0D;
 		double cy = 0.0D;
 		for(int i = 0; i < points.size(); i++){
-			Point p1 = points.get(i);
-			Point p2 = points.get((i + 1) % points.size());
-			double factor = (p1.x * p2.y - p2.x * p1.y);
-			cx += (p1.x + p2.x) * factor;
-			cy += (p1.y + p2.y) * factor;
+			Point2D p1 = points.get(i);
+			Point2D p2 = points.get((i + 1) % points.size());
+			double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
+			cx += (p1.getX() + p2.getX()) * factor;
+			cy += (p1.getY() + p2.getY()) * factor;
 		}
 
 		double area = 6.0D * getArea();
@@ -338,6 +337,6 @@ public class ConvexObject{
 	
 	@Override
 	public String toString(){
-		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.x + "," + p.y + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";
+		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.getX() + "," + p.getY() + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";
 	}
 }

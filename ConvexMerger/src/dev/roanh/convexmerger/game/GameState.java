@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -180,22 +179,21 @@ public class GameState{
 		return decomp.getDecompLines();
 	}
 	
-	public List<Line2D> getHelperLines(int x, int y){
+	public List<Line2D> getHelperLines(Point2D p){
 		if(selected != null){
-			List<Point> points = new ArrayList<Point>();
+			List<Point2D> points = new ArrayList<Point2D>();
 			points.addAll(selected.getPoints());
 			
-			Point p = new Point(x, y);
 			if(points.contains(p) || selected.contains(p.getX(), p.getY())){
 				return null;
 			}
 			points.add(p);
 			
-			List<Point> hull = ConvexUtil.computeConvexHull(points);
+			List<Point2D> hull = ConvexUtil.computeConvexHull(points);
 			for(int i = 0; i < hull.size(); i++){
 				if(hull.get(i).equals(p)){
-					Point prev = hull.get((i == 0 ? hull.size() : i) - 1);
-					Point next = hull.get((i + 1) % hull.size());
+					Point2D prev = hull.get((i == 0 ? hull.size() : i) - 1);
+					Point2D next = hull.get((i + 1) % hull.size());
 					return Arrays.asList(
 						new Line2D.Double(p.getX(), p.getY(), prev.getX(), prev.getY()),
 						new Line2D.Double(p.getX(), p.getY(), next.getX(), next.getY())

@@ -3,7 +3,6 @@ package dev.roanh.convexmerger.animation;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -44,7 +43,7 @@ public class MergeAnimation extends ClaimAnimation{
 	/**
 	 * The merge lines used to construct the result object.
 	 */
-	private Point[] mergeLines;
+	private Point2D[] mergeLines;
 	/**
 	 * A list of objects contained within the merge area.
 	 */
@@ -77,12 +76,12 @@ public class MergeAnimation extends ClaimAnimation{
 	 * Points defining the inner hull segment of the first object.
 	 * @see #firstInner
 	 */
-	private List<Point> firstInnerData;
+	private List<Point2D> firstInnerData;
 	/**
 	 * Points defining the inner hull segment of the second object.
 	 * @see #secondInner
 	 */
-	private List<Point> secondInnerData;
+	private List<Point2D> secondInnerData;
 		
 	/**
 	 * Constructs a new merge animation with the given event data.
@@ -100,7 +99,7 @@ public class MergeAnimation extends ClaimAnimation{
 		this.contained = contained;
 		
 		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), result.getPoints());
-		List<List<Point>> mergeBounds = ConvexUtil.computeMergeBounds(owned.getPoints(), target.getPoints(), mergeLines);
+		List<List<Point2D>> mergeBounds = ConvexUtil.computeMergeBounds(owned.getPoints(), target.getPoints(), mergeLines);
 		firstInner = createPath(mergeBounds.get(0));
 		firstOuter = createPath(mergeBounds.get(1));
 		secondInner = createPath(mergeBounds.get(2));
@@ -192,7 +191,7 @@ public class MergeAnimation extends ClaimAnimation{
 	 *        merge area, this value is between 0 and 1.
 	 * @return The current flow path.
 	 */
-	private Path2D computeFlowPath(List<Point> data, Point2D firstStart, Point2D firstEnd, Point2D secondStart, Point2D secondEnd, float flowFactor){
+	private Path2D computeFlowPath(List<Point2D> data, Point2D firstStart, Point2D firstEnd, Point2D secondStart, Point2D secondEnd, float flowFactor){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, data.size() + 2);
 		Point2D firstSlope = computeSlope(firstStart, firstEnd, flowFactor);
 		Point2D secondSlope = computeSlope(secondStart, secondEnd, flowFactor);

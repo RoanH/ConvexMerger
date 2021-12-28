@@ -2,7 +2,6 @@ package dev.roanh.convexmerger.animation;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
 
@@ -45,7 +44,7 @@ public class ClaimAnimation implements Animation{
 		obj = selected;
 		loc = location;
 		start = System.currentTimeMillis();
-		for(Point p : selected.getPoints()){
+		for(Point2D p : selected.getPoints()){
 			dist = Math.max(dist, (float)location.distance(p));
 		}
 	}

@@ -126,7 +126,7 @@ public class ConvexMerger{
 		
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(0, 100, 0.45D), Arrays.asList(
+		state = new GameState(new PlayfieldGenerator().generatePlayfield(50, 100, 0.45D), Arrays.asList(
 			new HumanPlayer(),
 			//new HumanPlayer()
 //			new SmallPlayer(),
@@ -470,8 +470,7 @@ public class ConvexMerger{
 		@Override
 		public void mouseMoved(MouseEvent e){
 			if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
-				Point2D pos = translateToGameSpace(e.getX(), e.getY());
-				helperLines = state.getHelperLines((int)Math.round(pos.getX()), (int)Math.round(pos.getY()));
+				helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
 				repaint();
 			}
 		}
