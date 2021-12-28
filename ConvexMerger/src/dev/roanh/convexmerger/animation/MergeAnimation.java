@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Path2D.Double;
 import java.util.List;
 
 import dev.roanh.convexmerger.game.ConvexObject;
@@ -15,7 +16,8 @@ import dev.roanh.convexmerger.game.ConvexUtil;
 import dev.roanh.convexmerger.ui.Theme;
 
 public class MergeAnimation extends ClaimAnimation{
-	private static final float LINE_DURATION = 2500.0F * 2;
+	private static final float LINE_DURATION = 250.0F;
+	private static final float FLOW_DURATION = 400.0F;
 	private boolean unclaimed;
 	private ConvexObject owned;
 	private ConvexObject target;
@@ -68,7 +70,7 @@ public class MergeAnimation extends ClaimAnimation{
 		
 		g.setColor(Theme.getPlayerBody(owned));
 		g.fill(owned.getShape());
-		//g.fill(target.getShape());
+		g.fill(target.getShape());
 		
 		Composite composite = g.getComposite();
 		g.setStroke(Theme.POLY_STROKE);
@@ -82,6 +84,8 @@ public class MergeAnimation extends ClaimAnimation{
 		g.setComposite(composite);
 		
 		if(factor >= 1.0F){
+			float flowFactor = Math.min(1.0F, (elapsed - LINE_DURATION) / FLOW_DURATION);
+			
 			g.setColor(Theme.getPlayerBody(owned));
 			
 //			Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
@@ -102,46 +106,52 @@ public class MergeAnimation extends ClaimAnimation{
 			
 			//path.transform(AffineTransform.)
 			
-			Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO);
-			//path.moveTo(x, y)
-			
-			Point2D firstSlope = computeSlope(mergeLines[0], mergeLines[1], factor - 1.0F);
-			Point2D secondSlope = computeSlope(mergeLines[3], mergeLines[2], factor - 1.0F);
+			//first half
+			Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, firstInnerData.size() + 2);
+			Point2D firstSlope = computeSlope(mergeLines[0], mergeLines[1], flowFactor);
+			Point2D secondSlope = computeSlope(mergeLines[3], mergeLines[2], flowFactor);
 			Point2D slope = new Point2D.Double((firstSlope.getX() + secondSlope.getX()) / 2.0D, (firstSlope.getY() + secondSlope.getY()) / 2.0D);
 			
 			path.moveTo(mergeLines[3].getX(), mergeLines[3].getY());
 			path.lineTo(mergeLines[0].getX(), mergeLines[0].getY());
 			path.lineTo(firstInnerData.get(0).getX() + firstSlope.getX(), firstInnerData.get(0).getY() + firstSlope.getY());
 			for(int i = 1; i < firstInnerData.size() - 1; i++){
-				Point p = firstInnerData.get(i);
-				//path.lineTo(p.getX() + slope.getX(), p.getY() + slope.getY());
-				clipAdd(path, p, slope, mergeLines[1], mergeLines[2]);
+				clipAdd(path, firstInnerData.get(i), slope, mergeLines[1], mergeLines[2]);
 			}
 			path.lineTo(firstInnerData.get(firstInnerData.size() - 1).getX() + secondSlope.getX(), firstInnerData.get(firstInnerData.size() - 1).getY() + secondSlope.getY());
 			path.closePath();
 			g.fill(path);
 			
+			//second half
+			path = new Path2D.Double(Path2D.WIND_NON_ZERO, secondInnerData.size() + 2);
+			firstSlope = computeSlope(mergeLines[2], mergeLines[3], flowFactor);
+			secondSlope = computeSlope(mergeLines[1], mergeLines[0], flowFactor);
+			slope = new Point2D.Double((firstSlope.getX() + secondSlope.getX()) / 2.0D, (firstSlope.getY() + secondSlope.getY()) / 2.0D);
 			
+			path.moveTo(mergeLines[1].getX(), mergeLines[1].getY());
+			path.lineTo(mergeLines[2].getX(), mergeLines[2].getY());
+			path.lineTo(secondInnerData.get(0).getX() + firstSlope.getX(), secondInnerData.get(0).getY() + firstSlope.getY());
+			for(int i = 1; i < secondInnerData.size() - 1; i++){
+				clipAdd(path, secondInnerData.get(i), slope, mergeLines[0], mergeLines[3]);
+			}
+			path.lineTo(secondInnerData.get(secondInnerData.size() - 1).getX() + secondSlope.getX(), secondInnerData.get(secondInnerData.size() - 1).getY() + secondSlope.getY());
+			path.closePath();
+			g.fill(path);
 			
 			
 		}
 		
-		g.setColor(Color.RED);//Theme.getPlayerOutline(owned));
+		g.setColor(Theme.getPlayerOutline(owned));
 		g.setStroke(Theme.POLY_STROKE);
 		g.draw(new Line2D.Double(mergeLines[0],	interpolate(mergeLines[0], mergeLines[1], factor)));
 		g.draw(new Line2D.Double(mergeLines[2],	interpolate(mergeLines[2], mergeLines[3], factor)));
-		g.draw(new Line2D.Double(mergeLines[0],	mergeLines[3]));
-		g.setColor(Color.GREEN);
-		g.draw(new Line2D.Double(mergeLines[1],	mergeLines[2]));
 		
 		g.draw(firstOuter);
 		g.draw(secondOuter);
 		
 		return elapsed <= 2 * LINE_DURATION;
-	}
-	
-	//private Path2D extendToLine()
-	
+	}	
+
 	private void clipAdd(Path2D path, Point2D p, Point2D slope, Point2D a, Point2D b){
 		Point2D inter = intercept(p, new Point2D.Double(p.getX() + slope.getX(), p.getY() + slope.getY()), a, b);
 		if(inter == null){
@@ -157,7 +167,6 @@ public class MergeAnimation extends ClaimAnimation{
 			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getX() - d.getX()) - (a.getX() - b.getX()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det,
 			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det
 		);
-		System.out.println(p);
 		return (onLine(p, a, b) && onLine(p, c , d)) ? p : null;
 	}
 	
