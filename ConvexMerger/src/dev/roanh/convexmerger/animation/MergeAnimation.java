@@ -136,6 +136,12 @@ public class MergeAnimation extends ClaimAnimation{
 			path.lineTo(secondInnerData.get(secondInnerData.size() - 1).getX() + secondSlope.getX(), secondInnerData.get(secondInnerData.size() - 1).getY() + secondSlope.getY());
 			path.closePath();
 			g.fill(path);
+			
+			//prevent seem lines
+			g.setColor(Theme.getPlayerBody(owned));
+			g.setStroke(Theme.POLY_STROKE);
+			g.draw(new Line2D.Double(mergeLines[0],	mergeLines[3]));
+			g.draw(new Line2D.Double(mergeLines[1],	mergeLines[2]));
 		}
 		
 		g.setColor(Theme.getPlayerOutline(owned));
