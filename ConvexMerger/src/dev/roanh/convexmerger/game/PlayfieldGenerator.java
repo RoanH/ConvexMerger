@@ -19,6 +19,11 @@ import dev.roanh.convexmerger.Constants;
  */
 public class PlayfieldGenerator{
 	/**
+	 * The area of the base triangle is divided this to set the
+	 * minimum required area for an object
+	 */
+	private static final int AREA_DIV_NUM = 6;
+	/**
 	 * Local random instance to use the generate the playfield.
 	 */
 	private final Random random;
@@ -54,21 +59,11 @@ public class PlayfieldGenerator{
 
 	/**
 	 * Function to determine the approximate minimum area for an object
+	 * @param rMax The maximum range for an object.
+	 * @return The computed minimum area for an object.
 	 */
 	public double areaObject(int rMax){
-		double area;
-		int divNum = 6;
-		double x1 = (Math.sqrt(2) / 2) * rMax;
-		double y1 = -(Math.sqrt(2) / 2) * rMax;
-		double x2 = -(Math.sqrt(2) / 2) * rMax;
-		double y2 = -(Math.sqrt(2) / 2) * rMax;
-		double x3 = 0;
-		double y3 = rMax;
-		// shoelace formula (for area of triangle)
-		// the computed area is divided by divNum to set the minimum requirement area for an object
-		area = Math.abs((0.5 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))) / divNum);
-		System.out.println(area);
-		return area;
+		return rMax * rMax * (Math.sqrt(0.5D) + 0.5D) / AREA_DIV_NUM;
 	}
 
 	/**
