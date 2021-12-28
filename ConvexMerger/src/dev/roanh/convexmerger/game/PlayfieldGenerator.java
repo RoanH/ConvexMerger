@@ -53,12 +53,12 @@ public class PlayfieldGenerator{
 	public double areaObject(int rMax){
 		double area;
 		int divNum = 6;
-		double x1 = (Math.sqrt(2) / 2) * (double)rMax;
-		double y1 = -(Math.sqrt(2) / 2) * (double)rMax;
-		double x2 = -(Math.sqrt(2) / 2) * (double)rMax;
-		double y2 = -(Math.sqrt(2) / 2) * (double)rMax;
+		double x1 = (Math.sqrt(2) / 2) * rMax;
+		double y1 = -(Math.sqrt(2) / 2) * rMax;
+		double x2 = -(Math.sqrt(2) / 2) * rMax;
+		double y2 = -(Math.sqrt(2) / 2) * rMax;
 		double x3 = 0;
-		double y3 = (double)rMax;
+		double y3 = rMax;
 		// shoelace formula (for area of triangle)
 		// the computed area is divided by divNum to set the minimum requirement area for an object
 		area = Math.abs((0.5 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))) / divNum);
