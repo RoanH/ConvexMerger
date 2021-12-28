@@ -27,7 +27,7 @@ public class ConvexObject{
 	/**
 	 * The shape of this convex object.
 	 */
-	private Path2D shape = new Path2D.Double(Path2D.WIND_NON_ZERO, 4);
+	private Path2D shape;
 	/**
 	 * The player that owns this object.
 	 */
@@ -79,9 +79,14 @@ public class ConvexObject{
 	 */
 	public ConvexObject(List<Point2D> data){
 		points = data;
-		shape.moveTo(data.get(0).getX(), data.get(0).getY());
-		for(int i = 1; i < data.size(); i++){
-			shape.lineTo(data.get(i).getX(), data.get(i).getY());
+		constructShape(data.size());
+	}
+	
+	private void constructShape(int size){
+		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, size);
+		shape.moveTo(points.get(0).getX(), points.get(0).getY());
+		for(int i = 1; i < points.size(); i++){
+			shape.lineTo(points.get(i).getX(), points.get(i).getY());
 		}
 		shape.closePath();
 	}
@@ -333,6 +338,17 @@ public class ConvexObject{
 	
 	public boolean canClaim(){
 		return owner == null;
+	}
+	
+	public void scale(double factor){
+		Point2D centroid = getCentroid();
+		Point2D origin = new Point2D.Double(centroid.getX() * factor, centroid.getY() * factor);
+		
+		for(Point2D p : points){
+			p.setLocation(p.getX() * factor - origin.getX() + centroid.getX(), p.getY() * factor - origin.getY() + centroid.getY());
+		}
+		
+		constructShape(points.size());
 	}
 	
 	@Override
