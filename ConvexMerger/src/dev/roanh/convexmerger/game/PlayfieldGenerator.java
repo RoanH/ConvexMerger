@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import dev.roanh.convexmerger.Constants;
+
 /**
  * Generator to generate a playfield of randomly placed convex objects
  * on a rectangular plane. The plane has size 0~1600 on the x-axis and
@@ -68,25 +70,13 @@ public class PlayfieldGenerator{
 
 	/**
 	 * Generates a new game playfield with convex objects made up of 3 to 4 points.
-	 * The objects will have coordinates within 0~1600 on the x-axis and within
-	 * 0~900 on the y-axis. In addition they will be evenly distributed across this
-	 * plane. Object will also not overlap and all have approximately the same area.
+	 * The objects will have coordinates within 0~{@value Constants#PLAYFIELD_WIDTH}
+	 * on the x-axis and within 0~{@value Constants#PLAYFIELD_HEIGHT} on the y-axis.
+	 * In addition they will be evenly distributed across this plane. Object will also
+	 * not overlap and all have approximately the same area.
 	 * @return A list of convex objects representing the generated playfield.
 	 */
 	public List<ConvexObject> generatePlayfield(){
-		//TODO you may assume that the playfield is 0~1600 (Constants.PLAYFIELD_WIDTH) on the x-axis
-		//and 0~900 (Constants.PLAYFIELD_HEIGHT) on the y-axis the goal is then to fill the entire
-		//playfield with convex objects that are made up of 3 to 4 points, the object should not overlap,
-		//fill the entire playfield, be of varying sizes and not be too close to each other (they need to
-		//appear as distinct objects to the player) there is no requirement on the total number of objects,
-		//when generating random numbers use the provided random instance. Convex objects can vary in total
-		//area, but not by too much to prevent giving the first player an unfair advantage.
-
-		// x: 0 - 1600
-		// y: 0 - 900
-		// generate random number of objects
-		// The area size has to be more or less same for every object
-
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
 
 		int xMin = 0; // the minimum scale value in the x-axis
