@@ -135,15 +135,55 @@ public class ConvexUtil{
 		return new Point[]{a, b, c, d};
 	}
 	
+	/**
+	 * Splits the given convex objects into segments that are
+	 * either on the outside or on the inside of the convex
+	 * object that is created when merging them.
+	 * @param first The first convex object, should have the
+	 *        smallest x-coordinate of the two objects. If not
+	 *        the two objects will be swapped automatically.
+	 * @param second The second convex object.
+	 * @return The specific segments, index 0 has the part of the
+	 *         first object that would be contained inside the
+	 *         resulting hull, index 1 has the part of the first
+	 *         object that would be part of the outside of the
+	 *         resulting hull, index 2 has the part of the second
+	 *         object that would be contained inside the resulting
+	 *         hull, index 3 has the part of the second object that
+	 *         would be part of the outside of the resulting hull.
+	 * @see #computeMergeLines(List, List)
+	 * @see #computeMergeLines(List, List, List)
+	 * @see #computeMergeBounds(List, List, Point[])
+	 */
 	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second){
 		return computeMergeBounds(first, second, computeMergeLines(first, second));
 	}
 	
-	//TODO does this consider segments of side 1?
-	//requires correct call, as in, pa is associated with first
-	//mr line 1 has to be rooted at the given hull, flipped perspective for the other line -- has to be left
+	/**
+	 * Splits the given convex objects into segments that are
+	 * either on the outside or on the inside of the convex
+	 * object that is created when merging them.
+	 * @param first The first convex object, should have the
+	 *        smallest x-coordinate of the two objects. If not
+	 *        the two objects will be swapped automatically.
+	 * @param second The second convex object.
+	 * @param mergeLines The points describing the merge lines
+	 *        that would be added to merge the two objects as
+	 *        computed by {@link #computeMergeLines(List, List)}.
+	 * @return The specific segments, index 0 has the part of the
+	 *         first object that would be contained inside the
+	 *         resulting hull, index 1 has the part of the first
+	 *         object that would be part of the outside of the
+	 *         resulting hull, index 2 has the part of the second
+	 *         object that would be contained inside the resulting
+	 *         hull, index 3 has the part of the second object that
+	 *         would be part of the outside of the resulting hull.
+	 * @see #computeMergeLines(List, List)
+	 * @see #computeMergeLines(List, List, List)
+	 * @see #computeMergeBounds(List, List)
+	 */
 	public static final List<List<Point>> computeMergeBounds(List<Point> first, List<Point> second, Point[] mergeLines){//pa = 0, pb = 3
-		if(!first.contains(mergeLines[0])){//TODO debatable
+		if(!first.contains(mergeLines[0])){
 			List<Point> tmp = first;
 			first = second;
 			second = tmp;
@@ -160,6 +200,22 @@ public class ConvexUtil{
 		);
 	}
 	
+	/**
+	 * Splits the given hull into two parts, one part
+	 * that is contained between the two points going
+	 * from <code>a</code> to <code>b</code> and one
+	 * part that is contained between the two points
+	 * going from <code>b</code> to <code>a</code>.
+	 * @param hull The hull to split.
+	 * @param a The first split point.
+	 * @param b The second split point.
+	 * @return The specific segments with the part from
+	 *         <code>a</code> to <code>b</code> at index
+	 *         0 and the part from <code>b</code> to <code>
+	 *         a</code> at index 1.
+	 * @see #computeMergeBounds(List, List, Point[])
+	 * @see #computeMergeBounds(List, List)
+	 */
 	public static final List<List<Point>> computeMergeBounds(List<Point> hull, Point a, Point b){
 		List<Point> first = new ArrayList<Point>();
 		List<Point> second = new ArrayList<Point>();
