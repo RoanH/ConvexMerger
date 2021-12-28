@@ -170,6 +170,28 @@ public class MergeAnimation extends ClaimAnimation{
 		return elapsed <= LINE_DURATION + FLOW_DURATION;
 	}
 	
+	/**
+	 * Computes the flow path showing the merge progress, this
+	 * path slowly moves to fill the entire merge area (the
+	 * quadrilateral defined by the merge lines).
+	 * @param data The data for the inner hull segment moving
+	 *        towards the other end of the merge area.
+	 * @param firstStart The first point of the line segment
+	 *        defining the first merge line starting from the
+	 *        current side of the area.
+	 * @param firstEnd The second point of the line segment
+	 *        defining the first merge line starting from the
+	 *        current side of the area.
+	 * @param secondStart The first point of the line segment
+	 *        defining the second merge line starting from the
+	 *        current side of the area.
+	 * @param secondEnd The second point of the line segment
+	 *        defining the second merge line starting from the
+	 *        current side of the area.
+	 * @param flowFactor The progress made so far in filling the
+	 *        merge area, this value is between 0 and 1.
+	 * @return The current flow path.
+	 */
 	private Path2D computeFlowPath(List<Point> data, Point2D firstStart, Point2D firstEnd, Point2D secondStart, Point2D secondEnd, float flowFactor){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, data.size() + 2);
 		Point2D firstSlope = computeSlope(firstStart, firstEnd, flowFactor);
@@ -198,6 +220,24 @@ public class MergeAnimation extends ClaimAnimation{
 		return path;
 	}
 
+	/**
+	 * Adds the given slope to the given point and then adds the
+	 * resulting point to the given path. Unless the result would
+	 * go outside of the merge area (the quadrilateral defined by
+	 * the merge lines). If this is the case the result is clipped
+	 * to be on the boundary of the merge area.
+	 * @param path The path to append to.
+	 * @param p The point to add the slope to.
+	 * @param slope The slope to add.
+	 * @param a The first point of the line segment defining the
+	 *        merge line on the other side of the merge area.
+	 * @param b The second point of the line segment defining the
+	 *        merge line on the other side of the merge area.
+	 * @param firstBase The starting location of the first merge line.
+	 * @param firstSlope The slope denoting the progress along the first merge line.
+	 * @param secondBase The starting location of the second merge line.
+	 * @param secondSlope The slope denoting the progress along the second merge line.
+	 */
 	private void clipAdd(Path2D path, Point2D p, Point2D slope, Point2D a, Point2D b, Point2D firstBase, Point2D firstSlope, Point2D secondBase, Point2D secondSlope){
 		Point2D target = new Point2D.Double(p.getX() + slope.getX(), p.getY() + slope.getY());
 		
@@ -226,6 +266,15 @@ public class MergeAnimation extends ClaimAnimation{
 		path.lineTo(target.getX(), target.getY());
 	}
 	
+	/**
+	 * Computes the intersection point of the two given closed line segments.
+	 * @param a The first point of the first line segment.
+	 * @param b The second point of the first line segment.
+	 * @param c The first point of the second line segment.
+	 * @param d The second point of the second line segment.
+	 * @return The intersection point, or <code>null</code> if
+	 *         the given line segments do not intersect.
+	 */
 	private Point2D intercept(Point2D a, Point2D b, Point2D c, Point2D d){
 		double det = (a.getX() - b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() - d.getX());
 		Point2D p = new Point2D.Double(
@@ -235,10 +284,25 @@ public class MergeAnimation extends ClaimAnimation{
 		return (onLine(p, a, b) && onLine(p, c , d)) ? p : null;
 	}
 	
+	/**
+	 * Checks if the given point <code>p</code> is
+	 * on the closed line segment between <code>a
+	 * </code> and <code>b</code>.
+	 * @param p The point to check.
+	 * @param a The first point of the line segment.
+	 * @param b The second point of the line segment.
+	 * @return True if the given point is on the given line segment.
+	 */
 	private boolean onLine(Point2D p, Point2D a, Point2D b){
 		return Math.min(a.getX(), b.getX()) <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) && Math.min(a.getY(), b.getY()) <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()); 
 	}
 	
+	/**
+	 * Creates a path from the given list of points.
+	 * @param <T> The point data type.
+	 * @param points The list of points.
+	 * @return The constructed path.
+	 */
 	private <T extends Point2D> Path2D createPath(List<T> points){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, points.size());
 		path.moveTo(points.get(0).getX(), points.get(0).getY());
@@ -248,6 +312,15 @@ public class MergeAnimation extends ClaimAnimation{
 		return path;
 	}
 
+	/**
+	 * Interpolates between the given two points starting
+	 * from the source and ending at the given fraction to
+	 * the target point.
+	 * @param source The source point.
+	 * @param target The target point.
+	 * @param fraction The fraction to cover.
+	 * @return The interpolated point.
+	 */
 	private Point2D interpolate(Point2D source, Point2D target, float fraction){
 		Point2D slope = computeSlope(source, target, fraction);
 		return new Point2D.Double(
@@ -256,6 +329,15 @@ public class MergeAnimation extends ClaimAnimation{
 		);
 	}
 	
+	/**
+	 * Computes the 'slope' that needs to be added
+	 * to the given source point to get to the given
+	 * fraction in the direction of the given target.
+	 * @param source The source point.
+	 * @param target The target point.
+	 * @param fraction The fraction to cover.
+	 * @return The slope or delta required.
+	 */
 	private Point2D computeSlope(Point2D source, Point2D target, float fraction){
 		return new Point2D.Double(
 			(target.getX() - source.getX()) * fraction,
