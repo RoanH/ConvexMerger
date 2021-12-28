@@ -149,7 +149,6 @@ public class PlayfieldGenerator{
 			//add the object to the final result
 			totalArea += area;
 			objects.add(obj);
-
 		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * coverage);
 
 		return objects;
