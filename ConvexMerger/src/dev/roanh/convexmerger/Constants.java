@@ -32,4 +32,8 @@ public final class Constants{
 	 * Initial frame size scaling factor
 	 */
 	public static final int INIT_SIZE = 80;
+	/**
+	 * Number of milliseconds per animation frame (60FPS).
+	 */
+	public static final long ANIMATION_RATE = 33;
 }

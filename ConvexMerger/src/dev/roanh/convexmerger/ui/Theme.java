@@ -48,7 +48,7 @@ public final class Theme{
 	}
 	
 	public static final LinearGradientPaint constructBorderGradient(GameState state, int width){
-		switch(state.getPlayerCount()){
+		switch(state == null ? 4 : state.getPlayerCount()){
 		case 0:
 		case 1:
 		case 2:
