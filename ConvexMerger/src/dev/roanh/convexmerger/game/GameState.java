@@ -157,7 +157,6 @@ public class GameState{
 	}
 	
 	public ConvexObject getObject(Point2D p){
-		System.out.println("pt: " + p);
 		return getObject(p.getX(), p.getY());
 	}
 	
