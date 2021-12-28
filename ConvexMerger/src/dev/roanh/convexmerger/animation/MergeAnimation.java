@@ -17,7 +17,7 @@ import dev.roanh.convexmerger.ui.Theme;
 
 public class MergeAnimation extends ClaimAnimation{
 	private static final float LINE_DURATION = 250.0F;
-	private static final float FLOW_DURATION = 400.0F;
+	private static final float FLOW_DURATION = 4000.0F;
 	private boolean unclaimed;
 	private ConvexObject owned;
 	private ConvexObject target;
@@ -35,6 +35,8 @@ public class MergeAnimation extends ClaimAnimation{
 	private List<Point> firstInnerData;
 	private List<Point> secondInnerData;
 	
+	private ConvexObject result;
+	
 	public MergeAnimation(ConvexObject owned, ConvexObject target, ConvexObject result, List<ConvexObject> contained){
 		super(target, target.getCentroid());
 		unclaimed = !target.isOwned();
@@ -42,6 +44,7 @@ public class MergeAnimation extends ClaimAnimation{
 		this.owned = owned;
 		this.target = target;
 		this.contained = contained;
+		this.result = result;
 		
 		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), result.getPoints());
 		List<List<Point>> mergeBounds = ConvexUtil.computeMergeBounds(owned.getPoints(), target.getPoints(), mergeLines);
@@ -69,8 +72,8 @@ public class MergeAnimation extends ClaimAnimation{
 		float factor = Math.min(2.0F, elapsed / LINE_DURATION);
 		
 		g.setColor(Theme.getPlayerBody(owned));
-		g.fill(owned.getShape());
-		g.fill(target.getShape());
+		//g.fill(owned.getShape());
+		//g.fill(target.getShape());
 		
 		Composite composite = g.getComposite();
 		g.setStroke(Theme.POLY_STROKE);
@@ -116,7 +119,17 @@ public class MergeAnimation extends ClaimAnimation{
 			path.lineTo(mergeLines[0].getX(), mergeLines[0].getY());
 			path.lineTo(firstInnerData.get(0).getX() + firstSlope.getX(), firstInnerData.get(0).getY() + firstSlope.getY());
 			for(int i = 1; i < firstInnerData.size() - 1; i++){
-				clipAdd(path, firstInnerData.get(i), slope, mergeLines[1], mergeLines[2]);
+				clipAdd(
+					path,
+					firstInnerData.get(i),
+					slope,
+					mergeLines[1],
+					mergeLines[2],
+					firstInnerData.get(0),
+					firstSlope,
+					firstInnerData.get(firstInnerData.size() - 1),
+					secondSlope
+				);
 			}
 			path.lineTo(firstInnerData.get(firstInnerData.size() - 1).getX() + secondSlope.getX(), firstInnerData.get(firstInnerData.size() - 1).getY() + secondSlope.getY());
 			path.closePath();
@@ -132,7 +145,17 @@ public class MergeAnimation extends ClaimAnimation{
 			path.lineTo(mergeLines[2].getX(), mergeLines[2].getY());
 			path.lineTo(secondInnerData.get(0).getX() + firstSlope.getX(), secondInnerData.get(0).getY() + firstSlope.getY());
 			for(int i = 1; i < secondInnerData.size() - 1; i++){
-				clipAdd(path, secondInnerData.get(i), slope, mergeLines[0], mergeLines[3]);
+				clipAdd(
+					path,
+					secondInnerData.get(i),
+					slope,
+					mergeLines[0],
+					mergeLines[3],
+					secondInnerData.get(0),
+					firstSlope,
+					secondInnerData.get(secondInnerData.size() - 1),
+					secondSlope
+				);
 			}
 			path.lineTo(secondInnerData.get(secondInnerData.size() - 1).getX() + secondSlope.getX(), secondInnerData.get(secondInnerData.size() - 1).getY() + secondSlope.getY());
 			path.closePath();
@@ -145,20 +168,46 @@ public class MergeAnimation extends ClaimAnimation{
 		g.setStroke(Theme.POLY_STROKE);
 		g.draw(new Line2D.Double(mergeLines[0],	interpolate(mergeLines[0], mergeLines[1], factor)));
 		g.draw(new Line2D.Double(mergeLines[2],	interpolate(mergeLines[2], mergeLines[3], factor)));
+		g.setColor(Color.RED);
+		g.draw(new Line2D.Double(mergeLines[0], mergeLines[1]));
+		g.draw(new Line2D.Double(mergeLines[2], mergeLines[3]));
+		g.setColor(Color.GREEN);
+		g.draw(new Line2D.Double(mergeLines[1], mergeLines[2]));
+		g.draw(new Line2D.Double(mergeLines[0], mergeLines[3]));
+		g.setColor(Theme.getPlayerOutline(owned));//TODO rem
 		
 		g.draw(firstOuter);
 		g.draw(secondOuter);
 		
-		return elapsed <= 2 * LINE_DURATION;
+		return elapsed <= LINE_DURATION + FLOW_DURATION;
 	}	
 
-	private void clipAdd(Path2D path, Point2D p, Point2D slope, Point2D a, Point2D b){
-		Point2D inter = intercept(p, new Point2D.Double(p.getX() + slope.getX(), p.getY() + slope.getY()), a, b);
-		if(inter == null){
-			path.lineTo(p.getX() + slope.getX(), p.getY() + slope.getY());
-		}else{
+	private void clipAdd(Path2D path, Point2D p, Point2D slope, Point2D a, Point2D b, Point2D firstBase, Point2D firstSlope, Point2D secondBase, Point2D secondSlope){
+		Point2D target = new Point2D.Double(p.getX() + slope.getX(), p.getY() + slope.getY());
+		
+		Point2D inter = intercept(p, target, a, b);
+		if(inter != null){
 			path.lineTo(inter.getX(), inter.getY());
+			return;
 		}
+		
+		inter = intercept(p, target, mergeLines[0], mergeLines[1]);
+		if(inter != null){
+			if(Math.abs(inter.getX() - firstBase.getX()) > Math.abs(firstSlope.getX()) || Math.abs(inter.getY() - firstBase.getY()) > Math.abs(firstSlope.getY())){
+				path.lineTo(inter.getX(), inter.getY());
+			}
+			return;
+		}
+			
+		inter = intercept(p, target, mergeLines[2], mergeLines[3]);
+		if(inter != null){
+			if(Math.abs(inter.getX() - secondBase.getX()) > Math.abs(secondSlope.getX()) || Math.abs(inter.getY() - secondBase.getY()) > Math.abs(secondSlope.getY())){
+				path.lineTo(inter.getX(), inter.getY());
+			}
+			return;
+		}
+		
+		path.lineTo(target.getX(), target.getY());
 	}
 	
 	private Point2D intercept(Point2D a, Point2D b, Point2D c, Point2D d){
