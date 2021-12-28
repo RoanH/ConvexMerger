@@ -100,39 +100,35 @@ public class PlayfieldGenerator{
 
 		double areaObject = areaObject(rangeMax); // minimum generated object area by calling function areaObjet()
 
-		do{
-			// generate the center (x,y) of the triangle or quadrilateral randomly
+		main: do{
+			//generate the center (x,y) of the triangle or quadrilateral randomly
 			int centerX = random.nextInt(Constants.PLAYFIELD_WIDTH - 2 * offset) + offset;
 			int centerY = random.nextInt(Constants.PLAYFIELD_HEIGHT - 2 * offset) + offset;
 
-			// top right of the triangle or quadrilateral	
+			//top right of the triangle or quadrilateral	
 			int topRightX = centerX + random.nextInt(rangeMax - rangeMin) + rangeMin;
 			int topRightY = centerY + random.nextInt(rangeMax - rangeMin) + rangeMin;
 
-			// top left of the triangle or quadrilateral
+			//top left of the triangle or quadrilateral
 			int topLeftX = centerX - random.nextInt(rangeMax - rangeMin) - rangeMin;
 			int topLeftY = centerY + random.nextInt(rangeMax - rangeMin) + rangeMin;
 
-			// bottom left of the triangle or quadrilateral
+			//bottom left of the triangle or quadrilateral
 			int bottomLeftX = centerX - random.nextInt(rangeMax - rangeMin) - rangeMin;
 			int bottomLeftY = centerY - random.nextInt(rangeMax - rangeMin) - rangeMin;
 
-			// bottom right of the triangle or quadrilateral
+			//bottom right of the triangle or quadrilateral
 			int bottomRightX = centerX + random.nextInt(rangeMax - rangeMin) + rangeMin;
 			int bottomRightY = centerY - random.nextInt(rangeMax - rangeMin) - rangeMin;
 
-			// calculate the diagonal length between points
-			// for avoiding generation of tin long triangle or quadrilateral
 			double diagonalLength1 = Math.hypot(topRightX - bottomLeftX, topRightY - bottomLeftY);
 			double diagonalLength2 = Math.hypot(bottomRightX - topLeftX, bottomRightY - topLeftY);
 			if(Math.min(diagonalLength1 / diagonalLength2, diagonalLength2 / diagonalLength1) > diagonalLengthRatio){
-				// if the ratio of the diagonals is high, thin long object has potential to be generated
-				// continue to the next iteration of the do-while loop for generating non-thin long objects
+				//if the ratio of the diagonals is high, thin long object has potential to be generated
 				continue;
 			}
 
-			// check if 3 points are collinear
-			// continue to the next iteration of the do-while loop if the 3 points are collinear 
+			//ensure no 3 points are collinear
 			if(collinear(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY)){
 				continue;
 			}else if(collinear(topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)){
@@ -143,28 +139,25 @@ public class PlayfieldGenerator{
 				continue;
 			}
 
-			// add the generated triangle or quadrilateral into the the objects arraylist
-			objects.add(new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY));
+			//construct the new convex object
+			ConvexObject obj = new ConvexObject(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY);
 
-			double area = objects.get(objects.size() - 1).getArea(); // get the area of the generated object
-
-			// remove the newly generated object if its area less than the required minimum area setting
-			// and then continue to the next iteration of the do-while loop for generating non-thin long objects
+			//skip the newly generated object if its area less than the required minimum area setting
+			double area = obj.getArea();
 			if(area < areaObject){
-				objects.remove(objects.size() - 1);
 				continue;
 			}
 
-			totalArea += area; // add the area of the generated object to the variable totalArea
-
-			// eliminate the triangle or convex quadrilateral that intersects with other triangle or quadrilateral
-			for(int k = 0; k < objects.size() - 1; k++){
-				if(objects.get(objects.size() - 1).intersects(objects.get(k))){
-					objects.remove(objects.size() - 1); // remove the newly generated triangle or quadrilateral if it intersected with other triangle or quadrilateral
-					totalArea -= area; // deduct the area of the generated object to the variable totalArea 
-					break; // the for loop can be break because this newly generated object is intersected with other object
+			//skip triangles or convex quadrilaterals that intersects with other triangles or quadrilaterals
+			for(ConvexObject object : objects){
+				if(obj.intersects(object)){
+					continue main;
 				}
 			}
+			
+			//add the object to the final result
+			totalArea += area;
+			objects.add(obj);
 
 			// numPolygons--;	// while(numPolygons > 0);	// use this setting if the maximum output of the number of objects is chosen
 		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * totalAreaCoverage);
