@@ -91,19 +91,16 @@ public class PlayfieldGenerator{
 		// NOT recommend to be adjusted by the user
 		double diagonalLengthRatio = 1.5; // ratio between the length of both diagonals in an object (recommended between 1.0 and 1.8)
 
-		int offset = rangeMax; // offset to make sure the generated objects are not beyond the screen
-
 //		int maxLoop = 1000;	// maximum loop for terminating the do-while loop
 //		int numPolygons = 10;	// maximum number of objects to be generated 
 
-		double totalArea = 0.0; // minimum total area of all generated objects
-
-		double areaObject = areaObject(rangeMax); // minimum generated object area by calling function areaObjet()
+		double totalArea = 0.0;//minimum total area of all generated objects
+		double areaObject = areaObject(rangeMax);//minimum generated object area
 
 		main: do{
-			//generate the center (x,y) of the triangle or quadrilateral randomly
-			int centerX = random.nextInt(Constants.PLAYFIELD_WIDTH - 2 * offset) + offset;
-			int centerY = random.nextInt(Constants.PLAYFIELD_HEIGHT - 2 * offset) + offset;
+			//generate the center (x,y) of the triangle or quadrilateral randomly at least rangeMax from the sides
+			int centerX = random.nextInt(Constants.PLAYFIELD_WIDTH - 2 * rangeMax) + rangeMax;
+			int centerY = random.nextInt(Constants.PLAYFIELD_HEIGHT - 2 * rangeMax) + rangeMax;
 
 			//top right of the triangle or quadrilateral	
 			int topRightX = centerX + random.nextInt(rangeMax - rangeMin) + rangeMin;
