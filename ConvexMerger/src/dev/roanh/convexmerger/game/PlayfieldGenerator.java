@@ -79,9 +79,6 @@ public class PlayfieldGenerator{
 	public List<ConvexObject> generatePlayfield(){
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
 
-		int xMax = 1600; // the maximum scale value in the x-axis
-		int yMax = 900; // the maximum scale value in the y-axis
-
 		// variables rangeMin and rangeMax Can be adjusted by user
 		// WARNING: the smaller rangeMax, longer time it takes to generate the playfield
 		// it depends on the total area coverage (totalAreaCoverage) setting as well
@@ -107,8 +104,8 @@ public class PlayfieldGenerator{
 
 		do{
 			// generate the center (x,y) of the triangle or quadrilateral randomly
-			int centerX = random.nextInt((xMax - offset) - offset) + offset;
-			int centerY = random.nextInt((yMax - offset) - offset) + offset;
+			int centerX = random.nextInt((Constants.PLAYFIELD_WIDTH - offset) - offset) + offset;
+			int centerY = random.nextInt((Constants.PLAYFIELD_HEIGHT - offset) - offset) + offset;
 
 			// top right of the triangle or quadrilateral	
 			int topRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
@@ -172,7 +169,7 @@ public class PlayfieldGenerator{
 			}
 
 			// numPolygons--;	// while(numPolygons > 0);	// use this setting if the maximum output of the number of objects is chosen
-		}while(totalArea < (xMax * yMax) * totalAreaCoverage);
+		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * totalAreaCoverage);
 
 		return objects;
 	}
