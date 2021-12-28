@@ -76,27 +76,20 @@ public class PlayfieldGenerator{
 	 * on the x-axis and within 0~{@value Constants#PLAYFIELD_HEIGHT} on the y-axis.
 	 * In addition they will be evenly distributed across this plane. Object will also
 	 * not overlap and all have approximately the same area.
+	 * @param rangeMin The minimum size range for convex objects.
+	 * @param rangeMax The maximum size range for convex objects. Small values for
+	 *        this parameter may resulting in generating the playfield taking longer,
+	 *        values larger than 20 are recommended.
+	 * @param coverage The minimum total area of the whole playfield that should be
+	 *        covered by convex objects. High values for this parameter may result in
+	 *        extremely long or even infinite generation times. It is recommended to
+	 *        use a value of 0.5 or less.
 	 * @return A list of convex objects representing the generated playfield.
 	 */
-	public List<ConvexObject> generatePlayfield(){
+	public List<ConvexObject> generatePlayfield(int rangeMin, int rangeMax, double coverage){
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
-
-		// variables rangeMin and rangeMax Can be adjusted by user
-		// WARNING: the smaller rangeMax, longer time it takes to generate the playfield
-		// it depends on the total area coverage (totalAreaCoverage) setting as well
-		int rangeMin = 50; // minimum value in the range of a vertex in a object 
-		int rangeMax = 100; // maximum value in the range of a vertex in a object (recommended more than or equal to 20)
-
-		// variable totalAreaCoverage can be adjusted by user 
-		// WARNING: the larger the total area coverage, longer time it takes to generate the playfield
-		// it depends on the range max (rangeMax) setting as well
-		double totalAreaCoverage = 0.45; // percentage minimum area coverage of all generated objects (recommended less than or equal to 0.5)
-
-//		int maxLoop = 1000;	// maximum loop for terminating the do-while loop
-//		int numPolygons = 10;	// maximum number of objects to be generated 
-
-		double totalArea = 0.0;//minimum total area of all generated objects
-		double areaObject = areaObject(rangeMax);//minimum generated object area
+		double totalArea = 0.0;//total area of all generated objects
+		double areaObject = areaObject(rangeMax);//minimum object area
 
 		main: do{
 			//generate the center (x,y) of the triangle or quadrilateral randomly at least rangeMax from the sides
@@ -157,8 +150,7 @@ public class PlayfieldGenerator{
 			totalArea += area;
 			objects.add(obj);
 
-			// numPolygons--;	// while(numPolygons > 0);	// use this setting if the maximum output of the number of objects is chosen
-		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * totalAreaCoverage);
+		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * coverage);
 
 		return objects;
 	}
