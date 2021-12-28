@@ -24,6 +24,10 @@ public class PlayfieldGenerator{
 	 */
 	private static final int AREA_DIV_NUM = 6;
 	/**
+	 * Ratio between the length of both diagonals in an object (recommended between 1.0 and 1.8).
+	 */
+	private static final double DIAGONAL_LENGTH_RATIO = 1.5D;
+	/**
 	 * Local random instance to use the generate the playfield.
 	 */
 	private final Random random;
@@ -80,16 +84,13 @@ public class PlayfieldGenerator{
 		// variables rangeMin and rangeMax Can be adjusted by user
 		// WARNING: the smaller rangeMax, longer time it takes to generate the playfield
 		// it depends on the total area coverage (totalAreaCoverage) setting as well
-		int rangeMin = 0; // minimum value in the range of a vertex in a object 
-		int rangeMax = 25; // maximum value in the range of a vertex in a object (recommended more than or equal to 20)
+		int rangeMin = 50; // minimum value in the range of a vertex in a object 
+		int rangeMax = 100; // maximum value in the range of a vertex in a object (recommended more than or equal to 20)
 
 		// variable totalAreaCoverage can be adjusted by user 
 		// WARNING: the larger the total area coverage, longer time it takes to generate the playfield
 		// it depends on the range max (rangeMax) setting as well
 		double totalAreaCoverage = 0.45; // percentage minimum area coverage of all generated objects (recommended less than or equal to 0.5)
-
-		// NOT recommend to be adjusted by the user
-		double diagonalLengthRatio = 1.5; // ratio between the length of both diagonals in an object (recommended between 1.0 and 1.8)
 
 //		int maxLoop = 1000;	// maximum loop for terminating the do-while loop
 //		int numPolygons = 10;	// maximum number of objects to be generated 
@@ -120,7 +121,7 @@ public class PlayfieldGenerator{
 
 			double diagonalLength1 = Math.hypot(topRightX - bottomLeftX, topRightY - bottomLeftY);
 			double diagonalLength2 = Math.hypot(bottomRightX - topLeftX, bottomRightY - topLeftY);
-			if(Math.min(diagonalLength1 / diagonalLength2, diagonalLength2 / diagonalLength1) > diagonalLengthRatio){
+			if(Math.min(diagonalLength1 / diagonalLength2, diagonalLength2 / diagonalLength1) > DIAGONAL_LENGTH_RATIO){
 				//if the ratio of the diagonals is high, thin long object has potential to be generated
 				continue;
 			}
