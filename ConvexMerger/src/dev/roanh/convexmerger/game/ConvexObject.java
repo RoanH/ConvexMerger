@@ -336,10 +336,19 @@ public class ConvexObject{
 		g.draw(shape);
 	}
 	
+	/**
+	 * Checks if this objects is unowned and
+	 * thus claimable by any player.
+	 * @return True if this object can be claimed.
+	 */
 	public boolean canClaim(){
 		return owner == null;
 	}
 	
+	/**
+	 * Scales this object by the given scaling factor.
+	 * @param factor The scaling factor.
+	 */
 	public void scale(double factor){
 		Point2D centroid = getCentroid();
 		Point2D origin = new Point2D.Double(centroid.getX() * factor, centroid.getY() * factor);

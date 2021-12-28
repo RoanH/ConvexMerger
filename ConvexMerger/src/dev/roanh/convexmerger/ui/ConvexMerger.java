@@ -75,7 +75,7 @@ public class ConvexMerger{
 						frame.setLocationRelativeTo(null);
 						frame.setVisible(true);
 					}
-				}else if(e.getKeyCode() == KeyEvent.VK_F){
+				}else if(e.getKeyCode() == KeyEvent.VK_F){//TODO remove
 					for(ConvexObject obj : state.getObjects()){
 						obj.scale(0.99D);
 					}
