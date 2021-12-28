@@ -32,6 +32,9 @@ public class ConvexObject{
 	 * The player that owns this object.
 	 */
 	private Player owner = null;
+	/**
+	 * The active animation for this object.
+	 */
 	private Animation animation = null;
 	
 	/**

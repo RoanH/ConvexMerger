@@ -30,13 +30,28 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.player.Player;
 
-//TODO extract
+/**
+ * Main panel responsibly for rending the current game state.
+ * @author Roan
+ */
 public final class GamePanel extends JPanel implements MouseListener, MouseMotionListener{
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private static final boolean SHOW_CENTROID = false;
+	/**
+	 * Height of the top score display part of the game panel.
+	 */
 	public static final int TOP_SPACE = 100;
+	/**
+	 * Offset from the side to the playfield rectangle.
+	 */
 	public static final int SIDE_OFFSET = 20 + 1;
+	/**
+	 * Offset from the score display part of the game panel to the playfield rectangle.
+	 */
 	public static final int TOP_OFFSET = 30 + 1;
+	/**
+	 * Offset from the bottom to the playfield rectangle.
+	 */
 	public static final int BOTTOM_OFFSET = 50 + 1;
 	private static final int TOP_SIDE_TRIANGLE = 50;
 	private static final int TOP_MIDDLE_OFFSET = 30;
