@@ -102,30 +102,30 @@ public class PlayfieldGenerator{
 
 		do{
 			// generate the center (x,y) of the triangle or quadrilateral randomly
-			int centerX = random.nextInt((Constants.PLAYFIELD_WIDTH - offset) - offset) + offset;
-			int centerY = random.nextInt((Constants.PLAYFIELD_HEIGHT - offset) - offset) + offset;
+			int centerX = random.nextInt(Constants.PLAYFIELD_WIDTH - 2 * offset) + offset;
+			int centerY = random.nextInt(Constants.PLAYFIELD_HEIGHT - 2 * offset) + offset;
 
 			// top right of the triangle or quadrilateral	
-			int topRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
-			int topRightY = centerY + (random.nextInt(rangeMax - rangeMin) + rangeMin);
+			int topRightX = centerX + random.nextInt(rangeMax - rangeMin) + rangeMin;
+			int topRightY = centerY + random.nextInt(rangeMax - rangeMin) + rangeMin;
 
 			// top left of the triangle or quadrilateral
-			int topLeftX = centerX + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
-			int topLeftY = centerY + (random.nextInt(rangeMax - rangeMin) + rangeMin);
+			int topLeftX = centerX - random.nextInt(rangeMax - rangeMin) - rangeMin;
+			int topLeftY = centerY + random.nextInt(rangeMax - rangeMin) + rangeMin;
 
 			// bottom left of the triangle or quadrilateral
-			int bottomLeftX = centerX + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
-			int bottomLeftY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
+			int bottomLeftX = centerX - random.nextInt(rangeMax - rangeMin) - rangeMin;
+			int bottomLeftY = centerY - random.nextInt(rangeMax - rangeMin) - rangeMin;
 
 			// bottom right of the triangle or quadrilateral
-			int bottomRightX = centerX + (random.nextInt(rangeMax - rangeMin) + rangeMin);
-			int bottomRightY = centerY + (-(random.nextInt(rangeMax - rangeMin) + rangeMin));
+			int bottomRightX = centerX + random.nextInt(rangeMax - rangeMin) + rangeMin;
+			int bottomRightY = centerY - random.nextInt(rangeMax - rangeMin) - rangeMin;
 
 			// calculate the diagonal length between points
 			// for avoiding generation of tin long triangle or quadrilateral
-			double diagonalLength_1 = Math.hypot(topRightX - bottomLeftX, topRightY - bottomLeftY);
-			double diagonalLength_2 = Math.hypot(bottomRightX - topLeftX, bottomRightY - topLeftY);
-			if(Math.min(diagonalLength_1 / diagonalLength_2, diagonalLength_2 / diagonalLength_1) > diagonalLengthRatio){
+			double diagonalLength1 = Math.hypot(topRightX - bottomLeftX, topRightY - bottomLeftY);
+			double diagonalLength2 = Math.hypot(bottomRightX - topLeftX, bottomRightY - topLeftY);
+			if(Math.min(diagonalLength1 / diagonalLength2, diagonalLength2 / diagonalLength1) > diagonalLengthRatio){
 				// if the ratio of the diagonals is high, thin long object has potential to be generated
 				// continue to the next iteration of the do-while loop for generating non-thin long objects
 				continue;
