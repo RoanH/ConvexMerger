@@ -8,8 +8,10 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Arrays;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -31,6 +33,20 @@ public class ConvexMerger{
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
 		content.add(game, BorderLayout.CENTER);
+		
+		try{
+			frame.setIconImages(Arrays.asList(
+				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/16.png")),
+				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/32.png")),
+				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/48.png")),
+				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/64.png")),
+				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/96.png")),
+				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/256.png"))
+			));
+		}catch(IOException e1){
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		frame.add(content);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

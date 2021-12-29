@@ -47,7 +47,7 @@ application{
 
 launch4j{
 	mainClassName = application.mainClassName
-	//icon = "${projectDir}/icon.ico"
+	icon = "${projectDir}/icon.ico"
 	jreMinVersion = project.sourceCompatibility
 	outfile = project.name + '-' + project.version + '.exe'
 	fileDescription = project.name
