@@ -75,6 +75,7 @@ public class GameState{
 				obj.setOwner(player);
 				player.addArea(obj.getArea());
 				obj.setAnimation(new ClaimAnimation(obj, location));
+				player.getStats().addClaim();
 				endTurn();
 				return ClaimResult.of(obj);
 			}
@@ -145,6 +146,8 @@ public class GameState{
 			objects.add(merged);
 			decomp.addObject(merged);
 			player.addArea(merged.getArea());
+			player.getStats().addMerge();
+			player.getStats().addAbsorbed(contained.size());
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			return merged;
 		}else{

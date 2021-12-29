@@ -13,6 +13,7 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 public abstract class Player{
 	protected GameState state;
 	private ScoreAnimation scoreAnimation = new ScoreAnimation(this);
+	private PlayerStats stats = new PlayerStats();
 	private String name;
 	private boolean human;
 	private PlayerTheme theme;
@@ -138,6 +139,10 @@ public abstract class Player{
 		
 		return first == null ? null : new MergeOption(first, second, increase);
 	}
+	
+	public PlayerStats getStats(){
+		return stats;
+	}
 		
 	@Override
 	public String toString(){
@@ -162,6 +167,59 @@ public abstract class Player{
 		public ConvexObject execute(){
 			state.claimObject(first);
 			return state.claimObject(second).getResult();
+		}
+	}
+	
+	public static class PlayerStats{
+		private int claims;
+		private int merges;
+		private int absorbed;
+		private long totalTurnTime;
+		private int turns;
+		
+		public void addClaim(){
+			claims++;
+		}
+		
+		public void addMerge(){
+			merges++;
+		}
+		
+		public void addAbsorbed(int n){
+			absorbed += n;
+		}
+		
+		public void addTurnTime(long time){
+			totalTurnTime += time;
+			turns++;
+		}
+
+		/**
+		 * Gets the total number of objects claimed by this player.
+		 * @return The total number of objects claimed by this player.
+		 */
+		public int getClaims(){
+			return claims;
+		}
+
+		/**
+		 * Gets the total number of merges performed by this player.
+		 * @return The total number of merges performed.
+		 */
+		public int getMerges(){
+			return merges;
+		}
+
+		/**
+		 * Gets the total number of unrelated objects absorbed by merges.
+		 * @return The total number of absorbed/stolen objects.
+		 */
+		public int getAbsorbed(){
+			return absorbed;
+		}
+
+		public double getAverageTurnTime(){
+			return totalTurnTime / (double)turns;
 		}
 	}
 }
