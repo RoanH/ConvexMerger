@@ -31,12 +31,14 @@ public final class Theme{
 	public static final Color DIVIDER_COLOR = new Color(31, 37, 46);
 	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
 	public static final Color BORDER_COLOR = new Color(41, 49, 61);
+	public static final Color BORDER_TEXT_COLOR = new Color(255, 255, 255, (75 * 255) / 100);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
 	public static final Stroke RESULTS_STROKE = new BasicStroke(2.0F);
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
+	public static final Font PRIDI_MEDIUM_10;
 	public static final Font PRIDI_MEDIUM_12;
 	public static final Font PRIDI_MEDIUM_14;
 	public static final Font PRIDI_MEDIUM_24;
@@ -161,6 +163,7 @@ public final class Theme{
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
+			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
 			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing

@@ -9,6 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.geom.RoundRectangle2D.Double;
 import java.util.List;
 
 import dev.roanh.convexmerger.game.GameState;
@@ -22,6 +23,7 @@ public class ResultOverlay{
 	private static final int ROUND_RADIUS = 4;
 	private static final int MAX_WIDTH = 900;
 	private static final int CROWN_GAP = 4;
+	private static final int BORDER_GAP = 6;
 	private Player winner;
 	private GameState state;
 
@@ -65,7 +67,7 @@ public class ResultOverlay{
 		renderBars(g, size);
 		
 		//stats
-		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP);
+		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP);
 		renderStats(g, size);
 		
 		//total height: (title fm asc + desc + 1)
@@ -129,21 +131,42 @@ public class ResultOverlay{
 	}
 	
 	private void renderStats(Graphics2D g, int width){
-		g.setColor(Color.RED);
-		g.drawLine(0, 0, width, 0);
+		//g.setColor(Color.RED);
+		//g.drawLine(0, 0, width, 0);
 		
-		renderBorder(g, 10, 10, 100, 20, "Test");
+		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_MEDIUM_12);
+		float height = 12.0F + fm.getAscent();
+		
+		float subWidth = (width - BORDER_GAP * 2) / 3.0F;
+		
+		
+		renderBorder(g, 0.0F, 0.0F, subWidth, height, "Game Time");
+		renderBorder(g, subWidth + BORDER_GAP, 0.0F, subWidth, height, "Rounds");
+		renderBorder(g, (subWidth + BORDER_GAP) * 2.0F, 0.0F, subWidth, height, "Seed");
+		
+		
+		
+		renderBorder(g, 0.0F, BORDER_GAP + height, width, height, "Objects Claimed");
+		renderBorder(g, 0.0F, (BORDER_GAP + height) * 2.0F, width, height, "Merges");
+		renderBorder(g, 0.0F, (BORDER_GAP + height) * 3.0F, width, height, "Objects Aborbed");
+		renderBorder(g, 0.0F, (BORDER_GAP + height) * 4.0F, width, height, "Average Turn Time");
 		
 	}
 	
-	private void renderBorder(Graphics2D g, double x, double y, double w, double h, String title){
-		Rectangle2D in = new Rectangle2D.Double(x + 5, y - 5, 20, 10);
-		Area a = new Area();
-			a.subtract(new Area(in));
-		g.draw(in);
-		//g.setClip(a);
-		g.draw(new RoundRectangle2D.Double(x, y, w, h, ROUND_RADIUS * 2, ROUND_RADIUS * 2));
+	private void renderBorder(Graphics2D g, float x, float y, float w, float h, String title){
+		g.setFont(Theme.PRIDI_MEDIUM_10);
+		g.setColor(Theme.BORDER_COLOR);
+		g.setStroke(Theme.RESULTS_STROKE);
+		FontMetrics fm = g.getFontMetrics();
 		
+		Area clip = new Area(new Rectangle2D.Float(x - 10.0F, y - 10.0F, w + 20.0F, h + 20.0F));
+		clip.subtract(new Area(new Rectangle2D.Float(x + ROUND_RADIUS * 2, y - fm.getHeight() / 2.0F, 4.0F + fm.stringWidth(title), fm.getHeight())));
+		g.setClip(clip);
+		g.draw(new RoundRectangle2D.Float(x, y, w, h, ROUND_RADIUS * 2.0F, ROUND_RADIUS * 2.0F));
+		
+		g.setClip(null);
+		g.setColor(Theme.BORDER_TEXT_COLOR);
+		g.drawString(title, (x + 2.0F + ROUND_RADIUS * 2.0F), y + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 	}
 	
 	private void renderGraph(Graphics2D g){
