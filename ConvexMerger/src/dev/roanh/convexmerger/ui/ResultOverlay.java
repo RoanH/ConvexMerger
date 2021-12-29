@@ -1,10 +1,13 @@
 package dev.roanh.convexmerger.ui;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
@@ -19,7 +22,6 @@ public class ResultOverlay{
 	private static final int ROUND_RADIUS = 4;
 	private static final int MAX_WIDTH = 900;
 	private static final int CROWN_GAP = 4;
-	private static final Stroke MAIN_STROKE = new BasicStroke(2.0F);
 	private Player winner;
 	private GameState state;
 
@@ -58,10 +60,13 @@ public class ResultOverlay{
 		g.drawString(title, (width - fm.stringWidth(title)) / 2.0F, offset);
 		
 		//bar chart
-		offset += GAP;
 		int size = Math.min((7 * width) / 10, MAX_WIDTH);
-		g.translate((width - size) / 2.0D, offset);
+		g.translate((width - size) / 2.0D, offset + GAP);
 		renderBars(g, size);
+		
+		//stats
+		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP);
+		renderStats(g, size);
 		
 		//total height: (title fm asc + desc + 1)
 		
@@ -78,14 +83,14 @@ public class ResultOverlay{
 		
 		int divLine = BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE;
 
-		g.setStroke(MAIN_STROKE);
+		g.setStroke(Theme.RESULTS_STROKE);
 		g.setClip(0, 0, width, divLine);
 		
 		List<Player> players = state.getPlayers();
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
 
-			double offset = (((width - BAR_WIDTH * 5) * (2 * i + 1)) / 10.0D) + BAR_WIDTH * i;
+			double offset = (((width - BAR_WIDTH * (players.size() + 1)) * (2 * i + 1)) / 10.0D) + BAR_WIDTH * i;
 			double height = (player.getArea() / winner.getArea()) * BAR_HEIGHT;
 			
 			RoundRectangle2D rect = new RoundRectangle2D.Double(offset, Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height, BAR_WIDTH, height + ROUND_RADIUS, ROUND_RADIUS * 2, ROUND_RADIUS * 2);
@@ -123,7 +128,21 @@ public class ResultOverlay{
 		g.drawLine(0, divLine, width, divLine);
 	}
 	
-	private void renderStats(Graphics2D g){
+	private void renderStats(Graphics2D g, int width){
+		g.setColor(Color.RED);
+		g.drawLine(0, 0, width, 0);
+		
+		renderBorder(g, 10, 10, 100, 20, "Test");
+		
+	}
+	
+	private void renderBorder(Graphics2D g, double x, double y, double w, double h, String title){
+		Rectangle2D in = new Rectangle2D.Double(x + 5, y - 5, 20, 10);
+		Area a = new Area();
+			a.subtract(new Area(in));
+		g.draw(in);
+		//g.setClip(a);
+		g.draw(new RoundRectangle2D.Double(x, y, w, h, ROUND_RADIUS * 2, ROUND_RADIUS * 2));
 		
 	}
 	

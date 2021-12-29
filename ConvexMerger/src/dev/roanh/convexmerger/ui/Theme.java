@@ -30,9 +30,11 @@ public final class Theme{
 	public static final Color CROWN_COLOR = new Color(237, 214, 9);
 	public static final Color DIVIDER_COLOR = new Color(31, 37, 46);
 	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
+	public static final Color BORDER_COLOR = new Color(41, 49, 61);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
+	public static final Stroke RESULTS_STROKE = new BasicStroke(2.0F);
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
 	public static final Font PRIDI_MEDIUM_12;
