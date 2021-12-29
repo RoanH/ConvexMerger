@@ -44,6 +44,8 @@ public class GameState{
 	 */
 	private ConvexObject selected = null;
 	private boolean ended = false;
+	private final long gameStart;
+	private long gameEnd = -1L;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
@@ -53,6 +55,7 @@ public class GameState{
 			players.get(i).init(this, PlayerTheme.get(i + 1));
 		}
 		decomp.rebuild();
+		gameStart = System.currentTimeMillis();
 	}
 	
 	public ClaimResult claimObject(ConvexObject obj){
@@ -223,10 +226,16 @@ public class GameState{
 	}
 	
 	public void executePlayerTurn(){
-		ended = !getActivePlayer().executeMove();
+		if(ended = !getActivePlayer().executeMove()){
+			gameEnd = System.currentTimeMillis();
+		}
 	}
 	
 	public boolean isFinished(){
 		return ended;
+	}
+	
+	public long getGameTime(){
+		return ended ? (gameEnd - gameStart) : -1L;
 	}
 }
