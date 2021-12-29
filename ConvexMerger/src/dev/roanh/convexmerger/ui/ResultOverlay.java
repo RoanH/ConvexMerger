@@ -16,9 +16,9 @@ public class ResultOverlay{
 	private static final int GAP = 8;
 	private static final int BAR_HEIGHT = 200;
 	private static final int BAR_WIDTH = 80;
-	private static final int CROWN_HEIGHT = 20;
 	private static final int ROUND_RADIUS = 4;
 	private static final int MAX_WIDTH = 900;
+	private static final int CROWN_GAP = 4;
 	private static final Stroke MAIN_STROKE = new BasicStroke(2.0F);
 	private Player winner;
 	private GameState state;
@@ -76,10 +76,7 @@ public class ResultOverlay{
 		g.setFont(Theme.PRIDI_MEDIUM_24);
 		FontMetrics fm = g.getFontMetrics();
 		
-		int divLine = BAR_HEIGHT + CROWN_HEIGHT;
-		
-		g.drawLine(0, 0, width, 0);
-		g.drawLine(0, CROWN_HEIGHT, width, CROWN_HEIGHT);
+		int divLine = BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE;
 
 		g.setStroke(MAIN_STROKE);
 		g.setClip(0, 0, width, divLine);
@@ -91,21 +88,39 @@ public class ResultOverlay{
 			double offset = (((width - BAR_WIDTH * 5) * (2 * i + 1)) / 10.0D) + BAR_WIDTH * i;
 			double height = (player.getArea() / winner.getArea()) * BAR_HEIGHT;
 			
-			RoundRectangle2D rect = new RoundRectangle2D.Double(offset, CROWN_HEIGHT + BAR_HEIGHT - height, BAR_WIDTH, height + ROUND_RADIUS, ROUND_RADIUS * 2, ROUND_RADIUS * 2);
+			RoundRectangle2D rect = new RoundRectangle2D.Double(offset, Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height, BAR_WIDTH, height + ROUND_RADIUS, ROUND_RADIUS * 2, ROUND_RADIUS * 2);
 			
 			g.setColor(player.getTheme().getBarBody());
 			g.fill(rect);
 			g.setColor(player.getTheme().getBarOutline());
 			g.draw(rect);
-
 			
+			g.setFont(Theme.PRIDI_MEDIUM_12);
+			g.setColor(Theme.BAR_SCORE_COLOR);
+			String str = Theme.formatScore(player.getArea());
+			fm = g.getFontMetrics();
+			g.drawString(str, (float)(offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F), (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height + fm.getAscent()));
+			
+			g.setFont(Theme.PRIDI_MEDIUM_14);
+			g.setColor(Theme.BAR_NAME_COLOR);
+			fm = g.getFontMetrics();
+			str = player.getName();
+			float y = (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height - fm.getDescent());
+			if(player.equals(winner)){
+				g.drawImage(
+					Theme.CROWN_ICON_LARGE,
+					(int)(offset + (BAR_WIDTH - fm.stringWidth(str) - CROWN_GAP - Theme.CROWN_ICON_LARGE_SIZE) / 2.0F),
+					(int)(y - (Theme.CROWN_ICON_LARGE_SIZE - (fm.getAscent() - fm.getDescent() - fm.getLeading())) / 2 - (fm.getAscent() - fm.getDescent() - fm.getLeading()) - 1),
+					null
+				);
+				offset += (CROWN_GAP + Theme.CROWN_ICON_LARGE_SIZE) / 2;
+			}
+			g.drawString(str, (float)(offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F), y);
 		}
 		g.setClip(null);
 		
 		g.setColor(Theme.DIVIDER_COLOR);
 		g.drawLine(0, divLine, width, divLine);
-		
-		
 	}
 	
 	private void renderStats(Graphics2D g){

@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.animation;
 import java.awt.Graphics2D;
 
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.ui.Theme;
 
 /**
  * Animation that shows the player score increasing or decreasing.
@@ -49,12 +50,7 @@ public class ScoreAnimation implements Animation{
 			area = Math.max(player.getArea(), area - (time - last) * SCORE_PER_MS);
 		}
 		
-		String str = "0";
-		for(int total = (int)Math.round(area); total != 0; total /= 1000){
-			str = str.equals("0") ? "" : ("." + str);
-			str = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + str;
-		}
-		g.drawString(str, 0, 0);
+		g.drawString(Theme.formatScore(area), 0, 0);
 		
 		if(Double.compare(area, player.getArea()) != 0){
 			last = time;

@@ -25,6 +25,8 @@ public final class Theme{
 	public static final Color MENU_BODY = new Color(31, 37, 46);
 	public static final Color SCORE_COLOR = new Color(255, 255, 255, (3 * 255) / 4);
 	public static final Color SCORE_COLOR_LEAD = new Color(255, 255, 255, (9 * 255) / 10);
+	public static final Color BAR_NAME_COLOR = SCORE_COLOR_LEAD;
+	public static final Color BAR_SCORE_COLOR = new Color(255, 255, 255, (85 * 255) / 100);
 	public static final Color CROWN_COLOR = new Color(237, 214, 9);
 	public static final Color DIVIDER_COLOR = new Color(31, 37, 46);
 	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
@@ -33,14 +35,27 @@ public final class Theme{
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
+	public static final Font PRIDI_MEDIUM_12;
+	public static final Font PRIDI_MEDIUM_14;
 	public static final Font PRIDI_MEDIUM_24;
 	public static final Font PRIDI_MEDIUM_36;
 	public static final int PLAYER_ICON_SIZE = 24;
 	public static final int CROWN_ICON_SIZE = 18;
+	public static final int CROWN_ICON_LARGE_SIZE = 20;
 	public static final BufferedImage CROWN_ICON;
+	public static final BufferedImage CROWN_ICON_LARGE;
 	
 	
 	
+	
+	public static String formatScore(double area){
+		String str = "0";
+		for(int total = (int)Math.round(area); total != 0; total /= 1000){
+			str = str.equals("0") ? "" : ("." + str);
+			str = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + str;
+		}
+		return str;
+	}
 	
 	public static final Color getPlayerBody(ConvexObject obj){
 		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getBody();
@@ -144,9 +159,12 @@ public final class Theme{
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
+			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
+			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
+			CROWN_ICON_LARGE = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_LARGE_SIZE, CROWN_COLOR);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
 			throw new RuntimeException("Failed to load fonts or icons", e);
