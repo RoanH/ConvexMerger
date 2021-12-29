@@ -368,6 +368,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
+			repaint();
 		}
 	}
 

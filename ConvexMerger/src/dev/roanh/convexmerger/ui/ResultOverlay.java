@@ -16,7 +16,7 @@ import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.player.Player;
 
 public class ResultOverlay{
-	private static final boolean ENABLED = true;//TODO remove
+	private static final boolean ENABLED = false;//TODO remove
 	private static final int GAP = 8;
 	private static final int BAR_HEIGHT = 200;
 	private static final int BAR_WIDTH = 80;

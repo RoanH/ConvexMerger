@@ -103,13 +103,13 @@ public class ConvexMerger{
 		
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(0, 100, 0.45D), Arrays.asList(
-			//new HumanPlayer(),
+		state = new GameState(new PlayfieldGenerator().generatePlayfield(50, 100, 0.45D), Arrays.asList(
+			new HumanPlayer(),
 			//new HumanPlayer()
 			new SmallPlayer(),
 			new LocalPlayer(),
-			new GreedyPlayer(),
-			new SmallPlayer()
+			new GreedyPlayer()//,
+			//new SmallPlayer()
 		));
 		game.setGameState(state);
 		game.repaint();
@@ -125,21 +125,14 @@ public class ConvexMerger{
 		@Override
 		public void run(){
 			try{
-				Thread.sleep(4000);
-				Player player = null;
-				do{
-					if(player != null && player.isHuman()){
-						synchronized(state){
-							state.wait();
-						}
-					}
-					frame.repaint();
-					player = state.getActivePlayer();
-					if(player.isAI()){
-						Thread.sleep(400);
+				//Thread.sleep(4000);
+				while(!state.isFinished()){
+					if(state.getActivePlayer().isAI()){
+						Thread.sleep(400);//TODO config
 					}
 					state.executePlayerTurn();
-				}while(!state.isFinished());
+					frame.repaint();
+				}
 			}catch(InterruptedException e){
 				// TODO Auto-generated catch block
 				e.printStackTrace();

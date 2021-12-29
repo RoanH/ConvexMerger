@@ -11,6 +11,18 @@ public class HumanPlayer extends Player{
 
 	@Override
 	public boolean executeMove(){
-		return state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent();
+		if(state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent()){
+			synchronized(state){
+				try{
+					state.wait();
+				}catch(InterruptedException e){
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return true;
+		}else{
+			return false;
+		}
 	}
 }
