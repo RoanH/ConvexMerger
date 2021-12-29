@@ -26,12 +26,15 @@ public final class Theme{
 	public static final Color SCORE_COLOR = new Color(255, 255, 255, (3 * 255) / 4);
 	public static final Color SCORE_COLOR_LEAD = new Color(255, 255, 255, (9 * 255) / 10);
 	public static final Color CROWN_COLOR = new Color(237, 214, 9);
+	public static final Color DIVIDER_COLOR = new Color(31, 37, 46);
+	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
 	public static final Font PRIDI_MEDIUM_24;
+	public static final Font PRIDI_MEDIUM_36;
 	public static final int PLAYER_ICON_SIZE = 24;
 	public static final int CROWN_ICON_SIZE = 18;
 	public static final BufferedImage CROWN_ICON;
@@ -140,7 +143,9 @@ public final class Theme{
 			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
-			PRIDI_MEDIUM_24 = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf")).deriveFont(24.0F);
+			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
+			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
+			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
@@ -149,31 +154,59 @@ public final class Theme{
 	}
 	
 	public static enum PlayerTheme{
-		UNOWNED(102, 103, 104, 174, 175, 175, 191, 191, 191),
-		P1(166, 13, 140, 235, 106, 218, 255, 115, 236, 234, 108, 217),
-		P2(14, 135, 180, 2, 197, 232, 0, 217, 255, 5, 208, 245),
-		P3(13, 153, 45, 22, 207, 68, 30, 250, 85, 19, 242, 75),
-		P4(175, 104, 21, 243, 187, 27, 255, 198, 28, 247, 207, 5);
+		UNOWNED(102, 103, 104, 174, 175, 175, 191, 191, 191, 129, 129, 129),
+		P1(//pink
+			166, 13, 140,//body playfield
+			235, 106, 218,//outline playfield
+			255, 115, 236,//outline base type
+			214, 0, 177,//body base type
+			234, 108, 217//gradient
+		),
+		P2(//blue
+			14, 135, 180,
+			2, 197, 232,
+			0, 217, 255,
+			11, 171, 229,
+			5, 208, 245
+		),
+		P3(//green
+			13, 153, 45,
+			22, 207, 68,
+			30, 250, 85,
+			10, 196, 50,
+			19, 242, 75
+		),
+		P4(//yellow
+			175, 104, 21,
+			243, 187, 27,
+			255, 198, 28,
+			227, 131, 18,
+			247, 207, 5
+		);
 		
 		private final Color text;
 		private final Color body;
 		private final Color outline;
 		private final Color gradient;
+		private final Color barBody;
+		private final Color barOutline;
 		private final BufferedImage ai;
 		private final BufferedImage human;
 		
-		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int gr, int gg, int gb){
-			this(br, bg, bb, or, og, ob, tr, tg, tb, new Color(gr, gg, gb));
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int gr, int gg, int gb, int cr, int cg, int cb){
+			this(br, bg, bb, or, og, ob, tr, tg, tb, cr, cg, cb, new Color(gr, gg, gb));
 		}
 		
-		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb){
-			this(br, bg, bb, or, og, ob, tr, tg, tb, null);
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int cr, int cg, int cb){
+			this(br, bg, bb, or, og, ob, tr, tg, tb, cr, cg, cb, null);
 		}
 		
-		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, Color gradient){
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int cr, int cg, int cb, Color gradient){
 			body = new Color(br, bg, bb);
 			outline = new Color(or, og, ob);
 			text = new Color(tr, tg, tb, (9 * 255) / 10);
+			barOutline = text;
+			barBody = new Color(cr, cg, cb, (75 * 255) / 100);
 			this.gradient = gradient;
 			try{
 				ai = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE, outline);

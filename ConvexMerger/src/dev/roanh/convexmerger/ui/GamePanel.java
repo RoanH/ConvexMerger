@@ -77,6 +77,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	private MessageDialog activeDialog = null;
 	private List<Line2D> helperLines = null;
 	private boolean animationRunning;
+	private ResultOverlay resultOverlay;
 	
 	protected GamePanel(){
 	}
@@ -86,6 +87,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			this.addMouseListener(this);
 			this.addMouseMotionListener(this);
 		}
+		resultOverlay = new ResultOverlay(state);//TODO
 		this.state = state;
 	}
 	
@@ -112,6 +114,12 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
 		}
 		
+		//render results
+		if(resultOverlay != null){
+			resultOverlay.render(g, this.getWidth(), this.getHeight());
+		}
+		
+		//schedule next animation frame
 		if(animationRunning){
 			executor.schedule(()->this.repaint(), Constants.ANIMATION_RATE, TimeUnit.MILLISECONDS);
 		}
@@ -225,7 +233,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			g.setClip(x, 0, this.getWidth() / players.size(), TOP_SPACE);
 			
 			//offset
-			g.setFont(Theme.PRIDI_MEDIUM_24);//TODO technically needs spacing
+			g.setFont(Theme.PRIDI_MEDIUM_24);
 			fm = g.getFontMetrics();
 			int y = (TOP_SPACE - fm.getHeight() - CROWN_ICON_SIZE) / 2;
 			x += PLAYER_TEXT_OFFSET;
