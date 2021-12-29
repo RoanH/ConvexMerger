@@ -9,8 +9,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,13 +22,11 @@ import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.LocalPlayer;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.SmallPlayer;
-import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;//TODO required?
-	private Object turnLock = new Object();
-	GamePanel game = new GamePanel();
+	private GamePanel game = new GamePanel();
 	
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
@@ -91,11 +87,11 @@ public class ConvexMerger{
 		
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(50, 100, 0.45D), Arrays.asList(
+		state = new GameState(new PlayfieldGenerator().generatePlayfield(0, 100, 0.45D), Arrays.asList(
 			new HumanPlayer(),
 			//new HumanPlayer()
-//			new SmallPlayer(),
-//			new LocalPlayer(),
+			new SmallPlayer(),
+			new LocalPlayer(),
 			new GreedyPlayer()
 		));
 		game.setGameState(state);
@@ -112,6 +108,7 @@ public class ConvexMerger{
 		@Override
 		public void run(){
 			try{
+				Thread.sleep(4000);
 				Player player = null;
 				do{
 					if(player != null && player.isHuman()){
