@@ -193,7 +193,7 @@ public final class Theme{
 		private final BufferedImage ai;
 		private final BufferedImage human;
 		
-		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int gr, int gg, int gb, int cr, int cg, int cb){
+		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int cr, int cg, int cb, int gr, int gg, int gb){
 			this(br, bg, bb, or, og, ob, tr, tg, tb, cr, cg, cb, new Color(gr, gg, gb));
 		}
 		
@@ -235,6 +235,14 @@ public final class Theme{
 		
 		public Color getOutline(){
 			return outline;
+		}
+		
+		public Color getBarBody(){
+			return barBody;
+		}
+		
+		public Color getBarOutline(){
+			return barOutline;
 		}
 		
 		public static final PlayerTheme get(int i){

@@ -88,11 +88,12 @@ public class ConvexMerger{
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(0, 100, 0.45D), Arrays.asList(
-			new HumanPlayer(),
+			//new HumanPlayer(),
 			//new HumanPlayer()
 			new SmallPlayer(),
 			new LocalPlayer(),
-			new GreedyPlayer()
+			new GreedyPlayer(),
+			new SmallPlayer()
 		));
 		game.setGameState(state);
 		game.repaint();

@@ -116,7 +116,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		
 		//render results
 		if(resultOverlay != null){
-			resultOverlay.render(g, this.getWidth(), this.getHeight());
+			animationRunning |= resultOverlay.render(g, this.getWidth(), this.getHeight());
 		}
 		
 		//schedule next animation frame
