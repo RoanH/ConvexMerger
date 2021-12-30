@@ -37,7 +37,14 @@ import dev.roanh.convexmerger.player.Player;
  * @author Roan
  */
 public final class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
+	/**
+	 * Executor service used to run animations.
+	 */
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	/**
+	 * Serial ID.
+	 */
+	private static final long serialVersionUID = 5749409248962652951L;
 	/**
 	 * Height of the top score display part of the game panel.
 	 */
@@ -54,11 +61,29 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Offset from the bottom to the playfield rectangle.
 	 */
 	public static final int BOTTOM_OFFSET = 50 + 1;
+	/**
+	 * Dimensions of the triangles on the left and right side of the top part.
+	 */
 	private static final int TOP_SIDE_TRIANGLE = 50;
+	/**
+	 * Height of the middle text area attached to the top part.
+	 */
 	private static final int TOP_MIDDLE_OFFSET = 30;
-	private static final int TOP_MIDDLE_WIDTH = 200;//even
+	/**
+	 * Width of the middle text area attached to the top part.
+	 */
+	private static final int TOP_MIDDLE_WIDTH = 200;
+	/**
+	 * Height of the buttons in the bottom left and right.
+	 */
 	private static final int BUTTON_HEIGHT = 50;
+	/**
+	 * Width of the buttons in the bottom left and right.
+	 */
 	private static final int BUTTON_WIDTH = 150;
+	/**
+	 * Text offset from the bottom in the top middle text area.
+	 */
 	private static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
 	 * Number of pixels between the player icon and the text.
@@ -68,23 +93,50 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Number of pixels from the left text border to the player info.
 	 */
 	private static final int PLAYER_TEXT_OFFSET = 24;
+	/**
+	 * The game state to visualise.
+	 */
 	private GameState state = null;
 	/**
-	 * Serial ID.
+	 * True if the centroid of objects objects should be rendered.
 	 */
-	private static final long serialVersionUID = 5749409248962652951L;
 	private boolean showCentroids = false;
+	/**
+	 * Info (bottom right) button polygon.
+	 */
 	private Polygon infoPoly = null;
+	/**
+	 * Menu (bottom left) button polygon.
+	 */
 	private Polygon menuPoly = null;
+	/**
+	 * Currently showing feedback dialog.
+	 */
 	private MessageDialog activeDialog = null;
+	/**
+	 * Currently showing merge helper lines.
+	 */
 	private List<Line2D> helperLines = null;
+	/**
+	 * Whether an animation is actively running.
+	 */
 	private boolean animationRunning;
+	/**
+	 * Result overlay.
+	 */
 	private ResultOverlay resultOverlay;
 	
+	/**
+	 * Constructs a new game panel.
+	 */
 	protected GamePanel(){
 		this.setFocusable(true);
 	}
 	
+	/**
+	 * Sets the game state to display in this game panel.
+	 * @param state The game state to display.
+	 */
 	public void setGameState(GameState state){
 		if(this.state == null){
 			this.addMouseListener(this);
@@ -95,11 +147,18 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		this.state = state;
 	}
 	
+	/**
+	 * Enables and shows the result overlay.
+	 */
 	public void showResults(){
 		resultOverlay.setEnabled(true);
 		repaint();
 	}
 	
+	/**
+	 * Renders the game state with the given graphics.
+	 * @param g The graphics context to use.
+	 */
 	private void renderGame(Graphics2D g){
 		animationRunning = false;
 
@@ -134,6 +193,10 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		}
 	}
 	
+	/**
+	 * Renders the user interface with the given graphics.
+	 * @param g The graphics context to use.
+	 */
 	private void renderInterface(Graphics2D g){
 		g.setColor(Theme.MENU_BODY);
 		int sideOffset = Math.floorDiv(this.getWidth(), 2) - (TOP_MIDDLE_WIDTH / 2);
@@ -274,6 +337,10 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		g.setClip(null);
 	}
 	
+	/**
+	 * Renders the playfield with the given graphics.
+	 * @param g The graphics context to use.
+	 */
 	private void renderPlayfield(Graphics2D g){
 		AffineTransform transform = g.getTransform();
 		g.translate(SIDE_OFFSET, TOP_SPACE + TOP_OFFSET);
