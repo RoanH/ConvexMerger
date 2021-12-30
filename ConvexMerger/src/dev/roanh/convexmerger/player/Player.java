@@ -3,7 +3,6 @@ package dev.roanh.convexmerger.player;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.animation.ScoreAnimation;
@@ -13,8 +12,8 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public abstract class Player{
 	protected GameState state;
+	protected PlayerStats stats;
 	private ScoreAnimation scoreAnimation = new ScoreAnimation(this);
-	private PlayerStats stats = new PlayerStats();
 	private String name;
 	private boolean human;
 	private PlayerTheme theme;
@@ -23,6 +22,7 @@ public abstract class Player{
 	protected Player(boolean human, String name){
 		this.human = human;
 		this.name = name;
+		stats = new PlayerStats();
 	}
 	
 	public void init(GameState game, PlayerTheme theme){

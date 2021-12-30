@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.ui;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -15,6 +14,7 @@ import java.util.Locale;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.Player.PlayerStats;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class ResultOverlay{
 	public static boolean ENABLED = true;//TODO remove
@@ -29,10 +29,12 @@ public class ResultOverlay{
 	private static final int GRAPH_HEIGHT = 150;
 	private Player winner;
 	private GameState state;
+	private Player average = new AveragePlayer();
 
 	protected ResultOverlay(GameState state){
 		this.state = state;
 		winner = state.getPlayers().get(0);
+		average.init(state, PlayerTheme.UNOWNED);
 	}
 	
 	public boolean render(Graphics2D g, int width, int height){
@@ -94,8 +96,8 @@ public class ResultOverlay{
 		g.setClip(0, 0, width, divLine);
 		
 		List<Player> players = state.getPlayers();
-		for(int i = 0; i < players.size(); i++){
-			Player player = players.get(i);
+		for(int i = 0; i <= players.size(); i++){
+			Player player = i == players.size() ? average : players.get(i);
 
 			float offset = computeBarStart(i, players.size(), width);
 			double height = (player.getArea() / winner.getArea()) * BAR_HEIGHT;
@@ -154,6 +156,7 @@ public class ResultOverlay{
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 4.0F, width, height, "Average Turn Time");
 		
 		g.setFont(Theme.PRIDI_MEDIUM_16);
+		g.setColor(Theme.SCORE_COLOR_LEAD);
 		
 		//game time
 		String time = formatTime(state.getGameTime()).toUpperCase(Locale.ROOT);
@@ -169,30 +172,30 @@ public class ResultOverlay{
 		
 		//player data
 		List<Player> players = state.getPlayers();
-		for(int i = 0; i < players.size(); i++){
-			Player player = players.get(i);
+		for(int i = 0; i <= players.size(); i++){
+			Player player = i == players.size() ? average : players.get(i);
 			PlayerStats stats = player.getStats();
 
 			float offset = computeBarStart(i, players.size(), width);
 			
 			//claims
 			String str = String.valueOf(stats.getClaims());
-			g.setColor(players.stream().anyMatch(p->p.getStats().getClaims() > stats.getClaims()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.setColor(i != players.size() && players.stream().anyMatch(p->p.getStats().getClaims() > stats.getClaims()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 
 			//merges
 			str = String.valueOf(stats.getMerges());
-			g.setColor(players.stream().anyMatch(p->p.getStats().getMerges() > stats.getMerges()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.setColor(i != players.size() && players.stream().anyMatch(p->p.getStats().getMerges() > stats.getMerges()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 2.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 			
 			//absorbed
 			str = String.valueOf(stats.getAbsorbed());
-			g.setColor(players.stream().anyMatch(p->p.getStats().getAbsorbed() > stats.getAbsorbed()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.setColor(i != players.size() && players.stream().anyMatch(p->p.getStats().getAbsorbed() > stats.getAbsorbed()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 3.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 			
 			//claims
 			str = String.valueOf(formatTime(stats.getAverageTurnTime()));
-			g.setColor(players.stream().anyMatch(p->p.getStats().getAverageTurnTime() < stats.getAverageTurnTime()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.setColor(i != players.size() && players.stream().anyMatch(p->p.getStats().getAverageTurnTime() < stats.getAverageTurnTime()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 4.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		}
 	}
@@ -282,5 +285,44 @@ public class ResultOverlay{
 		
 		g.setClip(null);
 		renderBorder(g, 0.0F, 0.0F, size, GRAPH_HEIGHT, "Score Graph");
+	}
+	
+	private static class AveragePlayer extends Player{
+
+		private AveragePlayer(){
+			super(false, "Average");
+			stats = new PlayerStats(){
+				
+				@Override
+				public int getClaims(){
+					return (int)Math.round(state.getPlayers().stream().map(Player::getStats).mapToInt(PlayerStats::getClaims).average().getAsDouble());
+				}
+
+				@Override
+				public int getMerges(){
+					return (int)Math.round(state.getPlayers().stream().map(Player::getStats).mapToInt(PlayerStats::getMerges).average().getAsDouble());
+				}
+
+				@Override
+				public int getAbsorbed(){
+					return (int)Math.round(state.getPlayers().stream().map(Player::getStats).mapToInt(PlayerStats::getAbsorbed).average().getAsDouble());
+				}
+
+				@Override
+				public long getAverageTurnTime(){
+					return state.getPlayers().stream().map(Player::getStats).mapToLong(PlayerStats::getAverageTurnTime).sum() / state.getPlayerCount();
+				}
+			};
+		}
+		
+		@Override
+		public double getArea(){
+			return state == null ? 0.0D : state.getPlayers().stream().mapToDouble(Player::getArea).average().orElse(0.0D);
+		}
+
+		@Override
+		public boolean executeMove(){
+			return false;
+		}
 	}
 }
