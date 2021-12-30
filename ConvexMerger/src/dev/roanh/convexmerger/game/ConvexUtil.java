@@ -25,8 +25,13 @@ public class ConvexUtil{
 		
 		Point2D hullPoint = points.get(0);
 		for(int i = 1; i < points.size(); i++){
-			if(Double.compare(points.get(i).getX(), hullPoint.getX()) < 0){
+			int val = Double.compare(points.get(i).getX(), hullPoint.getX());
+			if(val < 0){
 				hullPoint = points.get(i);
+			}else if(val == 0){
+				if(Double.compare(points.get(i).getY(), hullPoint.getY()) < 0){
+					hullPoint = points.get(i);
+				}
 			}
 		}
 		
