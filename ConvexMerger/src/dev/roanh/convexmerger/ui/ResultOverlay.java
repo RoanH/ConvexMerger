@@ -275,7 +275,7 @@ public class ResultOverlay{
 			Path2D graph = new Path2D.Double();
 			graph.moveTo(0.0D, GRAPH_HEIGHT - 2.0D);
 			for(int i = 0; i < rounds; i++){
-				graph.lineTo(((i + 1) * size) / (double)rounds, 2.0D + (GRAPH_HEIGHT - 3.0D) - ((stats.getScoreHistory().get(Math.min(stats.getTurns(), i)) * (GRAPH_HEIGHT - 3.0D)) / max));
+				graph.lineTo(((i + 1) * size) / (double)rounds, 2.0D + (GRAPH_HEIGHT - 3.0D) - ((stats.getScoreHistory().get(Math.min(stats.getTurns() - 1, i)) * (GRAPH_HEIGHT - 3.0D)) / max));
 			}
 
 			g.setColor(player.getTheme().getBaseOutline());

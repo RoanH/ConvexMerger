@@ -359,7 +359,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 				ClaimResult result = state.claimObject(obj, loc);
 				activeDialog = result.getMessage();
 				helperLines = null;
-				if(result != ClaimResult.EMPTY){
+				if(result.hasResult()){
 					synchronized(state){
 						state.notify();
 					}
