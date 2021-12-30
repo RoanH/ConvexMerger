@@ -13,6 +13,9 @@ import dev.roanh.convexmerger.game.ConvexObject;
  */
 public class GreedyPlayer extends Player{
 
+	/**
+	 * Constructs a new greedy player (Isla).
+	 */
 	public GreedyPlayer(){
 		super(false, "Isla");
 	}

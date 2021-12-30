@@ -5,8 +5,16 @@ import java.util.Optional;
 
 import dev.roanh.convexmerger.game.ConvexObject;
 
+/**
+ * AI that focuses on maximising local area gain
+ * starting from small objects.
+ * @author Roan
+ */
 public class SmallPlayer extends LocalPlayer{
 
+	/**
+	 * Constructs a new small player (Shiro).
+	 */
 	public SmallPlayer(){
 		super("Shiro");
 	}

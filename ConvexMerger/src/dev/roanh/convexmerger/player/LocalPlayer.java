@@ -12,10 +12,17 @@ public class LocalPlayer extends Player{
 	 */
 	protected ConvexObject target = null;
 
+	/**
+	 * Constructs a new local player (Elaina).
+	 */
 	public LocalPlayer(){
-		super(false, "Elaina");
+		this("Elaina");
 	}
 	
+	/**
+	 * Constructs a new local player with the given name.
+	 * @param name The player name.
+	 */
 	protected LocalPlayer(String name){
 		super(false, name);
 	}
@@ -35,6 +42,10 @@ public class LocalPlayer extends Player{
 		return claimNewObject();
 	}
 	
+	/**
+	 * Selects a new object to claim and start maximising area from.
+	 * @return True if a new object was found, false otherwise (no move left).
+	 */
 	protected boolean claimNewObject(){
 		target = findLargestUnownedObject();
 		if(target == null){
