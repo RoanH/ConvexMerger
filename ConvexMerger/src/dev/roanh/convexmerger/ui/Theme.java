@@ -35,17 +35,19 @@ public final class Theme{
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
-	public static final Stroke RESULTS_STROKE = new BasicStroke(2.0F);
+	public static final Stroke RESULTS_STROKE = new BasicStroke(3.0F);
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
 	public static final Font PRIDI_MEDIUM_10;
 	public static final Font PRIDI_MEDIUM_12;
+	public static final Font PRIDI_MEDIUM_13;
 	public static final Font PRIDI_MEDIUM_14;
+	public static final Font PRIDI_MEDIUM_16;
 	public static final Font PRIDI_MEDIUM_24;
 	public static final Font PRIDI_MEDIUM_36;
 	public static final int PLAYER_ICON_SIZE = 24;
 	public static final int CROWN_ICON_SIZE = 18;
-	public static final int CROWN_ICON_LARGE_SIZE = 20;
+	public static final int CROWN_ICON_LARGE_SIZE = 24;
 	public static final BufferedImage CROWN_ICON;
 	public static final BufferedImage CROWN_ICON_LARGE;
 	
@@ -165,7 +167,9 @@ public final class Theme{
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
 			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
+			PRIDI_MEDIUM_13 = medium.deriveFont(13.0F);
 			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
+			PRIDI_MEDIUM_16 = medium.deriveFont(16.0F);
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);

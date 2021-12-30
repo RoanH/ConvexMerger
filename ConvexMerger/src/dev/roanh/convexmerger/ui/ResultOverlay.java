@@ -24,8 +24,8 @@ public class ResultOverlay{
 	private static final int ROUND_RADIUS = 4;
 	private static final int MAX_WIDTH = 900;
 	private static final int CROWN_GAP = 4;
-	private static final int BORDER_GAP = 6;
-	private static final int TEXT_OFFSET = 6;
+	private static final int BORDER_GAP = 8;
+	private static final int TEXT_OFFSET = 8;
 	private Player winner;
 	private GameState state;
 
@@ -44,6 +44,8 @@ public class ResultOverlay{
 			return false;
 		}
 		AffineTransform transform = g.getTransform();
+		//g.translate(-250, 0);
+		//g.scale(1.5, 1.5);
 		
 		for(Player player : state.getPlayers()){
 			if(player.getArea() > winner.getArea()){
@@ -104,13 +106,13 @@ public class ResultOverlay{
 			g.setColor(player.getTheme().getBarOutline());
 			g.draw(rect);
 			
-			g.setFont(Theme.PRIDI_MEDIUM_12);
+			g.setFont(Theme.PRIDI_MEDIUM_13);
 			g.setColor(Theme.BAR_SCORE_COLOR);
 			String str = Theme.formatScore(player.getArea());
 			fm = g.getFontMetrics();
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height + fm.getAscent()));
 			
-			g.setFont(Theme.PRIDI_MEDIUM_14);
+			g.setFont(Theme.PRIDI_MEDIUM_16);
 			g.setColor(Theme.BAR_NAME_COLOR);
 			fm = g.getFontMetrics();
 			str = player.getName();
@@ -140,7 +142,7 @@ public class ResultOverlay{
 		//g.setColor(Color.RED);
 		//g.drawLine(0, 0, width, 0);
 		
-		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_MEDIUM_12);
+		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_MEDIUM_16);
 		float height = TEXT_OFFSET * 2.0F + fm.getAscent();
 		
 		float subWidth = (width - BORDER_GAP * 2) / 3.0F;
@@ -153,7 +155,7 @@ public class ResultOverlay{
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 3.0F, width, height, "Objects Absorbed");
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 4.0F, width, height, "Average Turn Time");
 		
-		g.setFont(Theme.PRIDI_MEDIUM_12);
+		g.setFont(Theme.PRIDI_MEDIUM_16);
 		
 		//game time
 		//g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
@@ -222,7 +224,7 @@ public class ResultOverlay{
 	}
 	
 	private void renderBorder(Graphics2D g, float x, float y, float w, float h, String title){
-		g.setFont(Theme.PRIDI_MEDIUM_10);
+		g.setFont(Theme.PRIDI_MEDIUM_12);
 		g.setColor(Theme.BORDER_COLOR);
 		g.setStroke(Theme.RESULTS_STROKE);
 		FontMetrics fm = g.getFontMetrics();
