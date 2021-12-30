@@ -28,7 +28,7 @@ public final class Theme{
 	public static final Color BAR_NAME_COLOR = SCORE_COLOR_LEAD;
 	public static final Color BAR_SCORE_COLOR = new Color(255, 255, 255, (85 * 255) / 100);
 	public static final Color CROWN_COLOR = new Color(237, 214, 9);
-	public static final Color DIVIDER_COLOR = new Color(31, 37, 46);
+	public static final Color PRIMARY_COLOR = new Color(31, 37, 46);
 	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
 	public static final Color BORDER_COLOR = new Color(41, 49, 61);
 	public static final Color BORDER_TEXT_COLOR = new Color(255, 255, 255, (75 * 255) / 100);

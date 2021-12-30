@@ -9,7 +9,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.geom.RoundRectangle2D.Double;
 import java.util.List;
 
 import dev.roanh.convexmerger.game.GameState;
@@ -26,6 +25,7 @@ public class ResultOverlay{
 	private static final int CROWN_GAP = 4;
 	private static final int BORDER_GAP = 8;
 	private static final int TEXT_OFFSET = 8;
+	private static final int GRAPH_HEIGHT = 150;
 	private Player winner;
 	private GameState state;
 
@@ -72,7 +72,11 @@ public class ResultOverlay{
 		
 		//stats
 		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP);
-		renderStats(g, size);
+		float statsHeight = renderStats(g, size);
+		
+		//graph
+		g.translate(0, statsHeight + GAP + BORDER_GAP);
+		renderGraph(g, size);
 		
 		//total height: (title fm asc + desc + 1)
 		
@@ -117,7 +121,7 @@ public class ResultOverlay{
 			fm = g.getFontMetrics();
 			str = player.getName();
 			float y = (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height - fm.getDescent());
-			if(player.equals(winner)){
+			if(Double.compare(0.0D, player.getArea()) != 0 && player.equals(winner)){
 				g.drawImage(
 					Theme.CROWN_ICON_LARGE,
 					(int)(offset + (BAR_WIDTH - fm.stringWidth(str) - CROWN_GAP - Theme.CROWN_ICON_LARGE_SIZE) / 2.0F),
@@ -130,7 +134,7 @@ public class ResultOverlay{
 		}
 		g.setClip(null);
 		
-		g.setColor(Theme.DIVIDER_COLOR);
+		g.setColor(Theme.PRIMARY_COLOR);
 		g.drawLine(0, divLine, width, divLine);
 	}
 	
@@ -138,7 +142,7 @@ public class ResultOverlay{
 		return (((width - BAR_WIDTH * (players + 1)) * (2 * i + 1)) / 10.0F) + BAR_WIDTH * i;
 	}
 	
-	private void renderStats(Graphics2D g, int width){
+	private float renderStats(Graphics2D g, int width){
 		//g.setColor(Color.RED);
 		//g.drawLine(0, 0, width, 0);
 		
@@ -190,6 +194,7 @@ public class ResultOverlay{
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 4.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		}
 		
+		return (BORDER_GAP + height) * 4.0F + height;
 	}
 	
 	private String formatTime(long ms){
@@ -239,7 +244,11 @@ public class ResultOverlay{
 		g.drawString(title, (x + 2.0F + ROUND_RADIUS * 2.0F), y + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 	}
 	
-	private void renderGraph(Graphics2D g){
+	private void renderGraph(Graphics2D g, int size){
+		renderBorder(g, 0, 0, size, GRAPH_HEIGHT, "Score Graph");
+		
+		
+		
 		
 	}
 }
