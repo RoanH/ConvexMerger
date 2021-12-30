@@ -2,6 +2,7 @@ package dev.roanh.convexmerger.player;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -170,12 +171,13 @@ public abstract class Player{
 		}
 	}
 	
-	public static class PlayerStats{
+	public class PlayerStats{
 		private int claims;
 		private int merges;
 		private int absorbed;
 		private long totalTurnTime;
 		private int turns;
+		private List<Double> scoreHistory = new CopyOnWriteArrayList<Double>();
 		
 		public void addClaim(){
 			claims++;
@@ -192,6 +194,7 @@ public abstract class Player{
 		public void addTurnTime(long time){
 			totalTurnTime += time;
 			turns++;
+			scoreHistory.add(area);
 		}
 
 		/**
@@ -220,6 +223,14 @@ public abstract class Player{
 
 		public long getAverageTurnTime(){
 			return turns == 0 ? 0L : totalTurnTime / turns;
+		}
+		
+		public List<Double> getScoreHistory(){
+			return scoreHistory;
+		}
+		
+		public int getTurns(){
+			return turns;
 		}
 	}
 }

@@ -32,10 +32,13 @@ public final class Theme{
 	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
 	public static final Color BORDER_COLOR = new Color(41, 49, 61);
 	public static final Color BORDER_TEXT_COLOR = new Color(255, 255, 255, (75 * 255) / 100);
+	public static final Color GRAPH_MARK_COLOR = new Color(255, 255, 255, (5 * 255) / 10);
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
 	public static final Stroke RESULTS_STROKE = new BasicStroke(3.0F);
+	public static final Stroke GRAPH_STROKE = new BasicStroke(1.5F);
+	public static final Stroke GRAPH_MARK_STROKE = new BasicStroke(1.0F);
 	public static final Font PRIDI_REGULAR_24;
 	public static final Font PRIDI_REGULAR_18;
 	public static final Font PRIDI_MEDIUM_10;

@@ -46,6 +46,7 @@ public class GameState{
 	private boolean ended = false;
 	private final long gameStart;
 	private long gameEnd = -1L;
+	private int turns = 0;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
@@ -227,8 +228,10 @@ public class GameState{
 	
 	public void executePlayerTurn(){
 		if(ended = !getActivePlayer().executeMove()){
+			turns--;
 			gameEnd = System.currentTimeMillis();
 		}
+		turns++;
 	}
 	
 	public boolean isFinished(){
@@ -237,5 +240,9 @@ public class GameState{
 	
 	public long getGameTime(){
 		return ended ? (gameEnd - gameStart) : -1L;
+	}
+	
+	public int getRounds(){
+		return Math.floorDiv(turns, players.size());
 	}
 }

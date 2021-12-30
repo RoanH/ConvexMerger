@@ -1,12 +1,12 @@
 package dev.roanh.convexmerger.ui;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
@@ -31,21 +31,14 @@ public class ResultOverlay{
 
 	protected ResultOverlay(GameState state){
 		this.state = state;
-		winner = state.getPlayers().get(0);//TODO temp
-		
-		
+		winner = state.getPlayers().get(0);
 	}
-	
-	
-	
 	
 	public boolean render(Graphics2D g, int width, int height){
 		if(!ENABLED){
 			return false;
 		}
 		AffineTransform transform = g.getTransform();
-		//g.translate(-250, 0);
-		//g.scale(1.5, 1.5);
 		
 		for(Player player : state.getPlayers()){
 			if(player.getArea() > winner.getArea()){
@@ -62,7 +55,14 @@ public class ResultOverlay{
 		g.setColor(winner.getTheme().getTextColor());
 		FontMetrics fm = g.getFontMetrics();
 		int offset = fm.getAscent() - fm.getDescent() + 1;
-		String title = "Game Finished";
+		
+		//center
+		double statsHeight = BORDER_GAP * 4.0D + 5.0D * (TEXT_OFFSET * 2.0D + g.getFontMetrics(Theme.PRIDI_MEDIUM_16).getAscent());
+		double total = offset + BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + 2.0D * GAP + 3.0D * BORDER_GAP + statsHeight + GRAPH_HEIGHT;
+		g.translate(0.0D, (height - total) / 2.0D);
+		
+		//title part 2
+		String title = state.isFinished() ? "Game Finished" : "Game Progress";
 		g.drawString(title, (width - fm.stringWidth(title)) / 2.0F, offset);
 		
 		//bar chart
@@ -72,19 +72,15 @@ public class ResultOverlay{
 		
 		//stats
 		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP);
-		float statsHeight = renderStats(g, size);
+		renderStats(g, size);
 		
 		//graph
 		g.translate(0, statsHeight + GAP + BORDER_GAP);
 		renderGraph(g, size);
 		
-		//total height: (title fm asc + desc + 1)
-		
-		
-		
 		g.setTransform(transform);
 		
-		return true;
+		return true;//TOOD
 	}
 	
 	private void renderBars(Graphics2D g, int width){
@@ -142,7 +138,7 @@ public class ResultOverlay{
 		return (((width - BAR_WIDTH * (players + 1)) * (2 * i + 1)) / 10.0F) + BAR_WIDTH * i;
 	}
 	
-	private float renderStats(Graphics2D g, int width){
+	private void renderStats(Graphics2D g, int width){
 		//g.setColor(Color.RED);
 		//g.drawLine(0, 0, width, 0);
 		
@@ -193,8 +189,6 @@ public class ResultOverlay{
 			g.setColor(players.stream().anyMatch(p->p.getStats().getAverageTurnTime() < stats.getAverageTurnTime()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 4.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		}
-		
-		return (BORDER_GAP + height) * 4.0F + height;
 	}
 	
 	private String formatTime(long ms){
@@ -245,10 +239,42 @@ public class ResultOverlay{
 	}
 	
 	private void renderGraph(Graphics2D g, int size){
-		renderBorder(g, 0, 0, size, GRAPH_HEIGHT, "Score Graph");
+		double max = winner.getArea();
+		int rounds = state.getRounds();
 		
+		g.setFont(Theme.PRIDI_MEDIUM_10);
+		FontMetrics fm = g.getFontMetrics();
+		g.setClip(0, 0, size, GRAPH_HEIGHT);
+
+		for(int i = 1; i <= Math.floor((max - 20_000.0D) / 100_000.0D); i++){//TODO magic
+			double y = (GRAPH_HEIGHT - 2) - ((i * 100_000.0D * (GRAPH_HEIGHT - 2)) / max);
+			
+			g.setColor(Theme.PRIMARY_COLOR);
+			g.draw(new Line2D.Double(0.0D, y, 16.0D, y));
+			
+			String str = Theme.formatScore(i * 100_000.0D);
+			g.setColor(Theme.GRAPH_MARK_COLOR);
+			g.drawString(str, 18.0F, (float)(y + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F));
+			
+			g.setColor(Theme.PRIMARY_COLOR);
+			g.draw(new Line2D.Double(20.0D + fm.stringWidth(str), y, size, y));
+		}
 		
+		for(Player player : state.getPlayers()){
+			PlayerStats stats = player.getStats();
+			
+			Path2D graph = new Path2D.Double();
+			graph.moveTo(0.0D, GRAPH_HEIGHT - 2.0D);
+			for(int i = 0; i < rounds; i++){
+				graph.lineTo(((i + 1) * size) / (double)rounds, 2.0D + (GRAPH_HEIGHT - 3.0D) - ((stats.getScoreHistory().get(Math.min(stats.getTurns(), i)) * (GRAPH_HEIGHT - 3.0D)) / max));
+			}
+
+			g.setColor(player.getTheme().getBaseOutline());
+			g.setStroke(Theme.GRAPH_STROKE);
+			g.draw(graph);
+		}
 		
-		
+		g.setClip(null);
+		renderBorder(g, 0.0F, 0.0F, size, GRAPH_HEIGHT, "Score Graph");
 	}
 }
