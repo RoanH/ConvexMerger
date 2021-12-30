@@ -92,12 +92,6 @@ public class ConvexMerger{
 						obj.scale(0.99D);
 					}
 					frame.repaint();
-				}else if(e.getKeyCode() == KeyEvent.VK_R && e.getID() == KeyEvent.KEY_RELEASED){//TODO remove
-					ResultOverlay.ENABLED = !ResultOverlay.ENABLED;
-					frame.repaint();
-				}else if(e.getKeyCode() == KeyEvent.VK_C && e.getID() == KeyEvent.KEY_RELEASED){//TODO remove
-					GamePanel.SHOW_CENTROID = !GamePanel.SHOW_CENTROID;
-					frame.repaint();
 				}
 				return false;
 			}

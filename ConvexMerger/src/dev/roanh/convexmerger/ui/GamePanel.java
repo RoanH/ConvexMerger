@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -34,9 +36,8 @@ import dev.roanh.convexmerger.player.Player;
  * Main panel responsibly for rending the current game state.
  * @author Roan
  */
-public final class GamePanel extends JPanel implements MouseListener, MouseMotionListener{
+public final class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	public static boolean SHOW_CENTROID = false;
 	/**
 	 * Height of the top score display part of the game panel.
 	 */
@@ -72,6 +73,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 5749409248962652951L;
+	private boolean showCentroids = false;
 	private Polygon infoPoly = null;
 	private Polygon menuPoly = null;
 	private MessageDialog activeDialog = null;
@@ -80,14 +82,16 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	private ResultOverlay resultOverlay;
 	
 	protected GamePanel(){
+		this.setFocusable(true);
 	}
 	
 	public void setGameState(GameState state){
 		if(this.state == null){
 			this.addMouseListener(this);
 			this.addMouseMotionListener(this);
+			this.addKeyListener(this);
 		}
-		resultOverlay = new ResultOverlay(state);//TODO
+		resultOverlay = new ResultOverlay(state);
 		this.state = state;
 	}
 	
@@ -284,7 +288,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 				obj.render(g);
 			}
 			
-			if(SHOW_CENTROID){
+			if(showCentroids){
 				g.setColor(Color.BLACK);
 				Point2D c = obj.getCentroid();
 				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));	
@@ -389,6 +393,27 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
 			repaint();
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e){
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e){
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e){
+		if(e.isControlDown()){
+			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
+				resultOverlay.setEnabled(!resultOverlay.isEnabled());
+				this.repaint();
+			}else if (e.getKeyCode() == KeyEvent.VK_C){
+				showCentroids = !showCentroids;
+				this.repaint();
+			}
 		}
 	}
 }

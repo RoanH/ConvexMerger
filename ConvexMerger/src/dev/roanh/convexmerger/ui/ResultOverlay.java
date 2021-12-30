@@ -17,7 +17,6 @@ import dev.roanh.convexmerger.player.Player.PlayerStats;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class ResultOverlay{
-	public static boolean ENABLED = true;//TODO remove
 	private static final int GAP = 8;
 	private static final int BAR_HEIGHT = 200;
 	private static final int BAR_WIDTH = 80;
@@ -27,6 +26,7 @@ public class ResultOverlay{
 	private static final int BORDER_GAP = 8;
 	private static final int TEXT_OFFSET = 8;
 	private static final int GRAPH_HEIGHT = 150;
+	private boolean enabled = false;
 	private Player winner;
 	private GameState state;
 	private Player average = new AveragePlayer();
@@ -37,10 +37,19 @@ public class ResultOverlay{
 		average.init(state, PlayerTheme.UNOWNED);
 	}
 	
+	public void setEnabled(boolean enabled){
+		this.enabled = enabled;
+	}
+	
+	public boolean isEnabled(){
+		return enabled;
+	}
+	
 	public boolean render(Graphics2D g, int width, int height){
-		if(!ENABLED){
+		if(!enabled){
 			return false;
 		}
+		
 		AffineTransform transform = g.getTransform();
 		
 		for(Player player : state.getPlayers()){
