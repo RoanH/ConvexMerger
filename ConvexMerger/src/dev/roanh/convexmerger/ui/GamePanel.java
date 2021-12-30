@@ -95,6 +95,11 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		this.state = state;
 	}
 	
+	public void showResults(){
+		resultOverlay.setEnabled(true);
+		repaint();
+	}
+	
 	private void renderGame(Graphics2D g){
 		animationRunning = false;
 
@@ -339,6 +344,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	public void paintComponent(Graphics g1){
 		Graphics2D g = (Graphics2D)g1.create();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 		renderGame(g);
 	}
@@ -368,11 +374,11 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 						state.notify();
 					}
 				}
-				repaint();
+				this.repaint();
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
-			repaint();
+			this.repaint();
 		}
 	}
 
@@ -392,7 +398,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	public void mouseMoved(MouseEvent e){
 		if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
-			repaint();
+			this.repaint();
 		}
 	}
 

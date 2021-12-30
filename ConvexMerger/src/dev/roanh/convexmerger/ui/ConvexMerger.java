@@ -143,6 +143,7 @@ public class ConvexMerger{
 			}
 
 			System.out.println("game end");
+			game.showResults();
 			frame.repaint();
 
 		}
