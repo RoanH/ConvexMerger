@@ -140,14 +140,11 @@ public class ResultOverlay{
 	}
 	
 	private void renderStats(Graphics2D g, int width){
-		//g.setColor(Color.RED);
-		//g.drawLine(0, 0, width, 0);
-		
 		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_MEDIUM_16);
 		float height = TEXT_OFFSET * 2.0F + fm.getAscent();
-		
 		float subWidth = (width - BORDER_GAP * 2) / 3.0F;
 		
+		//borders
 		renderBorder(g, 0.0F, 0.0F, subWidth, height, "Game Time");
 		renderBorder(g, subWidth + BORDER_GAP, 0.0F, subWidth, height, "Rounds");
 		renderBorder(g, (subWidth + BORDER_GAP) * 2.0F, 0.0F, subWidth, height, "Seed");
@@ -166,6 +163,11 @@ public class ResultOverlay{
 		String rounds = String.valueOf(state.getRounds());
 		g.drawString(rounds, subWidth + BORDER_GAP + (subWidth - fm.stringWidth(rounds)) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
+		//seed
+		String seed = "TODO";//TODO
+		g.drawString(seed, (subWidth + BORDER_GAP) * 2.0F + (subWidth - fm.stringWidth(seed)) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+		
+		//player data
 		List<Player> players = state.getPlayers();
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
