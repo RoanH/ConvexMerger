@@ -10,13 +10,38 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
+/**
+ * Abstract base class for player instances.
+ * @author Roan
+ */
 public abstract class Player{
+	/**
+	 * The game this player is associated with.
+	 */
 	protected GameState state;
+	/**
+	 * The game stats for this player.
+	 */
 	protected PlayerStats stats;
+	/**
+	 * The score animation for this player.
+	 */
 	private ScoreAnimation scoreAnimation = new ScoreAnimation(this);
+	/**
+	 * The name for this player.
+	 */
 	private String name;
+	/**
+	 * If this player is human or not.
+	 */
 	private boolean human;
+	/**
+	 * The theme for this player.
+	 */
 	private PlayerTheme theme;
+	/**
+	 * The total area claimed by this player.
+	 */
 	private double area;
 
 	protected Player(boolean human, String name){
@@ -150,6 +175,10 @@ public abstract class Player{
 		return "Player[name=\"" + name + "\",human=" + human + ",area=" + area + "]";
 	}
 	
+	/**
+	 * Class describing a possible merge that a player could perform.
+	 * @author Roan
+	 */
 	protected class MergeOption{
 		private ConvexObject first = null;
 		private ConvexObject second = null;
@@ -171,6 +200,10 @@ public abstract class Player{
 		}
 	}
 	
+	/**
+	 * Class holding various game related player statistics.
+	 * @author Roan
+	 */
 	public class PlayerStats{
 		private int claims;
 		private int merges;

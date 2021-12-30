@@ -2,6 +2,10 @@ package dev.roanh.convexmerger.player;
 
 import dev.roanh.convexmerger.game.ConvexObject;
 
+/**
+ * Represents a player controlled by a local human.
+ * @author Roan
+ */
 public class HumanPlayer extends Player{
 	private static int ID = 1;
 
