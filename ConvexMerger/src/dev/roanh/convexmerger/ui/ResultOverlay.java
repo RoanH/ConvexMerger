@@ -14,9 +14,10 @@ import java.util.List;
 
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.player.Player.PlayerStats;
 
 public class ResultOverlay{
-	private static final boolean ENABLED = false;//TODO remove
+	private static final boolean ENABLED = true;//TODO remove
 	private static final int GAP = 8;
 	private static final int BAR_HEIGHT = 200;
 	private static final int BAR_WIDTH = 80;
@@ -24,6 +25,7 @@ public class ResultOverlay{
 	private static final int MAX_WIDTH = 900;
 	private static final int CROWN_GAP = 4;
 	private static final int BORDER_GAP = 6;
+	private static final int TEXT_OFFSET = 6;
 	private Player winner;
 	private GameState state;
 
@@ -92,7 +94,7 @@ public class ResultOverlay{
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
 
-			double offset = (((width - BAR_WIDTH * (players.size() + 1)) * (2 * i + 1)) / 10.0D) + BAR_WIDTH * i;
+			float offset = computeBarStart(i, players.size(), width);
 			double height = (player.getArea() / winner.getArea()) * BAR_HEIGHT;
 			
 			RoundRectangle2D rect = new RoundRectangle2D.Double(offset, Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height, BAR_WIDTH, height + ROUND_RADIUS, ROUND_RADIUS * 2, ROUND_RADIUS * 2);
@@ -106,7 +108,7 @@ public class ResultOverlay{
 			g.setColor(Theme.BAR_SCORE_COLOR);
 			String str = Theme.formatScore(player.getArea());
 			fm = g.getFontMetrics();
-			g.drawString(str, (float)(offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F), (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height + fm.getAscent()));
+			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height + fm.getAscent()));
 			
 			g.setFont(Theme.PRIDI_MEDIUM_14);
 			g.setColor(Theme.BAR_NAME_COLOR);
@@ -122,7 +124,7 @@ public class ResultOverlay{
 				);
 				offset += (CROWN_GAP + Theme.CROWN_ICON_LARGE_SIZE) / 2;
 			}
-			g.drawString(str, (float)(offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F), y);
+			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, y);
 		}
 		g.setClip(null);
 		
@@ -130,27 +132,94 @@ public class ResultOverlay{
 		g.drawLine(0, divLine, width, divLine);
 	}
 	
+	private float computeBarStart(int i, int players, int width){
+		return (((width - BAR_WIDTH * (players + 1)) * (2 * i + 1)) / 10.0F) + BAR_WIDTH * i;
+	}
+	
 	private void renderStats(Graphics2D g, int width){
 		//g.setColor(Color.RED);
 		//g.drawLine(0, 0, width, 0);
 		
 		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_MEDIUM_12);
-		float height = 12.0F + fm.getAscent();
+		float height = TEXT_OFFSET * 2.0F + fm.getAscent();
 		
 		float subWidth = (width - BORDER_GAP * 2) / 3.0F;
-		
 		
 		renderBorder(g, 0.0F, 0.0F, subWidth, height, "Game Time");
 		renderBorder(g, subWidth + BORDER_GAP, 0.0F, subWidth, height, "Rounds");
 		renderBorder(g, (subWidth + BORDER_GAP) * 2.0F, 0.0F, subWidth, height, "Seed");
-		
-		
-		
 		renderBorder(g, 0.0F, BORDER_GAP + height, width, height, "Objects Claimed");
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 2.0F, width, height, "Merges");
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 3.0F, width, height, "Objects Aborbed");
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 4.0F, width, height, "Average Turn Time");
 		
+		g.setFont(Theme.PRIDI_MEDIUM_12);
+		
+		//game time
+		//g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+
+		
+		
+		List<Player> players = state.getPlayers();
+		for(int i = 0; i < players.size(); i++){
+			Player player = players.get(i);
+			PlayerStats stats = player.getStats();
+
+			float offset = computeBarStart(i, players.size(), width);
+			
+			//claims
+			String str = String.valueOf(stats.getClaims());
+			g.setColor(players.stream().anyMatch(p->p.getStats().getClaims() > stats.getClaims()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+
+			//merges
+			str = String.valueOf(stats.getMerges());
+			g.setColor(players.stream().anyMatch(p->p.getStats().getMerges() > stats.getMerges()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 2.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+			
+			//absorbed
+			str = String.valueOf(stats.getAbsorbed());
+			g.setColor(players.stream().anyMatch(p->p.getStats().getAbsorbed() > stats.getAbsorbed()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 3.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+			
+			//claims
+			str = String.valueOf(formatTime(stats.getAverageTurnTime()));
+			g.setColor(players.stream().anyMatch(p->p.getStats().getAverageTurnTime() < stats.getAverageTurnTime()) ? Theme.SCORE_COLOR_LEAD : player.getTheme().getBaseOutline());
+			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) * 4.0F + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+		}
+		
+	}
+	
+	private String formatTime(long ms){
+		String time;
+		
+		if(ms < 1000){
+			String.valueOf(ms);
+			time = "0.";
+			time += String.valueOf(ms / 100);
+			ms /= 100;
+			if(ms != 0){
+				time += String.valueOf(ms / 10);
+				ms /= 10;
+				if(ms != 0){
+					time += String.valueOf(ms);
+				}
+			}
+			return String.valueOf(ms);//time + "s";
+		}
+		
+		time = "";
+		if(ms >= 1000 * 60 * 60){
+			time += (ms / (1000 * 60 * 60)) + "h ";
+			ms %= 1000 * 60 * 60;
+		}
+		if(ms >= 1000 * 60 || !time.isEmpty()){
+			time += (ms / (1000 * 60)) + "m ";
+			ms %= 1000 * 60;
+		}
+		time += String.valueOf((int)Math.round(ms / 1000.0D));
+		
+		return time;
 	}
 	
 	private void renderBorder(Graphics2D g, float x, float y, float w, float h, String title){

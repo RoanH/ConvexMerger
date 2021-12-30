@@ -218,8 +218,8 @@ public abstract class Player{
 			return absorbed;
 		}
 
-		public double getAverageTurnTime(){
-			return totalTurnTime / (double)turns;
+		public long getAverageTurnTime(){
+			return turns == 0 ? 0L : totalTurnTime / turns;
 		}
 	}
 }

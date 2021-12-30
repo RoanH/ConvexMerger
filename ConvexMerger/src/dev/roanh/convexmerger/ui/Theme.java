@@ -213,6 +213,7 @@ public final class Theme{
 		private final Color gradient;
 		private final Color barBody;
 		private final Color barOutline;
+		private final Color baseOutline;
 		private final BufferedImage ai;
 		private final BufferedImage human;
 		
@@ -230,6 +231,7 @@ public final class Theme{
 			text = new Color(tr, tg, tb, (9 * 255) / 10);
 			barOutline = text;
 			barBody = new Color(cr, cg, cb, (75 * 255) / 100);
+			baseOutline = text;
 			this.gradient = gradient;
 			try{
 				ai = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE, outline);
@@ -266,6 +268,10 @@ public final class Theme{
 		
 		public Color getBarOutline(){
 			return barOutline;
+		}
+		
+		public Color getBaseOutline(){
+			return baseOutline;
 		}
 		
 		public static final PlayerTheme get(int i){
