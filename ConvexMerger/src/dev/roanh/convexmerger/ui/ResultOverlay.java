@@ -17,7 +17,7 @@ import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.Player.PlayerStats;
 
 public class ResultOverlay{
-	private static final boolean ENABLED = true;//TODO remove
+	public static boolean ENABLED = true;//TODO remove
 	private static final int GAP = 8;
 	private static final int BAR_HEIGHT = 200;
 	private static final int BAR_WIDTH = 80;
@@ -150,7 +150,7 @@ public class ResultOverlay{
 		renderBorder(g, (subWidth + BORDER_GAP) * 2.0F, 0.0F, subWidth, height, "Seed");
 		renderBorder(g, 0.0F, BORDER_GAP + height, width, height, "Objects Claimed");
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 2.0F, width, height, "Merges");
-		renderBorder(g, 0.0F, (BORDER_GAP + height) * 3.0F, width, height, "Objects Aborbed");
+		renderBorder(g, 0.0F, (BORDER_GAP + height) * 3.0F, width, height, "Objects Absorbed");
 		renderBorder(g, 0.0F, (BORDER_GAP + height) * 4.0F, width, height, "Average Turn Time");
 		
 		g.setFont(Theme.PRIDI_MEDIUM_12);
@@ -194,18 +194,17 @@ public class ResultOverlay{
 		String time;
 		
 		if(ms < 1000){
-			String.valueOf(ms);
 			time = "0.";
 			time += String.valueOf(ms / 100);
-			ms /= 100;
+			ms %= 100;
 			if(ms != 0){
 				time += String.valueOf(ms / 10);
-				ms /= 10;
+				ms %= 10;
 				if(ms != 0){
 					time += String.valueOf(ms);
 				}
 			}
-			return String.valueOf(ms);//time + "s";
+			return time + "s";
 		}
 		
 		time = "";
