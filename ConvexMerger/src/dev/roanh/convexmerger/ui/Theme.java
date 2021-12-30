@@ -20,43 +20,145 @@ import javax.imageio.ImageIO;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 
+/**
+ * Class holding various UI design related constants.
+ * @author Roan (implementation)
+ * @author RockRoller (design)
+ */
 public final class Theme{
+	/**
+	 * Playfield background color.
+	 */
 	public static final Color BACKGROUND = new Color(21, 25, 30);
+	/**
+	 * Playfield menu/score display area background.
+	 */
 	public static final Color MENU_BODY = new Color(31, 37, 46);
+	/**
+	 * Playfield player score color.
+	 */
 	public static final Color SCORE_COLOR = new Color(255, 255, 255, (3 * 255) / 4);
+	/**
+	 * Playfield leading player score color.
+	 */
 	public static final Color SCORE_COLOR_LEAD = new Color(255, 255, 255, (9 * 255) / 10);
+	/**
+	 * Result screen bar chart player name color.
+	 */
 	public static final Color BAR_NAME_COLOR = SCORE_COLOR_LEAD;
+	/**
+	 * Result screen bar chart score color.
+	 */
 	public static final Color BAR_SCORE_COLOR = new Color(255, 255, 255, (85 * 255) / 100);
+	/**
+	 * Leading crown icon color.
+	 */
 	public static final Color CROWN_COLOR = new Color(237, 214, 9);
+	/**
+	 * Color used for the result screen divider and graph markers.
+	 */
 	public static final Color PRIMARY_COLOR = new Color(31, 37, 46);
+	/**
+	 * Color used to darken the playfield when on the result screen.
+	 */
 	public static final Color OVERLAY_BACKGROUND = new Color(0, 0, 0, (8 * 255) / 10);
+	/**
+	 * Result screen border color.
+	 */
 	public static final Color BORDER_COLOR = new Color(41, 49, 61);
+	/**
+	 * Result screen titled border text color.
+	 */
 	public static final Color BORDER_TEXT_COLOR = new Color(255, 255, 255, (75 * 255) / 100);
+	/**
+	 * Result screen graph marker text color.
+	 */
 	public static final Color GRAPH_MARK_COLOR = new Color(255, 255, 255, (5 * 255) / 10);
+	/**
+	 * Stroke used to draw the outline of playfield convex objects.
+	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+	/**
+	 * Stroke used to draw the menu panel gradient border.
+	 */
 	public static final Stroke BORDER_STROKE = new BasicStroke(1.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+	/**
+	 * Stroke used to draw the playfield merge helper lines.
+	 */
 	public static final Stroke HELPER_STROKE = new BasicStroke(2.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, new float[]{3.0F, 5.0F}, 0.0F);
+	/**
+	 * Stroke used for borders on the result screen.
+	 */
 	public static final Stroke RESULTS_STROKE = new BasicStroke(3.0F);
+	/**
+	 * Stroke used for the graph player data lines.
+	 */
 	public static final Stroke GRAPH_STROKE = new BasicStroke(1.5F);
+	/**
+	 * Stroke used for the graph marker lines.
+	 */
 	public static final Stroke GRAPH_MARK_STROKE = new BasicStroke(1.0F);
-	public static final Font PRIDI_REGULAR_24;
+	/**
+	 * Pridi regular font with size 18, used for the playfield hint.
+	 */
 	public static final Font PRIDI_REGULAR_18;
+	/**
+	 * Pridi regular font with size 24, used for buttons.
+	 */
+	public static final Font PRIDI_REGULAR_24;
+	/**
+	 * Pridi medium font with size 10, used for graph markers.
+	 */
 	public static final Font PRIDI_MEDIUM_10;
+	/**
+	 * Pridi medium font with size 12, used for titled borders.
+	 */
 	public static final Font PRIDI_MEDIUM_12;
+	/**
+	 * Pridi medium font with size 13, used for bar chart scores.
+	 */
 	public static final Font PRIDI_MEDIUM_13;
-	public static final Font PRIDI_MEDIUM_14;
+	/**
+	 * Pridi medium font with size 16, used for bar chart names and result overlay stats.
+	 */
 	public static final Font PRIDI_MEDIUM_16;
+	/**
+	 * Pridi medium font with size 24, used for playfield player names.
+	 */
 	public static final Font PRIDI_MEDIUM_24;
+	/**
+	 * Pridi medium font with size 36, used for the result overlay title.
+	 */
 	public static final Font PRIDI_MEDIUM_36;
+	/**
+	 * Dimensions of the player icon.
+	 */
 	public static final int PLAYER_ICON_SIZE = 24;
+	/**
+	 * Dimensions of the crown image.
+	 * @see #CROWN_ICON
+	 */
 	public static final int CROWN_ICON_SIZE = 18;
+	/**
+	 * Dimensions of the large crown image.
+	 * @see #CROWN_ICON_LARGE
+	 */
 	public static final int CROWN_ICON_LARGE_SIZE = 24;
+	/**
+	 * Smaller crown image with size {@value #CROWN_ICON_SIZE}.
+	 */
 	public static final BufferedImage CROWN_ICON;
+	/**
+	 * Larger crown image with size {@value #CROWN_ICON_LARGE_SIZE}.
+	 */
 	public static final BufferedImage CROWN_ICON_LARGE;
-	
-	
-	
-	
+
+	/**
+	 * Formats the given area by rounding to an integer and
+	 * adding dots to separate digits into groups of three.
+	 * @param area The area score to format.
+	 * @return The formatted area score.
+	 */
 	public static String formatScore(double area){
 		String str = "0";
 		for(int total = (int)Math.round(area); total != 0; total /= 1000){
@@ -66,14 +168,31 @@ public final class Theme{
 		return str;
 	}
 	
+	/**
+	 * Gets the color to use to draw the body for the given convex object.
+	 * @param obj The convex object to get the body color for.
+	 * @return The body color for the given convex object.
+	 */
 	public static final Color getPlayerBody(ConvexObject obj){
 		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getBody();
 	}
 	
+	/**
+	 * Gets the color to use to draw the outline for the given convex object.
+	 * @param obj The convex object to get the outline color for.
+	 * @return The outline color for the given convex object.
+	 */
 	public static final Color getPlayerOutline(ConvexObject obj){
 		return (obj.isOwned() ? obj.getOwner().getTheme() : UNOWNED).getOutline();
 	}
 	
+	/**
+	 * Constructs a linear rainbow gradient whose colours depend on
+	 * the number of players in the given game state.
+	 * @param state The active game.
+	 * @param width The current viewport width.
+	 * @return The linear rainbow gradient.
+	 */
 	public static final LinearGradientPaint constructBorderGradient(GameState state, int width){
 		switch(state == null ? 4 : state.getPlayerCount()){
 		case 0:
@@ -145,6 +264,15 @@ public final class Theme{
 		}
 	}
 	
+	/**
+	 * Loads an image from the given input stream, resizes it to the given
+	 * size and recolours it with the given color.
+	 * @param in The input stream to read the image from.
+	 * @param size The size to rescale to.
+	 * @param color The color to recolour to.
+	 * @return The loaded, rescaled, recoloured image.
+	 * @throws IOException When an IOException occurs.
+	 */
 	private static final BufferedImage loadImage(InputStream in, int size, Color color) throws IOException{
 		BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		BufferedImage raw = ImageIO.read(in);
@@ -171,7 +299,6 @@ public final class Theme{
 			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
 			PRIDI_MEDIUM_13 = medium.deriveFont(13.0F);
-			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_16 = medium.deriveFont(16.0F);
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
@@ -183,30 +310,49 @@ public final class Theme{
 		}
 	}
 	
+	/**
+	 * Enum with specific colours for the different players.
+	 * @author Roan
+	 */
 	public static enum PlayerTheme{
+		/**
+		 * Color data for things not associated with any player.
+		 */
 		UNOWNED(102, 103, 104, 174, 175, 175, 191, 191, 191, 129, 129, 129),
-		P1(//pink
+		/**
+		 * Color data for the first player (purple/pink).
+		 */
+		P1(
 			166, 13, 140,//body playfield
 			235, 106, 218,//outline playfield
 			255, 115, 236,//outline base type
 			214, 0, 177,//body base type
 			234, 108, 217//gradient
 		),
-		P2(//blue
+		/**
+		 * Color data for the second player (blue).
+		 */
+		P2(
 			14, 135, 180,
 			2, 197, 232,
 			0, 217, 255,
 			11, 171, 229,
 			5, 208, 245
 		),
-		P3(//green
+		/**
+		 * Color data for the third player (green).
+		 */
+		P3(
 			13, 153, 45,
 			22, 207, 68,
 			30, 250, 85,
 			10, 196, 50,
 			19, 242, 75
 		),
-		P4(//yellow
+		/**
+		 * Color data for the fourth player (yellow/gold).
+		 */
+		P4(
 			175, 104, 21,
 			243, 187, 27,
 			255, 198, 28,
@@ -214,24 +360,100 @@ public final class Theme{
 			247, 207, 5
 		);
 		
+		/**
+		 * Player theme text color.
+		 */
 		private final Color text;
+		/**
+		 * Player theme object body color.
+		 */
 		private final Color body;
+		/**
+		 * Player theme object outline color.
+		 */
 		private final Color outline;
+		/**
+		 * Player theme gradient color.
+		 */
 		private final Color gradient;
+		/**
+		 * Player theme bar chart bar body color.
+		 */
 		private final Color barBody;
+		/**
+		 * Player theme bar chart bar outline color.
+		 */
 		private final Color barOutline;
+		/**
+		 * Player theme base outline color.
+		 */
 		private final Color baseOutline;
+		/**
+		 * AI icon in the color for this player theme.
+		 */
 		private final BufferedImage ai;
+		/**
+		 * Human icon in the color for this player theme.
+		 */
 		private final BufferedImage human;
 		
+		/**
+		 * Constructs a new player theme with the given colours.
+		 * @param br The object body color red component.
+		 * @param bg The object body color green component.
+		 * @param bb The object body color blue component.
+		 * @param or The object outline color red component.
+		 * @param og The object outline color green component.
+		 * @param ob The object outline color blue component.
+		 * @param tr The text/outline color red component.
+		 * @param tg The text/outline color green component.
+		 * @param tb The text/outline color blue component.
+		 * @param cr The bar chart body color red component.
+		 * @param cg The bar chart body color green component.
+		 * @param cb The bar chart body color blue component.
+		 * @param gr The gradient color red component.
+		 * @param gg The gradient color green component.
+		 * @param gb The gradient color blue component.
+		 */
 		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int cr, int cg, int cb, int gr, int gg, int gb){
 			this(br, bg, bb, or, og, ob, tr, tg, tb, cr, cg, cb, new Color(gr, gg, gb));
 		}
 		
+		/**
+		 * Constructs a new player theme with the given colours.
+		 * @param br The object body color red component.
+		 * @param bg The object body color green component.
+		 * @param bb The object body color blue component.
+		 * @param or The object outline color red component.
+		 * @param og The object outline color green component.
+		 * @param ob The object outline color blue component.
+		 * @param tr The text/outline color red component.
+		 * @param tg The text/outline color green component.
+		 * @param tb The text/outline color blue component.
+		 * @param cr The bar chart body color red component.
+		 * @param cg The bar chart body color green component.
+		 * @param cb The bar chart body color blue component.
+		 */
 		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int cr, int cg, int cb){
 			this(br, bg, bb, or, og, ob, tr, tg, tb, cr, cg, cb, null);
 		}
 		
+		/**
+		 * Constructs a new player theme with the given colours.
+		 * @param br The object body color red component.
+		 * @param bg The object body color green component.
+		 * @param bb The object body color blue component.
+		 * @param or The object outline color red component.
+		 * @param og The object outline color green component.
+		 * @param ob The object outline color blue component.
+		 * @param tr The text/outline color red component.
+		 * @param tg The text/outline color green component.
+		 * @param tb The text/outline color blue component.
+		 * @param cr The bar chart body color red component.
+		 * @param cg The bar chart body color green component.
+		 * @param cb The bar chart body color blue component.
+		 * @param gradient The gradient color.
+		 */
 		private PlayerTheme(int br, int bg, int bb, int or, int og, int ob, int tr, int tg, int tb, int cr, int cg, int cb, Color gradient){
 			body = new Color(br, bg, bb);
 			outline = new Color(or, og, ob);
@@ -249,38 +471,75 @@ public final class Theme{
 			}
 		}
 		
+		/**
+		 * Gets the AI icon for this theme.
+		 * @return The AI icon for this theme.
+		 */
 		public BufferedImage getIconAI(){
 			return ai;
 		}
 		
+		/**
+		 * Gets the human icon for this theme.
+		 * @return The human icon for this theme.
+		 */
 		public BufferedImage getIconHuman(){
 			return human;
 		}
 		
+		/**
+		 * Gets the text color for this theme.
+		 * @return The text color for this theme.
+		 */
 		public Color getTextColor(){
 			return text;
 		}
 		
+		/**
+		 * Gets the object body color for this theme.
+		 * @return The object body color for this theme.
+		 */
 		public Color getBody(){
 			return body;
 		}
 		
+		/**
+		 * Gets the object outline color for this theme.
+		 * @return The object outline color for this theme.
+		 */
 		public Color getOutline(){
 			return outline;
 		}
 		
+		/**
+		 * Gets the bar chart body color for this theme.
+		 * @return The bar chart body color for this theme.
+		 */
 		public Color getBarBody(){
 			return barBody;
 		}
 		
+		/**
+		 * Gets the bar chart outline color for this theme.
+		 * @return The bar chart outline color for this theme.
+		 */
 		public Color getBarOutline(){
 			return barOutline;
 		}
 		
+		/**
+		 * Gets the base outline color for this theme.
+		 * @return The base outline color for this theme.
+		 */
 		public Color getBaseOutline(){
 			return baseOutline;
 		}
 		
+		/**
+		 * Gets the player theme for the player with the given ID.
+		 * @param i The ID of the player to get (starting from 1).
+		 * @return The theme for the player with the given ID.
+		 */
 		public static final PlayerTheme get(int i){
 			return values()[i];
 		}

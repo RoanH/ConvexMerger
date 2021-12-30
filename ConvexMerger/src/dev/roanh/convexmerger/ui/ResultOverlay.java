@@ -174,9 +174,6 @@ public class ResultOverlay{
 	 * @param width The width of the results section.
 	 */
 	private void renderBars(Graphics2D g, int width){
-		g.setFont(Theme.PRIDI_MEDIUM_24);
-		FontMetrics fm = g.getFontMetrics();
-		
 		int divLine = BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE;
 
 		g.setStroke(Theme.RESULTS_STROKE);
@@ -199,7 +196,7 @@ public class ResultOverlay{
 			g.setFont(Theme.PRIDI_MEDIUM_13);
 			g.setColor(Theme.BAR_SCORE_COLOR);
 			String str = Theme.formatScore(player.getArea());
-			fm = g.getFontMetrics();
+			FontMetrics fm = g.getFontMetrics();
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (float)(Theme.CROWN_ICON_LARGE_SIZE + BAR_HEIGHT - height + fm.getAscent()));
 			
 			g.setFont(Theme.PRIDI_MEDIUM_16);
