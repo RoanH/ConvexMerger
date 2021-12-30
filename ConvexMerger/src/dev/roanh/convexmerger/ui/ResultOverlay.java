@@ -216,7 +216,7 @@ public class ResultOverlay{
 			time += (ms / (1000 * 60)) + "m ";
 			ms %= 1000 * 60;
 		}
-		time += String.valueOf((int)Math.round(ms / 1000.0D));
+		time += String.valueOf((int)Math.round(ms / 1000.0D)) + "s";
 		
 		return time;
 	}
