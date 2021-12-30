@@ -36,7 +36,7 @@ import dev.roanh.convexmerger.player.Player;
  */
 public final class GamePanel extends JPanel implements MouseListener, MouseMotionListener{
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	private static final boolean SHOW_CENTROID = false;
+	public static boolean SHOW_CENTROID = false;
 	/**
 	 * Height of the top score display part of the game panel.
 	 */

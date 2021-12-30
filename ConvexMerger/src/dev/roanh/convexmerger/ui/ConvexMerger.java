@@ -95,6 +95,9 @@ public class ConvexMerger{
 				}else if(e.getKeyCode() == KeyEvent.VK_R && e.getID() == KeyEvent.KEY_RELEASED){//TODO remove
 					ResultOverlay.ENABLED = !ResultOverlay.ENABLED;
 					frame.repaint();
+				}else if(e.getKeyCode() == KeyEvent.VK_C && e.getID() == KeyEvent.KEY_RELEASED){//TODO remove
+					GamePanel.SHOW_CENTROID = !GamePanel.SHOW_CENTROID;
+					frame.repaint();
 				}
 				return false;
 			}
@@ -106,7 +109,7 @@ public class ConvexMerger{
 		
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
-		//ai fun: 0-20 0.45 mini size
+		//ai fun: 10-20 0.45 mini size
 		state = new GameState(new PlayfieldGenerator().generatePlayfield(0, 100, 0.45D), Arrays.asList(
 			new HumanPlayer(),
 			//new HumanPlayer()
