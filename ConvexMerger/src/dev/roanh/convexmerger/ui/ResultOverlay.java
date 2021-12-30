@@ -16,35 +16,108 @@ import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.Player.PlayerStats;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
+/**
+ * Overlay that shows at the end of a game with a lot of stats.
+ * @author Roan
+ */
 public class ResultOverlay{
+	/**
+	 * Gap between main result screen components (title, bars, stats, graph).
+	 */
 	private static final int GAP = 8;
+	/**
+	 * Maximum height of a bar in the bar chart.
+	 */
 	private static final int BAR_HEIGHT = 200;
+	/**
+	 * Width of a bar chart bar.
+	 */
 	private static final int BAR_WIDTH = 80;
+	/**
+	 * Bar chart bar corner rounding radius.
+	 */
 	private static final int ROUND_RADIUS = 4;
+	/**
+	 * Maximum width of the information part of the overlay.
+	 */
 	private static final int MAX_WIDTH = 900;
+	/**
+	 * Gap between the crown and the winning player name.
+	 */
 	private static final int CROWN_GAP = 4;
+	/**
+	 * Space between titled borders.
+	 */
 	private static final int BORDER_GAP = 8;
+	/**
+	 * Internal titled border offset to the text inside.
+	 */
 	private static final int TEXT_OFFSET = 8;
+	/**
+	 * Height of the graph.
+	 */
 	private static final int GRAPH_HEIGHT = 150;
+	/**
+	 * Score interval at which score markers are placed in the graph.
+	 */
+	private static final double GRAPH_MARKER_INTERVAL = 100_000.0D;
+	/**
+	 * The minimum score a player score has to be past a marker for a
+	 * new top marker to be generated.
+	 */
+	private static final double GRAPH_MARKER_OFFSET = 20_000.0D;
+	/**
+	 * Whether or not this overlay is enabled and currently showing.
+	 */
 	private boolean enabled = false;
+	/**
+	 * The player that is currently winning.
+	 */
 	private Player winner;
+	/**
+	 * The active/completed game.
+	 */
 	private GameState state;
+	/**
+	 * Dummy player returning average player data.
+	 */
 	private Player average = new AveragePlayer();
 
+	/**
+	 * Constructs a new result overlay for the given game.
+	 * @param state The game to show results for.
+	 */
 	protected ResultOverlay(GameState state){
 		this.state = state;
 		winner = state.getPlayers().get(0);
 		average.init(state, PlayerTheme.UNOWNED);
 	}
 	
+	/**
+	 * Enables or disables this overlay.
+	 * @param enabled True if the overlay should be shown,
+	 *        false otherwise.
+	 */
 	public void setEnabled(boolean enabled){
 		this.enabled = enabled;
 	}
 	
+	/**
+	 * Checks if this overlay is enabled and showing.
+	 * @return True if this overlay is enabled and showing.
+	 */
 	public boolean isEnabled(){
 		return enabled;
 	}
 	
+	/**
+	 * Renders this overlay if it is enabled.
+	 * @param g The graphics to use for rendering.
+	 * @param width The current width of the viewport.
+	 * @param height The current height of the viewport.
+	 * @return True if an animation is actively playing.
+	 * @see #isEnabled()
+	 */
 	public boolean render(Graphics2D g, int width, int height){
 		if(!enabled){
 			return false;
@@ -92,9 +165,14 @@ public class ResultOverlay{
 		
 		g.setTransform(transform);
 		
-		return true;//TOOD
+		return false;
 	}
 	
+	/**
+	 * Renders the bar chart shown on the result screen.
+	 * @param g The graphics context to use.
+	 * @param width The width of the results section.
+	 */
 	private void renderBars(Graphics2D g, int width){
 		g.setFont(Theme.PRIDI_MEDIUM_24);
 		FontMetrics fm = g.getFontMetrics();
@@ -146,10 +224,24 @@ public class ResultOverlay{
 		g.drawLine(0, divLine, width, divLine);
 	}
 	
+	/**
+	 * Computes the horizontal offset the left edge of the bar
+	 * for the player with the given index is at.
+	 * @param i The index of the player to compute the offset for.
+	 * @param players The total number of players in the game.
+	 * @param width The width of the results section.
+	 * @return The offset to the left edge of the bar for the
+	 *         player with the given index.
+	 */
 	private float computeBarStart(int i, int players, int width){
 		return (((width - BAR_WIDTH * (players + 1)) * (2 * i + 1)) / 10.0F) + BAR_WIDTH * i;
 	}
 	
+	/**
+	 * Renders the statistics shown on the result screen.
+	 * @param g The graphics context to use.
+	 * @param width The width of the results section.
+	 */
 	private void renderStats(Graphics2D g, int width){
 		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_MEDIUM_16);
 		float height = TEXT_OFFSET * 2.0F + fm.getAscent();
@@ -209,6 +301,13 @@ public class ResultOverlay{
 		}
 	}
 	
+	/**
+	 * Formats the given time in milliseconds to something
+	 * human readable with seconds as the smallest unit and
+	 * milliseconds as the precision. 
+	 * @param ms The millisecond time to format.
+	 * @return The formatted time.
+	 */
 	private String formatTime(long ms){
 		String time;
 		
@@ -240,6 +339,15 @@ public class ResultOverlay{
 		return time;
 	}
 	
+	/**
+	 * Renders a titled border with the given location, dimensions and title.
+	 * @param g The graphics context to use.
+	 * @param x The x-coordinate of the upper left corner of the border to render.
+	 * @param y The y-coordinate of the upper left corner of the border to render.
+	 * @param w The width of the border.
+	 * @param h The height of the border.
+	 * @param title The title to display on the border.
+	 */
 	private void renderBorder(Graphics2D g, float x, float y, float w, float h, String title){
 		g.setFont(Theme.PRIDI_MEDIUM_12);
 		g.setColor(Theme.BORDER_COLOR);
@@ -256,6 +364,11 @@ public class ResultOverlay{
 		g.drawString(title, (x + 2.0F + ROUND_RADIUS * 2.0F), y + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 	}
 	
+	/**
+	 * Renders the graph shown on the result screen.
+	 * @param g The graphics context to use.
+	 * @param size The width of the results section.
+	 */
 	private void renderGraph(Graphics2D g, int size){
 		double max = winner.getArea();
 		int rounds = state.getRounds();
@@ -264,13 +377,13 @@ public class ResultOverlay{
 		FontMetrics fm = g.getFontMetrics();
 		g.setClip(0, 0, size, GRAPH_HEIGHT);
 
-		for(int i = 1; i <= Math.floor((max - 20_000.0D) / 100_000.0D); i++){//TODO magic
-			double y = (GRAPH_HEIGHT - 2) - ((i * 100_000.0D * (GRAPH_HEIGHT - 2)) / max);
+		for(int i = 1; i <= Math.floor((max - GRAPH_MARKER_OFFSET) / GRAPH_MARKER_INTERVAL); i++){
+			double y = (GRAPH_HEIGHT - 2) - ((i * GRAPH_MARKER_INTERVAL * (GRAPH_HEIGHT - 2)) / max);
 			
 			g.setColor(Theme.PRIMARY_COLOR);
 			g.draw(new Line2D.Double(0.0D, y, 16.0D, y));
 			
-			String str = Theme.formatScore(i * 100_000.0D);
+			String str = Theme.formatScore(i * GRAPH_MARKER_INTERVAL);
 			g.setColor(Theme.GRAPH_MARK_COLOR);
 			g.drawString(str, 18.0F, (float)(y + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F));
 			
@@ -296,8 +409,16 @@ public class ResultOverlay{
 		renderBorder(g, 0.0F, 0.0F, size, GRAPH_HEIGHT, "Score Graph");
 	}
 	
+	/**
+	 * Dummy player instance that averages play results.
+	 * @author Roan
+	 * @see Player
+	 */
 	private static class AveragePlayer extends Player{
 
+		/**
+		 * Constructs a new average player.
+		 */
 		private AveragePlayer(){
 			super(false, "Average");
 			stats = new PlayerStats(){
