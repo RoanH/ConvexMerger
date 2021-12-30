@@ -10,6 +10,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
+import java.util.Locale;
 
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.player.Player;
@@ -158,9 +159,12 @@ public class ResultOverlay{
 		g.setFont(Theme.PRIDI_MEDIUM_16);
 		
 		//game time
-		//g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, (BORDER_GAP + height) + TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+		String time = formatTime(state.getGameTime()).toUpperCase(Locale.ROOT);
+		g.drawString(time, (subWidth - fm.stringWidth(time)) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 
-		
+		//rounds
+		String rounds = String.valueOf(state.getRounds());
+		g.drawString(rounds, subWidth + BORDER_GAP + (subWidth - fm.stringWidth(rounds)) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		List<Player> players = state.getPlayers();
 		for(int i = 0; i < players.size(); i++){

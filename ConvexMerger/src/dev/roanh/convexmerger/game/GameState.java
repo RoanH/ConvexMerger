@@ -239,7 +239,7 @@ public class GameState{
 	}
 	
 	public long getGameTime(){
-		return ended ? (gameEnd - gameStart) : -1L;
+		return ended ? (gameEnd - gameStart) : (System.currentTimeMillis() - gameStart);
 	}
 	
 	public int getRounds(){
