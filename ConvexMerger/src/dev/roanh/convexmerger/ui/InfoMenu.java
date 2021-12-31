@@ -49,8 +49,8 @@ public class InfoMenu implements Menu{
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		
 		//TODO lots of magic below
-		double creditsHeight = 155.0D;
-		int rulesHeight = 300;
+		double creditsHeight = 174.0D;
+		int rulesHeight = 315;
 		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - creditsHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		
 		renderExample(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
@@ -64,7 +64,7 @@ public class InfoMenu implements Menu{
 	private void renderVersion(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, y, w, h, "Version");
 		
-		g.setFont(Theme.PRIDI_MEDIUM_12);
+		g.setFont(Theme.PRIDI_REGULAR_14);
 		FontMetrics fm = g.getFontMetrics();
 		
 		y += Menu.BOX_HEADER_HEIGHT + 1;
@@ -79,7 +79,7 @@ public class InfoMenu implements Menu{
 	private void renderCredits(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, y, w, h, "Credits");
 		
-		g.setFont(Theme.PRIDI_MEDIUM_12);
+		g.setFont(Theme.PRIDI_REGULAR_14);
 		FontMetrics fm = g.getFontMetrics();
 		
 		y += Menu.BOX_HEADER_HEIGHT + 1;
@@ -100,7 +100,7 @@ public class InfoMenu implements Menu{
 	private void renderRules(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, y, w, h, "Rules");
 		
-		g.setFont(Theme.PRIDI_REGULAR_12);
+		g.setFont(Theme.PRIDI_REGULAR_14);
 		g.setColor(Theme.BOX_TEXT_COLOR);
 		FontMetrics fm = g.getFontMetrics();
 		h -= Menu.BOX_HEADER_HEIGHT + 1 + Menu.BOX_INSETS;

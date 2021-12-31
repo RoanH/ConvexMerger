@@ -115,9 +115,9 @@ public final class Theme{
 	 */
 	public static final Stroke GRAPH_MARK_STROKE = new BasicStroke(1.0F);
 	/**
-	 * Pridi regular font with size 12, used for the rules.
+	 * Pridi regular font with size 14, used for the rules.
 	 */
-	public static final Font PRIDI_REGULAR_12;
+	public static final Font PRIDI_REGULAR_14;
 	/**
 	 * Pridi regular font with size 18, used for the playfield hint.
 	 */
@@ -318,7 +318,7 @@ public final class Theme{
 	static{
 		try{
 			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
-			PRIDI_REGULAR_12 = regular.deriveFont(12.0F);
+			PRIDI_REGULAR_14 = regular.deriveFont(14.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
