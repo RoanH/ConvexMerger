@@ -1,7 +1,6 @@
 package dev.roanh.convexmerger.animation;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
@@ -17,6 +16,8 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * @author Roan
  */
 public class ExampleAnimation implements Animation{
+	public static final int WIDTH = 600;
+	public static final int HEIGHT = 300;
 	private static final Player pink = new DummyPlayer(PlayerTheme.P1);
 	private static final Player blue = new DummyPlayer(PlayerTheme.P2);
 	private static final ConvexObject first = new ConvexObject(106, 268, 45, 128, 176, 88, 187, 179);
@@ -29,9 +30,6 @@ public class ExampleAnimation implements Animation{
 	
 	@Override
 	public boolean run(Graphics2D g){
-		g.setColor(Color.RED);//TODO remove
-		g.drawRect(0, 0, 600, 300);
-		
 		switch(state){
 		case 0:
 			time = System.currentTimeMillis();
