@@ -7,6 +7,10 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +23,7 @@ import dev.roanh.convexmerger.animation.ExampleAnimation;
  * @author Roan
  */
 public class InfoMenu implements Menu{
+	private static final List<List<String>> rules = new ArrayList<List<String>>(4);
 	private static final int BOX_SPACING = 12;
 	private Animation example = new ExampleAnimation();
 
@@ -46,12 +51,13 @@ public class InfoMenu implements Menu{
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight, "Example");
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, 230, "Credits");
 
+		g.setFont(Theme.PRIDI_REGULAR_12);
+		g.setColor(Theme.BOX_TEXT_COLOR);
 		
-		List<String> text = Arrays.asList("These are positioned in the center of the 28px main body. After these 28px there is a 1px border that goes from the left to the right edge, which is colored in the gradient the playfield broder uses.".split(" "));
 		Rectangle rect = new Rectangle(TOP_SIDE_TRIANGLE + 40, 40, 200, 260);
-		g.setColor(Color.RED);
-		g.draw(rect);
-		fillText(g, rect.x, rect.y, rect.width, rect.height, text);
+		//g.setColor(Color.RED);
+		//g.draw(rect);
+		fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, Menu.BOX_HEADER_HEIGHT, (int)(boxWidth - 2 * Menu.BOX_TEXT_OFFSET), rect.height, rules.get(0));
 		
 		//example
 		g.translate(TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, Menu.BOX_HEADER_HEIGHT + 1.0D);
@@ -72,4 +78,17 @@ public class InfoMenu implements Menu{
 		return true;
 	}
 	
+	static{
+		try{
+			BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt")));
+			String line;
+			while((line = reader.readLine()) != null){
+				rules.add(Arrays.asList(line.split(" ")));
+			}
+			reader.close();
+		}catch(IOException e){
+			//should not happen
+			throw new RuntimeException("Failed to load internal resources.", e);
+		}
+	}
 }

@@ -77,7 +77,11 @@ public final class Theme{
 	/**
 	 * Box header color.
 	 */
-	public static final Color BOX_HEADER_COLOR = new Color(255, 255, 255, (95 * 255) / 100);
+	public static final Color BOX_TEXT_COLOR = new Color(255, 255, 255, (95 * 255) / 100);
+	/**
+	 * Box text color for bullet points and such.
+	 */
+	public static final Color BOX_SECONDARY_COLOR = GRAPH_MARK_COLOR;
 	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
@@ -102,6 +106,10 @@ public final class Theme{
 	 * Stroke used for the graph marker lines.
 	 */
 	public static final Stroke GRAPH_MARK_STROKE = new BasicStroke(1.0F);
+	/**
+	 * Pridi regular font with size 12, used for the rules.
+	 */
+	public static final Font PRIDI_REGULAR_12;
 	/**
 	 * Pridi regular font with size 18, used for the playfield hint.
 	 */
@@ -302,6 +310,7 @@ public final class Theme{
 	static{
 		try{
 			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
+			PRIDI_REGULAR_12 = regular.deriveFont(12.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));

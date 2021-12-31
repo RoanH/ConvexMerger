@@ -19,6 +19,7 @@ import java.util.List;
 public abstract interface Menu{
 	public static final int BOX_INSETS = 10;
 	public static final int BOX_HEADER_HEIGHT = 28;
+	public static final int BOX_TEXT_OFFSET = 4;
 
 	public abstract boolean render(Graphics2D g, int width, int height);
 	
@@ -31,7 +32,7 @@ public abstract interface Menu{
 		g.setPaint(null);
 		
 		g.setFont(Theme.PRIDI_REGULAR_18);
-		g.setColor(Theme.BOX_HEADER_COLOR);
+		g.setColor(Theme.BOX_TEXT_COLOR);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(title, (float)(x + (w - fm.stringWidth(title)) / 2.0F), (float)(y + (BOX_HEADER_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F));
 		
