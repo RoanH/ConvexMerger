@@ -26,10 +26,33 @@ import dev.roanh.util.Util;
  * @author Roan
  */
 public class InfoMenu implements Menu{
+	/**
+	 * Strings in the rules box.
+	 */
 	private static final List<List<String>> rules = new ArrayList<List<String>>(4);
+	/**
+	 * Entries in the credits box.
+	 */
 	private static final List<Entry<String, String>> credits = new ArrayList<Entry<String, String>>(6);
+	/**
+	 * Space between the boxes.
+	 */
 	private static final int BOX_SPACING = 12;
+	/**
+	 * Height of the version box.
+	 */
+	private static final int VERSION_HEIGHT = 80;
+	/**
+	 * Height of the credits box.
+	 */
+	private static final int CREDITS_HEIGHT = 174;
+	/**
+	 * The latest version of the program.
+	 */
 	private static String version = null;
+	/**
+	 * Example animation that is shown in the example box.
+	 */
 	private Animation example = new ExampleAnimation();
 
 	@Override
@@ -43,25 +66,28 @@ public class InfoMenu implements Menu{
 		g.drawString(Constants.TITLE, (width - fm.stringWidth(Constants.TITLE)) / 2.0F, (GamePanel.TOP_SPACE + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		g.translate(0, GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE);
-		
 		double boxWidth = (width - TOP_SIDE_TRIANGLE * 2 - BOX_SPACING) / 2.0D;
-		
 		Paint gradient = Theme.constructBorderGradient(null, width);
-		
-		//TODO lots of magic below
-		double versionHeight = 80.0D;
-		double creditsHeight = 174.0D;
-		double rulesHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - versionHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
-		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - creditsHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
+		double rulesHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
+		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		
 		renderExample(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, rulesHeight);
-		renderCredits(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, creditsHeight);
-		renderVersion(g, gradient, TOP_SIDE_TRIANGLE, rulesHeight + BOX_SPACING, boxWidth, versionHeight);
+		renderCredits(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, CREDITS_HEIGHT);
+		renderVersion(g, gradient, TOP_SIDE_TRIANGLE, rulesHeight + BOX_SPACING, boxWidth, VERSION_HEIGHT);
 		
 		return true;
 	}
 	
+	/**
+	 * Renders the version box.
+	 * @param g The graphics context to use.
+	 * @param gradient The paint to use to draw the gradient of the box.
+	 * @param x The x position to render the box at.
+	 * @param y The y position to render the box at.
+	 * @param w The width of the box to render.
+	 * @param h The height of the box to render.
+	 */
 	private void renderVersion(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, y, w, h, "Version");
 		
@@ -73,10 +99,17 @@ public class InfoMenu implements Menu{
 		x += Menu.BOX_TEXT_OFFSET;
 		
 		g.drawString("Current: TODO " + version, (float)x, (float)y);
-		
-		
 	}
 	
+	/**
+	 * Renders the credits box.
+	 * @param g The graphics context to use.
+	 * @param gradient The paint to use to draw the gradient of the box.
+	 * @param x The x position to render the box at.
+	 * @param y The y position to render the box at.
+	 * @param w The width of the box to render.
+	 * @param h The height of the box to render.
+	 */
 	private void renderCredits(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, y, w, h, "Credits");
 		
@@ -98,6 +131,15 @@ public class InfoMenu implements Menu{
 		}
 	}
 	
+	/**
+	 * Renders the rules box.
+	 * @param g The graphics context to use.
+	 * @param gradient The paint to use to draw the gradient of the box.
+	 * @param x The x position to render the box at.
+	 * @param y The y position to render the box at.
+	 * @param w The width of the box to render.
+	 * @param h The height of the box to render.
+	 */
 	private void renderRules(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, y, w, h, "Rules");
 		
@@ -127,6 +169,15 @@ public class InfoMenu implements Menu{
 		fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + fm.getHeight()), rules.get(3));
 	}
 	
+	/**
+	 * Renders the example box.
+	 * @param g The graphics context to use.
+	 * @param gradient The paint to use to draw the gradient of the box.
+	 * @param x The x position to render the box at.
+	 * @param y The y position to render the box at.
+	 * @param w The width of the box to render.
+	 * @param h The height of the box to render.
+	 */
 	private void renderExample(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, 0.0D, w, h, "Example");
 		
