@@ -70,13 +70,13 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 */
 	public static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
+	 * Dimensions of the triangles on the left and right side of the top part.
+	 */
+	public static final int TOP_SIDE_TRIANGLE = 50;
+	/**
 	 * Height of the middle text area attached to the top part.
 	 */
 	private static final int TOP_MIDDLE_OFFSET = 30;
-	/**
-	 * Dimensions of the triangles on the left and right side of the top part.
-	 */
-	private static final int TOP_SIDE_TRIANGLE = 50;
 	/**
 	 * Height of the buttons in the bottom left and right.
 	 */
@@ -128,7 +128,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	/**
 	 * Active menu.
 	 */
-	private Menu menu;//TODO = new InfoMenu();
+	private Menu menu = new InfoMenu();
 	
 	/**
 	 * Constructs a new game panel.

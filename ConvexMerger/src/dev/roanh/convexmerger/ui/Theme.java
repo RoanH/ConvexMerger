@@ -75,6 +75,10 @@ public final class Theme{
 	 */
 	public static final Color GRAPH_MARK_COLOR = new Color(255, 255, 255, (5 * 255) / 10);
 	/**
+	 * Box header color.
+	 */
+	public static final Color BOX_HEADER_COLOR = new Color(255, 255, 255, (95 * 255) / 100);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -193,7 +197,8 @@ public final class Theme{
 	/**
 	 * Constructs a linear rainbow gradient whose colours depend on
 	 * the number of players in the given game state.
-	 * @param state The active game.
+	 * @param state The active game, <code>null</code> will construct
+	 *        a gradient with 4 colours.
 	 * @param width The current viewport width.
 	 * @return The linear rainbow gradient.
 	 */

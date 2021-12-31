@@ -1,8 +1,11 @@
 package dev.roanh.convexmerger.ui;
 
+import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
+
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 
 import dev.roanh.convexmerger.Constants;
 
@@ -11,6 +14,7 @@ import dev.roanh.convexmerger.Constants;
  * @author Roan
  */
 public class InfoMenu implements Menu{
+	private static final int BOX_SPACING = 12;
 
 	@Override
 	public boolean render(Graphics2D g, int width, int height){
@@ -22,7 +26,15 @@ public class InfoMenu implements Menu{
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(Constants.TITLE, (width - fm.stringWidth(Constants.TITLE)) / 2.0F, (GamePanel.TOP_SPACE + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
+		g.translate(0, GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		
+		double boxWidth = (width - TOP_SIDE_TRIANGLE * 2 - BOX_SPACING) / 2.0D;
+		
+		Paint gradient = Theme.constructBorderGradient(null, width);
+		
+		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, 400, "Rules");
+		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, 400, "Example");
+
 		
 		
 		
@@ -31,7 +43,7 @@ public class InfoMenu implements Menu{
 		
 		
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	
