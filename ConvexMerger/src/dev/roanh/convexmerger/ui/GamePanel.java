@@ -455,6 +455,18 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void mouseReleased(MouseEvent e){
+		if(infoPoly.contains(e.getPoint())){
+			menu = new InfoMenu();
+			this.repaint();
+			return;
+		}else if(menuPoly.contains(e.getPoint())){
+			if(menu == null){
+				//TODO open menu
+			}else{
+				menu = null;
+			}
+		}
+		
 		if(activeDialog != null){
 			activeDialog = null;
 			repaint();
