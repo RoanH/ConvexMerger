@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.animation.ExampleAnimation;
 
 /**
  * Menu showing the rules, credits and version.
@@ -18,6 +20,7 @@ import dev.roanh.convexmerger.Constants;
  */
 public class InfoMenu implements Menu{
 	private static final int BOX_SPACING = 12;
+	private Animation example = new ExampleAnimation();
 
 	@Override
 	public boolean render(Graphics2D g, int width, int height){
@@ -35,23 +38,25 @@ public class InfoMenu implements Menu{
 		
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		
+		//TODO lots of magic below
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, 400, "Rules");
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, 400, "Example");
+		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 400 + BOX_SPACING, boxWidth, 230, "Credits");
 
 		
 		List<String> text = Arrays.asList("These are positioned in the center of the 28px main body. After these 28px there is a 1px border that goes from the left to the right edge, which is colored in the gradient the playfield broder uses.".split(" "));
-		Rectangle rect = new Rectangle(TOP_SIDE_TRIANGLE + 20, 40, 200, 260);
+		Rectangle rect = new Rectangle(TOP_SIDE_TRIANGLE + 400, 40, 200, 260);
 		g.setColor(Color.RED);
 		g.draw(rect);
 		fillText(g, rect.x, rect.y, rect.width, rect.height, text);
 		
+		g.translate(TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING + 30, 50);
+		example.run(g);
 		
-		
+		//System.out.println(boxWidth);
 		
 		// TODO Auto-generated method stub
 		return true;
 	}
-
-	
 	
 }
