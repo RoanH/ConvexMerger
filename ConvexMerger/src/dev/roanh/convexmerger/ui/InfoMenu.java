@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,20 +43,39 @@ public class InfoMenu implements Menu{
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		
 		double creditsHeight = 230.0D;
+		int rulesHeight = 300;
 		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - creditsHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		
 		//TODO lots of magic below
-		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, 400, "Rules");
+		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, rulesHeight, "Rules");
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight, "Example");
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, 230, "Credits");
 
+		//rules
 		g.setFont(Theme.PRIDI_REGULAR_12);
 		g.setColor(Theme.BOX_TEXT_COLOR);
+		fm = g.getFontMetrics();
 		
-		Rectangle rect = new Rectangle(TOP_SIDE_TRIANGLE + 40, 40, 200, 260);
-		//g.setColor(Color.RED);
-		//g.draw(rect);
-		fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, Menu.BOX_HEADER_HEIGHT, (int)(boxWidth - 2 * Menu.BOX_TEXT_OFFSET), rect.height, rules.get(0));
+		//intro
+		rulesHeight -= Menu.BOX_HEADER_HEIGHT + 1 + Menu.BOX_INSETS;
+		double rulesWidth = boxWidth - 2 * Menu.BOX_TEXT_OFFSET;
+		int y = fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, Menu.BOX_HEADER_HEIGHT + 1, (int)rulesWidth, rulesHeight, rules.get(0));
+		
+		//act 1
+		g.setColor(Theme.BOX_SECONDARY_COLOR);
+		g.drawString("1. ", TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, y + fm.getHeight());
+		int offset = fm.stringWidth("1. ");
+		g.setColor(Theme.BOX_TEXT_COLOR);
+		y = fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET + offset, y + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), rulesHeight - y + fm.getHeight(), rules.get(1));
+		
+		//act 2
+		g.setColor(Theme.BOX_SECONDARY_COLOR);
+		g.drawString("2. ", TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, y + fm.getHeight());
+		g.setColor(Theme.BOX_TEXT_COLOR);
+		y = fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET + offset, y + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), rulesHeight - y + fm.getHeight(), rules.get(2));
+
+		//end
+		fillText(g, TOP_SIDE_TRIANGLE + Menu.BOX_TEXT_OFFSET, y + fm.getHeight() - fm.getAscent(), (int)rulesWidth, rulesHeight - y + fm.getHeight(), rules.get(3));
 		
 		//example
 		g.translate(TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, Menu.BOX_HEADER_HEIGHT + 1.0D);
