@@ -263,7 +263,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 				g.setColor(Theme.MENU_BODY);
 			}
 		}
-		g.setColor(infoPoly.contains(lastLocation) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.setColor((menu == null && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(infoPoly);
 		if(menu == null){
 			g.setColor(infoPoly.contains(lastLocation) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
@@ -462,6 +462,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		}else if(menuPoly.contains(e.getPoint())){
 			if(menu == null){
 				//TODO open menu
+				System.out.println("TODO open menu");
 			}else{
 				menu = null;
 			}
@@ -526,7 +527,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void keyReleased(KeyEvent e){
-		if(e.isControlDown()){
+		if(menu == null && e.isControlDown()){
 			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
 				this.repaint();
