@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
@@ -128,7 +129,8 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	/**
 	 * Active menu.
 	 */
-	private Menu menu = new InfoMenu();
+	private Menu menu;// = new InfoMenu();
+	private Point lastLocation = new Point();
 	
 	/**
 	 * Constructs a new game panel.
@@ -236,6 +238,9 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		);
 		g.fill(topPoly);
 		
+		g.setFont(Theme.PRIDI_REGULAR_24);
+		FontMetrics fm = g.getFontMetrics();
+		
 		infoPoly = new Polygon(
 			new int[]{
 				this.getWidth(),
@@ -251,7 +256,19 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			},
 			4
 		);
+		if(menu == null){
+			if(infoPoly.contains(lastLocation)){
+				g.setColor(Theme.BUTTON_HOVER_COLOR);
+			}else{
+				g.setColor(Theme.MENU_BODY);
+			}
+		}
+		g.setColor(infoPoly.contains(lastLocation) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(infoPoly);
+		if(menu == null){
+			g.setColor(infoPoly.contains(lastLocation) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+			g.drawString("Info", this.getWidth() - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth("Info") / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
+		}
 		
 		menuPoly = new Polygon(
 			new int[]{
@@ -268,7 +285,11 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			},
 			4
 		);
+		g.setColor(menuPoly.contains(lastLocation) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(menuPoly);
+		String menuText = menu == null ? "Menu" : "Back";
+		g.setColor(menuPoly.contains(lastLocation) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//render UI borders
 		g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
@@ -300,7 +321,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		//render action hint
 		g.setFont(Theme.PRIDI_REGULAR_18);
 		g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
-		FontMetrics fm = g.getFontMetrics();
+		fm = g.getFontMetrics();
 		String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
 		g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
 		
@@ -471,8 +492,14 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void mouseMoved(MouseEvent e){
+		boolean onButtonBefore = infoPoly != null && menuPoly != null && (infoPoly.contains(lastLocation) || menuPoly.contains(lastLocation));
+		lastLocation = e.getPoint();
+		boolean onButtonAfter = infoPoly != null && menuPoly != null && (infoPoly.contains(lastLocation) || menuPoly.contains(lastLocation));
+		
 		if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
+			this.repaint();
+		}else if(onButtonBefore != onButtonAfter){
 			this.repaint();
 		}
 	}

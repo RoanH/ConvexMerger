@@ -53,5 +53,5 @@ launch4j{
 	fileDescription = project.name
 	version = project.version.substring(1)
 	textVersion = project.version.substring(1)
-	copyright = "Roan Hofland, Emiliyan Greshkov & Thiam Wai Chua"
+	copyright = "Roan Hofland"
 }

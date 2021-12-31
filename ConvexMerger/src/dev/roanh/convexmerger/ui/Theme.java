@@ -83,6 +83,14 @@ public final class Theme{
 	 */
 	public static final Color BOX_SECONDARY_COLOR = GRAPH_MARK_COLOR;
 	/**
+	 * Button on hover background color.
+	 */
+	public static final Color BUTTON_HOVER_COLOR = new Color(41, 49, 61);
+	/**
+	 * Button text color.
+	 */
+	public static final Color BUTTON_TEXT_COLOR = BORDER_TEXT_COLOR;
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
