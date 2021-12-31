@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleEntry;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
@@ -24,6 +26,7 @@ import dev.roanh.convexmerger.animation.ExampleAnimation;
  */
 public class InfoMenu implements Menu{
 	private static final List<List<String>> rules = new ArrayList<List<String>>(4);
+	private static final List<Entry<String, String>> credits = new ArrayList<Entry<String, String>>(6);
 	private static final int BOX_SPACING = 12;
 	private Animation example = new ExampleAnimation();
 
@@ -44,16 +47,38 @@ public class InfoMenu implements Menu{
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		
 		//TODO lots of magic below
-		double creditsHeight = 230.0D;
+		double creditsHeight = 155.0D;
 		int rulesHeight = 300;
 		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - creditsHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		
 		renderExample(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, rulesHeight);
-		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, 230, "Credits");
-
+		renderCredits(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, creditsHeight);
 		
 		return true;
+	}
+	
+	private void renderCredits(Graphics2D g, Paint gradient, double x, double y, double w, double h){
+		drawTitledBox(g, gradient, x, y, w, h, "Credits");
+		
+		g.setFont(Theme.PRIDI_MEDIUM_12);
+		FontMetrics fm = g.getFontMetrics();
+		
+		y += Menu.BOX_HEADER_HEIGHT + 1;
+		y += fm.getAscent();
+		x += Menu.BOX_TEXT_OFFSET;
+		for(Entry<String, String> entry : credits){
+			g.setColor(Theme.BOX_TEXT_COLOR);
+			String name = entry.getKey();
+			g.drawString(name, (float)x, (float)y);
+			
+			g.setColor(Theme.BOX_SECONDARY_COLOR);
+			g.drawString(entry.getValue(), (float)(x + fm.stringWidth(name)), (float)y);
+			
+			y += fm.getHeight();
+		}
+		
+		
 	}
 	
 	private void renderRules(Graphics2D g, Paint gradient, double x, double y, double w, double h){
@@ -87,6 +112,7 @@ public class InfoMenu implements Menu{
 	
 	private void renderExample(Graphics2D g, Paint gradient, double x, double y, double w, double h){
 		drawTitledBox(g, gradient, x, 0.0D, w, h, "Example");
+		
 		AffineTransform transform = g.getTransform();
 		g.translate(x, Menu.BOX_HEADER_HEIGHT + 1.0D);
 		double sx = w / ExampleAnimation.WIDTH;
@@ -114,5 +140,11 @@ public class InfoMenu implements Menu{
 			//should not happen
 			throw new RuntimeException("Failed to load internal resources.", e);
 		}
+		credits.add(new SimpleEntry<String, String>("Roan (RoanH): ", "Game Design & Implementation"));
+		credits.add(new SimpleEntry<String, String>("RockRoller: ", "UI Design"));
+		credits.add(new SimpleEntry<String, String>("Thiam-Wai: ", "Playfield Generation"));
+		credits.add(new SimpleEntry<String, String>("Emiliyan: ", "Vertical Decomposition"));
+		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "AI & Player Icons"));
+		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
 	}
 }
