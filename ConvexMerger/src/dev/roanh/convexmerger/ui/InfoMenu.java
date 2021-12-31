@@ -49,14 +49,15 @@ public class InfoMenu implements Menu{
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		
 		//TODO lots of magic below
+		double versionHeight = 80.0D;
 		double creditsHeight = 174.0D;
-		int rulesHeight = 315;
+		double rulesHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - versionHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - creditsHeight - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		
 		renderExample(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, rulesHeight);
 		renderCredits(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, creditsHeight);
-		renderVersion(g, gradient, TOP_SIDE_TRIANGLE, rulesHeight + BOX_SPACING, boxWidth, 80.0D);
+		renderVersion(g, gradient, TOP_SIDE_TRIANGLE, rulesHeight + BOX_SPACING, boxWidth, versionHeight);
 		
 		return true;
 	}
