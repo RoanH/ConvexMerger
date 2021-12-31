@@ -19,6 +19,7 @@ import java.util.AbstractMap.SimpleEntry;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ExampleAnimation;
+import dev.roanh.util.Util;
 
 /**
  * Menu showing the rules, credits and version.
@@ -28,6 +29,7 @@ public class InfoMenu implements Menu{
 	private static final List<List<String>> rules = new ArrayList<List<String>>(4);
 	private static final List<Entry<String, String>> credits = new ArrayList<Entry<String, String>>(6);
 	private static final int BOX_SPACING = 12;
+	private static String version = null;
 	private Animation example = new ExampleAnimation();
 
 	@Override
@@ -54,8 +56,24 @@ public class InfoMenu implements Menu{
 		renderExample(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, TOP_SIDE_TRIANGLE, 0.0D, boxWidth, rulesHeight);
 		renderCredits(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, creditsHeight);
+		renderVersion(g, gradient, TOP_SIDE_TRIANGLE, rulesHeight + BOX_SPACING, boxWidth, 80.0D);
 		
 		return true;
+	}
+	
+	private void renderVersion(Graphics2D g, Paint gradient, double x, double y, double w, double h){
+		drawTitledBox(g, gradient, x, y, w, h, "Version");
+		
+		g.setFont(Theme.PRIDI_MEDIUM_12);
+		FontMetrics fm = g.getFontMetrics();
+		
+		y += Menu.BOX_HEADER_HEIGHT + 1;
+		y += fm.getAscent();
+		x += Menu.BOX_TEXT_OFFSET;
+		
+		g.drawString("Current: TODO " + version, (float)x, (float)y);
+		
+		
 	}
 	
 	private void renderCredits(Graphics2D g, Paint gradient, double x, double y, double w, double h){
@@ -77,8 +95,6 @@ public class InfoMenu implements Menu{
 			
 			y += fm.getHeight();
 		}
-		
-		
 	}
 	
 	private void renderRules(Graphics2D g, Paint gradient, double x, double y, double w, double h){
@@ -140,11 +156,26 @@ public class InfoMenu implements Menu{
 			//should not happen
 			throw new RuntimeException("Failed to load internal resources.", e);
 		}
+		
 		credits.add(new SimpleEntry<String, String>("Roan (RoanH): ", "Game Design & Implementation"));
-		credits.add(new SimpleEntry<String, String>("RockRoller: ", "UI Design"));
+		credits.add(new SimpleEntry<String, String>("RockRoller: ", "UI Design & Logo"));
 		credits.add(new SimpleEntry<String, String>("Thiam-Wai: ", "Playfield Generation"));
 		credits.add(new SimpleEntry<String, String>("Emiliyan: ", "Vertical Decomposition"));
-		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "AI & Player Icons"));
+		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "UI Icons"));
 		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
+		
+		Thread versionChecker = new Thread(){
+			
+			@Override
+			public void run(){
+				version = Util.checkVersion("RoanH", "ConvexMerger");
+				if(version == null){
+					version = "Unknown";
+				}
+			}
+		};
+		versionChecker.setDaemon(true);
+		versionChecker.setName("VersionChecker");
+		versionChecker.start();
 	}
 }
