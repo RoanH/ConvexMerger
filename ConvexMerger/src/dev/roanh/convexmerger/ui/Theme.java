@@ -127,6 +127,10 @@ public final class Theme{
 	 */
 	public static final Font PRIDI_MEDIUM_24;
 	/**
+	 * Pridi medium font with size 30, used for the info menu title.
+	 */
+	public static final Font PRIDI_MEDIUM_30;
+	/**
 	 * Pridi medium font with size 36, used for the result overlay title.
 	 */
 	public static final Font PRIDI_MEDIUM_36;
@@ -301,6 +305,7 @@ public final class Theme{
 			PRIDI_MEDIUM_13 = medium.deriveFont(13.0F);
 			PRIDI_MEDIUM_16 = medium.deriveFont(16.0F);
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
+			PRIDI_MEDIUM_30 = medium.deriveFont(30.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 			CROWN_ICON_LARGE = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_LARGE_SIZE, CROWN_COLOR);

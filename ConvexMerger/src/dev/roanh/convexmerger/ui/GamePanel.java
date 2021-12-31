@@ -62,17 +62,21 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 */
 	public static final int BOTTOM_OFFSET = 50 + 1;
 	/**
-	 * Dimensions of the triangles on the left and right side of the top part.
+	 * Width of the middle text area attached to the top part.
 	 */
-	private static final int TOP_SIDE_TRIANGLE = 50;
+	public static final int TOP_MIDDLE_WIDTH = 200;
+	/**
+	 * Text offset from the bottom in the top middle text area.
+	 */
+	public static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
 	 * Height of the middle text area attached to the top part.
 	 */
 	private static final int TOP_MIDDLE_OFFSET = 30;
 	/**
-	 * Width of the middle text area attached to the top part.
+	 * Dimensions of the triangles on the left and right side of the top part.
 	 */
-	private static final int TOP_MIDDLE_WIDTH = 200;
+	private static final int TOP_SIDE_TRIANGLE = 50;
 	/**
 	 * Height of the buttons in the bottom left and right.
 	 */
@@ -81,10 +85,6 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Width of the buttons in the bottom left and right.
 	 */
 	private static final int BUTTON_WIDTH = 150;
-	/**
-	 * Text offset from the bottom in the top middle text area.
-	 */
-	private static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
 	 * Number of pixels between the player icon and the text.
 	 */
@@ -125,6 +125,10 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Result overlay.
 	 */
 	private ResultOverlay resultOverlay;
+	/**
+	 * Active menu.
+	 */
+	private Menu menu;//TODO = new InfoMenu();
 	
 	/**
 	 * Constructs a new game panel.
@@ -167,24 +171,28 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
 		
 		//render the game
-		if(state != null){
+		if(menu == null && state != null){
 			renderPlayfield(g);
 		}
 		
 		//render UI shapes
 		renderInterface(g);
 		
-		//TODO temp dialog
-		if(activeDialog != null){
-			//TODO center and make look nice
-			g.drawString(activeDialog.getTitle(), 100, 10 + 120);
-			g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
-			g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
-		}
-		
-		//render results
-		if(resultOverlay != null){
-			animationRunning |= resultOverlay.render(g, this.getWidth(), this.getHeight());
+		if(menu == null){
+			//TODO temp dialog
+			if(activeDialog != null){
+				//TODO center and make look nice
+				g.drawString(activeDialog.getTitle(), 100, 10 + 120);
+				g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
+				g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
+			}
+
+			//render results
+			if(resultOverlay != null){
+				animationRunning |= resultOverlay.render(g, this.getWidth(), this.getHeight());
+			}
+		}else{
+			animationRunning |= menu.render(g, this.getWidth(), this.getHeight());
 		}
 		
 		//schedule next animation frame
@@ -285,7 +293,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		}
 		g.draw(topPath);
 		
-		if(state == null){
+		if(state == null || menu != null){
 			return;
 		}
 		
