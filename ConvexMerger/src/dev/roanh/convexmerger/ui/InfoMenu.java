@@ -6,6 +6,9 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
 
@@ -36,8 +39,11 @@ public class InfoMenu implements Menu{
 		drawTitledBox(g, gradient, TOP_SIDE_TRIANGLE + boxWidth + BOX_SPACING, 0.0D, boxWidth, 400, "Example");
 
 		
-		
-		
+		List<String> text = Arrays.asList("These are positioned in the center of the 28px main body. After these 28px there is a 1px border that goes from the left to the right edge, which is colored in the gradient the playfield broder uses.".split(" "));
+		Rectangle rect = new Rectangle(TOP_SIDE_TRIANGLE + 20, 40, 200, 260);
+		g.setColor(Color.RED);
+		g.draw(rect);
+		fillText(g, rect.x, rect.y, rect.width, rect.height, text);
 		
 		
 		

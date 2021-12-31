@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.util.List;
 
 /**
  * Base class for all menus containing shared rendering subroutines.
@@ -58,5 +59,25 @@ public abstract interface Menu{
 		g.setColor(Theme.CROWN_COLOR);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(title, Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2) + (TOP_MIDDLE_WIDTH - fm.stringWidth(title)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
+	}
+	
+	public default int fillText(Graphics2D g, int rx, int ry, int width, int height, List<String> text){
+		FontMetrics fm = g.getFontMetrics();
+		int x = rx;
+		int y = ry + fm.getAscent();
+		for(String word : text){
+			int w = fm.stringWidth(word);
+			if(x + w - rx > width){
+				x = rx;
+				y += fm.getHeight();
+				if(y > ry + height){
+					y -= fm.getHeight();
+					break;
+				}
+			}
+			g.drawString(word + " ", x, y);
+			x += w + fm.stringWidth(" ");
+		}
+		return y;
 	}
 }
