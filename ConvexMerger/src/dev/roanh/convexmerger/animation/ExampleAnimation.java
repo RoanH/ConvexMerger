@@ -16,16 +16,49 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * @author Roan
  */
 public class ExampleAnimation implements Animation{
+	/**
+	 * Width of the animation.
+	 */
 	public static final int WIDTH = 600;
+	/**
+	 * Height of the animation.
+	 */
 	public static final int HEIGHT = 300;
+	/**
+	 * First player.
+	 */
 	private static final Player pink = new DummyPlayer(PlayerTheme.P1);
+	/**
+	 * Second player.
+	 */
 	private static final Player blue = new DummyPlayer(PlayerTheme.P2);
+	/**
+	 * Leftmost object.
+	 */
 	private static final ConvexObject first = new ConvexObject(106, 268, 45, 128, 176, 88, 187, 179);
+	/**
+	 * Copy of the leftmost object that is always owned by the first player.
+	 */
 	private static final ConvexObject firstCopy = new ConvexObject(106, 268, 45, 128, 176, 88, 187, 179);
+	/**
+	 * Middle object.
+	 */
 	private static final ConvexObject second = new ConvexObject(297, 209, 251, 116, 367, 127);
+	/**
+	 * Rightmost object.
+	 */
 	private static final ConvexObject third = new ConvexObject(482, 225, 412, 124, 485, 40, 540, 92);
+	/**
+	 * The result of merging the first and third object.
+	 */
 	private static final ConvexObject result;
+	/**
+	 * Current animation state.
+	 */
 	private int state = 0;
+	/**
+	 * Saved timestamp for animation.
+	 */
 	private long time;
 	
 	@Override
@@ -174,8 +207,16 @@ public class ExampleAnimation implements Animation{
 		firstCopy.setOwner(pink);
 	}
 
+	/**
+	 * Dummy player instance to reuse convex object logic.
+	 * @author Roan
+	 */
 	private static class DummyPlayer extends Player{
 
+		/**
+		 * Constructs a new dummy player with the given theme.
+		 * @param theme The theme for this player.
+		 */
 		protected DummyPlayer(PlayerTheme theme){
 			super(false, null);
 			this.init(null, theme);
