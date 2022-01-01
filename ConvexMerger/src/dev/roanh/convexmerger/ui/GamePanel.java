@@ -285,10 +285,10 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			},
 			4
 		);
-		g.setColor((!resultOverlay.isEnabled() && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.setColor(((!resultOverlay.isEnabled() || menu != null) && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(menuPoly);
 		String menuText = menu == null ? "Menu" : "Back";
-		g.setColor((!resultOverlay.isEnabled() && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+		g.setColor(((!resultOverlay.isEnabled() || menu != null) && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
 		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//render UI borders
@@ -455,7 +455,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void mouseReleased(MouseEvent e){
-		if(resultOverlay.isEnabled()){
+		if(resultOverlay.isEnabled() && menu == null){
 			//TODO handle menu button click
 			return;
 		}
