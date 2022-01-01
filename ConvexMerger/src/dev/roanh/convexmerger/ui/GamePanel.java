@@ -256,17 +256,17 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			},
 			4
 		);
-		if(menu == null){
+		if(menu == null && !resultOverlay.isEnabled()){
 			if(infoPoly.contains(lastLocation)){
 				g.setColor(Theme.BUTTON_HOVER_COLOR);
 			}else{
 				g.setColor(Theme.MENU_BODY);
 			}
 		}
-		g.setColor((menu == null && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.setColor((menu == null && !resultOverlay.isEnabled() && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(infoPoly);
 		if(menu == null){
-			g.setColor(infoPoly.contains(lastLocation) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+			g.setColor((!resultOverlay.isEnabled() && infoPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
 			g.drawString("Info", this.getWidth() - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth("Info") / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		}
 		
@@ -285,10 +285,10 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			},
 			4
 		);
-		g.setColor(menuPoly.contains(lastLocation) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.setColor((!resultOverlay.isEnabled() && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(menuPoly);
 		String menuText = menu == null ? "Menu" : "Back";
-		g.setColor(menuPoly.contains(lastLocation) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+		g.setColor((!resultOverlay.isEnabled() && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
 		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//render UI borders
@@ -535,6 +535,8 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		if(menu == null && e.isControlDown()){
 			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
+				state.clearSelection();
+				helperLines = null;
 				this.repaint();
 			}else if (e.getKeyCode() == KeyEvent.VK_C){
 				showCentroids = !showCentroids;

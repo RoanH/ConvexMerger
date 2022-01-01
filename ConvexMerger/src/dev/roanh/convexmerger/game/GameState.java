@@ -245,4 +245,8 @@ public class GameState{
 	public int getRounds(){
 		return Math.floorDiv(turns, players.size());
 	}
+
+	public void clearSelection(){
+		selected = null;
+	}
 }
