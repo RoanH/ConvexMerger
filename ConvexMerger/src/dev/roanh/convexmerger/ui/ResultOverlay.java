@@ -165,7 +165,7 @@ public class ResultOverlay{
 		
 		g.setTransform(transform);
 		
-		return false;
+		return true;
 	}
 	
 	/**
@@ -231,7 +231,7 @@ public class ResultOverlay{
 	 *         player with the given index.
 	 */
 	private float computeBarStart(int i, int players, int width){
-		return (((width - BAR_WIDTH * (players + 1)) * (2 * i + 1)) / 10.0F) + BAR_WIDTH * i;
+		return (((width - BAR_WIDTH * (players + 1.0F)) * (2.0F * i + 1.0F)) / (2.0F * (players + 1.0F))) + BAR_WIDTH * i;
 	}
 	
 	/**
