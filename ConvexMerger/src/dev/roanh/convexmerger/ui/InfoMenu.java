@@ -19,6 +19,7 @@ import java.util.AbstractMap.SimpleEntry;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ExampleAnimation;
+import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.util.Util;
 
 /**
@@ -54,6 +55,11 @@ public class InfoMenu implements Menu{
 	 * Example animation that is shown in the example box.
 	 */
 	private Animation example = new ExampleAnimation();
+	private GameState game;
+	
+	protected InfoMenu(GameState game){
+		this.game = game;
+	}
 
 	@Override
 	public boolean render(Graphics2D g, int width, int height){
@@ -67,7 +73,7 @@ public class InfoMenu implements Menu{
 		
 		g.translate(0, GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		double boxWidth = (width - TOP_SIDE_TRIANGLE * 2 - BOX_SPACING) / 2.0D;
-		Paint gradient = Theme.constructBorderGradient(null, width);
+		Paint gradient = Theme.constructBorderGradient(game, width);
 		double rulesHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
 		
