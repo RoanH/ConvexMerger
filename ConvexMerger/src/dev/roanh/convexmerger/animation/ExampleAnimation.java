@@ -65,6 +65,9 @@ public class ExampleAnimation implements Animation{
 	public boolean run(Graphics2D g){
 		switch(state){
 		case 0:
+			first.setOwner(null);
+			second.setOwner(null);
+			third.setOwner(null);
 			time = System.currentTimeMillis();
 			state++;
 			//$FALL-THROUGH$
