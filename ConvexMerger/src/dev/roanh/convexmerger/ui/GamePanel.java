@@ -460,17 +460,23 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			return;
 		}
 		
-		if(infoPoly.contains(e.getPoint())){
-			menu = new InfoMenu(state);
-			this.repaint();
-			return;
-		}else if(menuPoly.contains(e.getPoint())){
+		if(menuPoly.contains(e.getPoint())){
 			if(menu == null){
 				//TODO open menu
 				System.out.println("TODO open menu");
 			}else{
 				menu = null;
 			}
+		}
+		
+		if(menu != null){
+			return;
+		}
+		
+		if(infoPoly.contains(e.getPoint())){
+			menu = new InfoMenu(state);
+			this.repaint();
+			return;
 		}
 		
 		if(activeDialog != null){
