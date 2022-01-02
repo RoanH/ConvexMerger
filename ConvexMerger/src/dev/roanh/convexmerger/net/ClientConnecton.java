@@ -24,7 +24,7 @@ public class ClientConnecton extends Connection{
 
 	public PacketPlayerMove awaitMove() throws IOException{
 		Packet packet;
-		while((packet = readPacket()).getRegisteryType() != PacketRegistry.MOVE){
+		while((packet = readPacket()).getRegisteryType() != PacketRegistry.PLAYER_MOVE){
 			//TODO handle
 		}
 		

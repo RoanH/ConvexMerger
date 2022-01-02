@@ -8,6 +8,6 @@ public class PacketGameInit implements Packet{
 
 	@Override
 	public PacketRegistry getRegisteryType(){
-		return PacketRegistry.INIT;
+		return PacketRegistry.GAME_INIT;
 	}
 }

@@ -8,8 +8,8 @@ import java.net.Socket;
 import dev.roanh.convexmerger.net.packet.Packet;
 
 public class Connection{
-	protected ObjectInputStream in;
-	protected ObjectOutputStream out;
+	private ObjectInputStream in;
+	private ObjectOutputStream out;
 	
 	protected Connection(Socket socket) throws IOException{
 		in = new ObjectInputStream(socket.getInputStream());
@@ -24,5 +24,9 @@ public class Connection{
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public void sendPacket(Packet packet) throws IOException{
+		out.writeObject(packet);
 	}
 }

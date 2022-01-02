@@ -19,6 +19,7 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.net.InternalServer;
 import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.LocalPlayer;
@@ -119,6 +120,19 @@ public class ConvexMerger{
 		thread.setName("GameThread");
 		thread.setDaemon(true);
 		thread.start();
+	}
+	
+	public void hostMultiplayerGame(){
+		InternalServer server = new InternalServer(new PlayfieldGenerator());
+		
+		
+		
+		
+		
+	}
+	
+	public void joinMultiplayerGame(){
+		
 	}
 	
 	private final class GameThread extends Thread{

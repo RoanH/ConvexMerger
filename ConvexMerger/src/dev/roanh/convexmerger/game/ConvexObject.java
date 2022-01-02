@@ -31,11 +31,11 @@ public class ConvexObject{
 	/**
 	 * The player that owns this object.
 	 */
-	private Player owner = null;
+	private transient Player owner = null;
 	/**
 	 * The active animation for this object.
 	 */
-	private Animation animation = null;
+	private transient Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.

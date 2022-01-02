@@ -1,6 +1,8 @@
 package dev.roanh.convexmerger.net.packet;
 
 public enum PacketRegistry{
-	INIT,
-	MOVE;
+	GAME_INIT,
+	PLAYER_INIT,
+	PLAYER_MOVE,
+	GAME_FULL;
 }
