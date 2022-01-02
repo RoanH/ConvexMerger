@@ -32,12 +32,35 @@ public class PlayfieldGenerator{
 	 * Local random instance to use the generate the playfield.
 	 */
 	private Random random;
+	/**
+	 * The random seed for this playfield generator.
+	 */
 	private long seed;
+	/**
+	 * Minimum object size.
+	 */
 	private int rangeMin;
+	/**
+	 * Maximum object size.
+	 */
 	private int rangeMax;
+	/**
+	 * Coverage value in range 0-255.
+	 * @see #coverage
+	 */
 	private int coverageNum;
+	/**
+	 * Scaling value in range 0-255.
+	 * @see #scale
+	 */
 	private int scaleNum;
+	/**
+	 * Desired playfield coverage.
+	 */
 	private float coverage;
+	/**
+	 * Object scaling factor.
+	 */
 	private float scale;
 	
 	/**
@@ -50,7 +73,7 @@ public class PlayfieldGenerator{
 
 	/**
 	 * Constructs a new playfield generate with the given seed.
-	 * @param seed The random seed to use.
+	 * @param seed The seed to use.
 	 * @throws IllegalArgumentException When the given seed is invalid
 	 */
 	public PlayfieldGenerator(String seed) throws IllegalArgumentException{
@@ -64,6 +87,14 @@ public class PlayfieldGenerator{
 		init(lower, (int)((upper & 0xFF000000L) >> 24), (int)((upper & 0xFF0000) >> 16), (int)((upper & 0xFF00) >> 8), (int)(upper & 0xFF));
 	}
 	
+	/**
+	 * Initialises the internal generator state.
+	 * @param seed Random number generator seed.
+	 * @param rangeMin Minimum object size.
+	 * @param rangeMax Maximum object size.
+	 * @param coverageNum Playfield coverage.
+	 * @param scaleNum Object scaling.
+	 */
 	private void init(long seed, int rangeMin, int rangeMax, int coverageNum, int scaleNum){
 		random = new Random(seed);
 		this.seed = seed;
@@ -73,13 +104,62 @@ public class PlayfieldGenerator{
 		this.scaleNum = scaleNum;
 		this.coverage = coverageNum / 255.0F;
 		this.scale = scaleNum / 255.0F;
-		System.out.println("seed: " + this.getSeed());
 	}
 	
+	/**
+	 * Gets the seed that describes this random generator.
+	 * @return The seed for this random generator.
+	 */
 	public String getSeed(){
 		//96 bits: [2 version][8 range min][8 range max][8 coverage][8 scale][64 seed]
 		long upper = 0x200000000L | ((rangeMin & 0xFFL) << 24) | ((rangeMax & 0xFF) << 16) | ((coverageNum & 0xFF) << 8) | (scaleNum & 0xFF);
 		return String.format("%s%13s", Long.toUnsignedString(upper, 36), Long.toUnsignedString(seed, 36)).replace(' ', '0').toUpperCase(Locale.ROOT);
+	}
+	
+	/**
+	 * Sets the size range of generated objects.
+	 * @param min The minimum size range for convex objects (at least 0).
+	 * @param max The maximum size range for convex objects. Small values for
+	 *        this parameter may resulting in generating the playfield taking longer,
+	 *        values larger than 20 are recommended (at most 255).
+	 * @throws IllegalArgumentException When the given range is invalid.
+	 */
+	public void setRange(int min, int max) throws IllegalArgumentException{
+		if(0 > min || 255 < max || min > max){
+			throw new IllegalArgumentException("Invalid range (0 <= min < max <= 255)");
+		}
+		rangeMin = min;
+		rangeMax = max;
+	}
+	
+	/**
+	 * Sets the minimum total area of the whole playfield that should be
+	 * covered by convex objects before scaling. High values for this
+	 * parameter may result in extremely long or even infinite generation
+	 * times. It is recommended to use a value such that
+	 * <code>coverage / 255</code> is 0.5 or less (so at most 127).
+	 * @param coverage The new coverage value.
+	 * @throws IllegalArgumentException When the given value is out of range (0 - 255).
+	 */
+	public void setCoverage(int coverage) throws IllegalArgumentException{
+		if(0 > coverage || coverage > 255){
+			throw new IllegalArgumentException("Invalid coverage range (0 <= coverage <= 255)");
+		}
+		coverageNum = coverage;
+		this.coverage = coverage / 255.0F;
+	}
+	
+	/**
+	 * Sets the factor by with which to scale all objects after generation.
+	 * @param scaling The scaling factor, computed as <code>scaling / 255</code>.
+	 * @throws IllegalArgumentException When the given value is out of range (0 - 255).
+	 */
+	public void setScaling(int scaling) throws IllegalArgumentException{
+		if(0 > scaling || scaling > 255){
+			throw new IllegalArgumentException("Invalid scaling range (0 <= scaling <= 255)");
+		}
+		scaleNum = scaling;
+		scale = scaling / 255.0F;
 	}
 
 	/**
@@ -109,19 +189,11 @@ public class PlayfieldGenerator{
 	 * Generates a new game playfield with convex objects made up of 3 to 4 points.
 	 * The objects will have coordinates within 0~{@value Constants#PLAYFIELD_WIDTH}
 	 * on the x-axis and within 0~{@value Constants#PLAYFIELD_HEIGHT} on the y-axis.
-	 * In addition they will be evenly distributed across this plane. Object will also
-	 * not overlap and all have approximately the same area.
-	 * @param rangeMin The minimum size range for convex objects.
-	 * @param rangeMax The maximum size range for convex objects. Small values for
-	 *        this parameter may resulting in generating the playfield taking longer,
-	 *        values larger than 20 are recommended.
-	 * @param coverage The minimum total area of the whole playfield that should be
-	 *        covered by convex objects. High values for this parameter may result in
-	 *        extremely long or even infinite generation times. It is recommended to
-	 *        use a value of 0.5 or less.
+	 * In addition they will be evenly distributed across this plane. Objects will also
+	 * not overlap and all have approximately the same area and conform to the set parameters.
 	 * @return A list of convex objects representing the generated playfield.
 	 */
-	public List<ConvexObject> generatePlayfield(int rangeMin, int rangeMax, double coverage){
+	public List<ConvexObject> generatePlayfield(){
 		List<ConvexObject> objects = new ArrayList<ConvexObject>();
 		double totalArea = 0.0;//total area of all generated objects
 		double areaObject = areaObject(rangeMax);//minimum object area
@@ -185,6 +257,8 @@ public class PlayfieldGenerator{
 			totalArea += area;
 			objects.add(obj);
 		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * coverage);
+		
+		objects.forEach(obj->obj.scale(scale));
 
 		return objects;
 	}
