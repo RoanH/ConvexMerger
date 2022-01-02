@@ -40,10 +40,6 @@ public class PlayfieldGenerator{
 	private float coverage;
 	private float scale;
 	
-	
-	
-	///20 base36 36^20
-
 	/**
 	 * Constructs a new playfield generator with a random seed,
 	 * range of 0-100, coverage of 0.4471 and scale of 1.
@@ -55,14 +51,17 @@ public class PlayfieldGenerator{
 	/**
 	 * Constructs a new playfield generate with the given seed.
 	 * @param seed The random seed to use.
+	 * @throws IllegalArgumentException When the given seed is invalid
 	 */
-	public PlayfieldGenerator(String seed){
+	public PlayfieldGenerator(String seed) throws IllegalArgumentException{
+		long lower = Long.parseUnsignedLong(seed.substring(seed.length() - 13), 36);
+		long upper = Long.parseUnsignedLong(seed.substring(0, seed.length() - 13), 36);
 		
+		if((0xFFFFFFFF00000000L & upper) != 0x200000000L){
+			throw new IllegalArgumentException("Invalid seed");
+		}
 		
-		
-		
-		
-//		init();
+		init(lower, (int)((upper & 0xFF000000L) >> 24), (int)((upper & 0xFF0000) >> 16), (int)((upper & 0xFF00) >> 8), (int)(upper & 0xFF));
 	}
 	
 	private void init(long seed, int rangeMin, int rangeMax, int coverageNum, int scaleNum){
@@ -74,14 +73,13 @@ public class PlayfieldGenerator{
 		this.scaleNum = scaleNum;
 		this.coverage = coverageNum / 255.0F;
 		this.scale = scaleNum / 255.0F;
-		System.out.println("seed: " + getSeed());
+		System.out.println("seed: " + this.getSeed());
 	}
 	
 	public String getSeed(){
-		//96 bits
-		//[2 version][8 range min][8 range max][8 coverage][8 scale][64 seed]
-		long upper = 0x20000L | ((rangeMin & 0xFF) << 24) | ((rangeMax & 0xFF) << 16) | ((coverageNum & 0xFF) << 8) | (scaleNum & 0xFF);
-		return (Long.toUnsignedString(upper, 36) + Long.toUnsignedString(seed, 36)).toUpperCase(Locale.ROOT);
+		//96 bits: [2 version][8 range min][8 range max][8 coverage][8 scale][64 seed]
+		long upper = 0x200000000L | ((rangeMin & 0xFFL) << 24) | ((rangeMax & 0xFF) << 16) | ((coverageNum & 0xFF) << 8) | (scaleNum & 0xFF);
+		return String.format("%s%13s", Long.toUnsignedString(upper, 36), Long.toUnsignedString(seed, 36)).replace(' ', '0').toUpperCase(Locale.ROOT);
 	}
 
 	/**
