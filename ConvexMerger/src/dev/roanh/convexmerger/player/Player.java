@@ -2,19 +2,22 @@ package dev.roanh.convexmerger.player;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.animation.ScoreAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.Identity;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Abstract base class for player instances.
  * @author Roan
  */
-public abstract class Player{
+public abstract class Player implements Identity{
+	private int id;
 	/**
 	 * The game this player is associated with.
 	 */
@@ -169,10 +172,30 @@ public abstract class Player{
 	public PlayerStats getStats(){
 		return stats;
 	}
+	
+	@Override
+	public int hashCode(){
+		return Objects.hash(id);
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		return other instanceof Player ? ((Player)other).id == id : false;
+	}
 		
 	@Override
 	public String toString(){
 		return "Player[name=\"" + name + "\",human=" + human + ",area=" + area + "]";
+	}
+
+	@Override
+	public int getID(){
+		return id;
+	}
+
+	@Override
+	public void setID(int id){
+		this.id = id;
 	}
 	
 	/**
