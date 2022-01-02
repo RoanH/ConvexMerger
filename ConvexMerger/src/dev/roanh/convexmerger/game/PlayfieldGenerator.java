@@ -2,6 +2,7 @@ package dev.roanh.convexmerger.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -30,21 +31,57 @@ public class PlayfieldGenerator{
 	/**
 	 * Local random instance to use the generate the playfield.
 	 */
-	private final Random random;
+	private Random random;
+	private long seed;
+	private int rangeMin;
+	private int rangeMax;
+	private int coverageNum;
+	private int scaleNum;
+	private float coverage;
+	private float scale;
+	
+	
+	
+	///20 base36 36^20
 
 	/**
-	 * Constructs a new playfield generator with a random seed.
+	 * Constructs a new playfield generator with a random seed,
+	 * range of 0-100, coverage of 0.4471 and scale of 1.
 	 */
 	public PlayfieldGenerator(){
-		this(ThreadLocalRandom.current().nextLong());
+		init(ThreadLocalRandom.current().nextLong(), 0, 100, 144, 255);
 	}
 
 	/**
 	 * Constructs a new playfield generate with the given seed.
 	 * @param seed The random seed to use.
 	 */
-	public PlayfieldGenerator(long seed){
+	public PlayfieldGenerator(String seed){
+		
+		
+		
+		
+		
+//		init();
+	}
+	
+	private void init(long seed, int rangeMin, int rangeMax, int coverageNum, int scaleNum){
 		random = new Random(seed);
+		this.seed = seed;
+		this.rangeMin = rangeMin;
+		this.rangeMax = rangeMax;
+		this.coverageNum = coverageNum;
+		this.scaleNum = scaleNum;
+		this.coverage = coverageNum / 255.0F;
+		this.scale = scaleNum / 255.0F;
+		System.out.println("seed: " + getSeed());
+	}
+	
+	public String getSeed(){
+		//96 bits
+		//[2 version][8 range min][8 range max][8 coverage][8 scale][64 seed]
+		long upper = 0x20000L | ((rangeMin & 0xFF) << 24) | ((rangeMax & 0xFF) << 16) | ((coverageNum & 0xFF) << 8) | (scaleNum & 0xFF);
+		return (Long.toUnsignedString(upper, 36) + Long.toUnsignedString(seed, 36)).toUpperCase(Locale.ROOT);
 	}
 
 	/**
@@ -57,7 +94,7 @@ public class PlayfieldGenerator{
 	 * @param y3 The y coordinate of the third point.
 	 * @return True if the given points are (close to) collinear.
 	 */
-	public boolean collinear(int x1, int y1, int x2, int y2, int x3, int y3){
+	private boolean collinear(int x1, int y1, int x2, int y2, int x3, int y3){
 		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
 	}
 
@@ -66,7 +103,7 @@ public class PlayfieldGenerator{
 	 * @param rMax The maximum range for an object.
 	 * @return The computed minimum area for an object.
 	 */
-	public double areaObject(int rMax){
+	private double areaObject(int rMax){
 		return rMax * rMax * (Math.sqrt(0.5D) + 0.5D) / AREA_DIV_NUM;
 	}
 
