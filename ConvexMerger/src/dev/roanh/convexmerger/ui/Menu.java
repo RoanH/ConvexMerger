@@ -5,6 +5,7 @@ import static dev.roanh.convexmerger.ui.GamePanel.TOP_MIDDLE_TEXT_OFFSET;
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_SPACE;
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_OFFSET;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -12,11 +13,17 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.util.List;
 
+import dev.roanh.convexmerger.Constants;
+
 /**
  * Base class for all menus containing shared rendering subroutines.
  * @author Roan
  */
 public abstract interface Menu{
+	/**
+	 * Space between the boxes.
+	 */
+	public static final int BOX_SPACING = 12;
 	public static final int BOX_INSETS = 10;
 	public static final int BOX_HEADER_HEIGHT = 28;
 	public static final int BOX_TEXT_OFFSET = 4;
@@ -25,6 +32,13 @@ public abstract interface Menu{
 	
 	public static double getMaxWidth(int width, double ratio, int max){
 		return Math.min(ratio * width, max);
+	}
+	
+	public default void drawTitle(Graphics2D g, int width){
+		g.setColor(Color.WHITE);
+		g.setFont(Theme.PRIDI_MEDIUM_30);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString(Constants.TITLE, (width - fm.stringWidth(Constants.TITLE)) / 2.0F, (GamePanel.TOP_SPACE + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 	}
 	
 	public default void drawTitledBox(Graphics2D g, Paint gradient, double x, double y, double w, double h, String title){

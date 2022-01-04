@@ -2,7 +2,6 @@ package dev.roanh.convexmerger.ui;
 
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.AbstractMap.SimpleEntry;
 
-import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ExampleAnimation;
 import dev.roanh.convexmerger.game.GameState;
@@ -39,10 +37,6 @@ public class InfoMenu implements Menu{
 	 * Entries in the credits box.
 	 */
 	private static final List<Entry<String, String>> credits = new ArrayList<Entry<String, String>>(6);
-	/**
-	 * Space between the boxes.
-	 */
-	private static final int BOX_SPACING = 12;
 	/**
 	 * Height of the version box.
 	 */
@@ -68,12 +62,7 @@ public class InfoMenu implements Menu{
 	@Override
 	public boolean render(Graphics2D g, int width, int height){
 		renderMenuTitle(g, width, "Information");
-		
-		//title
-		g.setColor(Color.WHITE);
-		g.setFont(Theme.PRIDI_MEDIUM_30);
-		FontMetrics fm = g.getFontMetrics();
-		g.drawString(Constants.TITLE, (width - fm.stringWidth(Constants.TITLE)) / 2.0F, (GamePanel.TOP_SPACE + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+		drawTitle(g, width);
 		
 		double size = Menu.getMaxWidth(width, 0.9D, MAX_WIDTH);
 		double offset = (width - size) / 2.0D;
