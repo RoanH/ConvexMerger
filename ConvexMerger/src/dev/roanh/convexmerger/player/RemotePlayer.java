@@ -22,7 +22,11 @@ public class RemotePlayer extends Player{
 			System.out.println("Remote player move start: " + getName());
 			Packet packet = con.readPacket();
 			if(packet.getRegisteryType() != PacketRegistry.PLAYER_MOVE){
-				//TODO err
+				if(packet.getRegisteryType() == PacketRegistry.GAME_END){
+					return false;
+				}else{
+					//TODO err
+				}
 			}
 			
 			PacketPlayerMove move = (PacketPlayerMove)packet;

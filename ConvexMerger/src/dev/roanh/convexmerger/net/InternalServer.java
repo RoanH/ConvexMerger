@@ -3,8 +3,9 @@ package dev.roanh.convexmerger.net;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 
 import dev.roanh.convexmerger.game.ConvexObject;
@@ -65,27 +66,23 @@ public class InternalServer implements GameStateListener{
 
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		if(player.isLocal()){
-			try{
-				System.out.println("send claim for: " + player.getName());
-				thread.broadCast(new PacketPlayerMove(player, obj.getID()));
-			}catch(IOException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try{
+			System.out.println("send claim for: " + player.getName());
+			thread.broadCast(player, new PacketPlayerMove(player, obj.getID()));
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target){
-		if(player.isLocal()){
-			try{
-				System.out.println("send merge for: " + player.getName());
-				thread.broadCast(new PacketPlayerMove(player, source.getID(), target.getID()));
-			}catch(IOException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try{
+			System.out.println("send merge for: " + player.getName());
+			thread.broadCast(player, new PacketPlayerMove(player, source.getID(), target.getID()));
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -102,7 +99,7 @@ public class InternalServer implements GameStateListener{
 	
 	private class ServerThread extends Thread{
 		private ServerSocket server;
-		private List<Connection> connections = new ArrayList<Connection>(4);
+		private Map<Integer, Connection> connections = new HashMap<Integer, Connection>();
 		private volatile boolean running = false;
 		
 		private ServerThread(){
@@ -111,13 +108,21 @@ public class InternalServer implements GameStateListener{
 		}
 		
 		private void close(){
-			for(Connection con : connections){
+			for(Connection con : connections.values()){
 				con.close();
 			}
 		}
 		
+		private void broadCast(Player source, Packet packet) throws IOException{
+			for(Entry<Integer, Connection> entry : connections.entrySet()){
+				if(entry.getKey() != source.getID()){
+					entry.getValue().sendPacket(packet);
+				}
+			}
+		}
+		
 		private void broadCast(Packet packet) throws IOException{
-			for(Connection con : connections){
+			for(Connection con : connections.values()){
 				con.sendPacket(packet);
 			}
 		}
@@ -140,7 +145,7 @@ public class InternalServer implements GameStateListener{
 				if(game.getPlayerCount() < 4){
 					Player player = new RemotePlayer(con, false, ((PacketPlayerJoin)packet).getName());
 					con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
-					connections.add(con);
+					connections.put(player.getID(), con);
 					if(playerHandler != null){
 						playerHandler.accept(player);
 					}

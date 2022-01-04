@@ -9,6 +9,7 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.net.packet.Packet;
+import dev.roanh.convexmerger.net.packet.PacketGameEnd;
 import dev.roanh.convexmerger.net.packet.PacketGameInit;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoin;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinAccept;
@@ -76,6 +77,14 @@ public class ClientConnection extends Connection implements GameStateListener{
 
 	@Override
 	public void end(){
+		if(!isClosed()){
+			try{
+				sendPacket(new PacketGameEnd());
+			}catch(IOException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{

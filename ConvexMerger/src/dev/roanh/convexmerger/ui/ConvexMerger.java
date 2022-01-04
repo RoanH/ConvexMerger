@@ -137,7 +137,7 @@ public class ConvexMerger{
 			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
 		});
 		
-		while(server.getPlayerCount() == 1){
+		while(server.getPlayerCount() < 3){
 			try{
 				System.out.println("playres: " + server.getPlayerCount());
 				Thread.sleep(1000);

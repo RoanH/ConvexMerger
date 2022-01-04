@@ -33,6 +33,10 @@ public class Connection{
 		out.flush();
 	}
 	
+	public boolean isClosed(){
+		return socket.isClosed();
+	}
+	
 	public void close(){
 		try{
 			in.close();

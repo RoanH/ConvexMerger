@@ -5,5 +5,6 @@ public enum PacketRegistry{
 	PLAYER_JOIN,
 	PLAYER_JOIN_ACCEPT,
 	PLAYER_MOVE,
-	GAME_FULL;
+	GAME_FULL,
+	GAME_END;
 }
