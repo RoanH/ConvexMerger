@@ -42,6 +42,7 @@ public abstract interface Menu{
 	}
 	
 	public default void drawTitledBox(Graphics2D g, Paint gradient, double x, double y, double w, double h, String title){
+		g.setColor(Theme.MENU_BODY);
 		drawBox(g, x, y, w, h);
 		
 		g.setStroke(Theme.BORDER_STROKE);
@@ -57,8 +58,6 @@ public abstract interface Menu{
 	}
 	
 	public default void drawBox(Graphics2D g, double x, double y, double w, double h){
-		g.setColor(Theme.MENU_BODY);
-		
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 8);
 		path.moveTo(x, y + BOX_INSETS);
 		path.lineTo(x + BOX_INSETS, y);
