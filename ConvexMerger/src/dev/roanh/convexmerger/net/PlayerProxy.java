@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.player.RemotePlayer;
 
 public class PlayerProxy implements Serializable{
 	/**
@@ -13,11 +14,21 @@ public class PlayerProxy implements Serializable{
 	private int id;
 	private String name;
 	private boolean ai;
+	private boolean lost;
 	
 	public PlayerProxy(Player player){
 		id = player.getID();
 		name = player.getName();
 		ai = player.isAI();
+		if(!player.isLocal() && player instanceof RemotePlayer){
+			lost = ((RemotePlayer)player).isLost();
+		}else{
+			lost = false;
+		}
+	}
+	
+	public boolean isLost(){
+		return lost;
 	}
 	
 	public int getID(){

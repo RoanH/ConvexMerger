@@ -8,24 +8,45 @@ import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove.MoveType;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
 
-public class RemotePlayer extends Player{
+public class RemotePlayer extends GreedyPlayer{
 	private Connection con;
-
+	private boolean lost = false;
+	
 	public RemotePlayer(Connection con, boolean ai, String name){
 		super(false, ai, name);
 		this.con = con;
 	}
 	
+	public boolean isLost(){
+		return lost;
+	}
+	
+	private boolean fallback(){
+		con.close();
+		lost = true;
+		if(!getName().endsWith("[Lost]")){
+			this.setName(this.getName() + "[Lost]");
+		}
+		return super.executeMove();
+	}
+	
 	@Override
 	public boolean executeMove(){
+		if(lost){
+			return super.executeMove();
+		}
+		
 		try{
-			System.out.println("Remote player move start: " + getName());
 			Packet packet = con.readPacket();
+			if(packet == null){
+				return fallback();
+			}
+			
 			if(packet.getRegisteryType() != PacketRegistry.PLAYER_MOVE){
 				if(packet.getRegisteryType() == PacketRegistry.GAME_END){
 					return false;
 				}else{
-					//TODO err
+					return fallback();
 				}
 			}
 			
@@ -36,8 +57,11 @@ public class RemotePlayer extends Player{
 			}
 			
 			if(move.getPlayer().getID() != getID()){
-				//TODO not even the same player
-				System.err.println("ERR: incorrect player; " + move.getPlayer().getID() + " / " + getID());
+				return fallback();
+			}
+			
+			if(move.getPlayer().isLost() && !getName().endsWith("[Lost]")){
+				this.setName(this.getName() + "[Lost]");
 			}
 			
 			if(move.getType() == MoveType.CLAIM){
@@ -48,17 +72,10 @@ public class RemotePlayer extends Player{
 				state.claimObject(state.stream().filter(obj->obj.getID() == move.getTarget()).findFirst().get());
 				return true;
 			}
-			
-			
-			
-			//TODO
 		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return fallback();
 		}
 		
-		
-		
-		return false;//TODO
+		return false;
 	}
 }

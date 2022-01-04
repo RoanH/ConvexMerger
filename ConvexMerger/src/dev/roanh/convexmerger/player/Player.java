@@ -123,6 +123,10 @@ public abstract class Player implements Identity{
 		return max;
 	}
 	
+	protected void setName(String name){
+		this.name = name;
+	}
+	
 	protected boolean hasMergeFrom(ConvexObject obj){
 		for(ConvexObject other : state.getObjects()){
 			if((!other.isOwned() || other.isOwnedBy(this)) && !other.equals(obj)){

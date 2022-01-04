@@ -20,6 +20,10 @@ public class GreedyPlayer extends Player{
 		super(true, true, "Isla");
 	}
 	
+	protected GreedyPlayer(boolean local, boolean ai, String name){
+		super(local, ai, name);
+	}
+	
 	@Override
 	public boolean executeMove(){
 		List<ConvexObject> owned = stream().collect(Collectors.toList());
