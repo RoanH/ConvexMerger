@@ -68,7 +68,7 @@ public class PlayfieldGenerator{
 	 * range of 0-100, coverage of 0.4471 and scale of 1.
 	 */
 	public PlayfieldGenerator(){
-		init(ThreadLocalRandom.current().nextLong(), 0, 100, 144, 255);
+		init(ThreadLocalRandom.current().nextLong(), 0, 100, 114, 255);
 	}
 
 	/**
