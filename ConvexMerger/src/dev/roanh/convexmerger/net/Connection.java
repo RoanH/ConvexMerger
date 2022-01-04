@@ -20,13 +20,17 @@ public class Connection{
 	
 	public Packet readPacket() throws IOException{
 		try{
-			Object data = in.readObject();
-			if(data instanceof Packet){
-				return (Packet)data;
+			if(!isClosed()){
+				Object data = in.readObject();
+				if(data instanceof Packet){
+					return (Packet)data;
+				}else{
+					//bad client
+					System.err.println("Aborting bad connection");
+					close();
+					return null;
+				}
 			}else{
-				//bad client
-				System.err.println("Aborting bad connection");
-				close();
 				return null;
 			}
 		}catch(ClassNotFoundException e){

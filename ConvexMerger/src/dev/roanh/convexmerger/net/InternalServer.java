@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import dev.roanh.convexmerger.Constants;
@@ -30,9 +32,11 @@ public class InternalServer implements GameStateListener{
 	private Game game;
 	private ServerThread thread = new ServerThread();
 	private Consumer<Player> playerHandler;
+	private Consumer<Exception> exceptionHandler;
 	
-	public InternalServer(Player self, PlayfieldGenerator gen, Consumer<Player> handler){
+	public InternalServer(Player self, PlayfieldGenerator gen, Consumer<Player> handler, Consumer<Exception> exceptionHandler){
 		playerHandler = handler;
+		this.exceptionHandler = exceptionHandler;
 		game = new Game(gen);
 		game.addPlayer(self);
 		thread.start();
@@ -43,20 +47,9 @@ public class InternalServer implements GameStateListener{
 	}
 	
 	public GameState startGame(){
-		GameState state = null;
-		try{
-			thread.shutdown();
-		
-			state = game.toGameState();
-			thread.broadCast(new PacketGameInit(state.getObjects(), state.getPlayers()));
-		
-			//TODO
-		
-			
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		thread.shutdown();
+		GameState state = game.toGameState();
+		thread.broadCast(new PacketGameInit(state.getObjects(), state.getPlayers()));
 		
 		state.registerStateListener(this);
 		return state;
@@ -68,38 +61,24 @@ public class InternalServer implements GameStateListener{
 
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		try{
-			System.out.println("send claim for: " + player.getName());
-			thread.broadCast(player, new PacketPlayerMove(player, obj.getID()));
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println("send claim for: " + player.getName());
+		thread.broadCast(player, new PacketPlayerMove(player, obj.getID()));
 	}
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target){
-		try{
-			System.out.println("send merge for: " + player.getName());
-			thread.broadCast(player, new PacketPlayerMove(player, source.getID(), target.getID()));
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println("send merge for: " + player.getName());
+		thread.broadCast(player, new PacketPlayerMove(player, source.getID(), target.getID()));
 	}
 
 	@Override
 	public void end(){
-		try{
-			thread.broadCast(new PacketPlayerMove());
-			thread.close();
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		thread.broadCast(new PacketPlayerMove());
+		thread.close();
 	}
 	
 	private class ServerThread extends Thread{
+		private ExecutorService executor = Executors.newFixedThreadPool(4);
 		private ServerSocket server;
 		private Map<Integer, Connection> connections = new HashMap<Integer, Connection>();
 		private volatile boolean running = false;
@@ -115,51 +94,75 @@ public class InternalServer implements GameStateListener{
 			}
 		}
 		
-		private void broadCast(Player source, Packet packet) throws IOException{
+		private void broadCast(Player source, Packet packet){
 			for(Entry<Integer, Connection> entry : connections.entrySet()){
-				if(entry.getKey() != source.getID()){
-					entry.getValue().sendPacket(packet);
+				if(entry.getKey() != source.getID() && !entry.getValue().isClosed()){
+					try{
+						entry.getValue().sendPacket(packet);
+					}catch(IOException e){
+						//will be detected on read
+						entry.getValue().close();
+					}
 				}
 			}
 		}
 		
-		private void broadCast(Packet packet) throws IOException{
+		private void broadCast(Packet packet){
 			for(Connection con : connections.values()){
-				con.sendPacket(packet);
-			}
-		}
-		
-		private void shutdown() throws IOException{
-			running = false;
-			server.close();
-		}
-		
-		private void handleClient(Socket socket) throws IOException{
-			Connection con = new Connection(socket);
-			Packet packet = con.readPacket();
-			
-			if(packet == null || packet.getRegisteryType() != PacketRegistry.PLAYER_JOIN){
-				//bad client
-				con.close();
-			}
-			
-			PacketPlayerJoin data = (PacketPlayerJoin)packet;
-			if(!data.getVersion().equals(Constants.VERSION)){
-				con.sendPacket(new PacketPlayerJoinReject(RejectReason.VERSION_MISMATCH));
-				con.close();
-				return;
-			}
-			
-			synchronized(game){
-				if(game.getPlayerCount() < 4){
-					Player player = new RemotePlayer(con, false, data.getName());
-					con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
-					connections.put(player.getID(), con);
-					if(playerHandler != null){
-						playerHandler.accept(player);
+				if(!con.isClosed()){
+					try{
+						con.sendPacket(packet);
+					}catch(IOException e){
+						//will be detected on read
+						con.close();
 					}
-				}else{
-					con.sendPacket(new PacketPlayerJoinReject(RejectReason.FULL));
+				}
+			}
+		}
+		
+		private void shutdown(){
+			running = false;
+			try{
+				server.close();
+			}catch(IOException e){
+				//not very important, just reject connections
+			}
+		}
+		
+		private void handleClient(Socket socket){
+			try{
+				Connection con = new Connection(socket);
+				Packet packet = con.readPacket();
+				
+				if(packet == null || packet.getRegisteryType() != PacketRegistry.PLAYER_JOIN){
+					//bad client
+					con.close();
+				}
+				
+				PacketPlayerJoin data = (PacketPlayerJoin)packet;
+				if(!data.getVersion().equals(Constants.VERSION)){
+					con.sendPacket(new PacketPlayerJoinReject(RejectReason.VERSION_MISMATCH));
+					con.close();
+					return;
+				}
+				
+				synchronized(game){
+					if(game.getPlayerCount() < 4 && running){
+						Player player = new RemotePlayer(con, false, data.getName());
+						con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
+						connections.put(player.getID(), con);
+						if(playerHandler != null){
+							playerHandler.accept(player);
+						}
+					}else{
+						con.sendPacket(new PacketPlayerJoinReject(RejectReason.FULL));
+					}
+				}
+			}catch(Exception e){
+				try{
+					socket.close();
+				}catch(IOException e1){
+					//not really relevant, client is bad
 				}
 			}
 		}
@@ -168,15 +171,15 @@ public class InternalServer implements GameStateListener{
 		public void run(){
 			try{
 				running = true;
-				System.out.println("Server started");
+				System.out.println("Server started on port: " + PORT);
 				server = new ServerSocket(PORT);
-				while(true){//TODO ?
-					handleClient(server.accept());
+				while(running){
+					final Socket s = server.accept();
+					executor.submit(()->handleClient(s));
 				}
 			}catch(IOException e){
 				if(running){
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					exceptionHandler.accept(e);
 				}
 			}
 		}

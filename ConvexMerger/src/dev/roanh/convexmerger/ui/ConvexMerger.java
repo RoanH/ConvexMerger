@@ -136,7 +136,7 @@ public class ConvexMerger{
 		
 		InternalServer server = new InternalServer(self, gen, player->{
 			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
-		});
+		}, e->System.err.println("Server died: " + e.getMessage()));
 		
 		while(server.getPlayerCount() < 3){
 			try{
