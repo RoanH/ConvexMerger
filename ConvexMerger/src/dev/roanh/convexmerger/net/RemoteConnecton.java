@@ -7,7 +7,7 @@ import dev.roanh.convexmerger.net.packet.Packet;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
 
-public class ClientConnecton extends Connection{
+public class RemoteConnecton extends Connection{
 
 	
 	
@@ -17,7 +17,7 @@ public class ClientConnecton extends Connection{
 	
 	
 	
-	protected ClientConnecton(Socket socket) throws IOException{
+	protected RemoteConnecton(Socket socket) throws IOException{
 		super(socket);
 		// TODO Auto-generated constructor stub
 	}

@@ -19,6 +19,7 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.net.ClientConnection;
 import dev.roanh.convexmerger.net.InternalServer;
 import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.HumanPlayer;
@@ -113,6 +114,10 @@ public class ConvexMerger{
 			new GreedyPlayer(),
 			new SmallPlayer()
 		));
+		initialiseGame(state);
+	}
+	
+	private void initialiseGame(GameState state){
 		game.setGameState(state);
 		game.repaint();
 		
@@ -123,15 +128,44 @@ public class ConvexMerger{
 	}
 	
 	public void hostMultiplayerGame(){
-		InternalServer server = new InternalServer(new PlayfieldGenerator());
+		Player self = new HumanPlayer();
 		
+		InternalServer server = new InternalServer(self, new PlayfieldGenerator(), player->{
+			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
+		});
 		
+		while(server.getPlayerCount() == 1){
+			try{
+				System.out.println("playres: " + server.getPlayerCount());
+				Thread.sleep(1000);
+			}catch(InterruptedException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
+		System.out.println("player count hit start game");
 		
-		
+		GameState state = server.startGame();
+		initialiseGame(state);
+		showGame();
 	}
 	
 	public void joinMultiplayerGame(){
+		try{
+			Player player = new HumanPlayer();
+			ClientConnection con = ClientConnection.connect("localhost", player);
+			
+			System.out.println("connected as client with player id " + player.getID());
+			
+			
+			
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		
 	}
 	

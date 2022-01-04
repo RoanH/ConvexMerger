@@ -12,8 +12,8 @@ public class Connection{
 	private ObjectOutputStream out;
 	
 	protected Connection(Socket socket) throws IOException{
-		in = new ObjectInputStream(socket.getInputStream());
 		out = new ObjectOutputStream(socket.getOutputStream());
+		in = new ObjectInputStream(socket.getInputStream());
 	}
 	
 	public Packet readPacket() throws IOException{
@@ -28,5 +28,6 @@ public class Connection{
 	
 	public void sendPacket(Packet packet) throws IOException{
 		out.writeObject(packet);
+		out.flush();
 	}
 }

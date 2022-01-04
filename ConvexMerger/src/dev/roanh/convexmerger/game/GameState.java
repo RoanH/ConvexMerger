@@ -47,6 +47,7 @@ public class GameState{
 	private final long gameStart;
 	private long gameEnd = -1L;
 	private int turns = 0;
+	private GameStateListener listener = GameStateListener.DUMMY;
 	
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
@@ -80,6 +81,7 @@ public class GameState{
 				player.addArea(obj.getArea());
 				obj.setAnimation(new ClaimAnimation(obj, location));
 				player.getStats().addClaim();
+				listener.claim(player, obj);
 				endTurn();
 				return ClaimResult.of(obj);
 			}
@@ -153,6 +155,9 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
+			
+			listener.merge(player, first, second, contained);
+			
 			return merged;
 		}else{
 			return null;
@@ -248,5 +253,22 @@ public class GameState{
 
 	public void clearSelection(){
 		selected = null;
+	}
+	
+	public static abstract interface GameStateListener{
+		public static final GameStateListener DUMMY = new GameStateListener(){
+			
+			@Override
+			public void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed){
+			}
+			
+			@Override
+			public void claim(Player player, ConvexObject obj){
+			}
+		};
+		
+		public abstract void claim(Player player, ConvexObject obj);
+		
+		public abstract void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed);
 	}
 }

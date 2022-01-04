@@ -2,13 +2,13 @@ package dev.roanh.convexmerger.player;
 
 import java.io.IOException;
 
-import dev.roanh.convexmerger.net.ClientConnecton;
+import dev.roanh.convexmerger.net.RemoteConnecton;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 
 public class RemotePlayer extends Player{
-	private ClientConnecton con;
+	private RemoteConnecton con;
 
-	public RemotePlayer(ClientConnecton con, boolean human, String name){
+	public RemotePlayer(RemoteConnecton con, boolean human, String name){
 		super(human, name);
 		this.con = con;
 	}

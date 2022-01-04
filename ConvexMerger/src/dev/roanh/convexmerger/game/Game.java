@@ -10,10 +10,24 @@ public class Game{
 	private String seed = null;//TODO
 	private List<ConvexObject> objects;//TODO
 	
+	public Game(PlayfieldGenerator gen){
+		objects = gen.generatePlayfield();
+		System.out.println("finish gen");
+	}
 	
-	
-	public void addPlayer(Player player){
+	public int addPlayer(Player player){
 		players.add(player);
+		find: for(int i = 1; i <= 4; i++){
+			for(Player p : players){
+				if(p.getID() == i){
+					continue find;
+				}
+			}
+			
+			player.setID(i);
+			break;
+		}
+		return player.getID();
 	}
 	
 	public int getPlayerCount(){
@@ -21,10 +35,6 @@ public class Game{
 	}
 	
 	public GameState toGameState(){
-		for(int i = 0; i < players.size(); i++){
-			players.get(i).setID(i + 1);
-		}
-		
 		for(int i = 0; i < objects.size(); i++){
 			objects.get(i).setID(i + 1);
 		}
