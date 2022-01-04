@@ -80,9 +80,16 @@ public class InternalServer implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed){
-		// TODO Auto-generated method stub
-		
+	public void merge(Player player, ConvexObject source, ConvexObject target){
+		if(player.isLocal()){
+			try{
+				System.out.println("send merge for: " + player.getName());
+				thread.broadCast(new PacketPlayerMove(player, source.getID(), target.getID()));
+			}catch(IOException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private class ServerThread extends Thread{

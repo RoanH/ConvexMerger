@@ -12,7 +12,6 @@ public class PacketPlayerMove implements Packet{
 	private MoveType type;
 	private int source;
 	private int target;
-	private int result;
 	
 	public PacketPlayerMove(Player player, int claimed){
 		this.player = player.getProxy();
@@ -20,7 +19,7 @@ public class PacketPlayerMove implements Packet{
 		type = MoveType.CLAIM;
 	}
 	
-	public PacketPlayerMove(Player player, int source, int target, int result){
+	public PacketPlayerMove(Player player, int source, int target){
 		this.player = player.getProxy();
 		this.source = source;
 		this.target = target;
@@ -41,10 +40,6 @@ public class PacketPlayerMove implements Packet{
 	
 	public int getTarget(){
 		return target;
-	}
-	
-	public int getResult(){
-		return result;
 	}
 	
 	@Override

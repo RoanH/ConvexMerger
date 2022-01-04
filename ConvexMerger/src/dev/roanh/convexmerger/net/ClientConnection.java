@@ -63,9 +63,15 @@ public class ClientConnection extends RemoteConnecton implements GameStateListen
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed){
-		// TODO Auto-generated method stub
-		
+	public void merge(Player player, ConvexObject source, ConvexObject target){
+		if(player.isLocal()){
+			try{
+				sendPacket(new PacketPlayerMove(player, source.getID(), target.getID()));
+			}catch(IOException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{

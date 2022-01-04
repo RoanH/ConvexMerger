@@ -30,7 +30,9 @@ public class RemotePlayer extends Player{
 				state.claimObject(state.stream().filter(obj->obj.getID() == move.getSource()).findFirst().get());
 				return true;
 			case MERGE:
-				break;
+				state.claimObject(state.stream().filter(obj->obj.getID() == move.getSource()).findFirst().get());
+				state.claimObject(state.stream().filter(obj->obj.getID() == move.getTarget()).findFirst().get());
+				return true;
 			default:
 				//TODO really bad
 				break;

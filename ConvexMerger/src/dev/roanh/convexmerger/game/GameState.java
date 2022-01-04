@@ -142,7 +142,9 @@ public class GameState{
 			player.removeArea(second.getArea());
 			
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
+			int maxID = 0;
 			for(ConvexObject obj : objects){
+				maxID = Math.max(maxID, obj.getID());
 				if(merged.contains(obj)){
 					decomp.removeObject(obj);
 					contained.add(obj);
@@ -159,7 +161,8 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			
-			listener.merge(player, first, second, contained);
+			merged.setID(maxID + 1);
+			listener.merge(player, first, second);
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			return merged;
@@ -263,7 +266,7 @@ public class GameState{
 		public static final GameStateListener DUMMY = new GameStateListener(){
 			
 			@Override
-			public void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed){
+			public void merge(Player player, ConvexObject source, ConvexObject target){
 			}
 			
 			@Override
@@ -273,6 +276,6 @@ public class GameState{
 		
 		public abstract void claim(Player player, ConvexObject obj);
 		
-		public abstract void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed);
+		public abstract void merge(Player player, ConvexObject source, ConvexObject target);
 	}
 }
