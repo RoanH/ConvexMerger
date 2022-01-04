@@ -13,6 +13,10 @@ public class PacketPlayerMove implements Packet{
 	private int source;
 	private int target;
 	
+	public PacketPlayerMove(){
+		type = MoveType.END;
+	}
+	
 	public PacketPlayerMove(Player player, int claimed){
 		this.player = player.getProxy();
 		source = claimed;
@@ -49,6 +53,7 @@ public class PacketPlayerMove implements Packet{
 	
 	public static enum MoveType{
 		CLAIM,
-		MERGE
+		MERGE,
+		END
 	}
 }

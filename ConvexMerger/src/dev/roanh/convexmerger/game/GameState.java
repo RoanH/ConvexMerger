@@ -242,6 +242,7 @@ public class GameState{
 		if(ended = !getActivePlayer().executeMove()){
 			turns--;
 			gameEnd = System.currentTimeMillis();
+			listener.end();
 		}
 		turns++;
 	}
@@ -272,10 +273,16 @@ public class GameState{
 			@Override
 			public void claim(Player player, ConvexObject obj){
 			}
+
+			@Override
+			public void end(){
+			}
 		};
 		
 		public abstract void claim(Player player, ConvexObject obj);
 		
 		public abstract void merge(Player player, ConvexObject source, ConvexObject target);
+		
+		public abstract void end();
 	}
 }

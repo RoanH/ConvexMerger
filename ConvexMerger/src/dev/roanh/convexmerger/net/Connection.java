@@ -10,8 +10,10 @@ import dev.roanh.convexmerger.net.packet.Packet;
 public class Connection{
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
+	private Socket socket;
 	
 	protected Connection(Socket socket) throws IOException{
+		this.socket = socket;
 		out = new ObjectOutputStream(socket.getOutputStream());
 		in = new ObjectInputStream(socket.getInputStream());
 	}
@@ -29,5 +31,16 @@ public class Connection{
 	public void sendPacket(Packet packet) throws IOException{
 		out.writeObject(packet);
 		out.flush();
+	}
+	
+	public void close(){
+		try{
+			in.close();
+			out.close();
+			socket.close();
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

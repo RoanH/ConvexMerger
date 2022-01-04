@@ -17,7 +17,7 @@ import dev.roanh.convexmerger.net.packet.PacketRegistry;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
-public class ClientConnection extends RemoteConnecton implements GameStateListener{
+public class ClientConnection extends Connection implements GameStateListener{
 	private Player self;
 
 	private ClientConnection(Socket socket, Player self) throws IOException{
@@ -72,6 +72,10 @@ public class ClientConnection extends RemoteConnecton implements GameStateListen
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void end(){
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{

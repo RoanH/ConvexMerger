@@ -45,10 +45,7 @@ public class InternalServer implements GameStateListener{
 			thread.shutdown();
 		
 			state = game.toGameState();
-			Packet start = new PacketGameInit(state.getObjects(), state.getPlayers());
-			for(RemoteConnecton con : thread.connections){
-				con.sendPacket(start);
-			}
+			thread.broadCast(new PacketGameInit(state.getObjects(), state.getPlayers()));
 		
 			//TODO
 		
@@ -91,10 +88,21 @@ public class InternalServer implements GameStateListener{
 			}
 		}
 	}
+
+	@Override
+	public void end(){
+		try{
+			thread.broadCast(new PacketPlayerMove());
+			thread.close();
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	private class ServerThread extends Thread{
 		private ServerSocket server;
-		private List<RemoteConnecton> connections = new ArrayList<RemoteConnecton>(4);
+		private List<Connection> connections = new ArrayList<Connection>(4);
 		private volatile boolean running = false;
 		
 		private ServerThread(){
@@ -102,8 +110,14 @@ public class InternalServer implements GameStateListener{
 			this.setDaemon(true);
 		}
 		
+		private void close(){
+			for(Connection con : connections){
+				con.close();
+			}
+		}
+		
 		private void broadCast(Packet packet) throws IOException{
-			for(RemoteConnecton con : connections){
+			for(Connection con : connections){
 				con.sendPacket(packet);
 			}
 		}
@@ -114,7 +128,7 @@ public class InternalServer implements GameStateListener{
 		}
 		
 		private void handleClient(Socket socket) throws IOException{
-			RemoteConnecton con = new RemoteConnecton(socket);
+			Connection con = new Connection(socket);
 			Packet packet = con.readPacket();
 			
 			if(packet.getRegisteryType() != PacketRegistry.PLAYER_JOIN){

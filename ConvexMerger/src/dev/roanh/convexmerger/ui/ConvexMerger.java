@@ -129,8 +129,11 @@ public class ConvexMerger{
 	
 	public void hostMultiplayerGame(){
 		Player self = new HumanPlayer();
+		PlayfieldGenerator gen = new PlayfieldGenerator();
+		gen.setRange(50, 100);
+		gen.setScaling(200);
 		
-		InternalServer server = new InternalServer(self, new PlayfieldGenerator(), player->{
+		InternalServer server = new InternalServer(self, gen, player->{
 			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
 		});
 		
