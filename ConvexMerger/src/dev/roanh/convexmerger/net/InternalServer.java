@@ -8,18 +8,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.Game;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.net.packet.Packet;
-import dev.roanh.convexmerger.net.packet.PacketGameFull;
+import dev.roanh.convexmerger.net.packet.PacketPlayerJoinReject;
 import dev.roanh.convexmerger.net.packet.PacketGameInit;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoin;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinAccept;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
+import dev.roanh.convexmerger.net.packet.PacketPlayerJoinReject.RejectReason;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
@@ -136,21 +138,28 @@ public class InternalServer implements GameStateListener{
 			Connection con = new Connection(socket);
 			Packet packet = con.readPacket();
 			
-			if(packet.getRegisteryType() != PacketRegistry.PLAYER_JOIN){
+			if(packet == null || packet.getRegisteryType() != PacketRegistry.PLAYER_JOIN){
 				//bad client
-				socket.close();
+				con.close();
+			}
+			
+			PacketPlayerJoin data = (PacketPlayerJoin)packet;
+			if(!data.getVersion().equals(Constants.VERSION)){
+				con.sendPacket(new PacketPlayerJoinReject(RejectReason.VERSION_MISMATCH));
+				con.close();
+				return;
 			}
 			
 			synchronized(game){
 				if(game.getPlayerCount() < 4){
-					Player player = new RemotePlayer(con, false, ((PacketPlayerJoin)packet).getName());
+					Player player = new RemotePlayer(con, false, data.getName());
 					con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
 					connections.put(player.getID(), con);
 					if(playerHandler != null){
 						playerHandler.accept(player);
 					}
 				}else{
-					con.sendPacket(new PacketGameFull());
+					con.sendPacket(new PacketPlayerJoinReject(RejectReason.FULL));
 				}
 			}
 		}

@@ -20,10 +20,19 @@ public class Connection{
 	
 	public Packet readPacket() throws IOException{
 		try{
-			return (Packet)in.readObject();
+			Object data = in.readObject();
+			if(data instanceof Packet){
+				return (Packet)data;
+			}else{
+				//bad client
+				System.err.println("Aborting bad connection");
+				close();
+				return null;
+			}
 		}catch(ClassNotFoundException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//all classes should be found otherwise the connection is bad
+			System.err.println("Aborting bad connection: " + e.getMessage());
+			close();
 			return null;
 		}
 	}
@@ -43,8 +52,7 @@ public class Connection{
 			out.close();
 			socket.close();
 		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//not very relevant, we were disconnecting anyway
 		}
 	}
 }

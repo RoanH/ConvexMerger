@@ -128,6 +128,7 @@ public class ConvexMerger{
 	}
 	
 	public void hostMultiplayerGame(){
+		frame.setTitle(Constants.TITLE + " [Server]");
 		Player self = new HumanPlayer();
 		PlayfieldGenerator gen = new PlayfieldGenerator();
 		gen.setRange(50, 100);
@@ -156,8 +157,12 @@ public class ConvexMerger{
 	
 	public void joinMultiplayerGame(){
 		try{
+			frame.setTitle(Constants.TITLE + " [Client]");
 			Player player = new HumanPlayer();
 			ClientConnection con = ClientConnection.connect("localhost", player);
+			con.setDisconnectHandler(e->{
+				System.err.println("Connection to server lost: " + e.getMessage());
+			});
 			
 			System.out.println("connected as client with player id " + player.getID());
 			

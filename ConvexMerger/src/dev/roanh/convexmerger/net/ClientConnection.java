@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
@@ -13,6 +15,7 @@ import dev.roanh.convexmerger.net.packet.PacketGameEnd;
 import dev.roanh.convexmerger.net.packet.PacketGameInit;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoin;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinAccept;
+import dev.roanh.convexmerger.net.packet.PacketPlayerJoinReject;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
 import dev.roanh.convexmerger.player.Player;
@@ -20,10 +23,15 @@ import dev.roanh.convexmerger.player.RemotePlayer;
 
 public class ClientConnection extends Connection implements GameStateListener{
 	private Player self;
-
+	private Consumer<Exception> disconnectHandler;
+	
 	private ClientConnection(Socket socket, Player self) throws IOException{
 		super(socket);
 		this.self = self;
+	}
+	
+	public void setDisconnectHandler(Consumer<Exception> handler){
+		disconnectHandler = handler;
 	}
 	
 	public GameState getGameState() throws IOException{
@@ -57,8 +65,8 @@ public class ClientConnection extends Connection implements GameStateListener{
 			try{
 				sendPacket(new PacketPlayerMove(player, obj.getID()));
 			}catch(IOException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				close();
+				disconnectHandler.accept(e);
 			}
 		}
 	}
@@ -69,8 +77,8 @@ public class ClientConnection extends Connection implements GameStateListener{
 			try{
 				sendPacket(new PacketPlayerMove(player, source.getID(), target.getID()));
 			}catch(IOException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				close();
+				disconnectHandler.accept(e);
 			}
 		}
 	}
@@ -81,18 +89,21 @@ public class ClientConnection extends Connection implements GameStateListener{
 			try{
 				sendPacket(new PacketGameEnd());
 			}catch(IOException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				close();
+				disconnectHandler.accept(e);
 			}
 		}
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{
 		ClientConnection con = new ClientConnection(new Socket(host, InternalServer.PORT), player);
-		con.sendPacket(new PacketPlayerJoin(player.getName()));
+		con.sendPacket(new PacketPlayerJoin(player.getName(), Constants.VERSION));
 		
 		Packet recv = con.readPacket();
 		if(recv.getRegisteryType() != PacketRegistry.PLAYER_JOIN_ACCEPT){
+			if(recv.getRegisteryType() == PacketRegistry.PLAYER_JOIN_REJECT){
+				System.out.println("Connection failed with reason: " + ((PacketPlayerJoinReject)recv).getReason());
+			}
 			return null;
 		}
 		
