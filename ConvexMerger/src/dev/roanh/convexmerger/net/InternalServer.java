@@ -68,12 +68,14 @@ public class InternalServer implements GameStateListener{
 
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		try{
-			System.out.println("send claim for: " + player.getName());
-			thread.broadCast(new PacketPlayerMove(player, obj.getID()));
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(player.isLocal()){
+			try{
+				System.out.println("send claim for: " + player.getName());
+				thread.broadCast(new PacketPlayerMove(player, obj.getID()));
+			}catch(IOException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

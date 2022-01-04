@@ -18,10 +18,11 @@ import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
 public class ClientConnection extends RemoteConnecton implements GameStateListener{
+	private Player self;
 
-	private ClientConnection(Socket socket) throws IOException{
+	private ClientConnection(Socket socket, Player self) throws IOException{
 		super(socket);
-		// TODO Auto-generated constructor stub
+		this.self = self;
 	}
 	
 	public GameState getGameState() throws IOException{
@@ -35,9 +36,13 @@ public class ClientConnection extends RemoteConnecton implements GameStateListen
 		
 		List<Player> players = new ArrayList<Player>(4);
 		for(PlayerProxy player : data.getPlayers()){
-			RemotePlayer remote = new RemotePlayer(this, player.isAI(), player.getName());
-			remote.setID(player.getID());
-			players.add(remote);
+			if(player.getID() == self.getID()){
+				players.add(self);
+			}else{
+				RemotePlayer remote = new RemotePlayer(this, player.isAI(), player.getName());
+				remote.setID(player.getID());
+				players.add(remote);
+			}
 		}
 		
 		GameState state = new GameState(data.getObjects(), players);
@@ -47,11 +52,13 @@ public class ClientConnection extends RemoteConnecton implements GameStateListen
 
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		try{
-			sendPacket(new PacketPlayerMove(player, obj.getID()));
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(player.isLocal()){
+			try{
+				sendPacket(new PacketPlayerMove(player, obj.getID()));
+			}catch(IOException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -62,7 +69,7 @@ public class ClientConnection extends RemoteConnecton implements GameStateListen
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{
-		ClientConnection con = new ClientConnection(new Socket(host, InternalServer.PORT));
+		ClientConnection con = new ClientConnection(new Socket(host, InternalServer.PORT), player);
 		con.sendPacket(new PacketPlayerJoin(player.getName()));
 		
 		Packet recv = con.readPacket();
