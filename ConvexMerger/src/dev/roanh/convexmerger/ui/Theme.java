@@ -91,6 +91,14 @@ public final class Theme{
 	 */
 	public static final Color BUTTON_TEXT_COLOR = BORDER_TEXT_COLOR;
 	/**
+	 * Lighten new game screen color.
+	 */
+	public static final Color LIGHTEN = BUTTON_HOVER_COLOR;
+	/**
+	 * Double lighten new game screen color.
+	 */
+	public static final Color DOUBLE_LIGHTEN = new Color(57, 69, 87);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);

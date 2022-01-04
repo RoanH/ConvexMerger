@@ -23,6 +23,10 @@ public abstract interface Menu{
 
 	public abstract boolean render(Graphics2D g, int width, int height);
 	
+	public static double getMaxWidth(int width, double ratio, int max){
+		return Math.min(ratio * width, max);
+	}
+	
 	public default void drawTitledBox(Graphics2D g, Paint gradient, double x, double y, double w, double h, String title){
 		drawBox(g, x, y, w, h);
 		

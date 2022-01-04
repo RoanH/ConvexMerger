@@ -21,6 +21,10 @@ import dev.roanh.convexmerger.ui.Theme;
  * @author Roan
  */
 public class ConvexObject implements Identity, Serializable{
+	/**
+	 * Serial ID.
+	 */
+	private static final long serialVersionUID = 8124732728885600186L;
 	private int id;
 	/**
 	 * The points that make up this convex object, starting

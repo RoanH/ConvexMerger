@@ -27,7 +27,7 @@ public final class Constants{
 	/**
 	 * Minimum frame size scaling factor
 	 */
-	public static final int MIN_SIZE = 55;
+	public static final int MIN_SIZE = 60;
 	/**
 	 * Initial frame size scaling factor
 	 */
