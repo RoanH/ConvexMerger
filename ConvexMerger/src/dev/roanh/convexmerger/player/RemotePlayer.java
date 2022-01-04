@@ -8,8 +8,8 @@ import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 public class RemotePlayer extends Player{
 	private RemoteConnecton con;
 
-	public RemotePlayer(RemoteConnecton con, boolean human, String name){
-		super(human, name);
+	public RemotePlayer(RemoteConnecton con, boolean ai, String name){
+		super(false, ai, name);
 		this.con = con;
 	}
 

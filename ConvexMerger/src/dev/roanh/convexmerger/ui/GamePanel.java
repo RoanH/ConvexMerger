@@ -482,7 +482,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		if(activeDialog != null){
 			activeDialog = null;
 			repaint();
-		}else if(state.getActivePlayer().isHuman() && !state.isFinished()){
+		}else if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(e.getX(), e.getY());
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
@@ -520,7 +520,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		lastLocation = e.getPoint();
 		boolean onButtonAfter = infoPoly != null && menuPoly != null && (infoPoly.contains(lastLocation) || menuPoly.contains(lastLocation));
 		
-		if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
+		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
 			this.repaint();
 		}else if(onButtonBefore != onButtonAfter){

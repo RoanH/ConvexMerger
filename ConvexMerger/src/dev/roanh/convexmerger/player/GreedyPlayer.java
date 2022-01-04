@@ -17,7 +17,7 @@ public class GreedyPlayer extends Player{
 	 * Constructs a new greedy player (Isla).
 	 */
 	public GreedyPlayer(){
-		super(false, "Isla");
+		super(true, true, "Isla");
 	}
 	
 	@Override

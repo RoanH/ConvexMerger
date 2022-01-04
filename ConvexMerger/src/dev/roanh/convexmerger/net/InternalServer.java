@@ -75,7 +75,7 @@ public class InternalServer{
 			
 			synchronized(game){
 				if(game.getPlayerCount() < 4){
-					Player player = new RemotePlayer(con, true, ((PacketPlayerJoin)packet).getName());
+					Player player = new RemotePlayer(con, false, ((PacketPlayerJoin)packet).getName());
 					con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
 					if(playerHandler != null){
 						playerHandler.accept(player);

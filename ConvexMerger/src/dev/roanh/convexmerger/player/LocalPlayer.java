@@ -24,7 +24,7 @@ public class LocalPlayer extends Player{
 	 * @param name The player name.
 	 */
 	protected LocalPlayer(String name){
-		super(false, name);
+		super(true, true, name);
 	}
 	
 	@Override
