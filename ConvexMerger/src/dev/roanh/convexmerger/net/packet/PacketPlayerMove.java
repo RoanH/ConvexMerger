@@ -1,9 +1,7 @@
 package dev.roanh.convexmerger.net.packet;
 
-import java.util.List;
-
-import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.net.PlayerProxy;
+import dev.roanh.convexmerger.player.Player;
 
 public class PacketPlayerMove implements Packet{
 	/**
@@ -12,13 +10,41 @@ public class PacketPlayerMove implements Packet{
 	private static final long serialVersionUID = -366297097116291189L;
 	private PlayerProxy player;
 	private MoveType type;
-	private ConvexObject source;
-	private ConvexObject target;
-	private List<ConvexObject> absorbed;
+	private int source;
+	private int target;
+	private int result;
 	
+	public PacketPlayerMove(Player player, int claimed){
+		this.player = player.getProxy();
+		source = claimed;
+		type = MoveType.CLAIM;
+	}
+	
+	public PacketPlayerMove(Player player, int source, int target, int result){
+		this.player = player.getProxy();
+		this.source = source;
+		this.target = target;
+		type = MoveType.MERGE;
+	}
 	
 	public PlayerProxy getPlayer(){
 		return player;
+	}
+	
+	public MoveType getType(){
+		return type;
+	}
+	
+	public int getSource(){
+		return source;
+	}
+	
+	public int getTarget(){
+		return target;
+	}
+	
+	public int getResult(){
+		return result;
 	}
 	
 	@Override

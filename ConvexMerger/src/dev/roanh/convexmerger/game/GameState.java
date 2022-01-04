@@ -60,6 +60,10 @@ public class GameState{
 		gameStart = System.currentTimeMillis();
 	}
 	
+	public void registerStateListener(GameStateListener listener){
+		this.listener = listener;
+	}
+	
 	public ClaimResult claimObject(ConvexObject obj){
 		return claimObject(obj, obj.getCentroid());
 	}
@@ -154,9 +158,9 @@ public class GameState{
 			player.addArea(merged.getArea());
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
-			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			listener.merge(player, first, second, contained);
+			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			return merged;
 		}else{

@@ -5,28 +5,20 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.net.packet.Packet;
 import dev.roanh.convexmerger.net.packet.PacketGameInit;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoin;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinAccept;
+import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
-import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
-public class ClientConnection extends RemoteConnecton{
+public class ClientConnection extends RemoteConnecton implements GameStateListener{
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	private ClientConnection(Socket socket) throws IOException{
 		super(socket);
 		// TODO Auto-generated constructor stub
@@ -48,7 +40,25 @@ public class ClientConnection extends RemoteConnecton{
 			players.add(remote);
 		}
 		
-		return new GameState(data.getObjects(), players);
+		GameState state = new GameState(data.getObjects(), players);
+		state.registerStateListener(this);
+		return state;
+	}
+
+	@Override
+	public void claim(Player player, ConvexObject obj){
+		try{
+			sendPacket(new PacketPlayerMove(player, obj.getID()));
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed){
+		// TODO Auto-generated method stub
+		
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{

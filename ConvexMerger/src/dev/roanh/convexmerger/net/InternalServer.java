@@ -7,19 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.Game;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.net.packet.Packet;
 import dev.roanh.convexmerger.net.packet.PacketGameFull;
 import dev.roanh.convexmerger.net.packet.PacketGameInit;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoin;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinAccept;
+import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
-public class InternalServer{
+public class InternalServer implements GameStateListener{
 	public static final int PORT = 11111;
 	private Game game;
 	private ServerThread thread = new ServerThread();
@@ -54,12 +57,30 @@ public class InternalServer{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			
+		
+		state.registerStateListener(this);
 		return state;
 	}
 	
 	public void setNewPlayerHandler(Consumer<Player> handler){
 		playerHandler = handler;
+	}
+
+	@Override
+	public void claim(Player player, ConvexObject obj){
+		try{
+			System.out.println("send claim for: " + player.getName());
+			thread.broadCast(new PacketPlayerMove(player, obj.getID()));
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void merge(Player player, ConvexObject source, ConvexObject target, List<ConvexObject> absorbed){
+		// TODO Auto-generated method stub
+		
 	}
 	
 	private class ServerThread extends Thread{
@@ -70,6 +91,12 @@ public class InternalServer{
 		private ServerThread(){
 			this.setName("InternalServerThread");
 			this.setDaemon(true);
+		}
+		
+		private void broadCast(Packet packet) throws IOException{
+			for(RemoteConnecton con : connections){
+				con.sendPacket(packet);
+			}
 		}
 		
 		private void shutdown() throws IOException{

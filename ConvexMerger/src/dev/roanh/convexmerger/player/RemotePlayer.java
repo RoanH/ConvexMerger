@@ -16,14 +16,25 @@ public class RemotePlayer extends Player{
 	@Override
 	public boolean executeMove(){
 		try{
+			System.out.println("Remote player move start: " + getName());
 			PacketPlayerMove move = con.awaitMove();
+			System.out.println("move received");
 			
 			if(move.getPlayer().getID() != getID()){
 				//TODO not even the same player
-				System.err.println("ERR: incorrect player");
+				System.err.println("ERR: incorrect player; " + move.getPlayer().getID() + " / " + getID());
 			}
 			
-			
+			switch(move.getType()){
+			case CLAIM:
+				state.claimObject(state.stream().filter(obj->obj.getID() == move.getSource()).findFirst().get());
+				return true;
+			case MERGE:
+				break;
+			default:
+				//TODO really bad
+				break;
+			}
 			
 			
 			//TODO
