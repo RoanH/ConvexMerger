@@ -36,4 +36,8 @@ public final class Constants{
 	 * Number of milliseconds per animation frame (60FPS).
 	 */
 	public static final long ANIMATION_RATE = 33;
+	/**
+	 * Current game version.
+	 */
+	public static final String VERSION = "v1.0";//don't forget build.gradle
 }

@@ -417,7 +417,7 @@ public class ResultOverlay{
 		 * Constructs a new average player.
 		 */
 		private AveragePlayer(){
-			super(false, "Average");
+			super(true, true, "Average");
 			stats = new PlayerStats(){
 				
 				@Override

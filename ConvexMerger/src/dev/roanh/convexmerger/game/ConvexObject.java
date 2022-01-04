@@ -4,9 +4,11 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.player.Player;
@@ -18,7 +20,8 @@ import dev.roanh.convexmerger.ui.Theme;
  * are given in counter clockwise order.
  * @author Roan
  */
-public class ConvexObject{
+public class ConvexObject implements Identity, Serializable{
+	private int id;
 	/**
 	 * The points that make up this convex object, starting
 	 * with the left most point in counter clockwise order.
@@ -31,11 +34,11 @@ public class ConvexObject{
 	/**
 	 * The player that owns this object.
 	 */
-	private Player owner = null;
+	private transient Player owner = null;
 	/**
 	 * The active animation for this object.
 	 */
-	private Animation animation = null;
+	private transient Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -364,7 +367,27 @@ public class ConvexObject{
 	}
 	
 	@Override
+	public int hashCode(){
+		return Objects.hash(id);
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		return other instanceof ConvexObject ? ((ConvexObject)other).id == id : false;
+	}
+	
+	@Override
 	public String toString(){
 		return "ConvexObject[owner=" + owner + ",points={" + points.stream().map(p->("(" + p.getX() + "," + p.getY() + ")")).reduce((p, q)->(p + "," + q)).get() + "}]";
+	}
+
+	@Override
+	public int getID(){
+		return id;
+	}
+
+	@Override
+	public void setID(int id){
+		this.id = id;
 	}
 }
