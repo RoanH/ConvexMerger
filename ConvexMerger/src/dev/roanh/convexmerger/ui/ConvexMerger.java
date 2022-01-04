@@ -106,18 +106,18 @@ public class ConvexMerger{
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
 		//ai fun: 10-20 0.45 mini size
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
+		initialiseGame(new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
 			new HumanPlayer(),
 			//new HumanPlayer()
 			//new SmallPlayer(),
 			new LocalPlayer(),
 			new GreedyPlayer(),
 			new SmallPlayer()
-		));
-		initialiseGame(state);
+		)));
 	}
 	
 	private void initialiseGame(GameState state){
+		this.state = state;
 		game.setGameState(state);
 		game.repaint();
 		
@@ -158,7 +158,10 @@ public class ConvexMerger{
 			
 			System.out.println("connected as client with player id " + player.getID());
 			
+			GameState state = con.getGameState();
 			
+			initialiseGame(state);
+			showGame();
 			
 		}catch(IOException e){
 			// TODO Auto-generated catch block

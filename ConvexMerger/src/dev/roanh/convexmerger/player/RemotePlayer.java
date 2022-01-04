@@ -18,6 +18,12 @@ public class RemotePlayer extends Player{
 		try{
 			PacketPlayerMove move = con.awaitMove();
 			
+			if(move.getPlayer().getID() != getID()){
+				//TODO not even the same player
+				System.err.println("ERR: incorrect player");
+			}
+			
+			
 			
 			
 			//TODO

@@ -21,7 +21,7 @@ public class Main{
 		}.start();
 		
 		try{
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 			System.out.println("try connect");
 		}catch(InterruptedException e){
 			// TODO Auto-generated catch block

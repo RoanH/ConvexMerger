@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * are given in counter clockwise order.
  * @author Roan
  */
-public class ConvexObject implements Identity{
+public class ConvexObject implements Identity, Serializable{
 	private int id;
 	/**
 	 * The points that make up this convex object, starting

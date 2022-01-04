@@ -10,6 +10,7 @@ import dev.roanh.convexmerger.animation.ScoreAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.Identity;
+import dev.roanh.convexmerger.net.PlayerProxy;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
@@ -173,6 +174,10 @@ public abstract class Player implements Identity{
 		}
 		
 		return first == null ? null : new MergeOption(first, second, increase);
+	}
+	
+	public PlayerProxy getProxy(){
+		return new PlayerProxy(this);//TODO cache?
 	}
 	
 	public PlayerStats getStats(){
