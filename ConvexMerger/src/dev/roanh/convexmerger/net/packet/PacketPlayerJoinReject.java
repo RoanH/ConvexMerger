@@ -5,10 +5,10 @@ public class PacketPlayerJoinReject implements Packet{
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = -5372738175706062480L;
-	private final RejectReason reason;
+	private final int reason;
 	
 	public PacketPlayerJoinReject(RejectReason reason){
-		this.reason = reason;
+		this.reason = reason.id;
 	}
 
 	@Override
@@ -17,16 +17,24 @@ public class PacketPlayerJoinReject implements Packet{
 	}
 	
 	public RejectReason getReason(){
-		return reason;
+		for(RejectReason msg : RejectReason.values()){
+			if(msg.id == reason){
+				return msg;
+			}
+		}
+		return RejectReason.UNKNOWN;
 	}
 	
 	public static enum RejectReason{
-		FULL("Game is already full."),
-		VERSION_MISMATCH("Host game version does not match client version.");
-		
+		UNKNOWN(0, "Unknown reason"),
+		FULL(1, "Game is already full."),
+		VERSION_MISMATCH(2, "Host game version does not match client version.");
+
+		private final int id;
 		private final String msg;
 		
-		private RejectReason(String msg){
+		private RejectReason(int id, String msg){
+			this.id = id;
 			this.msg = msg;
 		}
 		

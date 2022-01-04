@@ -16,6 +16,7 @@ import dev.roanh.convexmerger.net.packet.PacketGameInit;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoin;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinAccept;
 import dev.roanh.convexmerger.net.packet.PacketPlayerJoinReject;
+import dev.roanh.convexmerger.net.packet.PacketPlayerJoinReject.RejectReason;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
 import dev.roanh.convexmerger.player.Player;
@@ -24,10 +25,19 @@ import dev.roanh.convexmerger.player.RemotePlayer;
 public class ClientConnection extends Connection implements GameStateListener{
 	private Player self;
 	private Consumer<Exception> disconnectHandler;
+	private RejectReason failReason;
 	
 	private ClientConnection(Socket socket, Player self) throws IOException{
 		super(socket);
 		this.self = self;
+	}
+	
+	public boolean isConnected(){
+		return failReason == null;
+	}
+	
+	public RejectReason getRejectReason(){
+		return failReason;
 	}
 	
 	public void setDisconnectHandler(Consumer<Exception> handler){
@@ -102,9 +112,12 @@ public class ClientConnection extends Connection implements GameStateListener{
 		Packet recv = con.readPacket();
 		if(recv.getRegisteryType() != PacketRegistry.PLAYER_JOIN_ACCEPT){
 			if(recv.getRegisteryType() == PacketRegistry.PLAYER_JOIN_REJECT){
-				System.out.println("Connection failed with reason: " + ((PacketPlayerJoinReject)recv).getReason());
+				con.failReason = ((PacketPlayerJoinReject)recv).getReason();
+			}else{
+				con.failReason = RejectReason.UNKNOWN;
 			}
-			return null;
+			con.close();
+			return con;
 		}
 		
 		player.setID(((PacketPlayerJoinAccept)recv).getID());

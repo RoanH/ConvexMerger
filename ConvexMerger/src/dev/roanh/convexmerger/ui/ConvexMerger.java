@@ -160,6 +160,11 @@ public class ConvexMerger{
 			frame.setTitle(Constants.TITLE + " [Client]");
 			Player player = new HumanPlayer();
 			ClientConnection con = ClientConnection.connect("localhost", player);
+			if(!con.isConnected()){
+				System.out.println("Connection failed with reason: " + con.getRejectReason());
+				return;
+			}
+			
 			con.setDisconnectHandler(e->{
 				System.err.println("Connection to server lost: " + e.getMessage());
 			});
