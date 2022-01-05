@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
@@ -28,7 +29,9 @@ public abstract interface Menu{
 	public static final int BOX_HEADER_HEIGHT = 28;
 	public static final int BOX_TEXT_OFFSET = 4;
 
-	public abstract boolean render(Graphics2D g, int width, int height);
+	public abstract boolean render(Graphics2D g, int width, int height, Point2D mouseLoc);
+	
+	public abstract void handleMouseClick(Point2D loc);
 	
 	public static double getMaxWidth(int width, double ratio, int max){
 		return Math.min(ratio * width, max);
@@ -98,4 +101,6 @@ public abstract interface Menu{
 		}
 		return y;
 	}
+	
+	
 }

@@ -99,6 +99,14 @@ public final class Theme{
 	 */
 	public static final Color DOUBLE_LIGHTEN = new Color(57, 69, 87);
 	/**
+	 * Color used for the add button icons and text.
+	 */
+	public static final Color ADD_COLOR = new Color(147, 151, 157);
+	/**
+	 * Color used for the add button icons and text when highlighted.
+	 */
+	public static final Color ADD_COLOR_HIGHLIGHT = new Color(233, 234, 235);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -122,6 +130,10 @@ public final class Theme{
 	 * Stroke used for the graph marker lines.
 	 */
 	public static final Stroke GRAPH_MARK_STROKE = new BasicStroke(1.0F);
+	/**
+	 * Stroke for the new game double lighten borders.
+	 */
+	public static final Stroke BUTTON_STROKE = new BasicStroke(2.0F);
 	/**
 	 * Pridi regular font with size 14, used for the rules.
 	 */
@@ -177,6 +189,10 @@ public final class Theme{
 	 */
 	public static final int CROWN_ICON_LARGE_SIZE = 24;
 	/**
+	 * Size of the player/ai add button icons.
+	 */
+	public static final int ADD_ICON_SIZE = 40;
+	/**
 	 * Smaller crown image with size {@value #CROWN_ICON_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON;
@@ -184,6 +200,10 @@ public final class Theme{
 	 * Larger crown image with size {@value #CROWN_ICON_LARGE_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON_LARGE;
+	public static final BufferedImage AI_ADD;
+	public static final BufferedImage AI_ADD_HIGHLIGHT;
+	public static final BufferedImage PLAYER_ADD;
+	public static final BufferedImage PLAYER_ADD_HIGHLIGHT;
 
 	/**
 	 * Formats the given area by rounding to an integer and
@@ -339,6 +359,10 @@ public final class Theme{
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 			CROWN_ICON_LARGE = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_LARGE_SIZE, CROWN_COLOR);
+			AI_ADD = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_ai.png"), ADD_ICON_SIZE, ADD_COLOR);
+			AI_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_ai.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
+			PLAYER_ADD = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR);
+			PLAYER_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
 			throw new RuntimeException("Failed to load fonts or icons", e);

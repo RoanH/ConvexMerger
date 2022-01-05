@@ -6,6 +6,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -60,7 +61,7 @@ public class InfoMenu implements Menu{
 	}
 
 	@Override
-	public boolean render(Graphics2D g, int width, int height){
+	public boolean render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMenuTitle(g, width, "Information");
 		drawTitle(g, width);
 		
@@ -230,5 +231,9 @@ public class InfoMenu implements Menu{
 		versionChecker.setDaemon(true);
 		versionChecker.setName("VersionChecker");
 		versionChecker.start();
+	}
+
+	@Override
+	public void handleMouseClick(Point2D loc){
 	}
 }
