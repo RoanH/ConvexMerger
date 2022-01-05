@@ -49,6 +49,7 @@ public class TextField{
 		g.drawString(text, (float)(x + 4.0F), (float)(y + height - fm.getMaxDescent()));
 		if(focus && ((System.currentTimeMillis() / 600) % 2 == 0)){
 			int lx = (int)Math.ceil(x + 4.0F + fm.stringWidth(text));
+			g.setColor(color);
 			g.drawLine(lx, (int)(y + 2.0F), lx, (int)(y + height - 4.0F));
 		}
 		
