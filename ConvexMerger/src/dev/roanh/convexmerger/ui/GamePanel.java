@@ -34,10 +34,10 @@ import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.player.Player;
 
 /**
- * Main panel responsibly for rending the current game state.
+ * Main panel responsibly for rendering the current game state.
  * @author Roan
  */
-public final class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
+public final class GamePanel extends Menu implements MouseListener, MouseMotionListener, KeyListener{
 	/**
 	 * Executor service used to run animations.
 	 */
@@ -103,14 +103,6 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 */
 	private boolean showCentroids = false;
 	/**
-	 * Info (bottom right) button polygon.
-	 */
-	private Polygon infoPoly = null;
-	/**
-	 * Menu (bottom left) button polygon.
-	 */
-	private Polygon menuPoly = null;
-	/**
 	 * Currently showing feedback dialog.
 	 */
 	private MessageDialog activeDialog = null;
@@ -126,11 +118,6 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Result overlay.
 	 */
 	private ResultOverlay resultOverlay;
-	/**
-	 * Active menu.
-	 */
-	private Menu menu = new NewGameMenu();
-	private Point lastLocation = new Point();
 	
 	/**
 	 * Constructs a new game panel.
@@ -207,123 +194,17 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Renders the user interface with the given graphics.
 	 * @param g The graphics context to use.
 	 */
-	private void renderInterface(Graphics2D g){
-		g.setColor(Theme.MENU_BODY);
-		int sideOffset = Math.floorDiv(this.getWidth(), 2) - (TOP_MIDDLE_WIDTH / 2);
-		Polygon topPoly = new Polygon(new int[]{
-				0,
-				0,
-				TOP_SIDE_TRIANGLE,
-				sideOffset - TOP_MIDDLE_OFFSET,
-				sideOffset,
-				this.getWidth() - sideOffset,
-				this.getWidth() - sideOffset + TOP_MIDDLE_OFFSET,
-				this.getWidth() - TOP_SIDE_TRIANGLE,
-				this.getWidth(),
-				this.getWidth()
-			},
-			new int[]{
-				0,
-				TOP_SIDE_TRIANGLE + TOP_SPACE,
-				TOP_SPACE,
-				TOP_SPACE,
-				TOP_SPACE + TOP_MIDDLE_OFFSET,
-				TOP_SPACE + TOP_MIDDLE_OFFSET,
-				TOP_SPACE,
-				TOP_SPACE,
-				TOP_SIDE_TRIANGLE + TOP_SPACE,
-				0
-			},
-			10
-		);
-		g.fill(topPoly);
+	private void renderInterface(Graphics2D g, int width){
+		renderMainInterface(g);
 		
-		g.setFont(Theme.PRIDI_REGULAR_24);
-		FontMetrics fm = g.getFontMetrics();
-		
-		infoPoly = new Polygon(
-			new int[]{
-				this.getWidth(),
-				this.getWidth() - BUTTON_WIDTH,
-				this.getWidth() - BUTTON_WIDTH + BUTTON_HEIGHT,
-				this.getWidth()
-			},
-			new int[]{
-				this.getHeight(),
-				this.getHeight(),
-				this.getHeight() - BUTTON_HEIGHT,
-				this.getHeight() - BUTTON_HEIGHT
-			},
-			4
-		);
-		if(menu == null && !resultOverlay.isEnabled()){
-			if(infoPoly.contains(lastLocation)){
-				g.setColor(Theme.BUTTON_HOVER_COLOR);
-			}else{
-				g.setColor(Theme.MENU_BODY);
-			}
-		}
-		g.setColor((menu == null && !resultOverlay.isEnabled() && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
-		g.fill(infoPoly);
-		if(menu == null){
-			g.setColor((!resultOverlay.isEnabled() && infoPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
-			g.drawString("Info", this.getWidth() - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth("Info") / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
-		}
-		
-		menuPoly = new Polygon(
-			new int[]{
-				0,
-				0,
-				BUTTON_WIDTH - BUTTON_HEIGHT,
-				BUTTON_WIDTH
-			},
-			new int[]{
-				this.getHeight(),
-				this.getHeight() - BUTTON_HEIGHT,
-				this.getHeight() - BUTTON_HEIGHT,
-				this.getHeight()
-			},
-			4
-		);
-		g.setColor(((!resultOverlay.isEnabled() || menu != null) && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
-		g.fill(menuPoly);
-		String menuText = menu == null ? "Menu" : "Back";
-		g.setColor(((!resultOverlay.isEnabled() || menu != null) && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
-		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
-		
-		//render UI borders
-		g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
-		g.setStroke(Theme.BORDER_STROKE);
-		
-		Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
-		infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1] - 1);
-		infoPath.lineTo(infoPoly.xpoints[2], infoPoly.ypoints[2] - 1);
-		infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3] - 1);
-		g.draw(infoPath);
-		
-		Path2D menuPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
-		menuPath.moveTo(menuPoly.xpoints[1], menuPoly.ypoints[1] - 1);
-		menuPath.lineTo(menuPoly.xpoints[2], menuPoly.ypoints[2] - 1);
-		menuPath.lineTo(menuPoly.xpoints[3] + 1, menuPoly.ypoints[3]);
-		g.draw(menuPath);
-		
-		Path2D topPath = new Path2D.Double(Path2D.WIND_NON_ZERO, topPoly.npoints - 2);
-		topPath.moveTo(topPoly.xpoints[1], topPoly.ypoints[1]);
-		for(int i = 2; i < topPoly.npoints - 1; i++){
-			topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i]);
-		}
-		g.draw(topPath);
-		
-		if(state == null || menu != null){
+		if(state == null){
 			return;
 		}
 		
 		//render action hint
-		g.setFont(Theme.PRIDI_REGULAR_18);
 		g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
-		fm = g.getFontMetrics();
-		String msg = state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object");
-		g.drawString(msg, sideOffset + (TOP_MIDDLE_WIDTH - fm.stringWidth(msg)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
+		//TODO override color ^
+		renderMenuTitle(g, this.getWidth(), state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object"));
 		
 		//render player data
 		List<Player> players = state.getPlayers();
@@ -335,7 +216,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 			
 			//offset
 			g.setFont(Theme.PRIDI_MEDIUM_24);
-			fm = g.getFontMetrics();
+			FontMetrics fm = g.getFontMetrics();
 			int y = (TOP_SPACE - fm.getHeight() - CROWN_ICON_SIZE) / 2;
 			x += PLAYER_TEXT_OFFSET;
 			
@@ -370,15 +251,15 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	 * Renders the playfield with the given graphics.
 	 * @param g The graphics context to use.
 	 */
-	private void renderPlayfield(Graphics2D g){
+	private void renderPlayfield(Graphics2D g, int width, int height){
 		AffineTransform transform = g.getTransform();
 		g.translate(SIDE_OFFSET, TOP_SPACE + TOP_OFFSET);
-		double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
-		double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
+		double sx = (double)(width - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
+		double sy = (double)(height - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
 		if(sx < sy){
 			g.scale(sx, sx);
 		}else{
-			g.translate((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy - 2 * SIDE_OFFSET) / 2.0D, 0.0D);
+			g.translate((width - Constants.PLAYFIELD_WIDTH * sy - 2 * SIDE_OFFSET) / 2.0D, 0.0D);
 			g.scale(sy, sy);
 		}
 		
@@ -535,14 +416,11 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void keyPressed(KeyEvent e){
-		if(menu != null){
-			menu.handleKeyTyped(e);
-		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e){
-		if(menu == null && e.isControlDown()){
+		if(e.isControlDown()){
 			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
 				state.clearSelection();
