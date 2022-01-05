@@ -1,7 +1,9 @@
 package dev.roanh.convexmerger.game;
 
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,5 +75,111 @@ public class VerticalDecomposition{
 	 */
 	public List<Line2D> getDecompLines(){
 		return Collections.emptyList();//TODO
+	}
+	
+	
+	
+	/**
+	 * Defines the trapezoid structure that is used in the Vertical decomposition.
+	 * @author Emu
+	 */
+	public class Trapezoid{
+		/**
+		 * The four points representing the lines that
+		 * bound the trapezoid from the top and the bottom.
+		 */
+		private Point2D topLeft, topRight, botLeft, botRight;
+		/**
+		 * The points that bound the trapezoid from the left and right.
+		 */
+		private Point2D leftPoint, rightPoint;
+		/**
+		 * The neighbouring trapezoids of the trapezoid.
+		 */
+		private List<Trapezoid> neighbours;
+		
+		/**
+		 * Constructs a trapezoid.
+		 * @param left The left bounding point of the trapezoid.
+		 * @param right The right bounding point of the trapezoid.
+		 * @param bot1 One point of the bottom bounding line of the trapezoid.
+		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
+		 * @param top1 One point of the top bounding line of the trapezoid.
+		 * @param top2 The other point of the bottom bounding line of the trapezoid.
+		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
+		 */
+		public Trapezoid (Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours){
+			topLeft = top1.getX() == top2.getX() ? (top1.getY() < top2.getY() ? top1 : top2) : (top1.getX() < top2.getX() ? top1 : top2);  
+			topRight = topLeft.equals(top1) ? top2 : top1;
+			botLeft = bot1.getX() == bot2.getX() ? (bot1.getY() < bot2.getY() ? bot1 : bot2) : (bot1.getX() < bot2.getY() ? bot1 : bot2);
+			botRight = botLeft.equals(bot1) ? bot2 : bot1;
+			leftPoint = left;
+			rightPoint = right;
+			this.neighbours = neighbours;
+		}
+		
+		/**
+		 * Getter for the neighbours of the trapezoid
+		 * @return the neighbours of the trapezoid
+		 */
+		public List<Trapezoid> getNeighbours(){
+			return neighbours;
+		}
+		
+		/**
+		 * Adds a neighbour to the list of neighbours.
+		 * @param neighbour the neighbour to be added to the list.
+		 */
+		public void addNeighbour(Trapezoid neighbour){
+			neighbours.add(neighbour);
+		}
+		
+		/**
+		 * Removes a neighbour from the list of neighbours.
+		 * @param neighbour the neighbour to be removed
+		 */
+		public void removeNeighbour (Trapezoid neighbour){
+			neighbours.remove(neighbours.indexOf(neighbour));
+		}
+		
+		/**
+		 * Removes this trapezoid from the neighbour lists of all neighbours.
+		 * Useful for when we want to delete a 
+		 */
+		public void freeNeighbours (){
+			for(Trapezoid t : neighbours){
+				t.removeNeighbour(this);
+			}
+		}
+		
+		/**
+		 * Computes and outputs the decomposition lines related to this trapezoid
+		 * @return The vertical decomposition lines, unless one or more of the bounding lines is vertical.
+		 */
+		public List<Line2D> getDecompLines(){
+			//TODO: Consult Roan on whether we want to use a set instead.
+			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
+		
+			//TODO: figure out a better way to handle vertical top or bottom lines.
+			if(topLeft.getX() == topRight.getX() || botLeft.getX() == botRight.getX()){
+				return verticalLines;
+			}
+			
+			if(!(topLeft.equals(botLeft) && topLeft.equals(leftPoint))){
+				double xRatioTop = (leftPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
+				double xRatioBot = (leftPoint.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
+				verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoint.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
+													new Point2D.Double(leftPoint.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+			}
+			
+			if(!(topRight.equals(botRight) && topRight.equals(rightPoint))){
+				double xRatioTop = (rightPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
+				double xRatioBot = (rightPoint.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
+				verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoint.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
+													new Point2D.Double(rightPoint.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+			}
+			
+			return verticalLines;
+		}
 	}
 }
