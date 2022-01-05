@@ -15,7 +15,10 @@ import java.util.List;
  * @author Emu
  */
 public class VerticalDecomposition{
-
+	
+	private List<Trapezoid> trapezoids;
+	
+	private Rectangle2D bounds;
 	/**
 	 * Constructs a new vertical decomposition with
 	 * the given bounding box.
@@ -24,7 +27,14 @@ public class VerticalDecomposition{
 	 *        there will be no overlap with the edges).
 	 */
 	public VerticalDecomposition(Rectangle2D bounds){
-		//TODO
+		trapezoids = new ArrayList<Trapezoid>();
+		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
+		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
+		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
+		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
+		
+		trapezoids.add(new Trapezoid(topLeft, botRight, botLeft, botRight, topLeft, topRight, new ArrayList<Trapezoid>()));
+		this.bounds = bounds;
 	}
 	
 	/**
@@ -74,10 +84,19 @@ public class VerticalDecomposition{
 	 * @return The vertical decomposition lines.
 	 */
 	public List<Line2D> getDecompLines(){
-		return Collections.emptyList();//TODO
+		List<Line2D> lines = new ArrayList<Line2D>();
+		
+		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMinX(), bounds.getMaxY()));
+		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMinY()));
+		lines.add(new Line2D.Double(bounds.getMaxX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()));
+		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMaxY(), bounds.getMaxX(), bounds.getMaxY()));
+		
+		for(Trapezoid trap : trapezoids){
+			lines.addAll(trap.getDecompLines());
+		}
+		
+		return lines;
 	}
-	
-	
 	
 	/**
 	 * Defines the trapezoid structure that is used in the Vertical decomposition.
@@ -97,7 +116,6 @@ public class VerticalDecomposition{
 		 * The neighbouring trapezoids of the trapezoid.
 		 */
 		private List<Trapezoid> neighbours;
-		
 		/**
 		 * Constructs a trapezoid.
 		 * @param left The left bounding point of the trapezoid.
@@ -157,7 +175,6 @@ public class VerticalDecomposition{
 		 * @return The vertical decomposition lines, unless one or more of the bounding lines is vertical.
 		 */
 		public List<Line2D> getDecompLines(){
-			//TODO: Consult Roan on whether we want to use a set instead.
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
 		
 			//TODO: figure out a better way to handle vertical top or bottom lines.
