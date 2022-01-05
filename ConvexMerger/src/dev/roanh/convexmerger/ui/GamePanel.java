@@ -129,7 +129,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	/**
 	 * Active menu.
 	 */
-	private Menu menu = new NewGameMenu();
+	private Menu menu;// = new NewGameMenu();
 	private Point lastLocation = new Point();
 	
 	/**

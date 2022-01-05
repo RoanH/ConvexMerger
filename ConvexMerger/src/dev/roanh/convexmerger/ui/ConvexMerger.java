@@ -110,9 +110,9 @@ public class ConvexMerger{
 			new HumanPlayer(),
 			//new HumanPlayer()
 			//new SmallPlayer(),
-			new LocalPlayer(),
-			new GreedyPlayer(),
-			new SmallPlayer()
+			new LocalPlayer()//,
+			//new GreedyPlayer(),
+			//new SmallPlayer()
 		)));
 	}
 	
@@ -138,9 +138,8 @@ public class ConvexMerger{
 			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
 		}, e->System.err.println("Server died: " + e.getMessage()));
 		
-		while(server.getPlayerCount() < 3){
+		while(server.getPlayerCount() < 2){
 			try{
-				System.out.println("playres: " + server.getPlayerCount());
 				Thread.sleep(1000);
 			}catch(InterruptedException e){
 				// TODO Auto-generated catch block

@@ -52,9 +52,15 @@ public class GameState{
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);
-		objects.forEach(decomp::addObject);
+		for(int i = 0; i < objects.size(); i++){
+			ConvexObject obj = objects.get(i);
+			obj.setID(i + 1);
+			decomp.addObject(obj);
+		}
 		for(int i = 0; i < players.size(); i++){
-			players.get(i).init(this, PlayerTheme.get(i + 1));
+			Player player = players.get(i);
+			player.init(this, PlayerTheme.get(i + 1));
+			player.setID(i + 1);
 		}
 		decomp.rebuild();
 		gameStart = System.currentTimeMillis();
