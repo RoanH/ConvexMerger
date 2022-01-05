@@ -10,43 +10,43 @@ public class MainMenu extends Screen{
 	}
 
 	@Override
-	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMainInterface(g, width, height, null);
 		
 	}
 
 	@Override
-	public boolean isLeftButtonEnabled(){
+	protected boolean isLeftButtonEnabled(){
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	public boolean isRightButtonEnabled(){
+	protected boolean isRightButtonEnabled(){
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public String getLeftButtonText(){
+	protected String getLeftButtonText(){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getRightButtonText(){
+	protected String getRightButtonText(){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void handleLeftButtonClick(){
+	protected void handleLeftButtonClick(){
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleRightButtonClick(){
+	protected void handleRightButtonClick(){
 		// TODO Auto-generated method stub
 		
 	}

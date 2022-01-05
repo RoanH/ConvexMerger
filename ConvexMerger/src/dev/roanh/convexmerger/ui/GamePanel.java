@@ -91,15 +91,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 		this.state = state;
 	}
 	
-	/**
-	 * Enables and shows the result overlay.
-	 */
-	public void showResults(){
-		resultOverlay.setEnabled(true);
-	}
-	
 	@Override
-	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		//render the game
 		if(state != null){
 			renderPlayfield(g, width, height);
@@ -256,7 +249,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 	
 	@Override
-	public void handleLeftButtonClick(){
+	protected void handleLeftButtonClick(){
 		//TODO menu
 		System.out.println("To main menu");
 	}
@@ -312,27 +305,27 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 
 	@Override
-	public boolean isLeftButtonEnabled(){
+	protected boolean isLeftButtonEnabled(){
 		return !resultOverlay.isEnabled();
 	}
 
 	@Override
-	public boolean isRightButtonEnabled(){
+	protected boolean isRightButtonEnabled(){
 		return !resultOverlay.isEnabled();
 	}
 
 	@Override
-	public String getLeftButtonText(){
+	protected String getLeftButtonText(){
 		return "Menu";
 	}
 
 	@Override
-	public String getRightButtonText(){
+	protected String getRightButtonText(){
 		return "Info";
 	}
 
 	@Override
-	public void handleRightButtonClick(){
+	protected void handleRightButtonClick(){
 		this.switchScene(new InfoMenu(this.getContext(), state, this));
 	}
 

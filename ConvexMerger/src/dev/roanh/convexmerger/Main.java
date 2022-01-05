@@ -1,6 +1,7 @@
 package dev.roanh.convexmerger;
 
 import dev.roanh.convexmerger.ui.ConvexMerger;
+import dev.roanh.convexmerger.ui.NewGameMenu;
 import dev.roanh.util.Util;
 
 public class Main{
@@ -11,7 +12,15 @@ public class Main{
 		ConvexMerger game = new ConvexMerger();
 //		game.hostMultiplayerGame();
 		
-		game.initialiseGame();
+		//game.initialiseGame();
+		
+		
+		game.switchScene(new NewGameMenu(game));
+		
+		
+		
+		
+		
 		game.showGame();
 		
 		

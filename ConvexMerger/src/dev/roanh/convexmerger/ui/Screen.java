@@ -66,7 +66,7 @@ public abstract class Screen{
 		return context;
 	}
 	
-	public Screen switchScene(Screen next){
+	protected Screen switchScene(Screen next){
 		return context.switchScene(next);
 	}
 
@@ -77,20 +77,20 @@ public abstract class Screen{
 		render(g, width, height, lastLocation);
 	}
 	
-	public abstract void render(Graphics2D g, int width, int height, Point2D mouseLoc);
+	protected abstract void render(Graphics2D g, int width, int height, Point2D mouseLoc);
 	
-	public static double getMaxWidth(int width, double ratio, int max){
+	protected static double getMaxWidth(int width, double ratio, int max){
 		return Math.min(ratio * width, max);
 	}
 	
-	public void drawTitle(Graphics2D g, int width){
+	protected void drawTitle(Graphics2D g, int width){
 		g.setColor(Color.WHITE);
 		g.setFont(Theme.PRIDI_MEDIUM_30);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(Constants.TITLE, (width - fm.stringWidth(Constants.TITLE)) / 2.0F, (GamePanel.TOP_SPACE + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 	}
 	
-	public void drawTitledBox(Graphics2D g, Paint gradient, double x, double y, double w, double h, String title){
+	protected void drawTitledBox(Graphics2D g, Paint gradient, double x, double y, double w, double h, String title){
 		g.setColor(Theme.MENU_BODY);
 		drawBox(g, x, y, w, h);
 		
@@ -106,11 +106,11 @@ public abstract class Screen{
 		
 	}
 	
-	public void drawBox(Graphics2D g, double x, double y, double w, double h){
+	protected void drawBox(Graphics2D g, double x, double y, double w, double h){
 		g.fill(computeBox(g, x, y, w, h, BOX_INSETS));
 	}
 	
-	public Path2D computeBox(Graphics2D g, double x, double y, double w, double h, double inset){
+	protected Path2D computeBox(Graphics2D g, double x, double y, double w, double h, double inset){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 8);
 		path.moveTo(x, y + inset);
 		path.lineTo(x + inset, y);
@@ -124,13 +124,13 @@ public abstract class Screen{
 		return path;
 	}
 	
-	public void renderMenuTitle(Graphics2D g, int width, String title){
+	protected void renderMenuTitle(Graphics2D g, int width, String title){
 		g.setFont(Theme.PRIDI_REGULAR_18);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(title, Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2) + (TOP_MIDDLE_WIDTH - fm.stringWidth(title)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
 	}
 	
-	public int fillText(Graphics2D g, int rx, int ry, int width, int height, List<String> text){
+	protected int fillText(Graphics2D g, int rx, int ry, int width, int height, List<String> text){
 		FontMetrics fm = g.getFontMetrics();
 		int x = rx;
 		int y = ry + fm.getAscent();
@@ -151,7 +151,7 @@ public abstract class Screen{
 	}
 	
 	//state optional
-	public void renderMainInterface(Graphics2D g, int width, int height, GameState state){
+	protected void renderMainInterface(Graphics2D g, int width, int height, GameState state){
 		g.setColor(Theme.MENU_BODY);
 		int sideOffset = Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2);
 		Polygon topPoly = new Polygon(new int[]{
@@ -273,15 +273,15 @@ public abstract class Screen{
 	public void handleKeyReleased(KeyEvent event){
 	}
 	
-	public abstract boolean isLeftButtonEnabled();
+	protected abstract boolean isLeftButtonEnabled();
 	
-	public abstract boolean isRightButtonEnabled();
+	protected abstract boolean isRightButtonEnabled();
 	
-	public abstract String getLeftButtonText();
+	protected abstract String getLeftButtonText();
 	
-	public abstract String getRightButtonText();
+	protected abstract String getRightButtonText();
 	
-	public abstract void handleLeftButtonClick();
+	protected abstract void handleLeftButtonClick();
 	
-	public abstract void handleRightButtonClick();
+	protected abstract void handleRightButtonClick();
 }

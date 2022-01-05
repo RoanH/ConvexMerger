@@ -98,7 +98,7 @@ public class ResultOverlay{
 	 * @param enabled True if the overlay should be shown,
 	 *        false otherwise.
 	 */
-	public void setEnabled(boolean enabled){
+	protected void setEnabled(boolean enabled){
 		this.enabled = enabled;
 	}
 	
@@ -118,7 +118,7 @@ public class ResultOverlay{
 	 * @return True if an animation is actively playing.
 	 * @see #isEnabled()
 	 */
-	public boolean render(Graphics2D g, int width, int height){
+	protected boolean render(Graphics2D g, int width, int height){
 		if(!enabled){
 			return false;
 		}

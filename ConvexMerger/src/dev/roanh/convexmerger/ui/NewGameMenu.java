@@ -26,7 +26,9 @@ public class NewGameMenu extends Screen{
 	}
 
 	@Override
-	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+		renderMainInterface(g, width, height, null);
+		
 		g.setColor(Theme.CROWN_COLOR);
 		renderMenuTitle(g, width, "New game");
 		drawTitle(g, width);
@@ -205,32 +207,32 @@ public class NewGameMenu extends Screen{
 	}
 
 	@Override
-	public boolean isLeftButtonEnabled(){
+	protected boolean isLeftButtonEnabled(){
 		return true;
 	}
 
 	@Override
-	public boolean isRightButtonEnabled(){
+	protected boolean isRightButtonEnabled(){
 		return false;
 	}
 
 	@Override
-	public String getLeftButtonText(){
+	protected String getLeftButtonText(){
 		return "Back";
 	}
 
 	@Override
-	public String getRightButtonText(){
+	protected String getRightButtonText(){
 		return null;
 	}
 
 	@Override
-	public void handleLeftButtonClick(){
+	protected void handleLeftButtonClick(){
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleRightButtonClick(){
+	protected void handleRightButtonClick(){
 	}
 }

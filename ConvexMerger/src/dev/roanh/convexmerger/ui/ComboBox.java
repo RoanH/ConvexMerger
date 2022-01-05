@@ -46,7 +46,7 @@ public class ComboBox<T>{
 		}
 	}
 	
-	public void render(Graphics2D g, double x, double y, double width, double height, Point2D loc){
+	protected void render(Graphics2D g, double x, double y, double width, double height, Point2D loc){
 		g.setColor(Theme.DOUBLE_LIGHTEN);
 		bounds = new Rectangle2D.Double(x, y, width, height);
 		g.fill(bounds);
