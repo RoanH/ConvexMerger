@@ -107,6 +107,10 @@ public final class Theme{
 	 */
 	public static final Color ADD_COLOR_HIGHLIGHT = new Color(233, 234, 235);
 	/**
+	 * Remove button highlight color.
+	 */
+	public static final Color REMOVE_BUTTON_HIGHLIGHT = new Color(244, 244, 245);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -201,6 +205,10 @@ public final class Theme{
 	 */
 	public static final int ADD_ICON_SIZE = 40;
 	/**
+	 * Size of the remove thrash can icon.
+	 */
+	public static final int REMOVE_ICON_SIZE = 16;
+	/**
 	 * Smaller crown image with size {@value #CROWN_ICON_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON;
@@ -212,6 +220,8 @@ public final class Theme{
 	public static final BufferedImage AI_ADD_HIGHLIGHT;
 	public static final BufferedImage PLAYER_ADD;
 	public static final BufferedImage PLAYER_ADD_HIGHLIGHT;
+	public static final BufferedImage REMOVE_ICON;
+	public static final BufferedImage REMOVE_ICON_HIGHLIGHT;
 
 	/**
 	 * Formats the given area by rounding to an integer and
@@ -357,6 +367,7 @@ public final class Theme{
 			PRIDI_REGULAR_14 = regular.deriveFont(14.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
+			
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
 			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
@@ -366,12 +377,15 @@ public final class Theme{
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_30 = medium.deriveFont(30.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
+			
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 			CROWN_ICON_LARGE = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_LARGE_SIZE, CROWN_COLOR);
 			AI_ADD = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_ai.png"), ADD_ICON_SIZE, ADD_COLOR);
 			AI_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_ai.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
 			PLAYER_ADD = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR);
 			PLAYER_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
+			REMOVE_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/remove.png"), REMOVE_ICON_SIZE, ADD_COLOR);
+			REMOVE_ICON_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/remove.png"), REMOVE_ICON_SIZE, REMOVE_BUTTON_HIGHLIGHT);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
 			throw new RuntimeException("Failed to load fonts or icons", e);

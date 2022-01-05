@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.ui;
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.event.KeyEvent;
@@ -144,13 +145,23 @@ public class NewGameMenu implements Menu{
 		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
 			remove = computeBox(g, x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
 			
+			g.setFont(Theme.PRIDI_REGULAR_14);
+			
+			FontMetrics fm = g.getFontMetrics();
+			double offset = (CONTENT_WIDTH - fm.stringWidth("Remove") -Theme.REMOVE_ICON_SIZE - SPACING) / 2.0D;
+			
 			g.setColor(Theme.DOUBLE_LIGHTEN);
 			if(remove.contains(mouseLoc)){
 				g.fill(remove);
+				g.drawImage(Theme.REMOVE_ICON_HIGHLIGHT, (int)(x + offset), (int)(y + (CONTENT_HEIGHT + 1.0D - Theme.REMOVE_ICON_SIZE) / 2.0D), null);
+				g.setColor(Theme.REMOVE_BUTTON_HIGHLIGHT);
 			}else{
 				g.setStroke(Theme.BUTTON_STROKE);
 				g.draw(remove);
+				g.drawImage(Theme.REMOVE_ICON, (int)(x + offset), (int)(y + (CONTENT_HEIGHT + 1.0D - Theme.REMOVE_ICON_SIZE) / 2.0D), null);
+				g.setColor(Theme.ADD_COLOR);
 			}
+			g.drawString("Remove", (float)(x + offset + Theme.REMOVE_ICON_SIZE + SPACING), (float)(y + CONTENT_HEIGHT - 1.0D - (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
 		}
 		
 		private void renderAddButtons(Graphics2D g, double x, double y, Point2D mouseLoc){
