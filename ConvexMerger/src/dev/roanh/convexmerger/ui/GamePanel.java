@@ -66,6 +66,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private boolean showCentroids = false;
 	/**
+	 * True if the vertical decomposition objects should be rendered/
+	 */
+	private boolean showDecomp = false;
+	/**
 	 * Currently showing feedback dialog.
 	 */
 	private MessageDialog activeDialog = null;
@@ -205,10 +209,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
-		g.setColor(Color.WHITE);
-		g.setStroke(Theme.BORDER_STROKE);
-		for(Line2D line : state.getVerticalDecompLines()){
-			g.draw(line);
+		if(showDecomp){
+			g.setColor(Color.WHITE);
+			g.setStroke(Theme.BORDER_STROKE);
+			for(Line2D line : state.getVerticalDecompLines()){
+				g.draw(line);
+			}
 		}
 		
 		if(helperLines != null){
@@ -298,8 +304,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
 				state.clearSelection();
 				helperLines = null;
-			}else if (e.getKeyCode() == KeyEvent.VK_C){
+			}else if(e.getKeyCode() == KeyEvent.VK_C){
 				showCentroids = !showCentroids;
+			}else if(e.getKeyCode() == KeyEvent.VK_D){
+				showDecomp = !showDecomp;
 			}
 		}
 	}
