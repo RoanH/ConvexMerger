@@ -221,7 +221,7 @@ public class ExampleAnimation implements Animation{
 		 * @param theme The theme for this player.
 		 */
 		protected DummyPlayer(PlayerTheme theme){
-			super(false, null);
+			super(true, true, null);
 			this.init(null, theme);
 		}
 

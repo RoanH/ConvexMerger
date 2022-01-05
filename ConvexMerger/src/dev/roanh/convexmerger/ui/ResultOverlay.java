@@ -22,6 +22,10 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  */
 public class ResultOverlay{
 	/**
+	 * Maximum width of the information part of the menu.
+	 */
+	public static final int MAX_WIDTH = 900;
+	/**
 	 * Gap between main result screen components (title, bars, stats, graph).
 	 */
 	private static final int GAP = 8;
@@ -37,10 +41,6 @@ public class ResultOverlay{
 	 * Bar chart bar corner rounding radius.
 	 */
 	private static final int ROUND_RADIUS = 4;
-	/**
-	 * Maximum width of the information part of the overlay.
-	 */
-	private static final int MAX_WIDTH = 900;
 	/**
 	 * Gap between the crown and the winning player name.
 	 */
@@ -151,7 +151,7 @@ public class ResultOverlay{
 		g.drawString(title, (width - fm.stringWidth(title)) / 2.0F, offset);
 		
 		//bar chart
-		int size = Math.min((7 * width) / 10, MAX_WIDTH);
+		int size = (int)Menu.getMaxWidth(width, 0.7D, MAX_WIDTH);
 		g.translate((width - size) / 2.0D, offset + GAP);
 		renderBars(g, size);
 		
@@ -417,7 +417,7 @@ public class ResultOverlay{
 		 * Constructs a new average player.
 		 */
 		private AveragePlayer(){
-			super(false, "Average");
+			super(true, true, "Average");
 			stats = new PlayerStats(){
 				
 				@Override

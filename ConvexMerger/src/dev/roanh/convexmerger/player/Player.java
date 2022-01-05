@@ -2,19 +2,23 @@ package dev.roanh.convexmerger.player;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.animation.ScoreAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.Identity;
+import dev.roanh.convexmerger.net.PlayerProxy;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Abstract base class for player instances.
  * @author Roan
  */
-public abstract class Player{
+public abstract class Player implements Identity{
+	private int id;
 	/**
 	 * The game this player is associated with.
 	 */
@@ -32,9 +36,9 @@ public abstract class Player{
 	 */
 	private String name;
 	/**
-	 * If this player is human or not.
+	 * If this player is an AI or not.
 	 */
-	private boolean human;
+	private boolean ai;
 	/**
 	 * The theme for this player.
 	 */
@@ -43,10 +47,12 @@ public abstract class Player{
 	 * The total area claimed by this player.
 	 */
 	private double area;
+	private boolean local;
 
-	protected Player(boolean human, String name){
-		this.human = human;
+	protected Player(boolean local, boolean ai, String name){
+		this.ai = ai;
 		this.name = name;
+		this.local = local;
 		stats = new PlayerStats();
 	}
 	
@@ -56,17 +62,21 @@ public abstract class Player{
 	}
 	
 	public abstract boolean executeMove();
-
+	
+	public boolean requireInput(){
+		return !ai && local;
+	}
+	
+	public boolean isLocal(){
+		return local;
+	}
+	
 	public PlayerTheme getTheme(){
 		return theme;
 	}
 
-	public boolean isHuman(){
-		return human;
-	}
-	
 	public boolean isAI(){
-		return !human;
+		return ai;
 	}
 	
 	public void addArea(double area){
@@ -111,6 +121,10 @@ public abstract class Player{
 			}
 		}
 		return max;
+	}
+	
+	protected void setName(String name){
+		this.name = name;
 	}
 	
 	protected boolean hasMergeFrom(ConvexObject obj){
@@ -166,13 +180,37 @@ public abstract class Player{
 		return first == null ? null : new MergeOption(first, second, increase);
 	}
 	
+	public PlayerProxy getProxy(){
+		return new PlayerProxy(this);//TODO cache?
+	}
+	
 	public PlayerStats getStats(){
 		return stats;
+	}
+	
+	@Override
+	public int hashCode(){
+		return Objects.hash(id);
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		return other instanceof Player ? ((Player)other).id == id : false;
 	}
 		
 	@Override
 	public String toString(){
-		return "Player[name=\"" + name + "\",human=" + human + ",area=" + area + "]";
+		return "Player[name=\"" + name + "\",ai=" + ai + ",area=" + area + "]";
+	}
+
+	@Override
+	public int getID(){
+		return id;
+	}
+
+	@Override
+	public void setID(int id){
+		this.id = id;
 	}
 	
 	/**

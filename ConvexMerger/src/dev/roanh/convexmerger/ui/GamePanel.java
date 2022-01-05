@@ -129,7 +129,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	/**
 	 * Active menu.
 	 */
-	private Menu menu;// = new InfoMenu();
+	private Menu menu = new NewGameMenu();
 	private Point lastLocation = new Point();
 	
 	/**
@@ -194,7 +194,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 				animationRunning |= resultOverlay.render(g, this.getWidth(), this.getHeight());
 			}
 		}else{
-			animationRunning |= menu.render(g, this.getWidth(), this.getHeight());
+			animationRunning |= menu.render(g, this.getWidth(), this.getHeight(), lastLocation);
 		}
 		
 		//schedule next animation frame
@@ -470,6 +470,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		}
 		
 		if(menu != null){
+			menu.handleMouseClick(e.getPoint());
 			return;
 		}
 		
@@ -482,7 +483,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		if(activeDialog != null){
 			activeDialog = null;
 			repaint();
-		}else if(state.getActivePlayer().isHuman() && !state.isFinished()){
+		}else if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(e.getX(), e.getY());
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
@@ -520,7 +521,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		lastLocation = e.getPoint();
 		boolean onButtonAfter = infoPoly != null && menuPoly != null && (infoPoly.contains(lastLocation) || menuPoly.contains(lastLocation));
 		
-		if(state.getActivePlayer().isHuman() && state.isSelectingSecond()){
+		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
 			this.repaint();
 		}else if(onButtonBefore != onButtonAfter){
@@ -534,6 +535,9 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void keyPressed(KeyEvent e){
+		if(menu != null){
+			menu.handleKeyTyped(e);
+		}
 	}
 
 	@Override

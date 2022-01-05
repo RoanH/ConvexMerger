@@ -5,25 +5,50 @@ import static dev.roanh.convexmerger.ui.GamePanel.TOP_MIDDLE_TEXT_OFFSET;
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_SPACE;
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_OFFSET;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.List;
+
+import dev.roanh.convexmerger.Constants;
 
 /**
  * Base class for all menus containing shared rendering subroutines.
  * @author Roan
  */
 public abstract interface Menu{
+	/**
+	 * Space between the boxes.
+	 */
+	public static final int BOX_SPACING = 12;
 	public static final int BOX_INSETS = 10;
 	public static final int BOX_HEADER_HEIGHT = 28;
 	public static final int BOX_TEXT_OFFSET = 4;
 
-	public abstract boolean render(Graphics2D g, int width, int height);
+	public abstract boolean render(Graphics2D g, int width, int height, Point2D mouseLoc);
+	
+	public abstract void handleMouseClick(Point2D loc);
+	
+	public abstract void handleKeyTyped(KeyEvent event);
+	
+	public static double getMaxWidth(int width, double ratio, int max){
+		return Math.min(ratio * width, max);
+	}
+	
+	public default void drawTitle(Graphics2D g, int width){
+		g.setColor(Color.WHITE);
+		g.setFont(Theme.PRIDI_MEDIUM_30);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString(Constants.TITLE, (width - fm.stringWidth(Constants.TITLE)) / 2.0F, (GamePanel.TOP_SPACE + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+	}
 	
 	public default void drawTitledBox(Graphics2D g, Paint gradient, double x, double y, double w, double h, String title){
+		g.setColor(Theme.MENU_BODY);
 		drawBox(g, x, y, w, h);
 		
 		g.setStroke(Theme.BORDER_STROKE);
@@ -39,20 +64,21 @@ public abstract interface Menu{
 	}
 	
 	public default void drawBox(Graphics2D g, double x, double y, double w, double h){
-		g.setColor(Theme.MENU_BODY);
-		
+		g.fill(computeBox(g, x, y, w, h, BOX_INSETS));
+	}
+	
+	public default Path2D computeBox(Graphics2D g, double x, double y, double w, double h, double inset){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 8);
-		path.moveTo(x, y + BOX_INSETS);
-		path.lineTo(x + BOX_INSETS, y);
-		path.lineTo(x + w - BOX_INSETS, y);
-		path.lineTo(x + w, y + BOX_INSETS);
-		path.lineTo(x + w, y + h - BOX_INSETS);
-		path.lineTo(x + w - BOX_INSETS, y + h);
-		path.lineTo(x + BOX_INSETS, y + h);
-		path.lineTo(x, y + h - BOX_INSETS);
+		path.moveTo(x, y + inset);
+		path.lineTo(x + inset, y);
+		path.lineTo(x + w - inset, y);
+		path.lineTo(x + w, y + inset);
+		path.lineTo(x + w, y + h - inset);
+		path.lineTo(x + w - inset, y + h);
+		path.lineTo(x + inset, y + h);
+		path.lineTo(x, y + h - inset);
 		path.closePath();
-		
-		g.fill(path);
+		return path;
 	}
 	
 	public default void renderMenuTitle(Graphics2D g, int width, String title){
@@ -81,4 +107,6 @@ public abstract interface Menu{
 		}
 		return y;
 	}
+	
+	
 }

@@ -91,6 +91,26 @@ public final class Theme{
 	 */
 	public static final Color BUTTON_TEXT_COLOR = BORDER_TEXT_COLOR;
 	/**
+	 * Lighten new game screen color.
+	 */
+	public static final Color LIGHTEN = BUTTON_HOVER_COLOR;
+	/**
+	 * Double lighten new game screen color.
+	 */
+	public static final Color DOUBLE_LIGHTEN = new Color(57, 69, 87);
+	/**
+	 * Color used for the add button icons and text.
+	 */
+	public static final Color ADD_COLOR = new Color(147, 151, 157);
+	/**
+	 * Color used for the add button icons and text when highlighted.
+	 */
+	public static final Color ADD_COLOR_HIGHLIGHT = new Color(233, 234, 235);
+	/**
+	 * Remove button highlight color.
+	 */
+	public static final Color REMOVE_BUTTON_HIGHLIGHT = new Color(244, 244, 245);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -114,6 +134,10 @@ public final class Theme{
 	 * Stroke used for the graph marker lines.
 	 */
 	public static final Stroke GRAPH_MARK_STROKE = new BasicStroke(1.0F);
+	/**
+	 * Stroke for the new game double lighten borders.
+	 */
+	public static final Stroke BUTTON_STROKE = new BasicStroke(2.0F);
 	/**
 	 * Pridi regular font with size 14, used for the rules.
 	 */
@@ -139,6 +163,10 @@ public final class Theme{
 	 */
 	public static final Font PRIDI_MEDIUM_13;
 	/**
+	 * Pridi medium font with size 14, used for text fields.
+	 */
+	public static final Font PRIDI_MEDIUM_14;
+	/**
 	 * Pridi medium font with size 16, used for bar chart names and result overlay stats.
 	 */
 	public static final Font PRIDI_MEDIUM_16;
@@ -159,6 +187,10 @@ public final class Theme{
 	 */
 	public static final int PLAYER_ICON_SIZE = 24;
 	/**
+	 * Dimensions of the small player icon.
+	 */
+	public static final int PLAYER_ICON_SIZE_SMALL = 20;
+	/**
 	 * Dimensions of the crown image.
 	 * @see #CROWN_ICON
 	 */
@@ -169,6 +201,18 @@ public final class Theme{
 	 */
 	public static final int CROWN_ICON_LARGE_SIZE = 24;
 	/**
+	 * Size of the player/ai add button icons.
+	 */
+	public static final int ADD_ICON_SIZE = 40;
+	/**
+	 * Size of the remove thrash can icon.
+	 */
+	public static final int REMOVE_ICON_SIZE = 16;
+	/**
+	 * Size of the chevron icon.
+	 */
+	public static final int CHEVRON_ICON_SIZE = 20;
+	/**
 	 * Smaller crown image with size {@value #CROWN_ICON_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON;
@@ -176,6 +220,13 @@ public final class Theme{
 	 * Larger crown image with size {@value #CROWN_ICON_LARGE_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON_LARGE;
+	public static final BufferedImage AI_ADD;
+	public static final BufferedImage AI_ADD_HIGHLIGHT;
+	public static final BufferedImage PLAYER_ADD;
+	public static final BufferedImage PLAYER_ADD_HIGHLIGHT;
+	public static final BufferedImage REMOVE_ICON;
+	public static final BufferedImage REMOVE_ICON_HIGHLIGHT;
+	public static final BufferedImage CHEVRON_ICON;
 
 	/**
 	 * Formats the given area by rounding to an integer and
@@ -321,16 +372,26 @@ public final class Theme{
 			PRIDI_REGULAR_14 = regular.deriveFont(14.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
+			
 			Font medium = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Medium.ttf"));
 			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
 			PRIDI_MEDIUM_13 = medium.deriveFont(13.0F);
+			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_16 = medium.deriveFont(16.0F);
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_30 = medium.deriveFont(30.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
+			
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 			CROWN_ICON_LARGE = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_LARGE_SIZE, CROWN_COLOR);
+			AI_ADD = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_ai.png"), ADD_ICON_SIZE, ADD_COLOR);
+			AI_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_ai.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
+			PLAYER_ADD = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR);
+			PLAYER_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
+			REMOVE_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/remove.png"), REMOVE_ICON_SIZE, ADD_COLOR);
+			REMOVE_ICON_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/remove.png"), REMOVE_ICON_SIZE, REMOVE_BUTTON_HIGHLIGHT);
+			CHEVRON_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/chevron.png"), CHEVRON_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
 			throw new RuntimeException("Failed to load fonts or icons", e);
@@ -423,6 +484,14 @@ public final class Theme{
 		 * Human icon in the color for this player theme.
 		 */
 		private final BufferedImage human;
+		/**
+		 * Small AI icon in the color for this player theme.
+		 */
+		private final BufferedImage aiSmall;
+		/**
+		 * Small human icon in the color for this player theme.
+		 */
+		private final BufferedImage humanSmall;
 		
 		/**
 		 * Constructs a new player theme with the given colours.
@@ -492,6 +561,8 @@ public final class Theme{
 			try{
 				ai = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE, outline);
 				human = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/human.png"), PLAYER_ICON_SIZE, outline);
+				aiSmall = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE_SMALL, outline);
+				humanSmall = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/human.png"), PLAYER_ICON_SIZE_SMALL, outline);
 			}catch(IOException e){
 				//should not happen
 				throw new RuntimeException("Failed to load icons", e);
@@ -512,6 +583,22 @@ public final class Theme{
 		 */
 		public BufferedImage getIconHuman(){
 			return human;
+		}
+		
+		/**
+		 * Gets the small AI icon for this theme.
+		 * @return The small AI icon for this theme.
+		 */
+		public BufferedImage getSmallIconAI(){
+			return aiSmall;
+		}
+		
+		/**
+		 * Gets the small human icon for this theme.
+		 * @return The small human icon for this theme.
+		 */
+		public BufferedImage getSmallIconHuman(){
+			return humanSmall;
 		}
 		
 		/**

@@ -27,7 +27,7 @@ public final class Constants{
 	/**
 	 * Minimum frame size scaling factor
 	 */
-	public static final int MIN_SIZE = 55;
+	public static final int MIN_SIZE = 60;
 	/**
 	 * Initial frame size scaling factor
 	 */
@@ -36,4 +36,8 @@ public final class Constants{
 	 * Number of milliseconds per animation frame (60FPS).
 	 */
 	public static final long ANIMATION_RATE = 33;
+	/**
+	 * Current game version.
+	 */
+	public static final String VERSION = "v1.0";//don't forget build.gradle
 }

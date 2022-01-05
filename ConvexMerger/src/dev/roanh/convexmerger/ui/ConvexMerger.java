@@ -19,6 +19,8 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.net.ClientConnection;
+import dev.roanh.convexmerger.net.InternalServer;
 import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.LocalPlayer;
@@ -104,14 +106,18 @@ public class ConvexMerger{
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
 		//ai fun: 10-20 0.45 mini size
-		state = new GameState(new PlayfieldGenerator().generatePlayfield(0, 100, 0.45D), Arrays.asList(
+		initialiseGame(new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
 			new HumanPlayer(),
 			//new HumanPlayer()
 			//new SmallPlayer(),
-			new LocalPlayer(),
-			new GreedyPlayer(),
-			new SmallPlayer()
-		));
+			new LocalPlayer()//,
+			//new GreedyPlayer(),
+			//new SmallPlayer()
+		)));
+	}
+	
+	private void initialiseGame(GameState state){
+		this.state = state;
 		game.setGameState(state);
 		game.repaint();
 		
@@ -119,6 +125,63 @@ public class ConvexMerger{
 		thread.setName("GameThread");
 		thread.setDaemon(true);
 		thread.start();
+	}
+	
+	public void hostMultiplayerGame(){
+		frame.setTitle(Constants.TITLE + " [Server]");
+		Player self = new HumanPlayer();
+		PlayfieldGenerator gen = new PlayfieldGenerator();
+		gen.setRange(50, 100);
+		gen.setScaling(200);
+		
+		InternalServer server = new InternalServer(self, gen, player->{
+			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
+		}, e->System.err.println("Server died: " + e.getMessage()));
+		
+		while(server.getPlayerCount() < 2){
+			try{
+				Thread.sleep(1000);
+			}catch(InterruptedException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		System.out.println("player count hit start game");
+		
+		GameState state = server.startGame();
+		initialiseGame(state);
+		showGame();
+	}
+	
+	public void joinMultiplayerGame(){
+		try{
+			frame.setTitle(Constants.TITLE + " [Client]");
+			Player player = new HumanPlayer();
+			ClientConnection con = ClientConnection.connect("localhost", player);
+			if(!con.isConnected()){
+				System.out.println("Connection failed with reason: " + con.getRejectReason());
+				return;
+			}
+			
+			con.setDisconnectHandler(e->{
+				System.err.println("Connection to server lost: " + e.getMessage());
+			});
+			
+			System.out.println("connected as client with player id " + player.getID());
+			
+			GameState state = con.getGameState();
+			
+			initialiseGame(state);
+			showGame();
+			
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 	}
 	
 	private final class GameThread extends Thread{

@@ -17,7 +17,11 @@ public class GreedyPlayer extends Player{
 	 * Constructs a new greedy player (Isla).
 	 */
 	public GreedyPlayer(){
-		super(false, "Isla");
+		super(true, true, "Isla");
+	}
+	
+	protected GreedyPlayer(boolean local, boolean ai, String name){
+		super(local, ai, name);
 	}
 	
 	@Override
