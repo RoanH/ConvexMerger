@@ -5,11 +5,13 @@ import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Paint;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
+import dev.roanh.convexmerger.player.AIRegistry;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class NewGameMenu implements Menu{
@@ -88,8 +90,9 @@ public class NewGameMenu implements Menu{
 		private Path2D addAI = null;
 		private PlayerTheme theme;
 		private TextField name = null;
-		private ComboBox ai = null;
+		private ComboBox<AIRegistry> ai = null;
 		private Path2D remove = new Path2D.Double();
+		private Image icon;
 		
 		private PlayerPanel(PlayerTheme theme){
 			this.theme = theme;
@@ -101,18 +104,18 @@ public class NewGameMenu implements Menu{
 			
 			if(name == null && ai == null){
 				renderAddButtons(g, x, y, mouseLoc);
-			}else if(name != null){
-				return renderAddPlayer(g, x, y, mouseLoc);
-			}else if(ai != null){
-				renderAddAI(g, x, y, mouseLoc);
+			}else{
+				y += (HEIGHT - CONTENT_HEIGHT * 2.0D - SPACING) / 2.0D;
+				x += (WIDTH - CONTENT_WIDTH) / 2.0D;
+				g.drawImage(icon, (int)x, (int)y, null);
+				renderRemoveButton(g, x, y + CONTENT_HEIGHT + SPACING, mouseLoc);
+				if(name != null){
+					name.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
+				}else if(ai != null){
+					ai.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
+				}
 			}
 			return false;
-		}
-		
-		
-		
-		private void renderAddAI(Graphics2D g, double x, double y, Point2D mouseLoc){
-			//TDOO
 		}
 		
 		private void handleMouseClick(Point2D loc){
@@ -122,9 +125,11 @@ public class NewGameMenu implements Menu{
 			
 			if(name == null && ai == null){
 				if(addPlayer.contains(loc)){
+					icon = theme.getSmallIconHuman();
 					name = new TextField(theme.getBaseOutline());
 				}else if(addAI.contains(loc)){
-					//TODO
+					icon = theme.getSmallIconAI();
+					ai = new ComboBox<AIRegistry>(AIRegistry.values(), AIRegistry::getName, theme.getBaseOutline());
 				}
 			}else{
 				if(remove.contains(loc)){
@@ -132,14 +137,6 @@ public class NewGameMenu implements Menu{
 					ai = null;
 				}
 			}
-		}
-		
-		private boolean renderAddPlayer(Graphics2D g, double x, double y, Point2D mouseLoc){
-			y += (HEIGHT - CONTENT_HEIGHT * 2.0D - SPACING) / 2.0D;
-			x += (WIDTH - CONTENT_WIDTH) / 2.0D;
-			g.drawImage(theme.getSmallIconHuman(), (int)x, (int)y, null);
-			renderRemoveButton(g, x, y + CONTENT_HEIGHT + SPACING, mouseLoc);
-			return name.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
 		}
 		
 		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
