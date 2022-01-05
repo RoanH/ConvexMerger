@@ -30,11 +30,11 @@ import dev.roanh.convexmerger.player.SmallPlayer;
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private GameState state;//TODO required?
-	private GamePanel game = new GamePanel();
+	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
 	
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
-		content.add(game, BorderLayout.CENTER);
+		content.add(renderer, BorderLayout.CENTER);
 		
 		try{
 			frame.setIconImages(Arrays.asList(
@@ -118,8 +118,9 @@ public class ConvexMerger{
 	
 	private void initialiseGame(GameState state){
 		this.state = state;
+		GamePanel game = new GamePanel(this);
 		game.setGameState(state);
-		game.repaint();
+		renderer.setScreen(game);
 		
 		GameThread thread = new GameThread();
 		thread.setName("GameThread");
@@ -184,6 +185,10 @@ public class ConvexMerger{
 		
 	}
 	
+	public Screen switchScene(Screen next){
+		return renderer.setScreen(next);
+	}
+	
 	private final class GameThread extends Thread{
 		
 		@Override
@@ -206,9 +211,6 @@ public class ConvexMerger{
 			}
 
 			System.out.println("game end");
-			game.showResults();
-			frame.repaint();
-
 		}
 	}
 }

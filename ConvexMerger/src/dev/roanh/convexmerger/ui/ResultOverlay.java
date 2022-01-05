@@ -151,7 +151,7 @@ public class ResultOverlay{
 		g.drawString(title, (width - fm.stringWidth(title)) / 2.0F, offset);
 		
 		//bar chart
-		int size = (int)Menu.getMaxWidth(width, 0.7D, MAX_WIDTH);
+		int size = (int)Screen.getMaxWidth(width, 0.7D, MAX_WIDTH);
 		g.translate((width - size) / 2.0D, offset + GAP);
 		renderBars(g, size);
 		

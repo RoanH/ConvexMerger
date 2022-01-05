@@ -36,7 +36,7 @@ public class TextField{
 		focus = bounds.contains(loc);
 	}
 	
-	public boolean render(Graphics2D g, double x, double y, double width, double height){
+	public void render(Graphics2D g, double x, double y, double width, double height){
 		g.setColor(Theme.DOUBLE_LIGHTEN);
 		bounds = new Rectangle2D.Double(x, y, width, height);
 		g.fill(bounds);
@@ -56,7 +56,5 @@ public class TextField{
 		g.setColor(color);
 		g.draw(new Line2D.Double(x, y + height - 1, x + width - 1, y + height - 1));
 		g.setClip(null);
-		
-		return focus;
 	}
 }
