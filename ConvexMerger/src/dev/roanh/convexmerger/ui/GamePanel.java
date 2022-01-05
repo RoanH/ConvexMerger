@@ -21,7 +21,7 @@ import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.player.Player;
 
 /**
- * Main panel responsibly for rendering the current game state.
+ * Main panel responsible for rendering the current game state.
  * @author Roan
  */
 public final class GamePanel extends Screen implements GameStateListener{
@@ -82,6 +82,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private ResultOverlay resultOverlay;
 	
+	/**
+	 * Constructs a new game panel with the given game context.
+	 * @param context The game context.
+	 */
 	protected GamePanel(ConvexMerger context){
 		super(context);
 	}
@@ -212,17 +216,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 		if(showDecomp){
 			g.setColor(Color.WHITE);
 			g.setStroke(Theme.BORDER_STROKE);
-			for(Line2D line : state.getVerticalDecompLines()){
-				g.draw(line);
-			}
+			state.getVerticalDecompLines().forEach(g::draw);
 		}
 		
 		if(helperLines != null){
 			g.setStroke(Theme.HELPER_STROKE);
 			g.setColor(state.getActivePlayer().getTheme().getOutline());
-			for(Line2D line : helperLines){
-				g.draw(line);
-			}
+			helperLines.forEach(g::draw);
 		}
 		
 		g.setTransform(transform);
