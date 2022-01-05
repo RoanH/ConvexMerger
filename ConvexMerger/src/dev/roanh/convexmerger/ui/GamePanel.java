@@ -17,13 +17,14 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.player.Player;
 
 /**
  * Main panel responsibly for rendering the current game state.
  * @author Roan
  */
-public final class GamePanel extends Menu{
+public final class GamePanel extends Screen implements GameStateListener{
 	/**
 	 * Height of the top score display part of the game panel.
 	 */
@@ -77,6 +78,10 @@ public final class GamePanel extends Menu{
 	 */
 	private ResultOverlay resultOverlay;
 	
+	protected GamePanel(ConvexMerger context){
+		super(context);
+	}
+	
 	/**
 	 * Sets the game state to display in this game panel.
 	 * @param state The game state to display.
@@ -91,20 +96,10 @@ public final class GamePanel extends Menu{
 	 */
 	public void showResults(){
 		resultOverlay.setEnabled(true);
-		repaint();
 	}
 	
-	//TODO docs
-	/**
-	 * Renders the game state with the given graphics.
-	 * @param g The graphics context to use.
-	 */
 	@Override
 	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
-		//render playfield background
-		g.setColor(Theme.BACKGROUND);
-		g.fillRect(0, TOP_SPACE, width, height - TOP_SPACE);
-		
 		//render the game
 		if(state != null){
 			renderPlayfield(g, width, height);
@@ -130,6 +125,8 @@ public final class GamePanel extends Menu{
 	/**
 	 * Renders the user interface with the given graphics.
 	 * @param g The graphics context to use.
+	 * @param width The width of the screen.
+	 * @param height The height of the screen.
 	 */
 	private void renderInterface(Graphics2D g, int width, int height){
 		renderMainInterface(g, width, height, state);
@@ -140,7 +137,6 @@ public final class GamePanel extends Menu{
 		
 		//render action hint
 		g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
-		//TODO override color ^
 		renderMenuTitle(g, width, state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object"));
 		
 		//render player data
@@ -187,6 +183,8 @@ public final class GamePanel extends Menu{
 	/**
 	 * Renders the playfield with the given graphics.
 	 * @param g The graphics context to use.
+	 * @param width The width of the screen.
+	 * @param height The height of the screen.
 	 */
 	private void renderPlayfield(Graphics2D g, int width, int height){
 		AffineTransform transform = g.getTransform();
@@ -232,10 +230,12 @@ public final class GamePanel extends Menu{
 	}
 	
 	/**
-	 * Translates the given point from windows coordinate space
+	 * Translates the given point from window coordinate space
 	 * to game coordinate space.
 	 * @param x The x coordinate of the point to translate.
 	 * @param y The y coordinate of the point to translate.
+	 * @param width The width of the screen.
+	 * @param height The height of the screen.
 	 * @return The point translated to game space.
 	 */
 	private Point2D translateToGameSpace(double x, double y, int width, int height){
@@ -256,7 +256,8 @@ public final class GamePanel extends Menu{
 	
 	@Override
 	public void handleLeftButtonClick(){
-		//TODO meny
+		//TODO menu
+		System.out.println("To main menu");
 	}
 
 	@Override
@@ -270,7 +271,6 @@ public final class GamePanel extends Menu{
 		
 		if(activeDialog != null){
 			activeDialog = null;
-			repaint();
 		}else if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
@@ -283,11 +283,9 @@ public final class GamePanel extends Menu{
 						state.notify();
 					}
 				}
-				this.repaint();
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
-			this.repaint();
 		}
 	}
 
@@ -296,7 +294,6 @@ public final class GamePanel extends Menu{
 		super.handleMouseMove(loc, width, height);
 		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(loc.getX(), loc.getY(), width, height));
-			this.repaint();
 		}
 	}
 
@@ -307,10 +304,8 @@ public final class GamePanel extends Menu{
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
 				state.clearSelection();
 				helperLines = null;
-				this.repaint();
 			}else if (e.getKeyCode() == KeyEvent.VK_C){
 				showCentroids = !showCentroids;
-				this.repaint();
 			}
 		}
 	}
@@ -337,6 +332,19 @@ public final class GamePanel extends Menu{
 
 	@Override
 	public void handleRightButtonClick(){
-		//TODO menu = new InfoMenu(state);
+		this.switchScene(new InfoMenu(this.getContext(), state, this));
+	}
+
+	@Override
+	public void claim(Player player, ConvexObject obj){
+	}
+
+	@Override
+	public void merge(Player player, ConvexObject source, ConvexObject target){
+	}
+
+	@Override
+	public void end(){
+		resultOverlay.setEnabled(true);
 	}
 }

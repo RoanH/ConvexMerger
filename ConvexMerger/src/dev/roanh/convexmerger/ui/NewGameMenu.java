@@ -11,7 +11,7 @@ import java.awt.geom.Point2D;
 import dev.roanh.convexmerger.player.AIRegistry;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
-public class NewGameMenu extends Menu{
+public class NewGameMenu extends Screen{
 	/**
 	 * Maximum width used by the boxes.
 	 */
@@ -21,22 +21,23 @@ public class NewGameMenu extends Menu{
 	private PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
 	private PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
 	
-	
-	
-	
+	public NewGameMenu(ConvexMerger context){
+		super(context);
+	}
 
 	@Override
 	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+		g.setColor(Theme.CROWN_COLOR);
 		renderMenuTitle(g, width, "New game");
 		drawTitle(g, width);
 		
-		double size = Menu.getMaxWidth(width, 0.8D, MAX_WIDTH);
+		double size = Screen.getMaxWidth(width, 0.8D, MAX_WIDTH);
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		double tx = (width - size) / 2.0D;
 		double ty = GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE;
 		
 		//TODO magic
-		double playersHeight = Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS * 2 + PlayerPanel.HEIGHT;
+		double playersHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS * 2 + PlayerPanel.HEIGHT;
 		double optionsHeight = 200.0D;
 		double startHeight = 100.0D;
 		
@@ -47,10 +48,10 @@ public class NewGameMenu extends Menu{
 		drawBox(g, tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight);
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
-		p1.render(g, tx + dx, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		p1.render(g, tx + dx, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
 	}
 
 	@Override

@@ -20,10 +20,10 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.GameState;
 
 /**
- * Base class for all menus containing shared rendering subroutines.
+ * Base class for all screens containing shared rendering subroutines.
  * @author Roan
  */
-public abstract class Menu{
+public abstract class Screen{
 	/**
 	 * Dimensions of the triangles on the left and right side of the top part.
 	 */
@@ -48,39 +48,36 @@ public abstract class Menu{
 	public static final int BOX_HEADER_HEIGHT = 28;
 	public static final int BOX_TEXT_OFFSET = 4;
 	/**
-	 * Info (bottom right) button polygon.
+	 * Bottom right button polygon.
 	 */
-	private Polygon infoPoly = null;
+	private Polygon rightPoly = null;
 	/**
-	 * Menu (bottom left) button polygon.
+	 * Bottom left button polygon.
 	 */
-	private Polygon menuPoly = null;//TODO rename polys
+	private Polygon leftPoly = null;
 	private Point2D lastLocation = new Point2D.Double();
+	private ConvexMerger context;
+	
+	protected Screen(ConvexMerger context){
+		this.context = context;
+	}
+	
+	protected ConvexMerger getContext(){
+		return context;
+	}
+	
+	public Screen switchScene(Screen next){
+		return context.switchScene(next);
+	}
 
+	public void render(Graphics2D g, int width, int height){
+		g.setColor(Theme.BACKGROUND);
+		g.fillRect(0, 0, width, height);
+		
+		render(g, width, height, lastLocation);
+	}
+	
 	public abstract void render(Graphics2D g, int width, int height, Point2D mouseLoc);
-	
-	public void handleMouseClick(Point2D loc, int width, int height){
-		if(isLeftButtonEnabled() && menuPoly.contains(loc)){
-			handleLeftButtonClick();
-		}else if(isRightButtonEnabled() && infoPoly.contains(loc)){
-			handleRightButtonClick();
-		}
-	}
-	
-	public void handleMouseMove(Point2D loc, int width, int height){
-		lastLocation = loc;
-	}
-	
-	public void handleKeyPressed(KeyEvent event){
-	}
-
-	public void handleKeyReleased(KeyEvent event){
-	}
-	
-	@Deprecated
-	public void repaint(){
-		//TODO ???
-	}
 	
 	public static double getMaxWidth(int width, double ratio, int max){
 		return Math.min(ratio * width, max);
@@ -129,7 +126,6 @@ public abstract class Menu{
 	
 	public void renderMenuTitle(Graphics2D g, int width, String title){
 		g.setFont(Theme.PRIDI_REGULAR_18);
-		g.setColor(Theme.CROWN_COLOR);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(title, Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2) + (TOP_MIDDLE_WIDTH - fm.stringWidth(title)) / 2.0F, TOP_SPACE + TOP_OFFSET - fm.getDescent() - TOP_MIDDLE_TEXT_OFFSET);
 	}
@@ -189,7 +185,7 @@ public abstract class Menu{
 		g.setFont(Theme.PRIDI_REGULAR_24);
 		FontMetrics fm = g.getFontMetrics();
 		
-		infoPoly = new Polygon(
+		rightPoly = new Polygon(
 			new int[]{
 				width,
 				width - BUTTON_WIDTH,
@@ -204,12 +200,15 @@ public abstract class Menu{
 			},
 			4
 		);
-		g.setColor((isRightButtonEnabled() && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
-		g.fill(infoPoly);
-		g.setColor((isRightButtonEnabled() && infoPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
-		g.drawString("Info", width - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth("Info") / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
+		g.setColor((isRightButtonEnabled() && rightPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.fill(rightPoly);
+		String text = getRightButtonText();
+		if(text != null){
+			g.setColor((isRightButtonEnabled() && rightPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+			g.drawString(text, width - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth(text) / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
+		}
 		
-		menuPoly = new Polygon(
+		leftPoly = new Polygon(
 			new int[]{
 				0,
 				0,
@@ -224,26 +223,28 @@ public abstract class Menu{
 			},
 			4
 		);
-		g.setColor((isLeftButtonEnabled() && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
-		g.fill(menuPoly);
-		String menuText = getLeftButtonText();
-		g.setColor((isLeftButtonEnabled() && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
-		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
+		g.setColor((isLeftButtonEnabled() && leftPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.fill(leftPoly);
+		text = getLeftButtonText();
+		if(text != null){
+			g.setColor((isLeftButtonEnabled() && leftPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+			g.drawString(text, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(text) / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
+		}
 		
 		//render UI borders
 		g.setPaint(Theme.constructBorderGradient(state, width));
 		g.setStroke(Theme.BORDER_STROKE);
 		
 		Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
-		infoPath.moveTo(infoPoly.xpoints[1], infoPoly.ypoints[1] - 1);
-		infoPath.lineTo(infoPoly.xpoints[2], infoPoly.ypoints[2] - 1);
-		infoPath.lineTo(infoPoly.xpoints[3] - 1, infoPoly.ypoints[3] - 1);
+		infoPath.moveTo(rightPoly.xpoints[1], rightPoly.ypoints[1] - 1);
+		infoPath.lineTo(rightPoly.xpoints[2], rightPoly.ypoints[2] - 1);
+		infoPath.lineTo(rightPoly.xpoints[3] - 1, rightPoly.ypoints[3] - 1);
 		g.draw(infoPath);
 		
 		Path2D menuPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
-		menuPath.moveTo(menuPoly.xpoints[1], menuPoly.ypoints[1] - 1);
-		menuPath.lineTo(menuPoly.xpoints[2], menuPoly.ypoints[2] - 1);
-		menuPath.lineTo(menuPoly.xpoints[3] + 1, menuPoly.ypoints[3]);
+		menuPath.moveTo(leftPoly.xpoints[1], leftPoly.ypoints[1] - 1);
+		menuPath.lineTo(leftPoly.xpoints[2], leftPoly.ypoints[2] - 1);
+		menuPath.lineTo(leftPoly.xpoints[3] + 1, leftPoly.ypoints[3]);
 		g.draw(menuPath);
 		
 		Path2D topPath = new Path2D.Double(Path2D.WIND_NON_ZERO, topPoly.npoints - 2);
@@ -252,6 +253,24 @@ public abstract class Menu{
 			topPath.lineTo(topPoly.xpoints[i], topPoly.ypoints[i]);
 		}
 		g.draw(topPath);
+	}
+	
+	public void handleMouseClick(Point2D loc, int width, int height){
+		if(isLeftButtonEnabled() && leftPoly.contains(loc)){
+			handleLeftButtonClick();
+		}else if(isRightButtonEnabled() && rightPoly.contains(loc)){
+			handleRightButtonClick();
+		}
+	}
+	
+	public void handleMouseMove(Point2D loc, int width, int height){
+		lastLocation = loc;
+	}
+	
+	public void handleKeyPressed(KeyEvent event){
+	}
+
+	public void handleKeyReleased(KeyEvent event){
 	}
 	
 	public abstract boolean isLeftButtonEnabled();
@@ -265,8 +284,4 @@ public abstract class Menu{
 	public abstract void handleLeftButtonClick();
 	
 	public abstract void handleRightButtonClick();
-	
-	public void render(Graphics2D g, int width, int height){
-		render(g, width, height, lastLocation);
-	}
 }

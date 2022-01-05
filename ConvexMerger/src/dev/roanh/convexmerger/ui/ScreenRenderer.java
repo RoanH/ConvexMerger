@@ -25,9 +25,9 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 	 * Executor service used to run animations.
 	 */
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	private Menu screen;
+	private Screen screen;
 	
-	public ScreenRenderer(Menu screen){
+	public ScreenRenderer(Screen screen){
 		this.setFocusable(true);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -35,8 +35,10 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 		setScreen(screen);
 	}
 	
-	public void setScreen(Menu screen){
+	public Screen setScreen(Screen screen){
+		Screen old = this.screen;
 		this.screen = screen;
+		return old;
 	}
 	
 	@Override
