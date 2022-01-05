@@ -75,6 +75,7 @@ public class ComboBox<T>{
 		
 		g.setColor(color);
 		g.draw(new Line2D.Double(x, y + height - 1, x + width - 1, y + height - 1));
+		g.drawImage(Theme.CHEVRON_ICON, (int)(x + width - 1 - Theme.CHEVRON_ICON_SIZE), (int)y, null);
 		
 		return focus;
 	}

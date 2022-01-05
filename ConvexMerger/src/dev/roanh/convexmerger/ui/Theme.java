@@ -209,6 +209,10 @@ public final class Theme{
 	 */
 	public static final int REMOVE_ICON_SIZE = 16;
 	/**
+	 * Size of the chevron icon.
+	 */
+	public static final int CHEVRON_ICON_SIZE = 20;
+	/**
 	 * Smaller crown image with size {@value #CROWN_ICON_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON;
@@ -222,6 +226,7 @@ public final class Theme{
 	public static final BufferedImage PLAYER_ADD_HIGHLIGHT;
 	public static final BufferedImage REMOVE_ICON;
 	public static final BufferedImage REMOVE_ICON_HIGHLIGHT;
+	public static final BufferedImage CHEVRON_ICON;
 
 	/**
 	 * Formats the given area by rounding to an integer and
@@ -386,6 +391,7 @@ public final class Theme{
 			PLAYER_ADD_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/add_human.png"), ADD_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
 			REMOVE_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/remove.png"), REMOVE_ICON_SIZE, ADD_COLOR);
 			REMOVE_ICON_HIGHLIGHT = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/remove.png"), REMOVE_ICON_SIZE, REMOVE_BUTTON_HIGHLIGHT);
+			CHEVRON_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/chevron.png"), CHEVRON_ICON_SIZE, ADD_COLOR_HIGHLIGHT);
 		}catch(IOException | FontFormatException e){
 			//this should not happen
 			throw new RuntimeException("Failed to load fonts or icons", e);
