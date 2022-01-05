@@ -213,6 +213,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 		
 		g.setColor(Color.WHITE);
+		g.setStroke(Theme.BORDER_STROKE);
 		for(Line2D line : state.getVerticalDecompLines()){
 			g.draw(line);
 		}
