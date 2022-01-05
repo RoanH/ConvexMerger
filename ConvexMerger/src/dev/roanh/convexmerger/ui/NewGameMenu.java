@@ -2,8 +2,10 @@ package dev.roanh.convexmerger.ui;
 
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
@@ -55,33 +57,82 @@ public class NewGameMenu implements Menu{
 
 	@Override
 	public void handleMouseClick(Point2D loc){
-		// TODO Auto-generated method stub
-		
+		if(p1.name != null){
+			p1.name.handleMouseClick(loc);
+		}
+		if(p2.name != null){
+			p2.name.handleMouseClick(loc);
+		}
+		if(p3.name != null){
+			p3.name.handleMouseClick(loc);
+		}
+		if(p4.name != null){
+			p4.name.handleMouseClick(loc);
+		}
+	}
+
+	@Override
+	public void handleKeyTyped(KeyEvent event){
+		if(p1.name != null && p1.name.hasFocus()){
+			p1.name.handleKeyEvent(event);
+		}else if(p2.name != null && p2.name.hasFocus()){
+			p2.name.handleKeyEvent(event);
+		}else if(p2.name != null && p3.name.hasFocus()){
+			p3.name.handleKeyEvent(event);
+		}else if(p4.name != null && p4.name.hasFocus()){
+			p4.name.handleKeyEvent(event);
+		}
 	}
 
 	private class PlayerPanel{
 		private static final double WIDTH = 150.0D;
 		private static final double HEIGHT = 62.0D;
 		private static final double BUTTON_INSET = 4.0D;
+		private static final double CONTENT_WIDTH = 134.0D;
+		private static final double CONTENT_HEIGHT = 21.0D;
+		private static final double SPACING = 4.0D;
 		private Path2D addPlayer = null;
 		private Path2D addAI = null;
 		private PlayerTheme theme;
+		private TextField name;//TODO = null;
+		private ComboBox ai = null;
+		private Path2D remove = null;
 		
 		private PlayerPanel(PlayerTheme theme){
 			this.theme = theme;
+			name = new TextField(theme.getBaseOutline());
 		}
 		
 		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
 			g.setColor(Theme.LIGHTEN);
 			drawBox(g, x, y, WIDTH, HEIGHT);
 			
-			renderAddButtons(g, x, y, mouseLoc);
+//			renderAddButtons(g, x, y, mouseLoc);
+			renderAddPlayer(g, x, y, mouseLoc);
 		}
 		
 		
 		
 		
+		private void renderAddPlayer(Graphics2D g, double x, double y, Point2D mouseLoc){
+			y += (HEIGHT - CONTENT_HEIGHT * 2.0D - SPACING) / 2.0D;
+			x += (WIDTH - CONTENT_WIDTH) / 2.0D;
+			g.drawImage(theme.getSmallIconHuman(), (int)x, (int)y, null);
+			name.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
+			renderRemoveButton(g, x, y + CONTENT_HEIGHT + SPACING, mouseLoc);
+		}
 		
+		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
+			Path2D box = computeBox(g, x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
+			
+			g.setColor(Theme.DOUBLE_LIGHTEN);
+			if(box.contains(mouseLoc)){
+				g.fill(box);
+			}else{
+				g.setStroke(Theme.BUTTON_STROKE);
+				g.draw(box);
+			}
+		}
 		
 		private void renderAddButtons(Graphics2D g, double x, double y, Point2D mouseLoc){
 			double width = (WIDTH - 1.0D - 3.0D * BUTTON_INSET) / 2.0D;

@@ -129,7 +129,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 	/**
 	 * Active menu.
 	 */
-	private Menu menu;// = new NewGameMenu();
+	private Menu menu = new NewGameMenu();
 	private Point lastLocation = new Point();
 	
 	/**
@@ -470,6 +470,7 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 		}
 		
 		if(menu != null){
+			menu.handleMouseClick(e.getPoint());
 			return;
 		}
 		
@@ -534,6 +535,9 @@ public final class GamePanel extends JPanel implements MouseListener, MouseMotio
 
 	@Override
 	public void keyPressed(KeyEvent e){
+		if(menu != null){
+			menu.handleKeyTyped(e);
+		}
 	}
 
 	@Override

@@ -159,6 +159,10 @@ public final class Theme{
 	 */
 	public static final Font PRIDI_MEDIUM_13;
 	/**
+	 * Pridi medium font with size 14, used for text fields.
+	 */
+	public static final Font PRIDI_MEDIUM_14;
+	/**
 	 * Pridi medium font with size 16, used for bar chart names and result overlay stats.
 	 */
 	public static final Font PRIDI_MEDIUM_16;
@@ -178,6 +182,10 @@ public final class Theme{
 	 * Dimensions of the player icon.
 	 */
 	public static final int PLAYER_ICON_SIZE = 24;
+	/**
+	 * Dimensions of the small player icon.
+	 */
+	public static final int PLAYER_ICON_SIZE_SMALL = 20;
 	/**
 	 * Dimensions of the crown image.
 	 * @see #CROWN_ICON
@@ -353,6 +361,7 @@ public final class Theme{
 			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
 			PRIDI_MEDIUM_13 = medium.deriveFont(13.0F);
+			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_16 = medium.deriveFont(16.0F);
 			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
 			PRIDI_MEDIUM_30 = medium.deriveFont(30.0F);//TODO technically needs spacing
@@ -455,6 +464,14 @@ public final class Theme{
 		 * Human icon in the color for this player theme.
 		 */
 		private final BufferedImage human;
+		/**
+		 * Small AI icon in the color for this player theme.
+		 */
+		private final BufferedImage aiSmall;
+		/**
+		 * Small human icon in the color for this player theme.
+		 */
+		private final BufferedImage humanSmall;
 		
 		/**
 		 * Constructs a new player theme with the given colours.
@@ -524,6 +541,8 @@ public final class Theme{
 			try{
 				ai = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE, outline);
 				human = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/human.png"), PLAYER_ICON_SIZE, outline);
+				aiSmall = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/ai.png"), PLAYER_ICON_SIZE_SMALL, outline);
+				humanSmall = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/human.png"), PLAYER_ICON_SIZE_SMALL, outline);
 			}catch(IOException e){
 				//should not happen
 				throw new RuntimeException("Failed to load icons", e);
@@ -544,6 +563,22 @@ public final class Theme{
 		 */
 		public BufferedImage getIconHuman(){
 			return human;
+		}
+		
+		/**
+		 * Gets the small AI icon for this theme.
+		 * @return The small AI icon for this theme.
+		 */
+		public BufferedImage getSmallIconAI(){
+			return aiSmall;
+		}
+		
+		/**
+		 * Gets the small human icon for this theme.
+		 * @return The small human icon for this theme.
+		 */
+		public BufferedImage getSmallIconHuman(){
+			return humanSmall;
 		}
 		
 		/**

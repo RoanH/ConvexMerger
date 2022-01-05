@@ -5,6 +5,7 @@ import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -197,6 +198,14 @@ public class InfoMenu implements Menu{
 		example.run(g);
 		g.setTransform(transform);
 	}
+
+	@Override
+	public void handleMouseClick(Point2D loc){
+	}
+
+	@Override
+	public void handleKeyTyped(KeyEvent event){
+	}
 	
 	static{
 		try{
@@ -231,9 +240,5 @@ public class InfoMenu implements Menu{
 		versionChecker.setDaemon(true);
 		versionChecker.setName("VersionChecker");
 		versionChecker.start();
-	}
-
-	@Override
-	public void handleMouseClick(Point2D loc){
 	}
 }

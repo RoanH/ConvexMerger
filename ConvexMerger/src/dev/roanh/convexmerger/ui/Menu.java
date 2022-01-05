@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -32,6 +33,8 @@ public abstract interface Menu{
 	public abstract boolean render(Graphics2D g, int width, int height, Point2D mouseLoc);
 	
 	public abstract void handleMouseClick(Point2D loc);
+	
+	public abstract void handleKeyTyped(KeyEvent event);
 	
 	public static double getMaxWidth(int width, double ratio, int max){
 		return Math.min(ratio * width, max);
@@ -61,18 +64,21 @@ public abstract interface Menu{
 	}
 	
 	public default void drawBox(Graphics2D g, double x, double y, double w, double h){
+		g.fill(computeBox(g, x, y, w, h, BOX_INSETS));
+	}
+	
+	public default Path2D computeBox(Graphics2D g, double x, double y, double w, double h, double inset){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 8);
-		path.moveTo(x, y + BOX_INSETS);
-		path.lineTo(x + BOX_INSETS, y);
-		path.lineTo(x + w - BOX_INSETS, y);
-		path.lineTo(x + w, y + BOX_INSETS);
-		path.lineTo(x + w, y + h - BOX_INSETS);
-		path.lineTo(x + w - BOX_INSETS, y + h);
-		path.lineTo(x + BOX_INSETS, y + h);
-		path.lineTo(x, y + h - BOX_INSETS);
+		path.moveTo(x, y + inset);
+		path.lineTo(x + inset, y);
+		path.lineTo(x + w - inset, y);
+		path.lineTo(x + w, y + inset);
+		path.lineTo(x + w, y + h - inset);
+		path.lineTo(x + w - inset, y + h);
+		path.lineTo(x + inset, y + h);
+		path.lineTo(x, y + h - inset);
 		path.closePath();
-		
-		g.fill(path);
+		return path;
 	}
 	
 	public default void renderMenuTitle(Graphics2D g, int width, String title){
