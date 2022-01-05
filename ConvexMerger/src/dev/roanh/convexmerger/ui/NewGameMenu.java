@@ -47,28 +47,20 @@ public class NewGameMenu implements Menu{
 		drawBox(g, tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight);
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
-		p1.render(g, tx + dx, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		boolean anim = p1.render(g, tx + dx, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		anim |= p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		anim |= p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		anim |= p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
 		
-		return true;
+		return true;//TODO anim;
 	}
 
 	@Override
 	public void handleMouseClick(Point2D loc){
-		if(p1.name != null){
-			p1.name.handleMouseClick(loc);
-		}
-		if(p2.name != null){
-			p2.name.handleMouseClick(loc);
-		}
-		if(p3.name != null){
-			p3.name.handleMouseClick(loc);
-		}
-		if(p4.name != null){
-			p4.name.handleMouseClick(loc);
-		}
+		p1.handleMouseClick(loc);
+		p2.handleMouseClick(loc);
+		p3.handleMouseClick(loc);
+		p4.handleMouseClick(loc);
 	}
 
 	@Override
@@ -94,43 +86,70 @@ public class NewGameMenu implements Menu{
 		private Path2D addPlayer = null;
 		private Path2D addAI = null;
 		private PlayerTheme theme;
-		private TextField name;//TODO = null;
+		private TextField name = null;
 		private ComboBox ai = null;
-		private Path2D remove = null;
+		private Path2D remove = new Path2D.Double();
 		
 		private PlayerPanel(PlayerTheme theme){
 			this.theme = theme;
-			name = new TextField(theme.getBaseOutline());
 		}
 		
-		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
+		private boolean render(Graphics2D g, double x, double y, Point2D mouseLoc){
 			g.setColor(Theme.LIGHTEN);
 			drawBox(g, x, y, WIDTH, HEIGHT);
 			
-//			renderAddButtons(g, x, y, mouseLoc);
-			renderAddPlayer(g, x, y, mouseLoc);
+			if(name == null && ai == null){
+				renderAddButtons(g, x, y, mouseLoc);
+			}else if(name != null){
+				return renderAddPlayer(g, x, y, mouseLoc);
+			}else if(ai != null){
+				renderAddAI(g, x, y, mouseLoc);
+			}
+			return false;
 		}
 		
 		
 		
+		private void renderAddAI(Graphics2D g, double x, double y, Point2D mouseLoc){
+			//TDOO
+		}
 		
-		private void renderAddPlayer(Graphics2D g, double x, double y, Point2D mouseLoc){
+		private void handleMouseClick(Point2D loc){
+			if(name != null){
+				name.handleMouseClick(loc);
+			}
+			
+			if(name == null && ai == null){
+				if(addPlayer.contains(loc)){
+					name = new TextField(theme.getBaseOutline());
+				}else if(addAI.contains(loc)){
+					//TODO
+				}
+			}else{
+				if(remove.contains(loc)){
+					name = null;
+					ai = null;
+				}
+			}
+		}
+		
+		private boolean renderAddPlayer(Graphics2D g, double x, double y, Point2D mouseLoc){
 			y += (HEIGHT - CONTENT_HEIGHT * 2.0D - SPACING) / 2.0D;
 			x += (WIDTH - CONTENT_WIDTH) / 2.0D;
 			g.drawImage(theme.getSmallIconHuman(), (int)x, (int)y, null);
-			name.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
 			renderRemoveButton(g, x, y + CONTENT_HEIGHT + SPACING, mouseLoc);
+			return name.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
 		}
 		
 		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
-			Path2D box = computeBox(g, x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
+			remove = computeBox(g, x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
 			
 			g.setColor(Theme.DOUBLE_LIGHTEN);
-			if(box.contains(mouseLoc)){
-				g.fill(box);
+			if(remove.contains(mouseLoc)){
+				g.fill(remove);
 			}else{
 				g.setStroke(Theme.BUTTON_STROKE);
-				g.draw(box);
+				g.draw(remove);
 			}
 		}
 		
