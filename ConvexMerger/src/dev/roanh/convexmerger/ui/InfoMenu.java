@@ -1,11 +1,8 @@
 package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
-
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -62,7 +59,7 @@ public class InfoMenu extends Menu{
 	}
 
 	@Override
-	public boolean render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMenuTitle(g, width, "Information");
 		drawTitle(g, width);
 		
@@ -78,8 +75,6 @@ public class InfoMenu extends Menu{
 		renderRules(g, gradient, offset, 0.0D, boxWidth, rulesHeight);
 		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, CREDITS_HEIGHT);
 		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, VERSION_HEIGHT);
-		
-		return true;
 	}
 	
 	/**
@@ -197,14 +192,6 @@ public class InfoMenu extends Menu{
 		}
 		example.run(g);
 		g.setTransform(transform);
-	}
-
-	@Override
-	public void handleMouseClick(Point2D loc){
-	}
-
-	@Override
-	public void handleKeyTyped(KeyEvent event){
 	}
 
 	@Override

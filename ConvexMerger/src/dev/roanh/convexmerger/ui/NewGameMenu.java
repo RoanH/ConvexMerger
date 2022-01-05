@@ -1,7 +1,5 @@
 package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
-
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -13,7 +11,7 @@ import java.awt.geom.Point2D;
 import dev.roanh.convexmerger.player.AIRegistry;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
-public class NewGameMenu implements Menu{
+public class NewGameMenu extends Menu{
 	/**
 	 * Maximum width used by the boxes.
 	 */
@@ -28,7 +26,7 @@ public class NewGameMenu implements Menu{
 	
 
 	@Override
-	public boolean render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMenuTitle(g, width, "New game");
 		drawTitle(g, width);
 		
@@ -49,16 +47,15 @@ public class NewGameMenu implements Menu{
 		drawBox(g, tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight);
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
-		boolean anim = p1.render(g, tx + dx, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		anim |= p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		anim |= p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		anim |= p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		
-		return true;//TODO anim;
+		p1.render(g, tx + dx, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
 	}
 
 	@Override
-	public void handleMouseClick(Point2D loc){
+	public void handleMouseClick(Point2D loc, int width, int height){
+		super.handleMouseClick(loc, width, height);
 		p1.handleMouseClick(loc);
 		p2.handleMouseClick(loc);
 		p3.handleMouseClick(loc);
@@ -66,7 +63,7 @@ public class NewGameMenu implements Menu{
 	}
 
 	@Override
-	public void handleKeyTyped(KeyEvent event){
+	public void handleKeyPressed(KeyEvent event){
 		if(p1.name != null && p1.name.hasFocus()){
 			p1.name.handleKeyEvent(event);
 		}else if(p2.name != null && p2.name.hasFocus()){
@@ -97,7 +94,7 @@ public class NewGameMenu implements Menu{
 			this.theme = theme;
 		}
 		
-		private boolean render(Graphics2D g, double x, double y, Point2D mouseLoc){
+		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
 			g.setColor(Theme.LIGHTEN);
 			drawBox(g, x, y, WIDTH, HEIGHT);
 			
@@ -114,7 +111,6 @@ public class NewGameMenu implements Menu{
 					ai.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT, mouseLoc);
 				}
 			}
-			return false;
 		}
 		
 		private void handleMouseClick(Point2D loc){
@@ -205,5 +201,35 @@ public class NewGameMenu implements Menu{
 			g.draw(addPlayer);
 			g.draw(addAI);
 		}
+	}
+
+	@Override
+	public boolean isLeftButtonEnabled(){
+		return true;
+	}
+
+	@Override
+	public boolean isRightButtonEnabled(){
+		return false;
+	}
+
+	@Override
+	public String getLeftButtonText(){
+		return "Back";
+	}
+
+	@Override
+	public String getRightButtonText(){
+		return null;
+	}
+
+	@Override
+	public void handleLeftButtonClick(){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRightButtonClick(){
 	}
 }
