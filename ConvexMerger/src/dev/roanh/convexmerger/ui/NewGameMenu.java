@@ -20,6 +20,7 @@ public class NewGameMenu extends Screen{
 	private PlayerPanel p2 = new PlayerPanel(PlayerTheme.P2);
 	private PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
 	private PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
+	private Path2D start = new Path2D.Double();
 	
 	public NewGameMenu(ConvexMerger context){
 		super(context);
@@ -47,7 +48,8 @@ public class NewGameMenu extends Screen{
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
 
 		g.setColor(Theme.MENU_BODY);
-		drawBox(g, tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight);
+		start = computeBox(tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight, BOX_INSETS);
+		g.fill(start);
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
 		p1.render(g, tx + dx, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
@@ -142,7 +144,7 @@ public class NewGameMenu extends Screen{
 		}
 		
 		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
-			remove = computeBox(g, x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
+			remove = computeBox(x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
 			
 			g.setFont(Theme.PRIDI_REGULAR_14);
 			

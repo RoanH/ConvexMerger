@@ -12,10 +12,10 @@ public class Main{
 		ConvexMerger game = new ConvexMerger();
 //		game.hostMultiplayerGame();
 		
-		//game.initialiseGame();
+		game.initialiseGame();
 		
 		
-		game.switchScene(new NewGameMenu(game));
+		//game.switchScene(new NewGameMenu(game));
 		
 		
 		

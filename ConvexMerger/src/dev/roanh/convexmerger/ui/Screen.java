@@ -107,10 +107,10 @@ public abstract class Screen{
 	}
 	
 	protected void drawBox(Graphics2D g, double x, double y, double w, double h){
-		g.fill(computeBox(g, x, y, w, h, BOX_INSETS));
+		g.fill(computeBox(x, y, w, h, BOX_INSETS));
 	}
 	
-	protected Path2D computeBox(Graphics2D g, double x, double y, double w, double h, double inset){
+	protected Path2D computeBox(double x, double y, double w, double h, double inset){
 		Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO, 8);
 		path.moveTo(x, y + inset);
 		path.lineTo(x + inset, y);
