@@ -7,12 +7,15 @@ import static dev.roanh.convexmerger.ui.GamePanel.TOP_OFFSET;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -25,7 +28,23 @@ import dev.roanh.convexmerger.Constants;
  * Base class for all menus containing shared rendering subroutines.
  * @author Roan
  */
-public abstract class Menu implements MouseMotionListener{
+public abstract class Menu implements MouseMotionListener, MouseListener{
+	/**
+	 * Dimensions of the triangles on the left and right side of the top part.
+	 */
+	public static final int TOP_SIDE_TRIANGLE = 50;
+	/**
+	 * Height of the middle text area attached to the top part.
+	 */
+	private static final int TOP_MIDDLE_OFFSET = 30;
+	/**
+	 * Height of the buttons in the bottom left and right.
+	 */
+	private static final int BUTTON_HEIGHT = 50;
+	/**
+	 * Width of the buttons in the bottom left and right.
+	 */
+	private static final int BUTTON_WIDTH = 150;
 	/**
 	 * Space between the boxes.
 	 */
@@ -43,7 +62,7 @@ public abstract class Menu implements MouseMotionListener{
 	private Polygon menuPoly = null;
 	private Point lastLocation = new Point();
 
-	public abstract boolean render(Graphics2D g, int width, int height, Point2D mouseLoc);
+	public abstract void render(Graphics2D g, int width, int height, Point2D mouseLoc);
 	
 	@Deprecated
 	public abstract void handleMouseClick(Point2D loc);
@@ -177,19 +196,10 @@ public abstract class Menu implements MouseMotionListener{
 			},
 			4
 		);
-		if(menu == null && !resultOverlay.isEnabled()){
-			if(infoPoly.contains(lastLocation)){
-				g.setColor(Theme.BUTTON_HOVER_COLOR);
-			}else{
-				g.setColor(Theme.MENU_BODY);
-			}
-		}
-		g.setColor((menu == null && !resultOverlay.isEnabled() && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.setColor((isRightButtonEnabled() && infoPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(infoPoly);
-		if(menu == null){
-			g.setColor((!resultOverlay.isEnabled() && infoPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
-			g.drawString("Info", this.getWidth() - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth("Info") / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
-		}
+		g.setColor((isRightButtonEnabled() && infoPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+		g.drawString("Info", width - BUTTON_WIDTH / 2.0F + BUTTON_HEIGHT / 4.0F - fm.stringWidth("Info") / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		menuPoly = new Polygon(
 			new int[]{
@@ -206,14 +216,14 @@ public abstract class Menu implements MouseMotionListener{
 			},
 			4
 		);
-		g.setColor(((!resultOverlay.isEnabled() || menu != null) && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
+		g.setColor((isLeftButtonEnabled() && menuPoly.contains(lastLocation)) ? Theme.BUTTON_HOVER_COLOR : Theme.MENU_BODY);
 		g.fill(menuPoly);
-		String menuText = menu == null ? "Menu" : "Back";
-		g.setColor(((!resultOverlay.isEnabled() || menu != null) && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
-		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, this.getHeight() + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
+		String menuText = getLeftButtonText();
+		g.setColor((isLeftButtonEnabled() && menuPoly.contains(lastLocation)) ? Color.WHITE : Theme.BUTTON_TEXT_COLOR);
+		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//render UI borders
-		g.setPaint(Theme.constructBorderGradient(state, this.getWidth()));
+		//TODO g.setPaint(Theme.constructBorderGradient(state, width));
 		g.setStroke(Theme.BORDER_STROKE);
 		
 		Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
@@ -243,6 +253,32 @@ public abstract class Menu implements MouseMotionListener{
 	public abstract String getLeftButtonText();
 	
 	public abstract String getRightButtonText();
+	
+	public abstract void handleLeftButtonClick();
+	
+	public abstract void handleRightButtonClick();
+	
+	public void render(Graphics2D g, int width, int height){
+		render(g, width, height, lastLocation);
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e){
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e){
+	}
+
+	//TODO rename polys
+	@Override
+	public void mouseReleased(MouseEvent e){
+		if(isLeftButtonEnabled() && menuPoly.contains(e.getPoint())){
+			handleLeftButtonClick();
+		}else if(isRightButtonEnabled() && infoPoly.contains(e.getPoint())){
+			handleRightButtonClick();
+		}
+	}
 	
 	@Override
 	public void mouseEntered(MouseEvent e){

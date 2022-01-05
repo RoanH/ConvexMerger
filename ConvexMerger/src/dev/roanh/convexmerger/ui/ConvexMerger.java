@@ -34,7 +34,7 @@ public class ConvexMerger{
 	
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
-		content.add(game, BorderLayout.CENTER);
+		content.add(new ScreenRenderer(game), BorderLayout.CENTER);
 		
 		try{
 			frame.setIconImages(Arrays.asList(

@@ -21,6 +21,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,10 +39,6 @@ import dev.roanh.convexmerger.player.Player;
  * @author Roan
  */
 public final class GamePanel extends Menu implements MouseListener, MouseMotionListener, KeyListener{
-	/**
-	 * Executor service used to run animations.
-	 */
-	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	/**
 	 * Serial ID.
 	 */
@@ -71,22 +68,6 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	 */
 	public static final int TOP_MIDDLE_TEXT_OFFSET = 2;
 	/**
-	 * Dimensions of the triangles on the left and right side of the top part.
-	 */
-	public static final int TOP_SIDE_TRIANGLE = 50;
-	/**
-	 * Height of the middle text area attached to the top part.
-	 */
-	private static final int TOP_MIDDLE_OFFSET = 30;
-	/**
-	 * Height of the buttons in the bottom left and right.
-	 */
-	private static final int BUTTON_HEIGHT = 50;
-	/**
-	 * Width of the buttons in the bottom left and right.
-	 */
-	private static final int BUTTON_WIDTH = 150;
-	/**
 	 * Number of pixels between the player icon and the text.
 	 */
 	private static final int ICON_TEXT_SPACING = 4;
@@ -111,31 +92,15 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	 */
 	private List<Line2D> helperLines = null;
 	/**
-	 * Whether an animation is actively running.
-	 */
-	private boolean animationRunning;
-	/**
 	 * Result overlay.
 	 */
 	private ResultOverlay resultOverlay;
-	
-	/**
-	 * Constructs a new game panel.
-	 */
-	protected GamePanel(){
-		this.setFocusable(true);
-	}
 	
 	/**
 	 * Sets the game state to display in this game panel.
 	 * @param state The game state to display.
 	 */
 	public void setGameState(GameState state){
-		if(this.state == null){
-			this.addMouseListener(this);
-			this.addMouseMotionListener(this);
-			this.addKeyListener(this);
-		}
 		resultOverlay = new ResultOverlay(state);
 		this.state = state;
 	}
@@ -148,45 +113,36 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 		repaint();
 	}
 	
+	//TODO docs
 	/**
 	 * Renders the game state with the given graphics.
 	 * @param g The graphics context to use.
 	 */
-	private void renderGame(Graphics2D g){
-		animationRunning = false;
-
+	@Override
+	public void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		//render playfield background
 		g.setColor(Theme.BACKGROUND);
-		g.fillRect(0, TOP_SPACE, this.getWidth(), this.getHeight() - TOP_SPACE);
+		g.fillRect(0, TOP_SPACE, width, height - TOP_SPACE);
 		
 		//render the game
-		if(menu == null && state != null){
-			renderPlayfield(g);
+		if(state != null){
+			renderPlayfield(g, width, height);
 		}
 		
 		//render UI shapes
-		renderInterface(g);
+		renderInterface(g, width, height);
 		
-		if(menu == null){
-			//TODO temp dialog
-			if(activeDialog != null){
-				//TODO center and make look nice
-				g.drawString(activeDialog.getTitle(), 100, 10 + 120);
-				g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
-				g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
-			}
-
-			//render results
-			if(resultOverlay != null){
-				animationRunning |= resultOverlay.render(g, this.getWidth(), this.getHeight());
-			}
-		}else{
-			animationRunning |= menu.render(g, this.getWidth(), this.getHeight(), lastLocation);
+		//TODO temp dialog
+		if(activeDialog != null){
+			//TODO center and make look nice
+			g.drawString(activeDialog.getTitle(), 100, 10 + 120);
+			g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
+			g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
 		}
-		
-		//schedule next animation frame
-		if(animationRunning){
-			executor.schedule(()->this.repaint(), Constants.ANIMATION_RATE, TimeUnit.MILLISECONDS);
+
+		//render results
+		if(resultOverlay != null){
+			resultOverlay.render(g, width, height);
 		}
 	}
 	
@@ -194,8 +150,8 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	 * Renders the user interface with the given graphics.
 	 * @param g The graphics context to use.
 	 */
-	private void renderInterface(Graphics2D g, int width){
-		renderMainInterface(g);
+	private void renderInterface(Graphics2D g, int width, int height){
+		renderMainInterface(g, width, height);
 		
 		if(state == null){
 			return;
@@ -204,15 +160,15 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 		//render action hint
 		g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
 		//TODO override color ^
-		renderMenuTitle(g, this.getWidth(), state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object"));
+		renderMenuTitle(g, width, state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object"));
 		
 		//render player data
 		List<Player> players = state.getPlayers();
 		double max = players.stream().mapToDouble(Player::getArea).max().getAsDouble();
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
-			int x = ((i * this.getWidth()) / players.size());
-			g.setClip(x, 0, this.getWidth() / players.size(), TOP_SPACE);
+			int x = ((i * width) / players.size());
+			g.setClip(x, 0, width / players.size(), TOP_SPACE);
 			
 			//offset
 			g.setFont(Theme.PRIDI_MEDIUM_24);
@@ -221,7 +177,7 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 			x += PLAYER_TEXT_OFFSET;
 			
 			//player icon and name
-			g.drawImage(player.isAI() ? player.getTheme().getIconAI() : player.getTheme().getIconHuman(), x, y, this);
+			g.drawImage(player.isAI() ? player.getTheme().getIconAI() : player.getTheme().getIconHuman(), x, y, null);
 			g.setColor(player.getTheme().getTextColor());
 			g.drawString(player.getName(), x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + PLAYER_ICON_SIZE / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 			
@@ -232,7 +188,7 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 			
 			//crown icon
 			if(Double.compare(player.getArea(), max) >= 0){
-				g.drawImage(Theme.CROWN_ICON, x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, this);
+				g.drawImage(Theme.CROWN_ICON, x + (PLAYER_ICON_SIZE - CROWN_ICON_SIZE) / 2, y, null);
 				g.setColor(Theme.SCORE_COLOR_LEAD);
 			}else{
 				g.setColor(Theme.SCORE_COLOR);
@@ -241,7 +197,7 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 			//player score
 			AffineTransform transform = g.getTransform();
 			g.translate(x + PLAYER_ICON_SIZE + ICON_TEXT_SPACING, y + CROWN_ICON_SIZE / 2.0D + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D);
-			animationRunning |= player.getScoreAnimation().run(g);
+			player.getScoreAnimation().run(g);
 			g.setTransform(transform);
 		}
 		g.setClip(null);
@@ -265,7 +221,7 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 		
 		for(ConvexObject obj : state.getObjects()){
 			if(obj.hasAnimation()){
-				animationRunning |= obj.runAnimation(g);
+				obj.runAnimation(g);
 			}else{
 				obj.render(g);
 			}
@@ -318,46 +274,22 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	}
 	
 	@Override
-	public void paintComponent(Graphics g1){
-		Graphics2D g = (Graphics2D)g1.create();
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-		renderGame(g);
-	}
-
-	@Override
 	public void mouseClicked(MouseEvent e){
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e){
 	}
+	
+	@Override
+	public void handleLeftButtonClick(){
+		//TODO menu = new InfoMenu(state);
+	}
 
 	@Override
 	public void mouseReleased(MouseEvent e){
-		if(resultOverlay.isEnabled() && menu == null){
+		if(resultOverlay.isEnabled()){
 			//TODO handle menu button click
-			return;
-		}
-		
-		if(menuPoly.contains(e.getPoint())){
-			if(menu == null){
-				//TODO open menu
-				System.out.println("TODO open menu");
-			}else{
-				menu = null;
-			}
-		}
-		
-		if(menu != null){
-			menu.handleMouseClick(e.getPoint());
-			return;
-		}
-		
-		if(infoPoly.contains(e.getPoint())){
-			menu = new InfoMenu(state);
-			this.repaint();
 			return;
 		}
 		
@@ -398,14 +330,8 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 
 	@Override
 	public void mouseMoved(MouseEvent e){
-		boolean onButtonBefore = infoPoly != null && menuPoly != null && (infoPoly.contains(lastLocation) || menuPoly.contains(lastLocation));
-		lastLocation = e.getPoint();
-		boolean onButtonAfter = infoPoly != null && menuPoly != null && (infoPoly.contains(lastLocation) || menuPoly.contains(lastLocation));
-		
 		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
-			this.repaint();
-		}else if(onButtonBefore != onButtonAfter){
 			this.repaint();
 		}
 	}
@@ -431,5 +357,47 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 				this.repaint();
 			}
 		}
+	}
+
+	@Override
+	public void handleMouseClick(Point2D loc){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleKeyTyped(KeyEvent event){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isLeftButtonEnabled(){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isRightButtonEnabled(){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getLeftButtonText(){
+		// TODO Auto-generated method stub
+		return "Menu";
+	}
+
+	@Override
+	public String getRightButtonText(){
+		// TODO Auto-generated method stub
+		return "Info";
+	}
+
+	@Override
+	public void handleRightButtonClick(){
+		// TODO Auto-generated method stub
+		
 	}
 }
