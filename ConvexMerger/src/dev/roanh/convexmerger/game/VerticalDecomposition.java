@@ -127,9 +127,9 @@ public class VerticalDecomposition{
 		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid (Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours){
-			topLeft = top1.getX() == top2.getX() ? (top1.getY() < top2.getY() ? top1 : top2) : (top1.getX() < top2.getX() ? top1 : top2);  
+			topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? (top1.getY() < top2.getY() ? top1 : top2) : (top1.getX() < top2.getX() ? top1 : top2);  
 			topRight = topLeft.equals(top1) ? top2 : top1;
-			botLeft = bot1.getX() == bot2.getX() ? (bot1.getY() < bot2.getY() ? bot1 : bot2) : (bot1.getX() < bot2.getY() ? bot1 : bot2);
+			botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? (bot1.getY() < bot2.getY() ? bot1 : bot2) : (bot1.getX() < bot2.getY() ? bot1 : bot2);
 			botRight = botLeft.equals(bot1) ? bot2 : bot1;
 			leftPoint = left;
 			rightPoint = right;
@@ -178,7 +178,7 @@ public class VerticalDecomposition{
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
 		
 			//TODO: figure out a better way to handle vertical top or bottom lines.
-			if(topLeft.getX() == topRight.getX() || botLeft.getX() == botRight.getX()){
+			if(Double.compare(topLeft.getX(), topRight.getX()) == 0 || Double.compare(botLeft.getX(), botRight.getX()) == 0){
 				return verticalLines;
 			}
 			
