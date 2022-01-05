@@ -2,7 +2,6 @@ package dev.roanh.convexmerger.ui;
 
 import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -112,7 +111,7 @@ public class NewGameMenu implements Menu{
 				if(name != null){
 					name.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
 				}else if(ai != null){
-					ai.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT);
+					ai.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT, mouseLoc);
 				}
 			}
 			return false;
@@ -132,10 +131,14 @@ public class NewGameMenu implements Menu{
 					ai = new ComboBox<AIRegistry>(AIRegistry.values(), AIRegistry::getName, theme.getBaseOutline());
 				}
 			}else{
-				if(remove.contains(loc)){
+				if(remove.contains(loc) && !(ai != null && ai.hasFocus())){
 					name = null;
 					ai = null;
 				}
+			}
+			
+			if(ai != null){
+				ai.handleMouseClick(loc);
 			}
 		}
 		
@@ -148,7 +151,7 @@ public class NewGameMenu implements Menu{
 			double offset = (CONTENT_WIDTH - fm.stringWidth("Remove") -Theme.REMOVE_ICON_SIZE - SPACING) / 2.0D;
 			
 			g.setColor(Theme.DOUBLE_LIGHTEN);
-			if(remove.contains(mouseLoc)){
+			if(remove.contains(mouseLoc) && !(ai != null && ai.hasFocus())){
 				g.fill(remove);
 				g.drawImage(Theme.REMOVE_ICON_HIGHLIGHT, (int)(x + offset), (int)(y + (CONTENT_HEIGHT + 1.0D - Theme.REMOVE_ICON_SIZE) / 2.0D), null);
 				g.setColor(Theme.REMOVE_BUTTON_HIGHLIGHT);
