@@ -7,28 +7,23 @@ import static dev.roanh.convexmerger.ui.GamePanel.TOP_OFFSET;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.GameState;
 
 /**
  * Base class for all menus containing shared rendering subroutines.
  * @author Roan
  */
-public abstract class Menu implements MouseMotionListener, MouseListener{
+public abstract class Menu{
 	/**
 	 * Dimensions of the triangles on the left and right side of the top part.
 	 */
@@ -59,16 +54,28 @@ public abstract class Menu implements MouseMotionListener, MouseListener{
 	/**
 	 * Menu (bottom left) button polygon.
 	 */
-	private Polygon menuPoly = null;
-	private Point lastLocation = new Point();
+	private Polygon menuPoly = null;//TODO rename polys
+	private Point2D lastLocation = new Point2D.Double();
 
 	public abstract void render(Graphics2D g, int width, int height, Point2D mouseLoc);
 	
-	@Deprecated
-	public abstract void handleMouseClick(Point2D loc);
+	public void handleMouseClick(Point2D loc, int width, int height){
+		if(isLeftButtonEnabled() && menuPoly.contains(loc)){
+			handleLeftButtonClick();
+		}else if(isRightButtonEnabled() && infoPoly.contains(loc)){
+			handleRightButtonClick();
+		}
+	}
 	
-	@Deprecated
-	public abstract void handleKeyTyped(KeyEvent event);
+	public void handleMouseMove(Point2D loc, int width, int height){
+		lastLocation = loc;
+	}
+	
+	public void handleKeyPressed(KeyEvent event){
+	}
+
+	public void handleKeyReleased(KeyEvent event){
+	}
 	
 	@Deprecated
 	public void repaint(){
@@ -147,7 +154,8 @@ public abstract class Menu implements MouseMotionListener, MouseListener{
 		return y;
 	}
 	
-	public void renderMainInterface(Graphics2D g, int width, int height){
+	//state optional
+	public void renderMainInterface(Graphics2D g, int width, int height, GameState state){
 		g.setColor(Theme.MENU_BODY);
 		int sideOffset = Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2);
 		Polygon topPoly = new Polygon(new int[]{
@@ -223,7 +231,7 @@ public abstract class Menu implements MouseMotionListener, MouseListener{
 		g.drawString(menuText, BUTTON_WIDTH / 2.0F - BUTTON_HEIGHT / 4.0F - fm.stringWidth(menuText) / 2.0F, height + (fm.getAscent() - BUTTON_HEIGHT - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//render UI borders
-		//TODO g.setPaint(Theme.constructBorderGradient(state, width));
+		g.setPaint(Theme.constructBorderGradient(state, width));
 		g.setStroke(Theme.BORDER_STROKE);
 		
 		Path2D infoPath = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);
@@ -260,40 +268,5 @@ public abstract class Menu implements MouseMotionListener, MouseListener{
 	
 	public void render(Graphics2D g, int width, int height){
 		render(g, width, height, lastLocation);
-	}
-	
-	@Override
-	public void mouseClicked(MouseEvent e){
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e){
-	}
-
-	//TODO rename polys
-	@Override
-	public void mouseReleased(MouseEvent e){
-		if(isLeftButtonEnabled() && menuPoly.contains(e.getPoint())){
-			handleLeftButtonClick();
-		}else if(isRightButtonEnabled() && infoPoly.contains(e.getPoint())){
-			handleRightButtonClick();
-		}
-	}
-	
-	@Override
-	public void mouseEntered(MouseEvent e){
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e){
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e){
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e){
-		lastLocation = e.getPoint();
 	}
 }

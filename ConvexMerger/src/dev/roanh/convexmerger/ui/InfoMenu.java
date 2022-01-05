@@ -26,7 +26,7 @@ import dev.roanh.util.Util;
  * Menu showing the rules, credits and version.
  * @author Roan
  */
-public class InfoMenu implements Menu{
+public class InfoMenu extends Menu{
 	/**
 	 * Maximum width used by the boxes.
 	 */
@@ -205,6 +205,36 @@ public class InfoMenu implements Menu{
 
 	@Override
 	public void handleKeyTyped(KeyEvent event){
+	}
+
+	@Override
+	public boolean isLeftButtonEnabled(){
+		return true;
+	}
+
+	@Override
+	public boolean isRightButtonEnabled(){
+		return false;
+	}
+
+	@Override
+	public String getLeftButtonText(){
+		return "Back";
+	}
+
+	@Override
+	public String getRightButtonText(){
+		return null;
+	}
+
+	@Override
+	public void handleLeftButtonClick(){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRightButtonClick(){
 	}
 	
 	static{

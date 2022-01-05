@@ -5,28 +5,13 @@ import static dev.roanh.convexmerger.ui.Theme.PLAYER_ICON_SIZE;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.JPanel;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ClaimResult;
@@ -38,11 +23,7 @@ import dev.roanh.convexmerger.player.Player;
  * Main panel responsibly for rendering the current game state.
  * @author Roan
  */
-public final class GamePanel extends Menu implements MouseListener, MouseMotionListener, KeyListener{
-	/**
-	 * Serial ID.
-	 */
-	private static final long serialVersionUID = 5749409248962652951L;
+public final class GamePanel extends Menu{
 	/**
 	 * Height of the top score display part of the game panel.
 	 */
@@ -151,7 +132,7 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	 * @param g The graphics context to use.
 	 */
 	private void renderInterface(Graphics2D g, int width, int height){
-		renderMainInterface(g, width, height);
+		renderMainInterface(g, width, height, state);
 		
 		if(state == null){
 			return;
@@ -257,9 +238,9 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	 * @param y The y coordinate of the point to translate.
 	 * @return The point translated to game space.
 	 */
-	private Point2D translateToGameSpace(double x, double y){
-		double sx = (double)(this.getWidth() - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
-		double sy = (double)(this.getHeight() - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
+	private Point2D translateToGameSpace(double x, double y, int width, int height){
+		double sx = (double)(width - 2 * SIDE_OFFSET) / (double)Constants.PLAYFIELD_WIDTH;
+		double sy = (double)(height - TOP_SPACE - TOP_OFFSET - BOTTOM_OFFSET) / (double)Constants.PLAYFIELD_HEIGHT;
 		if(sx < sy){
 			return new Point2D.Double(
 				(x - SIDE_OFFSET) / sx,
@@ -267,27 +248,21 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 			);
 		}else{
 			return new Point2D.Double(
-				(x - ((this.getWidth() - Constants.PLAYFIELD_WIDTH * sy - 2 * SIDE_OFFSET) / 2.0D) - SIDE_OFFSET) / sy,
+				(x - ((width - Constants.PLAYFIELD_WIDTH * sy - 2 * SIDE_OFFSET) / 2.0D) - SIDE_OFFSET) / sy,
 				(y - TOP_SPACE - TOP_OFFSET) / sy
 			);
 		}
 	}
 	
 	@Override
-	public void mouseClicked(MouseEvent e){
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e){
-	}
-	
-	@Override
 	public void handleLeftButtonClick(){
-		//TODO menu = new InfoMenu(state);
+		//TODO meny
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e){
+	public void handleMouseClick(Point2D point, int width, int height){
+		super.handleMouseClick(point, width, height);
+		
 		if(resultOverlay.isEnabled()){
 			//TODO handle menu button click
 			return;
@@ -297,7 +272,7 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 			activeDialog = null;
 			repaint();
 		}else if(state.getActivePlayer().requireInput() && !state.isFinished()){
-			Point2D loc = translateToGameSpace(e.getX(), e.getY());
+			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
 				ClaimResult result = state.claimObject(obj, loc);
@@ -317,35 +292,16 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e){
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e){
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e){
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e){
+	public void handleMouseMove(Point2D loc, int width, int height){
+		super.handleMouseMove(loc, width, height);
 		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
-			helperLines = state.getHelperLines(translateToGameSpace(e.getX(), e.getY()));
+			helperLines = state.getHelperLines(translateToGameSpace(loc.getX(), loc.getY(), width, height));
 			this.repaint();
 		}
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e){
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e){
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e){
+	public void handleKeyReleased(KeyEvent e){
 		if(e.isControlDown()){
 			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
@@ -360,44 +316,27 @@ public final class GamePanel extends Menu implements MouseListener, MouseMotionL
 	}
 
 	@Override
-	public void handleMouseClick(Point2D loc){
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleKeyTyped(KeyEvent event){
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public boolean isLeftButtonEnabled(){
-		// TODO Auto-generated method stub
-		return false;
+		return !resultOverlay.isEnabled();
 	}
 
 	@Override
 	public boolean isRightButtonEnabled(){
-		// TODO Auto-generated method stub
-		return false;
+		return !resultOverlay.isEnabled();
 	}
 
 	@Override
 	public String getLeftButtonText(){
-		// TODO Auto-generated method stub
 		return "Menu";
 	}
 
 	@Override
 	public String getRightButtonText(){
-		// TODO Auto-generated method stub
 		return "Info";
 	}
 
 	@Override
 	public void handleRightButtonClick(){
-		// TODO Auto-generated method stub
-		
+		//TODO menu = new InfoMenu(state);
 	}
 }
