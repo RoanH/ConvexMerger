@@ -111,6 +111,10 @@ public final class Theme{
 	 */
 	public static final Color REMOVE_BUTTON_HIGHLIGHT = new Color(244, 244, 245);
 	/**
+	 * Button select color for the new game screen.
+	 */
+	public static final Color BUTTON_SELECT = new Color(2, 169, 229);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -138,6 +142,10 @@ public final class Theme{
 	 * Stroke for the new game double lighten borders.
 	 */
 	public static final Stroke BUTTON_STROKE = new BasicStroke(2.0F);
+	/**
+	 * Pridi regular font with size 12, used for the rules.
+	 */
+	public static final Font PRIDI_REGULAR_12;
 	/**
 	 * Pridi regular font with size 14, used for the rules.
 	 */
@@ -369,6 +377,7 @@ public final class Theme{
 	static{
 		try{
 			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
+			PRIDI_REGULAR_12 = regular.deriveFont(12.0F);
 			PRIDI_REGULAR_14 = regular.deriveFont(14.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);

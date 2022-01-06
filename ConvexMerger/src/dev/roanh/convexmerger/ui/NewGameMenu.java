@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.ui;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -7,6 +8,7 @@ import java.awt.Paint;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,9 @@ public class NewGameMenu extends Screen{
 	private PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
 	private PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
 	private Path2D start = new Path2D.Double();
+	private ButtonAssembly size = new ButtonAssembly();
+	private ButtonAssembly density = new ButtonAssembly();
+	private ButtonAssembly spacing = new ButtonAssembly();
 	
 	public NewGameMenu(ConvexMerger context){
 		super(context);
@@ -64,6 +69,10 @@ public class NewGameMenu extends Screen{
 		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
 		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
 		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		
+		this.size.render(g, tx, ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
+		density.render(g, tx + (size / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
+		spacing.render(g, tx + ((size * 2.0D) / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
 	}
 
 	@Override
@@ -129,10 +138,68 @@ public class NewGameMenu extends Screen{
 	}
 	
 	private class ButtonAssembly{
+		private static final double BUTTON_WIDTH = 80.0D;
+		private static final double BUTTON_HEIGHT = 30.0D;
+		private Path2D left;
+		private Path2D middle;
+		private Path2D right;
+		private int selected = 0;
 		
+		public ButtonAssembly(){
+			//TODO init num, strings, labels
+		}
 		
-		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
+		private void render(Graphics2D g, double x, double y, double w, double h, Point2D mouseLoc){
+			g.setStroke(Theme.BORDER_STROKE);
+			g.setColor(Color.RED);
+			g.draw(new Rectangle2D.Double(x, y, w, h));
 			
+			
+			
+			left = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
+			x += BUTTON_WIDTH - BOX_INSETS * 2;
+			middle = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
+			x += BUTTON_WIDTH - BOX_INSETS * 2;
+			right = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
+			
+			g.setStroke(Theme.BORDER_STROKE);
+			
+			Path2D sel = selected == 0 ? left : (selected == 1 ? middle : right);
+			
+			if(left != sel){
+				g.setColor((left.contains(mouseLoc) && !middle.contains(mouseLoc)) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(left);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.draw(left);
+			}
+			
+			if(middle != sel){
+				g.setColor((middle.contains(mouseLoc) && !right.contains(mouseLoc) && !sel.contains(mouseLoc)) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(middle);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.draw(middle);
+			}
+			
+			if(right != sel){
+				g.setColor((right.contains(mouseLoc) && !sel.contains(mouseLoc)) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(right);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.draw(right);
+			}
+			
+			g.setColor(Theme.BUTTON_SELECT);
+			g.fill(sel);
+			g.setColor(Theme.DOUBLE_LIGHTEN);
+			g.draw(sel);
+			
+			g.setFont(Theme.PRIDI_REGULAR_12);
+			FontMetrics fm = g.getFontMetrics();
+			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+			
+			String[] values = new String[]{"Small", "Medium", "Large"};
+			g.drawString(values[0], (float)(x - BUTTON_WIDTH * 1.5D + BOX_INSETS * 4.0D - fm.stringWidth(values[0]) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
+			g.drawString(values[1], (float)(x - BUTTON_WIDTH * 0.5D + BOX_INSETS * 2.0D - fm.stringWidth(values[1]) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
+			g.drawString(values[2], (float)(x + (BUTTON_WIDTH - fm.stringWidth(values[2])) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
 		}
 		
 	}
