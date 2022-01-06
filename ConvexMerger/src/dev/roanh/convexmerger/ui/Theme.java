@@ -153,6 +153,10 @@ public final class Theme{
 	/**
 	 * Pridi regular font with size 18, used for the playfield hint.
 	 */
+	public static final Font PRIDI_REGULAR_16;
+	/**
+	 * Pridi regular font with size 16, used for the playfield hint.
+	 */
 	public static final Font PRIDI_REGULAR_18;
 	/**
 	 * Pridi regular font with size 24, used for buttons.
@@ -379,6 +383,7 @@ public final class Theme{
 			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
 			PRIDI_REGULAR_12 = regular.deriveFont(12.0F);
 			PRIDI_REGULAR_14 = regular.deriveFont(14.0F);
+			PRIDI_REGULAR_16 = regular.deriveFont(16.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			

@@ -54,7 +54,7 @@ public class NewGameMenu extends Screen{
 		
 		//TODO magic
 		double playersHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS * 2 + PlayerPanel.HEIGHT;
-		double optionsHeight = 200.0D;
+		double optionsHeight = 100.0D;
 		double startHeight = 100.0D;
 		
 		drawTitledBox(g, gradient, tx, ty, size, playersHeight, "Players");
@@ -172,11 +172,15 @@ public class NewGameMenu extends Screen{
 		}
 		
 		private void render(Graphics2D g, double x, double y, double w, double h, Point2D mouseLoc){
-			g.setStroke(Theme.BORDER_STROKE);
-			g.setColor(Color.RED);
-			g.draw(new Rectangle2D.Double(x, y, w, h));
+			g.setFont(Theme.PRIDI_REGULAR_16);
+			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+			FontMetrics fm = g.getFontMetrics();
+			String title = "Object Size";
+			y += fm.getAscent() - fm.getDescent();
+			g.drawString(title, (float)(x + (w - fm.stringWidth(title)) / 2.0D), (float)y);
 			
-			
+			x += (w - BUTTON_WIDTH * 3.0D + BOX_INSETS * 4.0D) / 2.0D;
+			y += BOX_SPACING;
 			
 			left = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
 			x += BUTTON_WIDTH - BOX_INSETS * 2;
@@ -215,7 +219,7 @@ public class NewGameMenu extends Screen{
 			g.draw(sel);
 			
 			g.setFont(Theme.PRIDI_REGULAR_12);
-			FontMetrics fm = g.getFontMetrics();
+			fm = g.getFontMetrics();
 			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
 			
 			String[] values = new String[]{"Small", "Medium", "Large"};
