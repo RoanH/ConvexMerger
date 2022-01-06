@@ -82,6 +82,9 @@ public class NewGameMenu extends Screen{
 		p2.handleMouseClick(loc);
 		p3.handleMouseClick(loc);
 		p4.handleMouseClick(loc);
+		size.handleMouseClick(loc);
+		density.handleMouseClick(loc);
+		spacing.handleMouseClick(loc);
 	}
 
 	@Override
@@ -149,6 +152,25 @@ public class NewGameMenu extends Screen{
 			//TODO init num, strings, labels
 		}
 		
+		private Path2D getSelectedPath(){
+			return selected == 0 ? left : (selected == 1 ? middle : right);
+		}
+		
+		private boolean intersectsLeft(Point2D point){
+			Path2D sel = getSelectedPath();
+			return sel == left ? sel.contains(point) : (left.contains(point) && !middle.contains(point));
+		}
+		
+		private boolean intersectsMiddle(Point2D point){
+			Path2D sel = getSelectedPath();
+			return sel == middle ? sel.contains(point) : (middle.contains(point) && !right.contains(point) && !sel.contains(point));
+		}
+		
+		private boolean intersectsRight(Point2D point){
+			Path2D sel = getSelectedPath();
+			return sel == right ? sel.contains(point) : (right.contains(point) && !sel.contains(point));
+		}
+		
 		private void render(Graphics2D g, double x, double y, double w, double h, Point2D mouseLoc){
 			g.setStroke(Theme.BORDER_STROKE);
 			g.setColor(Color.RED);
@@ -164,24 +186,24 @@ public class NewGameMenu extends Screen{
 			
 			g.setStroke(Theme.BORDER_STROKE);
 			
-			Path2D sel = selected == 0 ? left : (selected == 1 ? middle : right);
+			Path2D sel = getSelectedPath();
 			
 			if(left != sel){
-				g.setColor((left.contains(mouseLoc) && !middle.contains(mouseLoc)) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.setColor(intersectsLeft(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
 				g.fill(left);
 				g.setColor(Theme.DOUBLE_LIGHTEN);
 				g.draw(left);
 			}
 			
 			if(middle != sel){
-				g.setColor((middle.contains(mouseLoc) && !right.contains(mouseLoc) && !sel.contains(mouseLoc)) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.setColor(intersectsMiddle(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
 				g.fill(middle);
 				g.setColor(Theme.DOUBLE_LIGHTEN);
 				g.draw(middle);
 			}
 			
 			if(right != sel){
-				g.setColor((right.contains(mouseLoc) && !sel.contains(mouseLoc)) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.setColor(intersectsRight(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
 				g.fill(right);
 				g.setColor(Theme.DOUBLE_LIGHTEN);
 				g.draw(right);
@@ -202,6 +224,15 @@ public class NewGameMenu extends Screen{
 			g.drawString(values[2], (float)(x + (BUTTON_WIDTH - fm.stringWidth(values[2])) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
 		}
 		
+		private void handleMouseClick(Point2D loc){
+			if(intersectsLeft(loc)){
+				selected = 0;
+			}else if(intersectsMiddle(loc)){
+				selected = 1;
+			}else if(intersectsRight(loc)){
+				selected = 2;
+			}
+		}
 	}
 
 	/**
