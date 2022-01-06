@@ -1,5 +1,9 @@
 package dev.roanh.convexmerger.net.packet;
 
+/**
+ * Packet sent when the game ends.
+ * @author Roan
+ */
 public class PacketGameEnd implements Packet{
 	/**
 	 * Serial ID.

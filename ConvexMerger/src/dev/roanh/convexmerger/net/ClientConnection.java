@@ -73,7 +73,7 @@ public class ClientConnection extends Connection implements GameStateListener{
 	public void claim(Player player, ConvexObject obj){
 		if(player.isLocal()){
 			try{
-				sendPacket(new PacketPlayerMove(player, obj.getID()));
+				sendPacket(new PacketPlayerMove(player, obj));
 			}catch(IOException e){
 				close();
 				disconnectHandler.accept(e);
@@ -85,7 +85,7 @@ public class ClientConnection extends Connection implements GameStateListener{
 	public void merge(Player player, ConvexObject source, ConvexObject target){
 		if(player.isLocal()){
 			try{
-				sendPacket(new PacketPlayerMove(player, source.getID(), target.getID()));
+				sendPacket(new PacketPlayerMove(player, source, target));
 			}catch(IOException e){
 				close();
 				disconnectHandler.accept(e);
