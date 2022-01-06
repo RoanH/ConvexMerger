@@ -250,7 +250,8 @@ public final class Theme{
 		String str = "0";
 		for(int total = (int)Math.round(area); total != 0; total /= 1000){
 			str = str.equals("0") ? "" : ("." + str);
-			str = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + str;
+			str = String.format(total >= 1000 ? "%03d" : "%d", total % 1000) + str;
+
 		}
 		return str;
 	}
