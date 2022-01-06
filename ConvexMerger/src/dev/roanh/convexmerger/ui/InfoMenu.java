@@ -52,9 +52,22 @@ public class InfoMenu extends Screen{
 	 * Example animation that is shown in the example box.
 	 */
 	private Animation example = new ExampleAnimation();
+	/**
+	 * The state for the current game.
+	 */
 	private GameState game;
+	/**
+	 * The screen to switch to after this screen is closed.
+	 */
 	private Screen prev;
 	
+	/**
+	 * Constructs a new info menu with the given game context and state
+	 * and screen to return to.
+	 * @param context The game context.
+	 * @param game The game state, possibly <code>null</code>.
+	 * @param prev The screen to switch to when this screen is closed.
+	 */
 	protected InfoMenu(ConvexMerger context, GameState game, Screen prev){
 		super(context);
 		this.game = game;
