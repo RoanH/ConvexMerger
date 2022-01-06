@@ -86,15 +86,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Constructs a new game panel with the given game context.
 	 * @param context The game context.
 	 */
-	protected GamePanel(ConvexMerger context){
+	protected GamePanel(ConvexMerger context, GameState state){
 		super(context);
-	}
-	
-	/**
-	 * Sets the game state to display in this game panel.
-	 * @param state The game state to display.
-	 */
-	public void setGameState(GameState state){
 		resultOverlay = new ResultOverlay(state);
 		this.state = state;
 	}

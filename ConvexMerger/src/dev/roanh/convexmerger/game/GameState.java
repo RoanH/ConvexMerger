@@ -49,6 +49,7 @@ public class GameState{
 	private int turns = 0;
 	private List<GameStateListener> listeners = new ArrayList<GameStateListener>();
 	
+	//TODO pass generator instead of objects also alt ctor for net play
 	public GameState(List<ConvexObject> objects, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);

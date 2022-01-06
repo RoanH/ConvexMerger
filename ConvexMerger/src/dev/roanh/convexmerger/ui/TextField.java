@@ -8,7 +8,14 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * Text field UI component.
+ * @author Roan
+ */
 public class TextField{
+	/**
+	 * The accent color for this text field.
+	 */
 	private Color color;
 	private Rectangle2D bounds = new Rectangle2D.Double();
 	private String text = "";
@@ -16,6 +23,14 @@ public class TextField{
 	
 	public TextField(Color color){
 		this.color = color;
+	}
+	
+	/**
+	 * Gets the text in this text field.
+	 * @return The text in this text field.
+	 */
+	public String getText(){
+		return text;
 	}
 	
 	public boolean hasFocus(){

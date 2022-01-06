@@ -100,6 +100,7 @@ public class ConvexMerger{
 		});
 	}
 	
+	@Deprecated
 	public void initialiseGame(){
 		//TODO this is just fixed static data
 		
@@ -107,8 +108,8 @@ public class ConvexMerger{
 		//normal: 0-100 0.45
 		//ai fun: 10-20 0.45 mini size
 		initialiseGame(new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(),
-			//new HumanPlayer()
+			new HumanPlayer("Player 1"),
+			//new HumanPlayer("Player 2")
 			//new SmallPlayer(),
 			new LocalPlayer()//,
 			//new GreedyPlayer(),
@@ -116,11 +117,9 @@ public class ConvexMerger{
 		)));
 	}
 	
-	private void initialiseGame(GameState state){
+	public void initialiseGame(GameState state){
 		this.state = state;
-		GamePanel game = new GamePanel(this);
-		game.setGameState(state);
-		renderer.setScreen(game);
+		renderer.setScreen(new GamePanel(this, state));
 		
 		GameThread thread = new GameThread();
 		thread.setName("GameThread");
@@ -130,7 +129,7 @@ public class ConvexMerger{
 	
 	public void hostMultiplayerGame(){
 		frame.setTitle(Constants.TITLE + " [Server]");
-		Player self = new HumanPlayer();
+		Player self = new HumanPlayer("Player 1");
 		PlayfieldGenerator gen = new PlayfieldGenerator();
 		gen.setRange(50, 100);
 		gen.setScaling(200);
@@ -158,7 +157,7 @@ public class ConvexMerger{
 	public void joinMultiplayerGame(){
 		try{
 			frame.setTitle(Constants.TITLE + " [Client]");
-			Player player = new HumanPlayer();
+			Player player = new HumanPlayer("Player 1");
 			ClientConnection con = ClientConnection.connect("localhost", player);
 			if(!con.isConnected()){
 				System.out.println("Connection failed with reason: " + con.getRejectReason());

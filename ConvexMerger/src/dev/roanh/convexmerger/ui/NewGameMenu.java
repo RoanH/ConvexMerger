@@ -7,8 +7,16 @@ import java.awt.Paint;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.player.AIRegistry;
+import dev.roanh.convexmerger.player.HumanPlayer;
+import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class NewGameMenu extends Screen{
@@ -80,6 +88,59 @@ public class NewGameMenu extends Screen{
 		}
 	}
 
+	@Override
+	protected boolean isLeftButtonEnabled(){
+		return true;
+	}
+
+	@Override
+	protected boolean isRightButtonEnabled(){
+		return true;//TODO disable
+	}
+
+	@Override
+	protected String getLeftButtonText(){
+		return "Back";
+	}
+
+	@Override
+	protected String getRightButtonText(){
+		return "StartTMP";
+	}
+
+	@Override
+	protected void handleLeftButtonClick(){
+		//TODO handle back
+	}
+
+	@Override
+	protected void handleRightButtonClick(){
+		//TODO move to not the right button
+		List<Player> players = new ArrayList<Player>();
+		p1.getPlayer().ifPresent(players::add);
+		p2.getPlayer().ifPresent(players::add);
+		p3.getPlayer().ifPresent(players::add);
+		p4.getPlayer().ifPresent(players::add);
+
+		//TODO
+		List<ConvexObject> objects = new PlayfieldGenerator().generatePlayfield();
+
+		this.getContext().initialiseGame(new GameState(objects, players));
+	}
+	
+	private class ButtonAssembly{
+		
+		
+		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
+			
+		}
+		
+	}
+
+	/**
+	 * Panel to configure a new AI or human player.
+	 * @author Roan
+	 */
 	private class PlayerPanel{
 		private static final double WIDTH = 150.0D;
 		private static final double HEIGHT = 62.0D;
@@ -97,6 +158,16 @@ public class NewGameMenu extends Screen{
 		
 		private PlayerPanel(PlayerTheme theme){
 			this.theme = theme;
+		}
+		
+		private Optional<Player> getPlayer(){
+			if(name != null){
+				return Optional.of(new HumanPlayer(name.getText()));
+			}else if(ai != null){
+				return Optional.of(ai.getValue().createInstance());
+			}else{
+				return Optional.empty();
+			}
 		}
 		
 		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
@@ -206,35 +277,5 @@ public class NewGameMenu extends Screen{
 			g.draw(addPlayer);
 			g.draw(addAI);
 		}
-	}
-
-	@Override
-	protected boolean isLeftButtonEnabled(){
-		return true;
-	}
-
-	@Override
-	protected boolean isRightButtonEnabled(){
-		return false;
-	}
-
-	@Override
-	protected String getLeftButtonText(){
-		return "Back";
-	}
-
-	@Override
-	protected String getRightButtonText(){
-		return null;
-	}
-
-	@Override
-	protected void handleLeftButtonClick(){
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void handleRightButtonClick(){
 	}
 }

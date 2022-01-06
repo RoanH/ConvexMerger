@@ -8,8 +8,19 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.function.Function;
 
+/**
+ * Represents a UI combo box.
+ * @author Roan
+ * @param <T> The value data type.
+ */
 public class ComboBox<T>{
+	/**
+	 * Height of the combo box field and drop down item fields.
+	 */
 	private static final double CELL_HEIGHT = 20.0D;
+	/**
+	 * Combo box accent color.
+	 */
 	private Color color;
 	private Rectangle2D bounds = new Rectangle2D.Double();
 	private Rectangle2D list = null;
@@ -23,6 +34,14 @@ public class ComboBox<T>{
 		this.value = values[0];
 		this.values = values;
 		this.toString = toString;
+	}
+	
+	/**
+	 * Gets the value selected in this combo box.
+	 * @return The selected value.
+	 */
+	public T getValue(){
+		return value;
 	}
 	
 	public void handleMouseClick(Point2D loc){

@@ -30,7 +30,7 @@ public class MainMenu extends Screen{
 	@Override
 	protected String getLeftButtonText(){
 		// TODO Auto-generated method stub
-		return null;
+		return "New";
 	}
 
 	@Override
@@ -41,8 +41,7 @@ public class MainMenu extends Screen{
 
 	@Override
 	protected void handleLeftButtonClick(){
-		// TODO Auto-generated method stub
-		
+		this.switchScene(new NewGameMenu(this.getContext()));
 	}
 
 	@Override
