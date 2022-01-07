@@ -9,11 +9,14 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
@@ -29,7 +32,6 @@ import dev.roanh.convexmerger.player.SmallPlayer;
 
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
-	private GameState state;//TODO required?
 	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
 	
 	public void showGame(){
@@ -89,39 +91,14 @@ public class ConvexMerger{
 						frame.setLocationRelativeTo(null);
 						frame.setVisible(true);
 					}
-				}else if(e.getKeyCode() == KeyEvent.VK_F){//TODO remove
-					for(ConvexObject obj : state.getObjects()){
-						obj.scale(0.99D);
-					}
-					frame.repaint();
 				}
 				return false;
 			}
 		});
 	}
 	
-	@Deprecated
-	public void initialiseGame(){
-		//TODO this is just fixed static data
-		
-		//easy: 50-100 0.45
-		//normal: 0-100 0.45
-		//ai fun: 10-20 0.45 mini size
-		initialiseGame(new GameState(new PlayfieldGenerator(), Arrays.asList(
-			new HumanPlayer("Player 1"),
-			//new HumanPlayer("Player 2")
-			//new SmallPlayer(),
-			new LocalPlayer()//,
-			//new GreedyPlayer(),
-			//new SmallPlayer()
-		)));
-	}
-	
-	public void initialiseGame(GameState state){
-		this.state = state;
-		renderer.setScreen(new GamePanel(this, state));
-		
-		GameThread thread = new GameThread();
+	public void initialiseGame(PlayfieldGenerator gen, List<Player> players){
+		GameThread thread = new GameThread(gen, players);
 		thread.setName("GameThread");
 		thread.setDaemon(true);
 		thread.start();
@@ -150,7 +127,7 @@ public class ConvexMerger{
 		System.out.println("player count hit start game");
 		
 		GameState state = server.startGame();
-		initialiseGame(state);
+		//TODO initialiseGame(state);
 		showGame();
 	}
 	
@@ -172,7 +149,7 @@ public class ConvexMerger{
 			
 			GameState state = con.getGameState();
 			
-			initialiseGame(state);
+			//TODO initialiseGame(state);
 			showGame();
 			
 		}catch(IOException e){
@@ -189,10 +166,23 @@ public class ConvexMerger{
 	}
 	
 	private final class GameThread extends Thread{
+		private PlayfieldGenerator gen;
+		private List<Player> players;
+		
+		private GameThread(PlayfieldGenerator gen, List<Player> players){
+			this.gen = gen;
+			this.players = players;
+		}
 		
 		@Override
 		public void run(){
 			try{
+				GameState state = new GameState(gen, players);
+				
+				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
+				
+				
+				
 				//Thread.sleep(4000);
 				while(!state.isFinished()){
 					Player player = state.getActivePlayer();
@@ -204,7 +194,7 @@ public class ConvexMerger{
 					player.getStats().addTurnTime(System.currentTimeMillis() - start);
 					frame.repaint();
 				}
-			}catch(InterruptedException e){
+			}catch(InterruptedException | InvocationTargetException e){
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

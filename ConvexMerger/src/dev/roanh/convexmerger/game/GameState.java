@@ -58,6 +58,7 @@ public class GameState{
 	public GameState(List<ConvexObject> objects, String seed, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);
+		this.seed = seed;
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
 			obj.setID(i + 1);

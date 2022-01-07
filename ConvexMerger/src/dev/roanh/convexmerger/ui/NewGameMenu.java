@@ -11,15 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.game.PlayfieldGenerator.GeneratorProgressListener;
 import dev.roanh.convexmerger.player.AIRegistry;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
-public class NewGameMenu extends Screen{
+public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	/**
 	 * Maximum width used by the boxes.
 	 */
@@ -33,6 +32,8 @@ public class NewGameMenu extends Screen{
 	private ButtonAssembly size = new ButtonAssembly(1, "Object Size", "Small", "Medium", "Large");
 	private ButtonAssembly density = new ButtonAssembly(2, "Density", "Low", "Medium", "High");
 	private ButtonAssembly spacing = new ButtonAssembly(0, "Spacing", "Small", "Medium", "Large");
+	private double progress = 0.0D;
+	private boolean started = false;
 	
 	public NewGameMenu(ConvexMerger context){
 		super(context);
@@ -76,12 +77,13 @@ public class NewGameMenu extends Screen{
 		g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString("Start Game", (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth("Start Game")) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
-		if(!canStart()){
+		if(!canStart() || started){
 			int offset = fm.getHeight();
 			g.setFont(Theme.PRIDI_REGULAR_12);
 			fm = g.getFontMetrics();
 			g.setColor(Theme.ADD_COLOR);
-			g.drawString("At least one player required", (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth("At least one player required")) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight + offset - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+			String text = started ? String.format("Generating game: %.1f%%", progress * 100.0D) : "At least one player required";
+			g.drawString(text, (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth(text)) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight + offset - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
 		}
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
@@ -98,44 +100,58 @@ public class NewGameMenu extends Screen{
 	@Override
 	public void handleMouseClick(Point2D loc, int width, int height){
 		super.handleMouseClick(loc, width, height);
-		p1.handleMouseClick(loc);
-		p2.handleMouseClick(loc);
-		p3.handleMouseClick(loc);
-		p4.handleMouseClick(loc);
-		size.handleMouseClick(loc);
-		density.handleMouseClick(loc);
-		spacing.handleMouseClick(loc);
 		
-		if(start.contains(loc)){
-			List<Player> players = new ArrayList<Player>();
-			p1.getPlayer().ifPresent(players::add);
-			p2.getPlayer().ifPresent(players::add);
-			p3.getPlayer().ifPresent(players::add);
-			p4.getPlayer().ifPresent(players::add);
+		if(!started){
+			p1.handleMouseClick(loc);
+			p2.handleMouseClick(loc);
+			p3.handleMouseClick(loc);
+			p4.handleMouseClick(loc);
+			size.handleMouseClick(loc);
+			density.handleMouseClick(loc);
+			spacing.handleMouseClick(loc);
+			
+			if(canStart() && start.contains(loc)){
+				List<Player> players = new ArrayList<Player>();
+				p1.getPlayer().ifPresent(players::add);
+				p2.getPlayer().ifPresent(players::add);
+				p3.getPlayer().ifPresent(players::add);
+				p4.getPlayer().ifPresent(players::add);
 
-			//TODO
-			PlayfieldGenerator gen = new PlayfieldGenerator();
-
-			this.getContext().initialiseGame(new GameState(gen, players));
+				PlayfieldGenerator gen = new PlayfieldGenerator();
+				gen.setProgressListener(this);
+				gen.setRange(new int[]{10, 0, 50}[size.getSelectedIndex()], new int[]{20, 100, 100}[size.getSelectedIndex()]);
+				gen.setCoverage(new int[]{50, 90, 114}[density.getSelectedIndex()]);
+				gen.setScaling(new int[]{240, 200, 100}[spacing.getSelectedIndex()]);
+				
+				this.getContext().initialiseGame(gen, players);
+				started = true;
+			}
 		}
 	}
 
 	@Override
 	public void handleKeyPressed(KeyEvent event){
-		if(p1.name != null && p1.name.hasFocus()){
-			p1.name.handleKeyEvent(event);
-		}else if(p2.name != null && p2.name.hasFocus()){
-			p2.name.handleKeyEvent(event);
-		}else if(p2.name != null && p3.name.hasFocus()){
-			p3.name.handleKeyEvent(event);
-		}else if(p4.name != null && p4.name.hasFocus()){
-			p4.name.handleKeyEvent(event);
+		if(!started){
+			if(p1.name != null && p1.name.hasFocus()){
+				p1.name.handleKeyEvent(event);
+			}else if(p2.name != null && p2.name.hasFocus()){
+				p2.name.handleKeyEvent(event);
+			}else if(p2.name != null && p3.name.hasFocus()){
+				p3.name.handleKeyEvent(event);
+			}else if(p4.name != null && p4.name.hasFocus()){
+				p4.name.handleKeyEvent(event);
+			}
 		}
 	}
 
 	@Override
+	public void update(double progress){
+		this.progress = progress;
+	}
+
+	@Override
 	protected boolean isLeftButtonEnabled(){
-		return true;
+		return !started;
 	}
 
 	@Override
@@ -176,6 +192,10 @@ public class NewGameMenu extends Screen{
 			this.selected = selected;
 			this.title = title;
 			this.values = values;
+		}
+		
+		private int getSelectedIndex(){
+			return selected;
 		}
 		
 		private Path2D getSelectedPath(){

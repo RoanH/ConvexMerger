@@ -286,6 +286,20 @@ public final class Theme{
 		switch(state == null ? 4 : state.getPlayerCount()){
 		case 0:
 		case 1:
+			return new LinearGradientPaint(
+				0.0F,
+				0.0F,
+				width,
+				0.0F,
+				new float[]{
+					0.0F,
+					1.0F
+				},
+				new Color[]{
+					P1.gradient,
+					P1.gradient,
+				}
+			);
 		case 2:
 			return new LinearGradientPaint(
 				0.0F,

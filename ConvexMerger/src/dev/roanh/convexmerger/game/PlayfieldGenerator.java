@@ -62,6 +62,7 @@ public class PlayfieldGenerator{
 	 * Object scaling factor.
 	 */
 	private float scale;
+	private GeneratorProgressListener listener;
 	
 	/**
 	 * Constructs a new playfield generator with a random seed,
@@ -69,6 +70,10 @@ public class PlayfieldGenerator{
 	 */
 	public PlayfieldGenerator(){
 		init(ThreadLocalRandom.current().nextLong(), 0, 100, 114, 255);
+	}
+	
+	public void setProgressListener(GeneratorProgressListener listener){
+		this.listener = listener;
 	}
 
 	/**
@@ -256,10 +261,19 @@ public class PlayfieldGenerator{
 			//add the object to the final result
 			totalArea += area;
 			objects.add(obj);
+			
+			if(listener != null){
+				listener.update(Math.min(1.0D, totalArea / ((Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * coverage)));
+			}
 		}while(totalArea < (Constants.PLAYFIELD_WIDTH * Constants.PLAYFIELD_HEIGHT) * coverage);
 		
 		objects.forEach(obj->obj.scale(scale));
 
 		return objects;
+	}
+	
+	public static abstract interface GeneratorProgressListener{
+		
+		public abstract void update(double progress);
 	}
 }
