@@ -21,7 +21,7 @@ public class RemotePlayer extends GreedyPlayer{
 		return lost;
 	}
 	
-	private boolean fallback(){
+	private boolean fallback() throws InterruptedException{
 		con.close();
 		lost = true;
 		if(!getName().endsWith("[Lost]")){
@@ -31,7 +31,7 @@ public class RemotePlayer extends GreedyPlayer{
 	}
 	
 	@Override
-	public boolean executeMove(){
+	public boolean executeMove() throws InterruptedException{
 		if(lost){
 			return super.executeMove();
 		}

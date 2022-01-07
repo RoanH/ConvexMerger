@@ -17,14 +17,10 @@ public class HumanPlayer extends Player{
 	}
 
 	@Override
-	public boolean executeMove(){
+	public boolean executeMove() throws InterruptedException{
 		if(state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent()){
 			synchronized(state){
-				try{
-					state.wait();
-				}catch(InterruptedException e){
-					//cannot happen, we never interrupt threads
-				}
+				state.wait();
 			}
 			return true;
 		}else{

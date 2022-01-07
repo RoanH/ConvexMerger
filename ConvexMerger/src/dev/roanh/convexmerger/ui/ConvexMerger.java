@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import dev.roanh.convexmerger.player.Player;
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
+	private GameThread gameThread;
 	
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
@@ -98,8 +100,8 @@ public class ConvexMerger{
 	}
 	
 	public void initialiseGame(PlayfieldGenerator gen, List<Player> players){
-		GameThread thread = new GameThread(gen, players);
-		thread.start();
+		gameThread = new GameThread(gen, players);
+		gameThread.start();
 	}
 	
 	public void hostMultiplayerGame(){
@@ -160,6 +162,10 @@ public class ConvexMerger{
 		return renderer.setScreen(next);
 	}
 	
+	public void abortGame(){
+		gameThread.interrupt();
+	}
+	
 	/**
 	 * Thread responsible for managing the game turns,
 	 * generating the playfield and executing AI moves.
@@ -182,7 +188,7 @@ public class ConvexMerger{
 				GameState state = new GameState(gen, players);
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
 				
-				while(!state.isFinished()){
+				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();
 					if(player.isAI()){
 						Thread.sleep(Constants.AI_TURN_TIME);
@@ -192,8 +198,10 @@ public class ConvexMerger{
 					player.getStats().addTurnTime(System.currentTimeMillis() - start);
 					frame.repaint();
 				}
-			}catch(InterruptedException | InvocationTargetException e){
-				//neither can happen
+			}catch(InvocationTargetException e){
+				//never happens
+			}catch(InterruptedException e){
+				//happens when the game is aborted
 			}
 		}
 	}

@@ -25,7 +25,7 @@ public class GreedyPlayer extends Player{
 	}
 	
 	@Override
-	public boolean executeMove(){
+	public boolean executeMove() throws InterruptedException{
 		List<ConvexObject> owned = stream().collect(Collectors.toList());
 		
 		//find the single largest object

@@ -28,7 +28,7 @@ public class LocalPlayer extends Player{
 	}
 	
 	@Override
-	public boolean executeMove(){
+	public boolean executeMove() throws InterruptedException{
 		if(target == null){
 			return claimNewObject();
 		}

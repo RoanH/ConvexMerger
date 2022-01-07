@@ -255,7 +255,7 @@ public class GameState{
 		return players.size();
 	}
 	
-	public void executePlayerTurn(){
+	public void executePlayerTurn() throws InterruptedException{
 		if(ended = !getActivePlayer().executeMove()){
 			turns--;
 			gameEnd = System.currentTimeMillis();

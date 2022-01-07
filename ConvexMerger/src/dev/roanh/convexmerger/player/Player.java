@@ -61,7 +61,7 @@ public abstract class Player implements Identity{
 		state = game;
 	}
 	
-	public abstract boolean executeMove();
+	public abstract boolean executeMove() throws InterruptedException;
 	
 	public boolean requireInput(){
 		return !ai && local;
