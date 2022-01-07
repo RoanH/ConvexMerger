@@ -6,6 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
@@ -82,6 +83,7 @@ public class ResultOverlay{
 	 * Dummy player returning average player data.
 	 */
 	private Player average = new AveragePlayer();
+	private Rectangle2D menuBounds = null;
 
 	/**
 	 * Constructs a new result overlay for the given game.
@@ -91,6 +93,10 @@ public class ResultOverlay{
 		this.state = state;
 		winner = state.getPlayers().get(0);
 		average.init(state, PlayerTheme.UNOWNED);
+	}
+	
+	protected boolean intersectsMenuButton(Point2D loc){
+		return (menuBounds != null && state.isFinished()) ? menuBounds.contains(loc) : false;
 	}
 	
 	/**
@@ -115,10 +121,11 @@ public class ResultOverlay{
 	 * @param g The graphics to use for rendering.
 	 * @param width The current width of the viewport.
 	 * @param height The current height of the viewport.
+	 * @param mouseLoc The current location of the cursor.
 	 * @return True if an animation is actively playing.
 	 * @see #isEnabled()
 	 */
-	protected boolean render(Graphics2D g, int width, int height){
+	protected boolean render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		if(!enabled){
 			return false;
 		}
@@ -156,14 +163,26 @@ public class ResultOverlay{
 		renderBars(g, size);
 		
 		//stats
+		offset += GAP + BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP;
 		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP);
 		renderStats(g, size);
 		
 		//graph
+		offset += statsHeight + GAP + BORDER_GAP;
 		g.translate(0, statsHeight + GAP + BORDER_GAP);
 		renderGraph(g, size);
 		
 		g.setTransform(transform);
+		
+		//menu button
+		if(state.isFinished()){
+			offset += GRAPH_HEIGHT + GAP + BORDER_GAP + ((height - total) / 2);
+			g.setFont(Theme.PRIDI_REGULAR_24);
+			fm = g.getFontMetrics();
+			menuBounds = new Rectangle2D.Double((width - fm.stringWidth("Main Menu")) / 2.0F, offset - fm.getDescent(), fm.stringWidth("Main Menu"), fm.getAscent());
+			g.setColor(menuBounds.contains(mouseLoc) ? Theme.MAIN_MENU_BUTTON_HOVER : Theme.MAIN_MENU_BUTTON);
+			g.drawString("Main Menu", (float)menuBounds.getMinX(), offset + fm.getAscent() - fm.getDescent());
+		}
 		
 		return true;
 	}
@@ -403,7 +422,7 @@ public class ResultOverlay{
 		
 		g.setClip(null);
 		renderBorder(g, 0.0F, 0.0F, size, GRAPH_HEIGHT, "Score Graph");
-	}
+	}	
 	
 	/**
 	 * Dummy player instance that averages play results.

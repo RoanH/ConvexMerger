@@ -115,6 +115,14 @@ public final class Theme{
 	 */
 	public static final Color BUTTON_SELECT = new Color(2, 169, 229);
 	/**
+	 * Result screen main menu button text color.
+	 */
+	public static final Color MAIN_MENU_BUTTON = new Color(255, 255, 255, (6 * 255) / 10);
+	/**
+	 * Result screen main menu button hover text color.
+	 */
+	public static final Color MAIN_MENU_BUTTON_HOVER = SCORE_COLOR_LEAD;
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);

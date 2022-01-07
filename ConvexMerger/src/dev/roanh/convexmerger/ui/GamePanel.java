@@ -114,7 +114,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 		//render results
 		if(resultOverlay != null){
-			resultOverlay.render(g, width, height);
+			resultOverlay.render(g, width, height, mouseLoc);
 		}
 	}
 	
@@ -260,7 +260,9 @@ public final class GamePanel extends Screen implements GameStateListener{
 		super.handleMouseClick(point, width, height);
 		
 		if(resultOverlay.isEnabled()){
-			//TODO handle menu button click
+			if(resultOverlay.intersectsMenuButton(point)){
+				this.switchScene(new MainMenu(getContext()));
+			}
 			return;
 		}
 		
