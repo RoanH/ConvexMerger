@@ -43,18 +43,48 @@ public class GameState{
 	 * or <code>null</code> if there is no selected object.
 	 */
 	private ConvexObject selected = null;
+	/**
+	 * Whether the game has ended or not.
+	 */
 	private boolean ended = false;
+	/**
+	 * Millisecond time the game started.
+	 */
 	private final long gameStart;
+	/**
+	 * Millisecond time the game ended or -1.
+	 */
 	private long gameEnd = -1L;
+	/**
+	 * The number of individual player turns so far in this game.
+	 */
 	private int turns = 0;
+	/**
+	 * Listeners subscribed for gamestate events.
+	 */
 	private List<GameStateListener> listeners = new ArrayList<GameStateListener>();
+	/**
+	 * The seed of the generator that generated this game's playfield.
+	 */
 	private String seed;
-	
-	//TODO pass generator instead of objects also alt ctor for net play
+
+	/**
+	 * Constructs a new game state with the given playfield generator and
+	 * list of participating players. The game timer will be started immediately.
+	 * @param generator The generator to use to generate the playfield.
+	 * @param players The list of participating players.
+	 */
 	public GameState(PlayfieldGenerator generator, List<Player> players){
 		this(generator.generatePlayfield(), generator.getSeed(), players);
 	}
 	
+	/**
+	 * Constructs a new game state with the given playfield objects, seed and
+	 * list of participating players. The game timer will be started immediately.
+	 * @param objects The playfield objects for the game.
+	 * @param seed The seed of the playfield generator.
+	 * @param players The list of participating players.
+	 */
 	public GameState(List<ConvexObject> objects, String seed, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);
@@ -73,18 +103,40 @@ public class GameState{
 		gameStart = System.currentTimeMillis();
 	}
 	
+	/**
+	 * Gets the seed of the playfield generator that
+	 * was used to generate this game.
+	 * @return The game seed.
+	 */
 	public String getSeed(){
 		return seed;
 	}
 	
+	/**
+	 * Registers a listener to receive game status updates.
+	 * @param listener The listener to register.
+	 */
 	public void registerStateListener(GameStateListener listener){
 		listeners.add(listener);
 	}
 	
+	/**
+	 * Attempts to claim the given convex object for the active player.
+	 * @param obj The object to claim.
+	 * @return The result of the attempted claim.
+	 * @see #getActivePlayer()
+	 */
 	public ClaimResult claimObject(ConvexObject obj){
 		return claimObject(obj, obj.getCentroid());
 	}
 	
+	/**
+	 * Attempts to claim the given convex object for the active player.
+	 * @param obj The object to claim.
+	 * @param location The point within the object that was clicked to claim it.
+	 * @return The result of the attempted claim.
+	 * @see #getActivePlayer()
+	 */
 	public ClaimResult claimObject(ConvexObject obj, Point2D location){
 		if(!obj.isOwned()){
 			if(selected != null){
@@ -133,6 +185,10 @@ public class GameState{
 		}
 	}
 	
+	/**
+	 * Ends the turn for the active player moving on to the next player.
+	 * @see #getActivePlayer()
+	 */
 	private void endTurn(){
 		selected = null;
 		activePlayer = (activePlayer + 1) % players.size();
@@ -188,14 +244,29 @@ public class GameState{
 		}
 	}
 	
+	/**
+	 * Gets the active players whose turn it is currently.
+	 * @return The active player.
+	 */
 	public Player getActivePlayer(){
 		return players.get(activePlayer);
 	}
 	
+	/**
+	 * Gets the object located at the given coordinates.
+	 * @param p The coordinates to get the object at.
+	 * @return The object at the given coordinates.
+	 */
 	public ConvexObject getObject(Point2D p){
 		return getObject(p.getX(), p.getY());
 	}
 	
+	/**
+	 * Gets the object located at the given coordinates.
+	 * @param x The x coordinate to look at.
+	 * @param y The y coordinate to look at.
+	 * @return The object at the given coordinates.
+	 */
 	public ConvexObject getObject(double x, double y){
 		//TODO remove when decomp done
 		for(ConvexObject obj : objects){
@@ -206,14 +277,33 @@ public class GameState{
 		return decomp.queryObject(x, y);
 	}
 	
+	/**
+	 * Gets all the objects in this game.
+	 * @return All the objects in this game.
+	 */
 	public List<ConvexObject> getObjects(){
 		return objects;
 	}
 	
+	/**
+	 * Gets a list of lines that represent the vertical
+	 * decomposition lines for the vertical decomposition
+	 * used in this game. Lines to represent the bounding
+	 * box will be included as well.
+	 * @return The vertical decomposition lines.
+	 */
 	public List<Line2D> getVerticalDecompLines(){
 		return decomp.getDecompLines();
 	}
 	
+	/**
+	 * Gets the helper lines to be drawn from the currently
+	 * selected first object to the given point.
+	 * @param p The point to draw the helper lines to.
+	 * @return The helper lines from the currently selected
+	 *         object to the given point, or <code>null</code>
+	 *         if there is no object selected currently.
+	 */
 	public List<Line2D> getHelperLines(Point2D p){
 		if(selected != null){
 			List<Point2D> points = new ArrayList<Point2D>();
@@ -239,22 +329,48 @@ public class GameState{
 		return null;
 	}
 	
+	/**
+	 * True if the active player is currently selecting
+	 * a second object to merge with.
+	 * @return True if the active player is selecting
+	 *         a second object for a merge.
+	 */
 	public boolean isSelectingSecond(){
 		return selected != null;
 	}
 	
+	/**
+	 * Streams all the objects in this game.
+	 * @return A stream of all the objects in this game.
+	 */
 	public Stream<ConvexObject> stream(){
 		return objects.stream();
 	}
 	
+	/**
+	 * Gets a list of all the players in this game.
+	 * @return All the players in this game.
+	 */
 	public List<Player> getPlayers(){
 		return players;
 	}
 	
+	/**
+	 * Gets the total number of players in this game.
+	 * @return The total number of players.
+	 */
 	public int getPlayerCount(){
 		return players.size();
 	}
 	
+	/**
+	 * Executes the turn for the active player.
+	 * @throws InterruptedException When the current
+	 *         thread is interrupted while the player
+	 *         is executing its move. This signals that
+	 *         the game was aborted.
+	 * @see #getActivePlayer()
+	 */
 	public void executePlayerTurn() throws InterruptedException{
 		if(ended = !getActivePlayer().executeMove()){
 			turns--;
@@ -264,28 +380,66 @@ public class GameState{
 		turns++;
 	}
 	
+	/**
+	 * Checks if the game is finished.
+	 * @return True if the game is finished.
+	 */
 	public boolean isFinished(){
 		return ended;
 	}
 	
+	/**
+	 * Gets the total number of milliseconds this game took
+	 * or is taking up to this point in time.
+	 * @return The total game time in milliseconds.
+	 */
 	public long getGameTime(){
 		return ended ? (gameEnd - gameStart) : (System.currentTimeMillis() - gameStart);
 	}
 	
+	/**
+	 * Gets the number of rounds in this game. In a single round
+	 * each players gets a single turn. Note that the last round
+	 * can be a partial round where not every player got a turn.
+	 * @return The number of rounds.
+	 */
 	public int getRounds(){
-		return Math.floorDiv(turns, players.size());
+		int rounds = Math.floorDiv(turns, players.size());
+		return rounds * players.size() == turns ? rounds : (rounds + 1);
 	}
 
+	/**
+	 * Clears the object selection for the active player,
+	 * meaning they are no longer selecting a second object for a merge.
+	 */
 	public void clearSelection(){
 		selected = null;
 	}
 	
+	/**
+	 * Interface that receives game state updates.
+	 * @author Roan
+	 */
 	public static abstract interface GameStateListener{
-		
+
+		/**
+		 * Called when a player claims a new object.
+		 * @param player The player that made the claim.
+		 * @param obj The object that was claimed.
+		 */
 		public abstract void claim(Player player, ConvexObject obj);
 		
+		/**
+		 * Called when a player performs a merge.
+		 * @param player The player that performed the merge.
+		 * @param source The object the merge was started from.
+		 * @param target The target object of the merge.
+		 */
 		public abstract void merge(Player player, ConvexObject source, ConvexObject target);
 		
+		/**
+		 * Called when the game ends.
+		 */
 		public abstract void end();
 	}
 }
