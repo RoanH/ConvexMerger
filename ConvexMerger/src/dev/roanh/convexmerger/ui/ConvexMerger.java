@@ -10,7 +10,6 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.channels.ClosedByInterruptException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -163,7 +162,9 @@ public class ConvexMerger{
 	}
 	
 	public void abortGame(){
-		gameThread.interrupt();
+		if(gameThread != null){
+			gameThread.interrupt();
+		}
 	}
 	
 	/**
