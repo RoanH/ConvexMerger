@@ -16,6 +16,10 @@ import javax.swing.JPanel;
 
 import dev.roanh.convexmerger.Constants;
 
+/**
+ * Main game renderer responsible for rendering screens.
+ * @author Roan
+ */
 public class ScreenRenderer extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
 	/**
 	 * Serial ID.
@@ -25,8 +29,16 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 	 * Executor service used to run animations.
 	 */
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	/**
+	 * The active screen to render.
+	 */
 	private Screen screen;
 	
+	/**
+	 * Constructs a new screen renderer with the given
+	 * initial screen to render.
+	 * @param screen The screen to render.
+	 */
 	public ScreenRenderer(Screen screen){
 		this.setFocusable(true);
 		this.addMouseListener(this);
@@ -35,6 +47,11 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 		setScreen(screen);
 	}
 	
+	/**
+	 * Sets the screen to render.
+	 * @param screen The new screen to render.
+	 * @return The previous screen.
+	 */
 	public Screen setScreen(Screen screen){
 		Screen old = this.screen;
 		this.screen = screen;
