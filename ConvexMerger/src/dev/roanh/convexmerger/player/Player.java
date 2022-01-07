@@ -18,6 +18,9 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * @author Roan
  */
 public abstract class Player implements Identity{
+	/**
+	 * The ID of this player.
+	 */
 	private int id;
 	/**
 	 * The game this player is associated with.
@@ -179,7 +182,7 @@ public abstract class Player implements Identity{
 	 * Finds the largest unowned object left in the
 	 * current game state.
 	 * @return The largest unowned object or <code>
-	 *         null<code> if there are no unowned
+	 *         null</code> if there are no unowned
 	 *         object left in the game.
 	 */
 	protected ConvexObject findLargestUnownedObject(){
@@ -191,7 +194,7 @@ public abstract class Player implements Identity{
 	 * current game state according to the given comparator.
 	 * @param comparator The comparator to use to compare object sizes.
 	 * @return The largest unowned object or <code>
-	 *         null<code> if there are no unowned
+	 *         null</code> if there are no unowned
 	 *         object left in the game.
 	 */
 	protected ConvexObject findLargestUnownedObject(Comparator<Double> comparator){
