@@ -83,6 +83,9 @@ public class ResultOverlay{
 	 * Dummy player returning average player data.
 	 */
 	private Player average = new AveragePlayer();
+	/**
+	 * The bounds of the main menu button if present.
+	 */
 	private Rectangle2D menuBounds = null;
 
 	/**
@@ -95,6 +98,13 @@ public class ResultOverlay{
 		average.init(state, PlayerTheme.UNOWNED);
 	}
 	
+	/**
+	 * Checks if the given point is inside the area
+	 * occupied by the main menu button if visible.
+	 * @param loc The point to check.
+	 * @return True if the given point is inside the
+	 *         main menu button.
+	 */
 	protected boolean intersectsMenuButton(Point2D loc){
 		return (menuBounds != null && state.isFinished()) ? menuBounds.contains(loc) : false;
 	}
