@@ -19,17 +19,17 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.net.ClientConnection;
 import dev.roanh.convexmerger.net.InternalServer;
-import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.HumanPlayer;
-import dev.roanh.convexmerger.player.LocalPlayer;
 import dev.roanh.convexmerger.player.Player;
-import dev.roanh.convexmerger.player.SmallPlayer;
 
+/**
+ * Main game entry point, manages the main state of the game.
+ * @author Roan
+ */
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
 	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
@@ -99,8 +99,6 @@ public class ConvexMerger{
 	
 	public void initialiseGame(PlayfieldGenerator gen, List<Player> players){
 		GameThread thread = new GameThread(gen, players);
-		thread.setName("GameThread");
-		thread.setDaemon(true);
 		thread.start();
 	}
 	
@@ -156,20 +154,24 @@ public class ConvexMerger{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 	}
 	
 	public Screen switchScene(Screen next){
 		return renderer.setScreen(next);
 	}
 	
+	/**
+	 * Thread responsible for managing the game turns,
+	 * generating the playfield and executing AI moves.
+	 * @author Roan
+	 */
 	private final class GameThread extends Thread{
 		private PlayfieldGenerator gen;
 		private List<Player> players;
 		
 		private GameThread(PlayfieldGenerator gen, List<Player> players){
+			this.setName("GameThread");
+			this.setDaemon(true);
 			this.gen = gen;
 			this.players = players;
 		}
@@ -178,16 +180,12 @@ public class ConvexMerger{
 		public void run(){
 			try{
 				GameState state = new GameState(gen, players);
-				
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
 				
-				
-				
-				//Thread.sleep(4000);
 				while(!state.isFinished()){
 					Player player = state.getActivePlayer();
 					if(player.isAI()){
-						Thread.sleep(400);//TODO config
+						Thread.sleep(Constants.AI_TURN_TIME);
 					}
 					long start = System.currentTimeMillis();
 					state.executePlayerTurn();
@@ -195,11 +193,8 @@ public class ConvexMerger{
 					frame.repaint();
 				}
 			}catch(InterruptedException | InvocationTargetException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//neither can happen
 			}
-
-			System.out.println("game end");
 		}
 	}
 }
