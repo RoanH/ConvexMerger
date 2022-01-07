@@ -4,7 +4,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,9 +15,20 @@ import java.util.List;
  */
 public class VerticalDecomposition{
 	
+	/**
+	 * The trapezoids of the decomposition.
+	 */
 	private List<Trapezoid> trapezoids;
-	
+	/**
+	 * The bounding box that all objects that will ever be added will be contained in (strictly inside, there will be no overlap with the edges).
+	 */
 	private Rectangle2D bounds;
+	/**
+	 * The search structure of the decomposition. 
+	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
+	 */
+	private List<DecompVertex> searchStructure;
+	
 	/**
 	 * Constructs a new vertical decomposition with
 	 * the given bounding box.
@@ -28,13 +38,19 @@ public class VerticalDecomposition{
 	 */
 	public VerticalDecomposition(Rectangle2D bounds){
 		trapezoids = new ArrayList<Trapezoid>();
+		searchStructure = new ArrayList<DecompVertex>();
+		
+		this.bounds = bounds;
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
 		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
 		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
 		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
 		
-		trapezoids.add(new Trapezoid(topLeft, botRight, botLeft, botRight, topLeft, topRight, new ArrayList<Trapezoid>()));
-		this.bounds = bounds;
+		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botLeft, botRight, topLeft, topRight, new ArrayList<Trapezoid>());
+		DecompVertex initialVertex =  new DecompVertex(0, initialTrapezoid);
+		initialTrapezoid.setDecompVertex(initialVertex);
+		trapezoids.add(initialTrapezoid);
+		searchStructure.add(initialVertex);
 	}
 	
 	/**
@@ -137,13 +153,6 @@ public class VerticalDecomposition{
 			this.left  = null;
 			this.right = null;
 		}
-		
-		/**
-		 * 
-		 * @param type The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
-		 * @param left The left child of the vertex.
-		 * @param right The right child of the vertex.
-		 */
 		
 		/**
 		 * Constructs a Decomposition Vertex of expected type 0 (leaf) with a linked trapezoid.
@@ -294,6 +303,42 @@ public class VerticalDecomposition{
 				this.trapezoid = trapezoid;
 			}
 		}
+		
+		/**
+		 * Gets the point that the vertex points to.
+		 * @return The point that the vertex points to.
+		 */
+		public Point2D getPoint(){
+			return point;
+		}
+		
+		/**
+		 Sets the point that the vertex points to to a given point, if the vertex is a point vertex.
+		 * @param point The point to associate with the vertex.
+		 */
+		public void setPoint(Point2D point){
+			if(type == 1){
+				this.point = point;
+			}
+		}
+		
+		/**
+		 * Gets the segment that the vertex points to.
+		 * @return The segment that the vertex points to.
+		 */
+		public Line2D getSegment(){
+			return segment;
+		}
+		
+		/**
+		 Sets the segment that the vertex points to to a given seg e t, if the vertex is a segment vertex.
+		 * @param segment The point to associate with the vertex.
+		 */
+		public void setSegment(Line2D segment){
+			if(type == 2){
+				this.segment = segment;
+			}
+		}
 	}
 	
 	/**
@@ -314,8 +359,14 @@ public class VerticalDecomposition{
 		 * The neighbouring trapezoids of the trapezoid.
 		 */
 		private List<Trapezoid> neighbours;
+		
 		/**
-		 * Constructs a trapezoid.
+		 * The vertex that this trapezoid is linked to
+		 */
+		private DecompVertex vertex;
+		
+		/**
+		 * Constructs a trapezoid given left and right bounding points, and top and the defining points of the top and bottom segments.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
 		 * @param bot1 One point of the bottom bounding line of the trapezoid.
@@ -325,6 +376,21 @@ public class VerticalDecomposition{
 		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours){
+			this(left, right, bot1, bot2, top1, top2, neighbours, null);
+		}
+		
+		/**
+		 * Constructs a trapezoid.
+		 * @param left The left bounding point of the trapezoid.
+		 * @param right The right bounding point of the trapezoid.
+		 * @param bot1 One point of the bottom bounding line of the trapezoid.
+		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
+		 * @param top1 One point of the top bounding line of the trapezoid.
+		 * @param top2 The other point of the bottom bounding line of the trapezoid.
+		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid.
+		 * @param vertex The decomposition vertex linked to this Trapezoid. 
+		 */
+		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours, DecompVertex vertex){
 			topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? (top1.getY() < top2.getY() ? top1 : top2) : (top1.getX() < top2.getX() ? top1 : top2);  
 			topRight = topLeft.equals(top1) ? top2 : top1;
 			botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? (bot1.getY() < bot2.getY() ? bot1 : bot2) : (bot1.getX() < bot2.getY() ? bot1 : bot2);
@@ -332,6 +398,7 @@ public class VerticalDecomposition{
 			leftPoint = left;
 			rightPoint = right;
 			this.neighbours = neighbours;
+			this.vertex = vertex;
 		}
 		
 		/**
@@ -388,6 +455,7 @@ public class VerticalDecomposition{
 				double xRatioTop = (botLeft.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
 				Point2D botPoint = Double.compare(botLeft.getY(), botRight.getY()) >= 0 ? botRight : botLeft; 
 				Point2D topPoint = new Point2D.Double(botLeft.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY());
+				verticalLines.add(new Line2D.Double(topPoint, botPoint));
 			}else{
 				if(!(topLeft.equals(botLeft) && topLeft.equals(leftPoint))){//vertical line between top and bottom on the left
 					double xRatioTop = (leftPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
@@ -404,6 +472,22 @@ public class VerticalDecomposition{
 				}
 			}
 			return verticalLines;
+		}
+		
+		/**
+		 * Gets the decomposition vertex that this trapezoid is linked to.
+		 * @return The decomposition vertex that this trapezoid is linked to.
+		 */
+		public DecompVertex getDecompVertex(){
+			return vertex;
+		}
+		
+		/**
+		 * Links the trapezoid to a Decomposition vertex.
+		 * @param vertex The Decomposition vertex to link to.
+		 */
+		public void setDecompVertex(DecompVertex vertex){
+			this.vertex = vertex;
 		}
 	}
 }
