@@ -20,6 +20,12 @@ public class GreedyPlayer extends Player{
 		super(true, true, "Isla");
 	}
 	
+	/**
+	 * Constructs a new greedy player with the given parameters.
+	 * @param local Whether this AI is executing locally or acting as a remote proxy.
+	 * @param ai Whether this player is an AI or not.
+	 * @param name The name of this player.
+	 */
 	protected GreedyPlayer(boolean local, boolean ai, String name){
 		super(local, ai, name);
 	}
