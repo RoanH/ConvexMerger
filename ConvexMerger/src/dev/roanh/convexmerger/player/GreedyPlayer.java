@@ -7,8 +7,8 @@ import dev.roanh.convexmerger.game.ConvexObject;
 
 /**
  * Simple AI that follows the greedy
- * strategy of maximising area again
- * in every turn.
+ * strategy of maximising relative
+ * area gain in every turn.
  * @author Roan
  */
 public class GreedyPlayer extends Player{
