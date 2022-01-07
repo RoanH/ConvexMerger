@@ -49,7 +49,7 @@ public class InternalServer implements GameStateListener{
 	public GameState startGame(){
 		thread.shutdown();
 		GameState state = game.toGameState();
-		thread.broadCast(new PacketGameInit(state.getObjects(), state.getPlayers()));
+		thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
 		
 		state.registerStateListener(this);
 		return state;
@@ -62,13 +62,13 @@ public class InternalServer implements GameStateListener{
 	@Override
 	public void claim(Player player, ConvexObject obj){
 		System.out.println("send claim for: " + player.getName());
-		thread.broadCast(player, new PacketPlayerMove(player, obj.getID()));
+		thread.broadCast(player, new PacketPlayerMove(player, obj));
 	}
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target){
 		System.out.println("send merge for: " + player.getName());
-		thread.broadCast(player, new PacketPlayerMove(player, source.getID(), target.getID()));
+		thread.broadCast(player, new PacketPlayerMove(player, source, target));
 	}
 
 	@Override

@@ -9,32 +9,35 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.net.ClientConnection;
 import dev.roanh.convexmerger.net.InternalServer;
-import dev.roanh.convexmerger.player.GreedyPlayer;
 import dev.roanh.convexmerger.player.HumanPlayer;
-import dev.roanh.convexmerger.player.LocalPlayer;
 import dev.roanh.convexmerger.player.Player;
-import dev.roanh.convexmerger.player.SmallPlayer;
 
+/**
+ * Main game entry point, manages the main state of the game.
+ * @author Roan
+ */
 public class ConvexMerger{
 	private JFrame frame = new JFrame(Constants.TITLE);
-	private GameState state;//TODO required?
-	private GamePanel game = new GamePanel();
+	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
+	private GameThread gameThread;
 	
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
-		content.add(game, BorderLayout.CENTER);
+		content.add(renderer, BorderLayout.CENTER);
 		
 		try{
 			frame.setIconImages(Arrays.asList(
@@ -89,47 +92,20 @@ public class ConvexMerger{
 						frame.setLocationRelativeTo(null);
 						frame.setVisible(true);
 					}
-				}else if(e.getKeyCode() == KeyEvent.VK_F){//TODO remove
-					for(ConvexObject obj : state.getObjects()){
-						obj.scale(0.99D);
-					}
-					frame.repaint();
 				}
 				return false;
 			}
 		});
 	}
 	
-	public void initialiseGame(){
-		//TODO this is just fixed static data
-		
-		//easy: 50-100 0.45
-		//normal: 0-100 0.45
-		//ai fun: 10-20 0.45 mini size
-		initialiseGame(new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
-			new HumanPlayer(),
-			//new HumanPlayer()
-			//new SmallPlayer(),
-			new LocalPlayer()//,
-			//new GreedyPlayer(),
-			//new SmallPlayer()
-		)));
-	}
-	
-	private void initialiseGame(GameState state){
-		this.state = state;
-		game.setGameState(state);
-		game.repaint();
-		
-		GameThread thread = new GameThread();
-		thread.setName("GameThread");
-		thread.setDaemon(true);
-		thread.start();
+	public void initialiseGame(PlayfieldGenerator gen, List<Player> players){
+		gameThread = new GameThread(gen, players);
+		gameThread.start();
 	}
 	
 	public void hostMultiplayerGame(){
 		frame.setTitle(Constants.TITLE + " [Server]");
-		Player self = new HumanPlayer();
+		Player self = new HumanPlayer("Player 1");
 		PlayfieldGenerator gen = new PlayfieldGenerator();
 		gen.setRange(50, 100);
 		gen.setScaling(200);
@@ -150,14 +126,14 @@ public class ConvexMerger{
 		System.out.println("player count hit start game");
 		
 		GameState state = server.startGame();
-		initialiseGame(state);
+		//TODO initialiseGame(state);
 		showGame();
 	}
 	
 	public void joinMultiplayerGame(){
 		try{
 			frame.setTitle(Constants.TITLE + " [Client]");
-			Player player = new HumanPlayer();
+			Player player = new HumanPlayer("Player 1");
 			ClientConnection con = ClientConnection.connect("localhost", player);
 			if(!con.isConnected()){
 				System.out.println("Connection failed with reason: " + con.getRejectReason());
@@ -172,43 +148,62 @@ public class ConvexMerger{
 			
 			GameState state = con.getGameState();
 			
-			initialiseGame(state);
+			//TODO initialiseGame(state);
 			showGame();
 			
 		}catch(IOException e){
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 	}
 	
+	public Screen switchScene(Screen next){
+		return renderer.setScreen(next);
+	}
+	
+	public void abortGame(){
+		if(gameThread != null){
+			gameThread.interrupt();
+		}
+	}
+	
+	/**
+	 * Thread responsible for managing the game turns,
+	 * generating the playfield and executing AI moves.
+	 * @author Roan
+	 */
 	private final class GameThread extends Thread{
+		private PlayfieldGenerator gen;
+		private List<Player> players;
+		
+		private GameThread(PlayfieldGenerator gen, List<Player> players){
+			this.setName("GameThread");
+			this.setDaemon(true);
+			this.gen = gen;
+			this.players = players;
+		}
 		
 		@Override
 		public void run(){
 			try{
-				//Thread.sleep(4000);
-				while(!state.isFinished()){
+				GameState state = new GameState(gen, players);
+				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
+				
+				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();
 					if(player.isAI()){
-						Thread.sleep(400);//TODO config
+						Thread.sleep(Constants.AI_TURN_TIME);
 					}
 					long start = System.currentTimeMillis();
 					state.executePlayerTurn();
 					player.getStats().addTurnTime(System.currentTimeMillis() - start);
 					frame.repaint();
 				}
+			}catch(InvocationTargetException e){
+				//never happens
 			}catch(InterruptedException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//happens when the game is aborted
 			}
-
-			System.out.println("game end");
-			game.showResults();
-			frame.repaint();
-
 		}
 	}
 }

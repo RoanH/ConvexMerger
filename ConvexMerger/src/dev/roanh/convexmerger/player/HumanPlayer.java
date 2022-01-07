@@ -7,22 +7,20 @@ import dev.roanh.convexmerger.game.ConvexObject;
  * @author Roan
  */
 public class HumanPlayer extends Player{
-	private static int ID = 1;
 
-	public HumanPlayer(){//TODO pass name
-		super(true, false, "Player " + (ID++));
+	/**
+	 * Constructs a new human player with the given name.
+	 * @param name The name of the player.
+	 */
+	public HumanPlayer(String name){
+		super(true, false, name);
 	}
 
 	@Override
-	public boolean executeMove(){
+	public boolean executeMove() throws InterruptedException{
 		if(state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent()){
 			synchronized(state){
-				try{
-					state.wait();
-				}catch(InterruptedException e){
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				state.wait();
 			}
 			return true;
 		}else{

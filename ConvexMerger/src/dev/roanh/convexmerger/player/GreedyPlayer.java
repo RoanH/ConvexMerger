@@ -7,8 +7,8 @@ import dev.roanh.convexmerger.game.ConvexObject;
 
 /**
  * Simple AI that follows the greedy
- * strategy of maximising area again
- * in every turn.
+ * strategy of maximising relative
+ * area gain in every turn.
  * @author Roan
  */
 public class GreedyPlayer extends Player{
@@ -20,12 +20,18 @@ public class GreedyPlayer extends Player{
 		super(true, true, "Isla");
 	}
 	
+	/**
+	 * Constructs a new greedy player with the given parameters.
+	 * @param local Whether this AI is executing locally or acting as a remote proxy.
+	 * @param ai Whether this player is an AI or not.
+	 * @param name The name of this player.
+	 */
 	protected GreedyPlayer(boolean local, boolean ai, String name){
 		super(local, ai, name);
 	}
 	
 	@Override
-	public boolean executeMove(){
+	public boolean executeMove() throws InterruptedException{
 		List<ConvexObject> owned = stream().collect(Collectors.toList());
 		
 		//find the single largest object

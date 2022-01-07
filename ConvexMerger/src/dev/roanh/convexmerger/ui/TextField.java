@@ -8,20 +8,56 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * Text field UI component.
+ * @author Roan
+ */
 public class TextField{
+	/**
+	 * The accent color for this text field.
+	 */
 	private Color color;
+	/**
+	 * Text field bounds.
+	 */
 	private Rectangle2D bounds = new Rectangle2D.Double();
+	/**
+	 * Current text field text.
+	 */
 	private String text = "";
+	/**
+	 * Whether this text field has focus.
+	 */
 	private boolean focus = false;
 	
+	/**
+	 * Constructs a new text field with the given accent color.
+	 * @param color The accent color.
+	 */
 	public TextField(Color color){
 		this.color = color;
 	}
 	
+	/**
+	 * Gets the text in this text field.
+	 * @return The text in this text field.
+	 */
+	public String getText(){
+		return text;
+	}
+	
+	/**
+	 * Checks if this text field currently has focus.
+	 * @return True if this text field has focus.
+	 */
 	public boolean hasFocus(){
 		return focus;
 	}
 	
+	/**
+	 * Handles a key event on this text field.
+	 * @param event The event to handle.
+	 */
 	public void handleKeyEvent(KeyEvent event){
 		if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
 			if(!text.isEmpty()){
@@ -32,11 +68,23 @@ public class TextField{
 		}
 	}
 	
+	/**
+	 * Handles a mouse event on this text field.
+	 * @param loc The location that was clicked.
+	 */
 	public void handleMouseClick(Point2D loc){
 		focus = bounds.contains(loc);
 	}
 	
-	public boolean render(Graphics2D g, double x, double y, double width, double height){
+	/**
+	 * Renders this text field.
+	 * @param g The graphics context to use.
+	 * @param x The x coordinate of the top left corner.
+	 * @param y The y coordinate of the top left corner.
+	 * @param width The width of the text field.
+	 * @param height The height of the text field.
+	 */
+	protected void render(Graphics2D g, double x, double y, double width, double height){
 		g.setColor(Theme.DOUBLE_LIGHTEN);
 		bounds = new Rectangle2D.Double(x, y, width, height);
 		g.fill(bounds);
@@ -56,7 +104,5 @@ public class TextField{
 		g.setColor(color);
 		g.draw(new Line2D.Double(x, y + height - 1, x + width - 1, y + height - 1));
 		g.setClip(null);
-		
-		return focus;
 	}
 }

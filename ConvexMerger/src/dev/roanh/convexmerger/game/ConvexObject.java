@@ -25,6 +25,9 @@ public class ConvexObject implements Identity, Serializable{
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 8124732728885600186L;
+	/**
+	 * The ID for this object.
+	 */
 	private int id;
 	/**
 	 * The points that make up this convex object, starting
@@ -92,6 +95,10 @@ public class ConvexObject implements Identity, Serializable{
 		constructShape(data.size());
 	}
 	
+	/**
+	 * Constructs the shape object for the bounds of this object.
+	 * @param size The number of points that define the bounds.
+	 */
 	private void constructShape(int size){
 		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, size);
 		shape.moveTo(points.get(0).getX(), points.get(0).getY());

@@ -1,7 +1,5 @@
 package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
-
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -9,82 +7,292 @@ import java.awt.Paint;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.game.PlayfieldGenerator.GeneratorProgressListener;
 import dev.roanh.convexmerger.player.AIRegistry;
+import dev.roanh.convexmerger.player.HumanPlayer;
+import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
-public class NewGameMenu implements Menu{
+public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	/**
 	 * Maximum width used by the boxes.
 	 */
 	private static final int MAX_WIDTH = 1200;
+	private static final double SPACING = 4.0D;
 	private PlayerPanel p1 = new PlayerPanel(PlayerTheme.P1);
 	private PlayerPanel p2 = new PlayerPanel(PlayerTheme.P2);
 	private PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
 	private PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
+	private Path2D start = new Path2D.Double();
+	private ButtonAssembly size = new ButtonAssembly(1, "Object Size", "Small", "Medium", "Large");
+	private ButtonAssembly density = new ButtonAssembly(2, "Density", "Low", "Medium", "High");
+	private ButtonAssembly spacing = new ButtonAssembly(0, "Spacing", "Small", "Medium", "Large");
+	private double progress = 0.0D;
+	private boolean started = false;
 	
+	public NewGameMenu(ConvexMerger context){
+		super(context);
+	}
 	
-	
-	
+	private boolean canStart(){
+		return p1.hasPlayer() || p2.hasPlayer() || p3.hasPlayer() || p4.hasPlayer();
+	}
 
 	@Override
-	public boolean render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+		renderMainInterface(g, width, height, null);
+		
+		g.setColor(Theme.CROWN_COLOR);
 		renderMenuTitle(g, width, "New game");
 		drawTitle(g, width);
 		
-		double size = Menu.getMaxWidth(width, 0.8D, MAX_WIDTH);
+		double size = Screen.getMaxWidth(width, 0.8D, MAX_WIDTH);
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		double tx = (width - size) / 2.0D;
 		double ty = GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE;
 		
 		//TODO magic
-		double playersHeight = Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS * 2 + PlayerPanel.HEIGHT;
-		double optionsHeight = 200.0D;
+		double playersHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS * 2 + PlayerPanel.HEIGHT;
+		double optionsHeight = 100.0D;
 		double startHeight = 100.0D;
 		
 		drawTitledBox(g, gradient, tx, ty, size, playersHeight, "Players");
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
 
 		g.setColor(Theme.MENU_BODY);
-		drawBox(g, tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight);
+		start = computeBox(tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D, size / 3.0D, startHeight, BOX_INSETS);
+		g.fill(start);
+		g.setFont(Theme.PRIDI_REGULAR_18);
+		g.setColor(Theme.DOUBLE_LIGHTEN);
+		Path2D border = computeBox(tx + (size / 3.0D) + SPACING, ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + SPACING, size / 3.0D - SPACING * 2.0D, startHeight - SPACING * 2.0D, BOX_INSETS);
+		g.draw(border);
+		if(canStart() && start.contains(mouseLoc)){
+			g.fill(border);
+		}
+		g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString("Start Game", (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth("Start Game")) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+		if(!canStart() || started){
+			int offset = fm.getHeight();
+			g.setFont(Theme.PRIDI_REGULAR_12);
+			fm = g.getFontMetrics();
+			g.setColor(Theme.ADD_COLOR);
+			String text = started ? String.format("Generating game: %.1f%%", progress * 100.0D) : "At least one player required";
+			g.drawString(text, (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth(text)) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight + offset - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+		}
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
-		boolean anim = p1.render(g, tx + dx, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		anim |= p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		anim |= p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
-		anim |= p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Menu.BOX_HEADER_HEIGHT + Menu.BOX_INSETS, mouseLoc);
+		p1.render(g, tx + dx, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
 		
-		return true;//TODO anim;
+		this.size.render(g, tx, ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
+		density.render(g, tx + (size / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
+		spacing.render(g, tx + ((size * 2.0D) / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
 	}
 
 	@Override
-	public void handleMouseClick(Point2D loc){
-		p1.handleMouseClick(loc);
-		p2.handleMouseClick(loc);
-		p3.handleMouseClick(loc);
-		p4.handleMouseClick(loc);
-	}
+	public void handleMouseClick(Point2D loc, int width, int height){
+		super.handleMouseClick(loc, width, height);
+		
+		if(!started){
+			p1.handleMouseClick(loc);
+			p2.handleMouseClick(loc);
+			p3.handleMouseClick(loc);
+			p4.handleMouseClick(loc);
+			size.handleMouseClick(loc);
+			density.handleMouseClick(loc);
+			spacing.handleMouseClick(loc);
+			
+			if(canStart() && start.contains(loc)){
+				List<Player> players = new ArrayList<Player>();
+				p1.getPlayer().ifPresent(players::add);
+				p2.getPlayer().ifPresent(players::add);
+				p3.getPlayer().ifPresent(players::add);
+				p4.getPlayer().ifPresent(players::add);
 
-	@Override
-	public void handleKeyTyped(KeyEvent event){
-		if(p1.name != null && p1.name.hasFocus()){
-			p1.name.handleKeyEvent(event);
-		}else if(p2.name != null && p2.name.hasFocus()){
-			p2.name.handleKeyEvent(event);
-		}else if(p2.name != null && p3.name.hasFocus()){
-			p3.name.handleKeyEvent(event);
-		}else if(p4.name != null && p4.name.hasFocus()){
-			p4.name.handleKeyEvent(event);
+				PlayfieldGenerator gen = new PlayfieldGenerator();
+				gen.setProgressListener(this);
+				gen.setRange(new int[]{10, 0, 50}[size.getSelectedIndex()], new int[]{20, 100, 100}[size.getSelectedIndex()]);
+				gen.setCoverage(new int[]{50, 90, 114}[density.getSelectedIndex()]);
+				gen.setScaling(new int[]{240, 200, 100}[spacing.getSelectedIndex()]);
+				
+				this.getContext().initialiseGame(gen, players);
+				started = true;
+			}
 		}
 	}
 
+	@Override
+	public void handleKeyPressed(KeyEvent event){
+		if(!started){
+			if(p1.name != null && p1.name.hasFocus()){
+				p1.name.handleKeyEvent(event);
+			}else if(p2.name != null && p2.name.hasFocus()){
+				p2.name.handleKeyEvent(event);
+			}else if(p2.name != null && p3.name.hasFocus()){
+				p3.name.handleKeyEvent(event);
+			}else if(p4.name != null && p4.name.hasFocus()){
+				p4.name.handleKeyEvent(event);
+			}
+		}
+	}
+
+	@Override
+	public void update(double progress){
+		this.progress = progress;
+	}
+
+	@Override
+	protected boolean isLeftButtonEnabled(){
+		return !started;
+	}
+
+	@Override
+	protected boolean isRightButtonEnabled(){
+		return false;
+	}
+
+	@Override
+	protected String getLeftButtonText(){
+		return "Back";
+	}
+
+	@Override
+	protected String getRightButtonText(){
+		return null;
+	}
+
+	@Override
+	protected void handleLeftButtonClick(){
+		//TODO handle back
+	}
+
+	@Override
+	protected void handleRightButtonClick(){
+	}
+	
+	private class ButtonAssembly{
+		private static final double BUTTON_WIDTH = 80.0D;
+		private static final double BUTTON_HEIGHT = 30.0D;
+		private String title;
+		private String[] values;
+		private Path2D left;
+		private Path2D middle;
+		private Path2D right;
+		private int selected;
+		
+		public ButtonAssembly(int selected, String title, String... values){
+			this.selected = selected;
+			this.title = title;
+			this.values = values;
+		}
+		
+		private int getSelectedIndex(){
+			return selected;
+		}
+		
+		private Path2D getSelectedPath(){
+			return selected == 0 ? left : (selected == 1 ? middle : right);
+		}
+		
+		private boolean intersectsLeft(Point2D point){
+			Path2D sel = getSelectedPath();
+			return sel == left ? sel.contains(point) : (left.contains(point) && !middle.contains(point));
+		}
+		
+		private boolean intersectsMiddle(Point2D point){
+			Path2D sel = getSelectedPath();
+			return sel == middle ? sel.contains(point) : (middle.contains(point) && !right.contains(point) && !sel.contains(point));
+		}
+		
+		private boolean intersectsRight(Point2D point){
+			Path2D sel = getSelectedPath();
+			return sel == right ? sel.contains(point) : (right.contains(point) && !sel.contains(point));
+		}
+		
+		private void render(Graphics2D g, double x, double y, double w, double h, Point2D mouseLoc){
+			g.setFont(Theme.PRIDI_REGULAR_16);
+			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+			FontMetrics fm = g.getFontMetrics();
+			y += fm.getAscent() - fm.getDescent();
+			g.drawString(title, (float)(x + (w - fm.stringWidth(title)) / 2.0D), (float)y);
+			
+			x += (w - BUTTON_WIDTH * 3.0D + BOX_INSETS * 4.0D) / 2.0D;
+			y += BOX_SPACING;
+			
+			left = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
+			x += BUTTON_WIDTH - BOX_INSETS * 2;
+			middle = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
+			x += BUTTON_WIDTH - BOX_INSETS * 2;
+			right = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
+			
+			g.setStroke(Theme.BORDER_STROKE);
+			
+			Path2D sel = getSelectedPath();
+			
+			if(left != sel){
+				g.setColor(intersectsLeft(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(left);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.draw(left);
+			}
+			
+			if(middle != sel){
+				g.setColor(intersectsMiddle(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(middle);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.draw(middle);
+			}
+			
+			if(right != sel){
+				g.setColor(intersectsRight(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(right);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.draw(right);
+			}
+			
+			g.setColor(Theme.BUTTON_SELECT);
+			g.fill(sel);
+			g.setColor(Theme.DOUBLE_LIGHTEN);
+			g.draw(sel);
+			
+			g.setFont(Theme.PRIDI_REGULAR_12);
+			fm = g.getFontMetrics();
+			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+			
+			g.drawString(values[0], (float)(x - BUTTON_WIDTH * 1.5D + BOX_INSETS * 4.0D - fm.stringWidth(values[0]) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
+			g.drawString(values[1], (float)(x - BUTTON_WIDTH * 0.5D + BOX_INSETS * 2.0D - fm.stringWidth(values[1]) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
+			g.drawString(values[2], (float)(x + (BUTTON_WIDTH - fm.stringWidth(values[2])) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
+		}
+		
+		private void handleMouseClick(Point2D loc){
+			if(intersectsLeft(loc)){
+				selected = 0;
+			}else if(intersectsMiddle(loc)){
+				selected = 1;
+			}else if(intersectsRight(loc)){
+				selected = 2;
+			}
+		}
+	}
+
+	/**
+	 * Panel to configure a new AI or human player.
+	 * @author Roan
+	 */
 	private class PlayerPanel{
 		private static final double WIDTH = 150.0D;
 		private static final double HEIGHT = 62.0D;
 		private static final double BUTTON_INSET = 4.0D;
 		private static final double CONTENT_WIDTH = 134.0D;
 		private static final double CONTENT_HEIGHT = 21.0D;
-		private static final double SPACING = 4.0D;
 		private Path2D addPlayer = null;
 		private Path2D addAI = null;
 		private PlayerTheme theme;
@@ -97,7 +305,21 @@ public class NewGameMenu implements Menu{
 			this.theme = theme;
 		}
 		
-		private boolean render(Graphics2D g, double x, double y, Point2D mouseLoc){
+		private boolean hasPlayer(){
+			return ai != null || name != null;
+		}
+		
+		private Optional<Player> getPlayer(){
+			if(name != null){
+				return Optional.of(new HumanPlayer(name.getText()));
+			}else if(ai != null){
+				return Optional.of(ai.getValue().createInstance());
+			}else{
+				return Optional.empty();
+			}
+		}
+		
+		private void render(Graphics2D g, double x, double y, Point2D mouseLoc){
 			g.setColor(Theme.LIGHTEN);
 			drawBox(g, x, y, WIDTH, HEIGHT);
 			
@@ -114,7 +336,6 @@ public class NewGameMenu implements Menu{
 					ai.render(g, x + Theme.PLAYER_ICON_SIZE_SMALL + SPACING, y, CONTENT_WIDTH - Theme.PLAYER_ICON_SIZE_SMALL - SPACING, CONTENT_HEIGHT, mouseLoc);
 				}
 			}
-			return false;
 		}
 		
 		private void handleMouseClick(Point2D loc){
@@ -143,7 +364,7 @@ public class NewGameMenu implements Menu{
 		}
 		
 		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
-			remove = computeBox(g, x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
+			remove = computeBox(x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
 			
 			g.setFont(Theme.PRIDI_REGULAR_14);
 			

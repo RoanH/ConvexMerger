@@ -8,16 +8,53 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.function.Function;
 
+/**
+ * Represents a UI combo box.
+ * @author Roan
+ * @param <T> The value data type.
+ */
 public class ComboBox<T>{
+	/**
+	 * Height of the combo box field and drop down item fields.
+	 */
 	private static final double CELL_HEIGHT = 20.0D;
+	/**
+	 * Combo box accent color.
+	 */
 	private Color color;
+	/**
+	 * The bounds for the main field of this combo box.
+	 */
 	private Rectangle2D bounds = new Rectangle2D.Double();
+	/**
+	 * The bounds for the drop down list of this combo box.
+	 */
 	private Rectangle2D list = null;
+	/**
+	 * The currently selected value.
+	 */
 	private T value;
+	/**
+	 * The list of possible values.
+	 */
 	private T[] values;
+	/**
+	 * The function to use to turn the values into strings.
+	 */
 	private Function<T, String> toString;
+	/**
+	 * Whether this combo box currently has focus.
+	 */
 	private boolean focus = false;
 	
+	/**
+	 * Constructs a new combo box with the given values, to string
+	 * function and accent color. The first given value will be
+	 * selected initially.
+	 * @param values The values for this combo box.
+	 * @param toString The function to convert the values to a string.
+	 * @param color The accent color.
+	 */
 	public ComboBox(T[] values, Function<T, String> toString, Color color){
 		this.color = color;
 		this.value = values[0];
@@ -25,19 +62,47 @@ public class ComboBox<T>{
 		this.toString = toString;
 	}
 	
+	/**
+	 * Gets the value selected in this combo box.
+	 * @return The selected value.
+	 */
+	public T getValue(){
+		return value;
+	}
+	
+	/**
+	 * Handles a mouse click on this combo box.
+	 * @param loc The location that was clicked.
+	 */
 	public void handleMouseClick(Point2D loc){
-		focus = bounds.contains(loc);
 		int idx = getSelectedIndex(loc);
 		if(idx != -1){
 			value = values[idx];
 			list = null;
 		}
+		
+		if(bounds.contains(loc)){
+			focus = true;
+		}else{
+			list = null;
+			focus = false;
+		}
 	}
 	
+	/**
+	 * Checks if this combo box currently has focus.
+	 * @return True if this combo box has focus.
+	 */
 	public boolean hasFocus(){
 		return focus;
 	}
 	
+	/**
+	 * Computes the drop down list selected index given
+	 * the list bounds.
+	 * @param loc The location selected.
+	 * @return The selected index or -1 if none.
+	 */
 	private int getSelectedIndex(Point2D loc){
 		if(list != null && list.contains(loc)){
 			return (int)Math.floor((loc.getY() - list.getY()) / CELL_HEIGHT);
@@ -46,7 +111,16 @@ public class ComboBox<T>{
 		}
 	}
 	
-	public boolean render(Graphics2D g, double x, double y, double width, double height, Point2D loc){
+	/**
+	 * Renders this combo box according to the given parameters.
+	 * @param g The graphics context to use.
+	 * @param x The x coordinate of the top left corner.
+	 * @param y The y coordinate of the top left corner.
+	 * @param width The width of the combo box.
+	 * @param height The height of the main field of the combo box.
+	 * @param loc The current mouse location.
+	 */
+	protected void render(Graphics2D g, double x, double y, double width, double height, Point2D loc){
 		g.setColor(Theme.DOUBLE_LIGHTEN);
 		bounds = new Rectangle2D.Double(x, y, width, height);
 		g.fill(bounds);
@@ -76,7 +150,5 @@ public class ComboBox<T>{
 		g.setColor(color);
 		g.draw(new Line2D.Double(x, y + height - 1, x + width - 1, y + height - 1));
 		g.drawImage(Theme.CHEVRON_ICON, (int)(x + width - 1 - Theme.CHEVRON_ICON_SIZE), (int)y, null);
-		
-		return focus;
 	}
 }

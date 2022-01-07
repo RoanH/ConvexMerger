@@ -37,6 +37,10 @@ public final class Constants{
 	 */
 	public static final long ANIMATION_RATE = 33;
 	/**
+	 * Number of milliseconds before an AI turn.
+	 */
+	public static final long AI_TURN_TIME = 400;
+	/**
 	 * Current game version.
 	 */
 	public static final String VERSION = "v1.0";//don't forget build.gradle

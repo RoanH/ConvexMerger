@@ -1,24 +1,62 @@
 package dev.roanh.convexmerger.ui;
 
+/**
+ * Enum of feedback messages shown to the player.
+ * @author Roan
+ */
 public enum MessageDialog{
+	/**
+	 * Shown when the player tries to claim an object that was
+	 * previously already claimed by a different player.
+	 */
 	ALREADY_OWNED("Already Claimed", "This object was already claimed by another player."),
+	/**
+	 * Shown when a merge attempted by the player intersects
+	 * other objects on its boundary.
+	 */
 	MERGE_INTERSECTS("Invalid Merge", "Your merge intersects other objects on its boundary."),
+	/**
+	 * Shown when the player tries to perform a move when it's not their turn.
+	 */
 	NO_TURN("Not Your Turn", "Please wait for the other player(s) to finish their turn."),
+	/**
+	 * Shown when the player tires to perform a move after the game ended.
+	 */
 	GAME_END("Game Ended", "This game has ended, please start a new game to continue playing.");
 	
+	/**
+	 * The title for this dialog.
+	 */
 	private final String title;
-	private final String subtitle;
+	/**
+	 * The message for this dialog.
+	 */
+	private final String message;
 	
-	private MessageDialog(String title, String subtitle){
+	/**
+	 * Constructs a new message dialog with the given
+	 * title and feedback message.
+	 * @param title The dialog title.
+	 * @param message The feedback message.
+	 */
+	private MessageDialog(String title, String message){
 		this.title = title;
-		this.subtitle = subtitle;
+		this.message = message;
 	}
 	
+	/**
+	 * Gets the title for this dialog.
+	 * @return The title for this dialog.
+	 */
 	public String getTitle(){
 		return title;
 	}
 	
-	public String getSubtitle(){
-		return subtitle;
+	/**
+	 * Gets the feedback message for this dialog.
+	 * @return The feedback message for this dialog.
+	 */
+	public String getMessage(){
+		return message;
 	}
 }

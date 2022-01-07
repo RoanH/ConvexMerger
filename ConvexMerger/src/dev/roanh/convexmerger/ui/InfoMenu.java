@@ -1,11 +1,8 @@
 package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_SIDE_TRIANGLE;
-
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -23,10 +20,10 @@ import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.util.Util;
 
 /**
- * Menu showing the rules, credits and version.
+ * Screen showing the rules, credits and version.
  * @author Roan
  */
-public class InfoMenu implements Menu{
+public class InfoMenu extends Screen{
 	/**
 	 * Maximum width used by the boxes.
 	 */
@@ -55,18 +52,37 @@ public class InfoMenu implements Menu{
 	 * Example animation that is shown in the example box.
 	 */
 	private Animation example = new ExampleAnimation();
+	/**
+	 * The state for the current game.
+	 */
 	private GameState game;
+	/**
+	 * The screen to switch to after this screen is closed.
+	 */
+	private Screen prev;
 	
-	protected InfoMenu(GameState game){
+	/**
+	 * Constructs a new info menu with the given game context and state
+	 * and screen to return to.
+	 * @param context The game context.
+	 * @param game The game state, possibly <code>null</code>.
+	 * @param prev The screen to switch to when this screen is closed.
+	 */
+	protected InfoMenu(ConvexMerger context, GameState game, Screen prev){
+		super(context);
 		this.game = game;
+		this.prev = prev;
 	}
 
 	@Override
-	public boolean render(Graphics2D g, int width, int height, Point2D mouseLoc){
+	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+		renderMainInterface(g, width, height, game);
+		
+		g.setColor(Theme.CROWN_COLOR);
 		renderMenuTitle(g, width, "Information");
 		drawTitle(g, width);
 		
-		double size = Menu.getMaxWidth(width, 0.9D, MAX_WIDTH);
+		double size = Screen.getMaxWidth(width, 0.9D, MAX_WIDTH);
 		double offset = (width - size) / 2.0D;
 		g.translate(0, GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		double boxWidth = (size - BOX_SPACING) / 2.0D;
@@ -78,8 +94,6 @@ public class InfoMenu implements Menu{
 		renderRules(g, gradient, offset, 0.0D, boxWidth, rulesHeight);
 		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, CREDITS_HEIGHT);
 		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, VERSION_HEIGHT);
-		
-		return true;
 	}
 	
 	/**
@@ -97,9 +111,9 @@ public class InfoMenu implements Menu{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		FontMetrics fm = g.getFontMetrics();
 		
-		y += Menu.BOX_HEADER_HEIGHT + 1;
+		y += Screen.BOX_HEADER_HEIGHT + 1;
 		y += fm.getAscent();
-		x += Menu.BOX_TEXT_OFFSET;
+		x += Screen.BOX_TEXT_OFFSET;
 		
 		g.drawString("Current: TODO " + version, (float)x, (float)y);
 	}
@@ -119,9 +133,9 @@ public class InfoMenu implements Menu{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		FontMetrics fm = g.getFontMetrics();
 		
-		y += Menu.BOX_HEADER_HEIGHT + 1;
+		y += Screen.BOX_HEADER_HEIGHT + 1;
 		y += fm.getAscent();
-		x += Menu.BOX_TEXT_OFFSET;
+		x += Screen.BOX_TEXT_OFFSET;
 		for(Entry<String, String> entry : credits){
 			g.setColor(Theme.BOX_TEXT_COLOR);
 			String name = entry.getKey();
@@ -149,27 +163,27 @@ public class InfoMenu implements Menu{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		g.setColor(Theme.BOX_TEXT_COLOR);
 		FontMetrics fm = g.getFontMetrics();
-		h -= Menu.BOX_HEADER_HEIGHT + 1 + Menu.BOX_INSETS;
-		double rulesWidth = w - 2 * Menu.BOX_TEXT_OFFSET;
+		h -= Screen.BOX_HEADER_HEIGHT + 1 + Screen.BOX_INSETS;
+		double rulesWidth = w - 2 * Screen.BOX_TEXT_OFFSET;
 		
 		//intro
-		int dy = fillText(g, (int)x + Menu.BOX_TEXT_OFFSET, Menu.BOX_HEADER_HEIGHT + 1, (int)rulesWidth, (int)h, rules.get(0));
+		int dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET, Screen.BOX_HEADER_HEIGHT + 1, (int)rulesWidth, (int)h, rules.get(0));
 		
 		//act 1
 		g.setColor(Theme.BOX_SECONDARY_COLOR);
-		g.drawString("1. ", (int)x + Menu.BOX_TEXT_OFFSET, dy + fm.getHeight());
+		g.drawString("1. ", (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight());
 		int offset = fm.stringWidth("1. ");
 		g.setColor(Theme.BOX_TEXT_COLOR);
-		dy = fillText(g, (int)x + Menu.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(1));
+		dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(1));
 		
 		//act 2
 		g.setColor(Theme.BOX_SECONDARY_COLOR);
-		g.drawString("2. ", (int)x + Menu.BOX_TEXT_OFFSET, dy + fm.getHeight());
+		g.drawString("2. ", (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight());
 		g.setColor(Theme.BOX_TEXT_COLOR);
-		dy = fillText(g, (int)x + Menu.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(2));
+		dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(2));
 
 		//end
-		fillText(g, (int)x + Menu.BOX_TEXT_OFFSET, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + fm.getHeight()), rules.get(3));
+		fillText(g, (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + fm.getHeight()), rules.get(3));
 	}
 	
 	/**
@@ -185,14 +199,14 @@ public class InfoMenu implements Menu{
 		drawTitledBox(g, gradient, x, 0.0D, w, h, "Example");
 		
 		AffineTransform transform = g.getTransform();
-		g.translate(x, Menu.BOX_HEADER_HEIGHT + 1.0D);
+		g.translate(x, Screen.BOX_HEADER_HEIGHT + 1.0D);
 		double sx = w / ExampleAnimation.WIDTH;
-		double sy = (h - Menu.BOX_HEADER_HEIGHT) / ExampleAnimation.HEIGHT;
+		double sy = (h - Screen.BOX_HEADER_HEIGHT) / ExampleAnimation.HEIGHT;
 		if(sx > sy){
 			g.translate((w - ExampleAnimation.WIDTH * sy) / 2.0D, 0.0D);
 			g.scale(sy, sy);
 		}else{
-			g.translate(0.0D, (h - Menu.BOX_HEADER_HEIGHT - ExampleAnimation.HEIGHT * sx) / 2.0D);
+			g.translate(0.0D, (h - Screen.BOX_HEADER_HEIGHT - ExampleAnimation.HEIGHT * sx) / 2.0D);
 			g.scale(sx, sx);
 		}
 		example.run(g);
@@ -200,11 +214,32 @@ public class InfoMenu implements Menu{
 	}
 
 	@Override
-	public void handleMouseClick(Point2D loc){
+	protected boolean isLeftButtonEnabled(){
+		return true;
 	}
 
 	@Override
-	public void handleKeyTyped(KeyEvent event){
+	protected boolean isRightButtonEnabled(){
+		return false;
+	}
+
+	@Override
+	protected String getLeftButtonText(){
+		return "Back";
+	}
+
+	@Override
+	protected String getRightButtonText(){
+		return null;
+	}
+
+	@Override
+	protected void handleLeftButtonClick(){
+		this.switchScene(prev);
+	}
+
+	@Override
+	protected void handleRightButtonClick(){
 	}
 	
 	static{

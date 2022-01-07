@@ -111,6 +111,18 @@ public final class Theme{
 	 */
 	public static final Color REMOVE_BUTTON_HIGHLIGHT = new Color(244, 244, 245);
 	/**
+	 * Button select color for the new game screen.
+	 */
+	public static final Color BUTTON_SELECT = new Color(2, 169, 229);
+	/**
+	 * Result screen main menu button text color.
+	 */
+	public static final Color MAIN_MENU_BUTTON = new Color(255, 255, 255, (6 * 255) / 10);
+	/**
+	 * Result screen main menu button hover text color.
+	 */
+	public static final Color MAIN_MENU_BUTTON_HOVER = SCORE_COLOR_LEAD;
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -139,11 +151,19 @@ public final class Theme{
 	 */
 	public static final Stroke BUTTON_STROKE = new BasicStroke(2.0F);
 	/**
+	 * Pridi regular font with size 12, used for the rules.
+	 */
+	public static final Font PRIDI_REGULAR_12;
+	/**
 	 * Pridi regular font with size 14, used for the rules.
 	 */
 	public static final Font PRIDI_REGULAR_14;
 	/**
 	 * Pridi regular font with size 18, used for the playfield hint.
+	 */
+	public static final Font PRIDI_REGULAR_16;
+	/**
+	 * Pridi regular font with size 16, used for the playfield hint.
 	 */
 	public static final Font PRIDI_REGULAR_18;
 	/**
@@ -220,12 +240,33 @@ public final class Theme{
 	 * Larger crown image with size {@value #CROWN_ICON_LARGE_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON_LARGE;
+	/**
+	 * AI add image.
+	 */
 	public static final BufferedImage AI_ADD;
+	/**
+	 * AI add image when highlighted.
+	 */
 	public static final BufferedImage AI_ADD_HIGHLIGHT;
+	/**
+	 * Player add image.
+	 */
 	public static final BufferedImage PLAYER_ADD;
+	/**
+	 * Player add image when highlighted.
+	 */
 	public static final BufferedImage PLAYER_ADD_HIGHLIGHT;
+	/**
+	 * Remove icon.
+	 */
 	public static final BufferedImage REMOVE_ICON;
+	/**
+	 * Remove icon when highlighted.
+	 */
 	public static final BufferedImage REMOVE_ICON_HIGHLIGHT;
+	/**
+	 * Chevron icon used for the combo box.
+	 */
 	public static final BufferedImage CHEVRON_ICON;
 
 	/**
@@ -238,7 +279,8 @@ public final class Theme{
 		String str = "0";
 		for(int total = (int)Math.round(area); total != 0; total /= 1000){
 			str = str.equals("0") ? "" : ("." + str);
-			str = String.format(total > 1000 ? "%03d" : "%d", total % 1000) + str;
+			str = String.format(total >= 1000 ? "%03d" : "%d", total % 1000) + str;
+
 		}
 		return str;
 	}
@@ -273,6 +315,20 @@ public final class Theme{
 		switch(state == null ? 4 : state.getPlayerCount()){
 		case 0:
 		case 1:
+			return new LinearGradientPaint(
+				0.0F,
+				0.0F,
+				width,
+				0.0F,
+				new float[]{
+					0.0F,
+					1.0F
+				},
+				new Color[]{
+					P1.gradient,
+					P1.gradient,
+				}
+			);
 		case 2:
 			return new LinearGradientPaint(
 				0.0F,
@@ -369,7 +425,9 @@ public final class Theme{
 	static{
 		try{
 			Font regular = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemResourceAsStream("assets/fonts/Pridi-Regular.ttf"));
+			PRIDI_REGULAR_12 = regular.deriveFont(12.0F);
 			PRIDI_REGULAR_14 = regular.deriveFont(14.0F);
+			PRIDI_REGULAR_16 = regular.deriveFont(16.0F);
 			PRIDI_REGULAR_18 = regular.deriveFont(18.0F);
 			PRIDI_REGULAR_24 = regular.deriveFont(24.0F);
 			
