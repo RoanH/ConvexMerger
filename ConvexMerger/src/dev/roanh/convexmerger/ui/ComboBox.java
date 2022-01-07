@@ -22,13 +22,39 @@ public class ComboBox<T>{
 	 * Combo box accent color.
 	 */
 	private Color color;
+	/**
+	 * The bounds for the main field of this combo box.
+	 */
 	private Rectangle2D bounds = new Rectangle2D.Double();
+	/**
+	 * The bounds for the drop down list of this combo box.
+	 */
 	private Rectangle2D list = null;
+	/**
+	 * The currently selected value.
+	 */
 	private T value;
+	/**
+	 * The list of possible values.
+	 */
 	private T[] values;
+	/**
+	 * The function to use to turn the values into strings.
+	 */
 	private Function<T, String> toString;
+	/**
+	 * Whether this combo box currently has focus.
+	 */
 	private boolean focus = false;
 	
+	/**
+	 * Constructs a new combo box with the given values, to string
+	 * function and accent color. The first given value will be
+	 * selected initially.
+	 * @param values The values for this combo box.
+	 * @param toString The function to convert the values to a string.
+	 * @param color The accent color.
+	 */
 	public ComboBox(T[] values, Function<T, String> toString, Color color){
 		this.color = color;
 		this.value = values[0];
@@ -44,6 +70,10 @@ public class ComboBox<T>{
 		return value;
 	}
 	
+	/**
+	 * Handles a mouse click on this combo box.
+	 * @param loc The location that was clicked.
+	 */
 	public void handleMouseClick(Point2D loc){
 		int idx = getSelectedIndex(loc);
 		if(idx != -1){
@@ -59,10 +89,20 @@ public class ComboBox<T>{
 		}
 	}
 	
+	/**
+	 * Checks if this combo box currently has focus.
+	 * @return True if this combo box has focus.
+	 */
 	public boolean hasFocus(){
 		return focus;
 	}
 	
+	/**
+	 * Computes the drop down list selected index given
+	 * the list bounds.
+	 * @param loc The location selected.
+	 * @return The selected index or -1 if none.
+	 */
 	private int getSelectedIndex(Point2D loc){
 		if(list != null && list.contains(loc)){
 			return (int)Math.floor((loc.getY() - list.getY()) / CELL_HEIGHT);
@@ -71,6 +111,15 @@ public class ComboBox<T>{
 		}
 	}
 	
+	/**
+	 * Renders this combo box according to the given parameters.
+	 * @param g The graphics context to use.
+	 * @param x The x coordinate of the top left corner.
+	 * @param y The y coordinate of the top left corner.
+	 * @param width The width of the combo box.
+	 * @param height The height of the main field of the combo box.
+	 * @param loc The current mouse location.
+	 */
 	protected void render(Graphics2D g, double x, double y, double width, double height, Point2D loc){
 		g.setColor(Theme.DOUBLE_LIGHTEN);
 		bounds = new Rectangle2D.Double(x, y, width, height);
