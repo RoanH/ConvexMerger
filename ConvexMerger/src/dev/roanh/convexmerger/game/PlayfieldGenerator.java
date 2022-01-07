@@ -62,6 +62,9 @@ public class PlayfieldGenerator{
 	 * Object scaling factor.
 	 */
 	private float scale;
+	/**
+	 * Listener to notify of generation progress.
+	 */
 	private GeneratorProgressListener listener;
 	
 	/**
@@ -72,6 +75,11 @@ public class PlayfieldGenerator{
 		init(ThreadLocalRandom.current().nextLong(), 0, 100, 114, 255);
 	}
 	
+	/**
+	 * Sets the listener to notify of playfield generation progress.
+	 * @param listener The listener to register.
+	 * @see GeneratorProgressListener
+	 */
 	public void setProgressListener(GeneratorProgressListener listener){
 		this.listener = listener;
 	}
@@ -272,8 +280,18 @@ public class PlayfieldGenerator{
 		return objects;
 	}
 	
+	/**
+	 * Listener interface for classes that want to
+	 * informed of playfield generation progress.
+	 * @author Roan
+	 */
 	public static abstract interface GeneratorProgressListener{
 		
+		/**
+		 * Updates the current progress.
+		 * @param progress A progress value between 0 and 1 where
+		 *        0 means no progress and 1 means done.
+		 */
 		public abstract void update(double progress);
 	}
 }
