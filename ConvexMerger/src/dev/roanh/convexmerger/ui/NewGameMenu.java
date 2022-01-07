@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.ui;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -8,7 +7,6 @@ import java.awt.Paint;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,17 +24,22 @@ public class NewGameMenu extends Screen{
 	 * Maximum width used by the boxes.
 	 */
 	private static final int MAX_WIDTH = 1200;
+	private static final double SPACING = 4.0D;
 	private PlayerPanel p1 = new PlayerPanel(PlayerTheme.P1);
 	private PlayerPanel p2 = new PlayerPanel(PlayerTheme.P2);
 	private PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
 	private PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
 	private Path2D start = new Path2D.Double();
-	private ButtonAssembly size = new ButtonAssembly();
-	private ButtonAssembly density = new ButtonAssembly();
-	private ButtonAssembly spacing = new ButtonAssembly();
+	private ButtonAssembly size = new ButtonAssembly(1, "Object Size", "Small", "Medium", "Large");
+	private ButtonAssembly density = new ButtonAssembly(2, "Density", "Low", "Medium", "High");
+	private ButtonAssembly spacing = new ButtonAssembly(0, "Spacing", "Small", "Medium", "Large");
 	
 	public NewGameMenu(ConvexMerger context){
 		super(context);
+	}
+	
+	private boolean canStart(){
+		return p1.hasPlayer() || p2.hasPlayer() || p3.hasPlayer() || p4.hasPlayer();
 	}
 
 	@Override
@@ -61,8 +64,25 @@ public class NewGameMenu extends Screen{
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
 
 		g.setColor(Theme.MENU_BODY);
-		start = computeBox(tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2, size / 3.0D, startHeight, BOX_INSETS);
+		start = computeBox(tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D, size / 3.0D, startHeight, BOX_INSETS);
 		g.fill(start);
+		g.setFont(Theme.PRIDI_REGULAR_18);
+		g.setColor(Theme.DOUBLE_LIGHTEN);
+		Path2D border = computeBox(tx + (size / 3.0D) + SPACING, ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + SPACING, size / 3.0D - SPACING * 2.0D, startHeight - SPACING * 2.0D, BOX_INSETS);
+		g.draw(border);
+		if(canStart() && start.contains(mouseLoc)){
+			g.fill(border);
+		}
+		g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString("Start Game", (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth("Start Game")) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+		if(!canStart()){
+			int offset = fm.getHeight();
+			g.setFont(Theme.PRIDI_REGULAR_12);
+			fm = g.getFontMetrics();
+			g.setColor(Theme.ADD_COLOR);
+			g.drawString("At least one player required", (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth("At least one player required")) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + startHeight + offset - (startHeight - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+		}
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
 		p1.render(g, tx + dx, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
@@ -85,6 +105,19 @@ public class NewGameMenu extends Screen{
 		size.handleMouseClick(loc);
 		density.handleMouseClick(loc);
 		spacing.handleMouseClick(loc);
+		
+		if(start.contains(loc)){
+			List<Player> players = new ArrayList<Player>();
+			p1.getPlayer().ifPresent(players::add);
+			p2.getPlayer().ifPresent(players::add);
+			p3.getPlayer().ifPresent(players::add);
+			p4.getPlayer().ifPresent(players::add);
+
+			//TODO
+			PlayfieldGenerator gen = new PlayfieldGenerator();
+
+			this.getContext().initialiseGame(new GameState(gen, players));
+		}
 	}
 
 	@Override
@@ -107,7 +140,7 @@ public class NewGameMenu extends Screen{
 
 	@Override
 	protected boolean isRightButtonEnabled(){
-		return true;//TODO disable
+		return false;
 	}
 
 	@Override
@@ -117,7 +150,7 @@ public class NewGameMenu extends Screen{
 
 	@Override
 	protected String getRightButtonText(){
-		return "StartTMP";
+		return null;
 	}
 
 	@Override
@@ -127,29 +160,22 @@ public class NewGameMenu extends Screen{
 
 	@Override
 	protected void handleRightButtonClick(){
-		//TODO move to not the right button
-		List<Player> players = new ArrayList<Player>();
-		p1.getPlayer().ifPresent(players::add);
-		p2.getPlayer().ifPresent(players::add);
-		p3.getPlayer().ifPresent(players::add);
-		p4.getPlayer().ifPresent(players::add);
-
-		//TODO
-		List<ConvexObject> objects = new PlayfieldGenerator().generatePlayfield();
-
-		this.getContext().initialiseGame(new GameState(objects, players));
 	}
 	
 	private class ButtonAssembly{
 		private static final double BUTTON_WIDTH = 80.0D;
 		private static final double BUTTON_HEIGHT = 30.0D;
+		private String title;
+		private String[] values;
 		private Path2D left;
 		private Path2D middle;
 		private Path2D right;
-		private int selected = 0;
+		private int selected;
 		
-		public ButtonAssembly(){
-			//TODO init num, strings, labels
+		public ButtonAssembly(int selected, String title, String... values){
+			this.selected = selected;
+			this.title = title;
+			this.values = values;
 		}
 		
 		private Path2D getSelectedPath(){
@@ -175,7 +201,6 @@ public class NewGameMenu extends Screen{
 			g.setFont(Theme.PRIDI_REGULAR_16);
 			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
 			FontMetrics fm = g.getFontMetrics();
-			String title = "Object Size";
 			y += fm.getAscent() - fm.getDescent();
 			g.drawString(title, (float)(x + (w - fm.stringWidth(title)) / 2.0D), (float)y);
 			
@@ -222,7 +247,6 @@ public class NewGameMenu extends Screen{
 			fm = g.getFontMetrics();
 			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
 			
-			String[] values = new String[]{"Small", "Medium", "Large"};
 			g.drawString(values[0], (float)(x - BUTTON_WIDTH * 1.5D + BOX_INSETS * 4.0D - fm.stringWidth(values[0]) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
 			g.drawString(values[1], (float)(x - BUTTON_WIDTH * 0.5D + BOX_INSETS * 2.0D - fm.stringWidth(values[1]) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
 			g.drawString(values[2], (float)(x + (BUTTON_WIDTH - fm.stringWidth(values[2])) / 2.0D), (float)(y + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
@@ -249,7 +273,6 @@ public class NewGameMenu extends Screen{
 		private static final double BUTTON_INSET = 4.0D;
 		private static final double CONTENT_WIDTH = 134.0D;
 		private static final double CONTENT_HEIGHT = 21.0D;
-		private static final double SPACING = 4.0D;
 		private Path2D addPlayer = null;
 		private Path2D addAI = null;
 		private PlayerTheme theme;
@@ -260,6 +283,10 @@ public class NewGameMenu extends Screen{
 		
 		private PlayerPanel(PlayerTheme theme){
 			this.theme = theme;
+		}
+		
+		private boolean hasPlayer(){
+			return ai != null || name != null;
 		}
 		
 		private Optional<Player> getPlayer(){

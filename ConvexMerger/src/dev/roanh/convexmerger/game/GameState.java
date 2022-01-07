@@ -48,9 +48,14 @@ public class GameState{
 	private long gameEnd = -1L;
 	private int turns = 0;
 	private List<GameStateListener> listeners = new ArrayList<GameStateListener>();
+	private String seed;
 	
 	//TODO pass generator instead of objects also alt ctor for net play
-	public GameState(List<ConvexObject> objects, List<Player> players){
+	public GameState(PlayfieldGenerator generator, List<Player> players){
+		this(generator.generatePlayfield(), generator.getSeed(), players);
+	}
+	
+	public GameState(List<ConvexObject> objects, String seed, List<Player> players){
 		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);
 		for(int i = 0; i < objects.size(); i++){
@@ -65,6 +70,10 @@ public class GameState{
 		}
 		decomp.rebuild();
 		gameStart = System.currentTimeMillis();
+	}
+	
+	public String getSeed(){
+		return seed;
 	}
 	
 	public void registerStateListener(GameStateListener listener){

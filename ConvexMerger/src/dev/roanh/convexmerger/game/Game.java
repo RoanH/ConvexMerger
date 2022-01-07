@@ -5,13 +5,13 @@ import java.util.List;
 
 import dev.roanh.convexmerger.player.Player;
 
+@Deprecated
 public class Game{
 	private List<Player> players = new ArrayList<Player>(4);
-	private String seed = null;//TODO
-	private List<ConvexObject> objects;//TODO
+	private PlayfieldGenerator gen;//TODO
 	
 	public Game(PlayfieldGenerator gen){
-		objects = gen.generatePlayfield();
+		this.gen = gen;
 		System.out.println("finish gen");
 	}
 	
@@ -35,10 +35,6 @@ public class Game{
 	}
 	
 	public GameState toGameState(){
-		for(int i = 0; i < objects.size(); i++){
-			objects.get(i).setID(i + 1);
-		}
-		
-		return new GameState(objects, players);
+		return new GameState(gen, players);
 	}
 }

@@ -265,8 +265,7 @@ public class ResultOverlay{
 		g.drawString(rounds, subWidth + BORDER_GAP + (subWidth - fm.stringWidth(rounds)) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//seed
-		String seed = "TODO";//TODO
-		g.drawString(seed, (subWidth + BORDER_GAP) * 2.0F + (subWidth - fm.stringWidth(seed)) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
+		g.drawString(state.getSeed(), (subWidth + BORDER_GAP) * 2.0F + (subWidth - fm.stringWidth(state.getSeed())) / 2.0F, TEXT_OFFSET + fm.getAscent() / 2.0F + (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0F);
 		
 		//player data
 		List<Player> players = state.getPlayers();

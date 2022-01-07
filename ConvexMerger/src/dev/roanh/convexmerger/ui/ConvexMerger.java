@@ -107,7 +107,7 @@ public class ConvexMerger{
 		//easy: 50-100 0.45
 		//normal: 0-100 0.45
 		//ai fun: 10-20 0.45 mini size
-		initialiseGame(new GameState(new PlayfieldGenerator().generatePlayfield(), Arrays.asList(
+		initialiseGame(new GameState(new PlayfieldGenerator(), Arrays.asList(
 			new HumanPlayer("Player 1"),
 			//new HumanPlayer("Player 2")
 			//new SmallPlayer(),

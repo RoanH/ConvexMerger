@@ -21,6 +21,10 @@ public class PacketGameInit implements Packet{
 	 */
 	private final List<ConvexObject> objects;
 	/**
+	 * The game seed.
+	 */
+	private final String seed;
+	/**
 	 * The players participating in this game.
 	 */
 	private final List<PlayerProxy> players = new ArrayList<PlayerProxy>(4);
@@ -28,11 +32,21 @@ public class PacketGameInit implements Packet{
 	/**
 	 * Constructs a new game init packet with the given objects and players.
 	 * @param objects The game objects.
+	 * @param seed The game seed.
 	 * @param players The participating players.
 	 */
-	public PacketGameInit(List<ConvexObject> objects, List<Player> players){
+	public PacketGameInit(List<ConvexObject> objects, String seed, List<Player> players){
 		this.objects = objects;
+		this.seed = seed;
 		players.forEach(player->this.players.add(player.getProxy()));
+	}
+	
+	/**
+	 * Gets the game seed.
+	 * @return The game seed.
+	 */
+	public String getSeed(){
+		return seed;
 	}
 	
 	/**

@@ -64,7 +64,7 @@ public class ClientConnection extends Connection implements GameStateListener{
 			}
 		}
 		
-		GameState state = new GameState(data.getObjects(), players);
+		GameState state = new GameState(data.getObjects(), data.getSeed(), players);
 		state.registerStateListener(this);
 		return state;
 	}

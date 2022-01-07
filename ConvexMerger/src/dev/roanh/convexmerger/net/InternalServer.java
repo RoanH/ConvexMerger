@@ -49,7 +49,7 @@ public class InternalServer implements GameStateListener{
 	public GameState startGame(){
 		thread.shutdown();
 		GameState state = game.toGameState();
-		thread.broadCast(new PacketGameInit(state.getObjects(), state.getPlayers()));
+		thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
 		
 		state.registerStateListener(this);
 		return state;

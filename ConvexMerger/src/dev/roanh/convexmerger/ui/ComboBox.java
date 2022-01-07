@@ -45,11 +45,17 @@ public class ComboBox<T>{
 	}
 	
 	public void handleMouseClick(Point2D loc){
-		focus = bounds.contains(loc);
 		int idx = getSelectedIndex(loc);
 		if(idx != -1){
 			value = values[idx];
 			list = null;
+		}
+		
+		if(bounds.contains(loc)){
+			focus = true;
+		}else{
+			list = null;
+			focus = false;
 		}
 	}
 	
