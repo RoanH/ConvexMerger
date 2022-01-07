@@ -240,12 +240,33 @@ public final class Theme{
 	 * Larger crown image with size {@value #CROWN_ICON_LARGE_SIZE}.
 	 */
 	public static final BufferedImage CROWN_ICON_LARGE;
+	/**
+	 * AI add image.
+	 */
 	public static final BufferedImage AI_ADD;
+	/**
+	 * AI add image when highlighted.
+	 */
 	public static final BufferedImage AI_ADD_HIGHLIGHT;
+	/**
+	 * Player add image.
+	 */
 	public static final BufferedImage PLAYER_ADD;
+	/**
+	 * Player add image when highlighted.
+	 */
 	public static final BufferedImage PLAYER_ADD_HIGHLIGHT;
+	/**
+	 * Remove icon.
+	 */
 	public static final BufferedImage REMOVE_ICON;
+	/**
+	 * Remove icon when highlighted.
+	 */
 	public static final BufferedImage REMOVE_ICON_HIGHLIGHT;
+	/**
+	 * Chevron icon used for the combo box.
+	 */
 	public static final BufferedImage CHEVRON_ICON;
 
 	/**
