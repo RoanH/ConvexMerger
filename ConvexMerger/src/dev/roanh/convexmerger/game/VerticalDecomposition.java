@@ -374,33 +374,35 @@ public class VerticalDecomposition{
 		 */
 		public List<Line2D> getDecompLines(){
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
-		
-			//TODO: figure out a better way to handle vertical top or bottom lines.
-			if(Double.compare(topLeft.getX(), topRight.getX()) == 0){
-//				double xRatioBot = (topLeft.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-//				Point2D topPoint = Point2D.Double(leftPoint.get(X));
-//				verticalLines.add(null);
-//				
-				return verticalLines;
-			}
-			if( Double.compare(botLeft.getX(), botRight.getX()) == 0){
-				return verticalLines;
-			}
 			
-			if(!(topLeft.equals(botLeft) && topLeft.equals(leftPoint))){
-				double xRatioTop = (leftPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
-				double xRatioBot = (leftPoint.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-				verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoint.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
-													new Point2D.Double(leftPoint.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+			if(Double.compare(topLeft.getX(), topRight.getX()) == 0 &&  Double.compare(botLeft.getX(), botRight.getX()) == 0){//both lines vertical
+				Point2D topPoint = Double.compare(topLeft.getY(), topRight.getY()) >= 0 ? topRight : topLeft; 
+				Point2D botPoint = Double.compare(botLeft.getY(), botRight.getY()) <= 0 ? botRight : botLeft; 
+				verticalLines.add(new Line2D.Double(topPoint, botPoint));
+			}else if(Double.compare(topLeft.getX(), topRight.getX()) == 0){//only top line vertical
+				double xRatioBot = (topLeft.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
+				Point2D topPoint = Double.compare(topLeft.getY(), topRight.getY()) >= 0 ? topRight : topLeft; 
+				Point2D botPoint = new Point2D.Double(topLeft.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY());
+				verticalLines.add(new Line2D.Double(topPoint, botPoint));
+			}else if(Double.compare(botLeft.getX(), botRight.getX()) == 0){//only bottom line vertical
+				double xRatioTop = (botLeft.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
+				Point2D botPoint = Double.compare(botLeft.getY(), botRight.getY()) >= 0 ? botRight : botLeft; 
+				Point2D topPoint = new Point2D.Double(botLeft.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY());
+			}else{
+				if(!(topLeft.equals(botLeft) && topLeft.equals(leftPoint))){//vertical line between top and bottom on the left
+					double xRatioTop = (leftPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
+					double xRatioBot = (leftPoint.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
+					verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoint.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
+														new Point2D.Double(leftPoint.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+				}
+				
+				if(!(topRight.equals(botRight) && topRight.equals(rightPoint))){//vertical line between top and bottom on the right
+					double xRatioTop = (rightPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
+					double xRatioBot = (rightPoint.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
+					verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoint.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
+														new Point2D.Double(rightPoint.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+				}
 			}
-			
-			if(!(topRight.equals(botRight) && topRight.equals(rightPoint))){
-				double xRatioTop = (rightPoint.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
-				double xRatioBot = (rightPoint.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-				verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoint.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
-													new Point2D.Double(rightPoint.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
-			}
-			
 			return verticalLines;
 		}
 	}
