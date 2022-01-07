@@ -108,7 +108,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		if(activeDialog != null){
 			//TODO center and make look nice
 			g.drawString(activeDialog.getTitle(), 100, 10 + 120);
-			g.drawString(activeDialog.getSubtitle(), 100, 30 + 120);
+			g.drawString(activeDialog.getMessage(), 100, 30 + 120);
 			g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
 		}
 
