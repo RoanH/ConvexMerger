@@ -8,19 +8,49 @@ import dev.roanh.convexmerger.net.packet.PacketPlayerMove;
 import dev.roanh.convexmerger.net.packet.PacketPlayerMove.MoveType;
 import dev.roanh.convexmerger.net.packet.PacketRegistry;
 
+/**
+ * Proxy representative for a player playing on a remote system.
+ * If the remote connection is lost the {@link GreedyPlayer} AI takes over.
+ * @author Roan
+ * @see GreedyPlayer
+ */
 public class RemotePlayer extends GreedyPlayer{
+	/**
+	 * The remote player connection.
+	 */
 	private Connection con;
+	/**
+	 * True if the connection to the remote player was lost.
+	 */
 	private boolean lost = false;
 	
+	/**
+	 * Constructs a new remote player with the given
+	 * player connection, AI status and name.
+	 * @param con The connection to the remote player.
+	 * @param ai Whether the remote player is an AI.
+	 * @param name The name of the remote player.
+	 */
 	public RemotePlayer(Connection con, boolean ai, String name){
 		super(false, ai, name);
 		this.con = con;
 	}
 	
+	/**
+	 * Checks if the connection to the remtoe player was lost.
+	 * @return True if the remote connection was lost.
+	 */
 	public boolean isLost(){
 		return lost;
 	}
 	
+	/**
+	 * Executes a fallback AI move if the player connection was lost.
+	 * @return True if a move was executed, false if no moves
+	 *         are left in the game (signals game end).
+	 * @throws InterruptedException When the player was
+	 *         interrupted (signals that the game was aborted).
+	 */
 	private boolean fallback() throws InterruptedException{
 		con.close();
 		lost = true;
