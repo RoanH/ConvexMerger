@@ -16,6 +16,10 @@ import java.util.List;
 public class VerticalDecomposition{
 	
 	/**
+	 * The objects that are decomposed.
+	 */
+	private List<ConvexObject> objects;
+	/**
 	 * The trapezoids of the decomposition.
 	 */
 	private List<Trapezoid> trapezoids;
@@ -39,6 +43,7 @@ public class VerticalDecomposition{
 	public VerticalDecomposition(Rectangle2D bounds){
 		trapezoids = new ArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
+		objects = new ArrayList<ConvexObject>();
 		
 		this.bounds = bounds;
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
@@ -58,7 +63,12 @@ public class VerticalDecomposition{
 	 * @param obj The convex object to add.
 	 */
 	public void addObject(ConvexObject obj){
-		//TODO
+		objects.add(obj);
+		List<Point2D> points = obj.getPoints();
+		for(int i = 0; i < points.size(); i++){
+			Line2D segment = new Line2D.Double(points.get(i), points.get((i + 1) % points.size()));
+			addSegment(segment, obj);
+		}
 	}
 	
 	/**
@@ -90,7 +100,7 @@ public class VerticalDecomposition{
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
-		return null;//TODO
+		return searchStructure.get(0).queryPoint(new Point2D.Double(x, y)).getObject();
 	}
 	
 	/**
@@ -115,6 +125,17 @@ public class VerticalDecomposition{
 	}
 	
 	/**
+	 * Adds a line segment to the vertical decomposition.
+	 * @param seg The line segment to add to the decomposition.
+	 */
+	public void addSegment(Line2D seg, ConvexObject obj){
+		Point2D p1 = seg.getP1();
+		Point2D p2 = seg.getP2();
+		//Trapezoid trap1 = 
+		//Find both endpoins, see which traps get intersected, remove said traps, add new traps and assign object to them.
+	}
+	
+	/**
 	 * Represents a vertex in the search structure of the decomposition.
 	 * @author Emu
 	 */
@@ -123,22 +144,18 @@ public class VerticalDecomposition{
 		 * The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
 		 */
 		private int type;
-		
 		/**
 		 * The children of the vertex in the search structure.
 		 */
 		private DecompVertex left, right;
-		
 		/**
 		 * If the vertex is a leaf, it points to a trapezoid.
 		 */
 		private Trapezoid trapezoid;
-		
 		/**
 		 * If the vertex represents a point, it points to it.
 		 */
 		private Point2D point;
-		
 		/**
 		 * If the vertex represents a segment, it points to it.
 		 */
@@ -231,10 +248,20 @@ public class VerticalDecomposition{
 		public Trapezoid queryPoint(Point2D query){
 			if(type == 0){
 				return trapezoid;
-			}else if(type == 1){
-				return null;//TODO
-			}else if(type == 2){
-				return null;//TODO
+			}else if(type == 1 && !point.equals(null)){
+				if(query.getX() <= point.getX()){
+					return left.queryPoint(query);
+				} else {
+					return right.queryPoint(query);
+				}
+			}else if(type == 2 && !segment.equals(null)){
+				Point2D leftp = Double.compare(segment.getP1().getX(), segment.getP2().getX()) == 0 ? 
+								Double.compare(segment.getP1().getY(), segment.getP2().getY()) <= 0 ? segment.getP1() : segment.getP2() 
+								: Double.compare(segment.getP1().getX(), segment.getP2().getX()) < 0 ? segment.getP1() : segment.getP2();
+				Point2D rightp = leftp.equals(segment.getP1()) ? segment.getP2() : segment.getP1();
+				
+				Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+				return orientedSegment.relativeCCW(query) >= 0 ? left.queryPoint(query) : right.queryPoint(query); //Can be subject to change.
 			}else{
 				return null;
 			}
@@ -265,7 +292,7 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Gets the right child of the vertex.
-		 * @return
+		 * @return The right child of the vertex.
 		 */
 		public DecompVertex getRightChild(){
 			return right;
@@ -359,11 +386,14 @@ public class VerticalDecomposition{
 		 * The neighbouring trapezoids of the trapezoid.
 		 */
 		private List<Trapezoid> neighbours;
-		
 		/**
 		 * The vertex that this trapezoid is linked to
 		 */
 		private DecompVertex vertex;
+		/**
+		 * The convex object that the trapezoid is a part of.
+		 */
+		private ConvexObject object;
 		
 		/**
 		 * Constructs a trapezoid given left and right bounding points, and top and the defining points of the top and bottom segments.
@@ -376,7 +406,7 @@ public class VerticalDecomposition{
 		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours){
-			this(left, right, bot1, bot2, top1, top2, neighbours, null);
+			this(left, right, bot1, bot2, top1, top2, neighbours, null, null);
 		}
 		
 		/**
@@ -390,7 +420,7 @@ public class VerticalDecomposition{
 		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid.
 		 * @param vertex The decomposition vertex linked to this Trapezoid. 
 		 */
-		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours, DecompVertex vertex){
+		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours, DecompVertex vertex, ConvexObject object){
 			topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? (top1.getY() < top2.getY() ? top1 : top2) : (top1.getX() < top2.getX() ? top1 : top2);  
 			topRight = topLeft.equals(top1) ? top2 : top1;
 			botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? (bot1.getY() < bot2.getY() ? bot1 : bot2) : (bot1.getX() < bot2.getY() ? bot1 : bot2);
@@ -399,6 +429,7 @@ public class VerticalDecomposition{
 			rightPoint = right;
 			this.neighbours = neighbours;
 			this.vertex = vertex;
+			this.object = object;
 		}
 		
 		/**
@@ -488,6 +519,22 @@ public class VerticalDecomposition{
 		 */
 		public void setDecompVertex(DecompVertex vertex){
 			this.vertex = vertex;
+		}
+		
+		/**
+		 * Gets the convex object that this trapezoid is a part of.
+		 * @return The convex object that this trapezoid is a part of.
+		 */
+		public ConvexObject getObject(){
+			return object;
+		}
+		
+		/**
+		 * Sets the convex object that this trapezoid is a part of.
+		 * @param object The convex object that this trapezoid is a part of.
+		 */
+		public void setObject(ConvexObject object){
+			this.object = object;
 		}
 	}
 }
