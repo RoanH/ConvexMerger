@@ -415,6 +415,10 @@ public class GameState{
 	public void clearSelection(){
 		selected = null;
 	}
+
+	public void abort(){
+		listeners.forEach(GameStateListener::abort);
+	}
 	
 	/**
 	 * Interface that receives game state updates.
@@ -441,5 +445,10 @@ public class GameState{
 		 * Called when the game ends.
 		 */
 		public abstract void end();
+		
+		/**
+		 * Called when the game is aborted.
+		 */
+		public abstract void abort();
 	}
 }

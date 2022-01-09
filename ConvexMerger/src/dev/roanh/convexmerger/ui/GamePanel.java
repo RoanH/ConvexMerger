@@ -347,4 +347,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 	public void end(){
 		resultOverlay.setEnabled(true);
 	}
+
+	@Override
+	public void abort(){
+	}
 }

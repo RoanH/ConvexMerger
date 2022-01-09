@@ -11,7 +11,6 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -21,10 +20,6 @@ import javax.swing.SwingUtilities;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.GameConstructor;
 import dev.roanh.convexmerger.game.GameState;
-import dev.roanh.convexmerger.game.PlayfieldGenerator;
-import dev.roanh.convexmerger.net.ClientConnection;
-import dev.roanh.convexmerger.net.InternalServer;
-import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
 
 /**
@@ -104,33 +99,6 @@ public class ConvexMerger{
 		gameThread.start();
 	}
 	
-	public void joinMultiplayerGame(){
-		try{
-			frame.setTitle(Constants.TITLE + " [Client]");
-			Player player = new HumanPlayer("Player 1");
-			ClientConnection con = ClientConnection.connect("localhost", player);
-			if(!con.isConnected()){
-				System.out.println("Connection failed with reason: " + con.getRejectReason());
-				return;
-			}
-			
-			con.setDisconnectHandler(e->{
-				System.err.println("Connection to server lost: " + e.getMessage());
-			});
-			
-			System.out.println("connected as client with player id " + player.getID());
-			
-			GameState state = con.getGameState();
-			
-			//TODO initialiseGame(state);
-			showGame();
-			
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	public Screen switchScene(Screen next){
 		return renderer.setScreen(next);
 	}
@@ -157,8 +125,8 @@ public class ConvexMerger{
 		
 		@Override
 		public void run(){
+			GameState state = ctor.create();
 			try{
-				GameState state = ctor.create();
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
 				
 				while(!state.isFinished() && !this.isInterrupted()){
@@ -175,6 +143,7 @@ public class ConvexMerger{
 				//never happens
 			}catch(InterruptedException e){
 				//happens when the game is aborted
+				state.abort();
 			}
 		}
 	}

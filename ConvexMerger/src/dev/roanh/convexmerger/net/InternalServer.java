@@ -68,6 +68,11 @@ public class InternalServer implements GameStateListener{
 		thread.close();
 	}
 	
+	@Override
+	public void abort(){
+		thread.close();
+	}
+	
 	private class ServerThread extends Thread{
 		private ExecutorService executor = Executors.newFixedThreadPool(4);
 		private ServerSocket server;

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
@@ -24,7 +23,6 @@ import dev.roanh.convexmerger.player.RemotePlayer;
 
 public class ClientConnection extends Connection implements GameStateListener{
 	private Player self;
-	private Consumer<Exception> disconnectHandler;
 	private RejectReason failReason;
 	
 	private ClientConnection(Socket socket, Player self) throws IOException{
@@ -38,10 +36,6 @@ public class ClientConnection extends Connection implements GameStateListener{
 	
 	public RejectReason getRejectReason(){
 		return failReason;
-	}
-	
-	public void setDisconnectHandler(Consumer<Exception> handler){
-		disconnectHandler = handler;
 	}
 	
 	public GameState getGameState() throws IOException{
@@ -76,7 +70,6 @@ public class ClientConnection extends Connection implements GameStateListener{
 				sendPacket(new PacketPlayerMove(player, obj));
 			}catch(IOException e){
 				close();
-				disconnectHandler.accept(e);
 			}
 		}
 	}
@@ -88,7 +81,6 @@ public class ClientConnection extends Connection implements GameStateListener{
 				sendPacket(new PacketPlayerMove(player, source, target));
 			}catch(IOException e){
 				close();
-				disconnectHandler.accept(e);
 			}
 		}
 	}
@@ -100,9 +92,13 @@ public class ClientConnection extends Connection implements GameStateListener{
 				sendPacket(new PacketGameEnd());
 			}catch(IOException e){
 				close();
-				disconnectHandler.accept(e);
 			}
 		}
+	}
+	
+	@Override
+	public void abort(){
+		close();
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{

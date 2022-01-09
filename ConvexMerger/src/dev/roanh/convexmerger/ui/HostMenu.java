@@ -109,5 +109,9 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 			g.setColor(Theme.ADD_COLOR);
 			g.drawString("Remote", (float)(x + (CONTENT_WIDTH - fm.stringWidth("Remote")) / 2.0D), (float)(y + CONTENT_HEIGHT - 1.0D - (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D));
 		}
+		
+		@Override
+		protected void handleMouseClick(Point2D loc){
+		}
 	}
 }

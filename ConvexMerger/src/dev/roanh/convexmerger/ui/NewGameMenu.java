@@ -352,7 +352,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			name = new TextField(theme.getBaseOutline());
 		}
 		
-		private void handleMouseClick(Point2D loc){
+		protected void handleMouseClick(Point2D loc){
 			if(name != null){
 				name.handleMouseClick(loc);
 			}
