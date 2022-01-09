@@ -12,9 +12,20 @@ import dev.roanh.convexmerger.net.InternalServer.InternalServerListener;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
+/**
+ * Menu used to host a multiplayer match.
+ * @author Roan
+ */
 public class HostMenu extends NewGameMenu implements InternalServerListener{
+	/**
+	 * The multiplayer server.
+	 */
 	private InternalServer server;
 
+	/**
+	 * Constructs a new host menu with the given game context.
+	 * @param context The game context.
+	 */
 	public HostMenu(ConvexMerger context){
 		super(context);
 		p1 = new HostPanel(PlayerTheme.P1);
@@ -47,8 +58,9 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 
 	@Override
 	public void handleException(Exception e){
-		// TODO Auto-generated method stub
-		
+		//force close on error
+		//TODO show dialog?
+		handleLeftButtonClick();
 	}
 	
 	@Override
@@ -63,8 +75,16 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		return "Host Game";
 	}
 	
+	/**
+	 * Special player panel that cannot be removed.
+	 * @author Roan
+	 */
 	private class HostPanel extends PlayerPanel{
 
+		/**
+		 * Constructs a new host panel with the given theme.
+		 * @param theme The panel theme.
+		 */
 		private HostPanel(PlayerTheme theme){
 			super(theme);
 			setHuman();
@@ -83,9 +103,21 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		}
 	}
 	
+	/**
+	 * Special player panel that cannot be removed or edited.
+	 * @author Roan
+	 */
 	private class RemotePanel extends PlayerPanel{
+		/**
+		 * The remote player associated with this panel.
+		 */
 		private Player player;
 		
+		/**
+		 * Constructs a new remote pannel for the given player.
+		 * @param theme The panel theme.
+		 * @param player The remote palayer.
+		 */
 		private RemotePanel(PlayerTheme theme, Player player){
 			super(theme);
 			this.player = player;
