@@ -54,10 +54,17 @@ public class TextField{
 		return focus;
 	}
 	
+	/**
+	 * Sets the text for this text field.
+	 * @param text The new text.
+	 */
 	public void setText(String text){
 		this.text = text;
 	}
 	
+	/**
+	 * Removes the focus from this text field.
+	 */
 	public void removeFocus(){
 		focus = false;
 	}
