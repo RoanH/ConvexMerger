@@ -181,7 +181,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 
 	@Override
 	protected void handleLeftButtonClick(){
-		//TODO handle back
+		switchScene(new MainMenu(this.getContext()));
 	}
 
 	@Override

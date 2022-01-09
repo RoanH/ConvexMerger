@@ -38,6 +38,12 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 			}
 		}
 	}
+	
+	@Override
+	protected void handleLeftButtonClick(){
+		server.shutdown();
+		super.handleLeftButtonClick();
+	}
 
 	@Override
 	public void handleException(Exception e){

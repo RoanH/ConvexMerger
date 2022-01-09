@@ -36,6 +36,11 @@ public class InternalServer implements GameStateListener{
 		thread.start();
 	}
 	
+	public void shutdown(){
+		thread.shutdown();
+		thread.close();
+	}
+	
 	public GameConstructor startGame(List<Player> players, PlayfieldGenerator gen){
 		thread.shutdown();
 
