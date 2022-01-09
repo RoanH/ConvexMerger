@@ -15,6 +15,8 @@ import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class JoinMenu extends Screen{
+	private static String lastHost = "";
+	private static String lastName = "";
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
 	private TextField name = new TextField(PlayerTheme.P1.getBaseOutline());
 	private TextField host = new TextField(PlayerTheme.P2.getBaseOutline());
@@ -25,6 +27,8 @@ public class JoinMenu extends Screen{
 	
 	protected JoinMenu(ConvexMerger context){
 		super(context);
+		host.setText(lastHost);
+		name.setText(lastName);
 	}
 
 	@Override
@@ -44,13 +48,15 @@ public class JoinMenu extends Screen{
 		host.removeFocus();
 		self = new HumanPlayer(name.getText());
 		connecting = true;
-		System.out.println("hi");
+		msg = "Connecting...";
 		executor.submit(()->{
 			try{
 				con = ClientConnection.connect(host.getText(), self);
 				
 				if(con.isConnected()){
-					msg = "Waiting for game to start...";
+					lastHost = host.getText();
+					lastName = self.getName();
+					msg = "Waiting for the host to start the game...";
 					final GameState state = con.getGameState();
 					this.getContext().initialiseGame(()->state);
 				}else{
