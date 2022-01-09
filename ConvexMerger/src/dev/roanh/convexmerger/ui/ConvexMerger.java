@@ -27,8 +27,17 @@ import dev.roanh.convexmerger.player.Player;
  * @author Roan
  */
 public class ConvexMerger{
+	/**
+	 * Application main frame.
+	 */
 	private JFrame frame = new JFrame(Constants.TITLE);
+	/**
+	 * The renderer rending the active game screen.
+	 */
 	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
+	/**
+	 * The thread running the active game (if any).
+	 */
 	private GameThread gameThread;
 	
 	public void showGame(){
@@ -45,8 +54,7 @@ public class ConvexMerger{
 				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/256.png"))
 			));
 		}catch(IOException e1){
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			//not important and internally resources should load
 		}
 		
 		frame.add(content);
@@ -94,15 +102,28 @@ public class ConvexMerger{
 		});
 	}
 	
+	/**
+	 * Initialises a new game with the given game constructor.
+	 * @param ctor The constructor to build the game.
+	 */
 	public void initialiseGame(GameConstructor ctor){
 		gameThread = new GameThread(ctor);
 		gameThread.start();
 	}
 	
+	/**
+	 * Switches the scene being displayed to the user
+	 * to the given screen.
+	 * @param next The new screen to display.
+	 * @return The previous screen on display.
+	 */
 	public Screen switchScene(Screen next){
 		return renderer.setScreen(next);
 	}
 	
+	/**
+	 * Aborts the active game, if any.
+	 */
 	public void abortGame(){
 		if(gameThread != null){
 			gameThread.interrupt();
@@ -115,8 +136,15 @@ public class ConvexMerger{
 	 * @author Roan
 	 */
 	private final class GameThread extends Thread{
+		/**
+		 * The constructor to use to create the game state.
+		 */
 		private GameConstructor ctor;
 		
+		/**
+		 * Constructs a new game thread with the given game constructor.
+		 * @param ctor The constructor to create the game state with.
+		 */
 		private GameThread(GameConstructor ctor){
 			this.setName("GameThread");
 			this.setDaemon(true);
