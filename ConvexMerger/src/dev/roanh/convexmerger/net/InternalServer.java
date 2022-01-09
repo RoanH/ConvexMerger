@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.Game;
+import dev.roanh.convexmerger.game.GameConstructor;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
@@ -28,46 +28,32 @@ import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
 public class InternalServer implements GameStateListener{
-	public static final int PORT = 11111;
-	private Game game;
 	private ServerThread thread = new ServerThread();
-	private Consumer<Player> playerHandler;
-	private Consumer<Exception> exceptionHandler;
+	private InternalServerListener handler;
 	
-	public InternalServer(Player self, PlayfieldGenerator gen, Consumer<Player> handler, Consumer<Exception> exceptionHandler){
-		playerHandler = handler;
-		this.exceptionHandler = exceptionHandler;
-		game = new Game(gen);
-		game.addPlayer(self);
+	public InternalServer(InternalServerListener handler){
+		this.handler = handler;
 		thread.start();
 	}
 	
-	public int getPlayerCount(){
-		return game.getPlayerCount();
-	}
-	
-	public GameState startGame(){
+	public GameConstructor startGame(List<Player> players, PlayfieldGenerator gen){
 		thread.shutdown();
-		GameState state = game.toGameState();
-		thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
-		
-		state.registerStateListener(this);
-		return state;
+
+		return ()->{
+			GameState state = new GameState(gen, players);
+			thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
+			state.registerStateListener(this);
+			return state;
+		};
 	}
 	
-	public void setNewPlayerHandler(Consumer<Player> handler){
-		playerHandler = handler;
-	}
-
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		System.out.println("send claim for: " + player.getName());
 		thread.broadCast(player, new PacketPlayerMove(player, obj));
 	}
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target){
-		System.out.println("send merge for: " + player.getName());
 		thread.broadCast(player, new PacketPlayerMove(player, source, target));
 	}
 
@@ -82,6 +68,7 @@ public class InternalServer implements GameStateListener{
 		private ServerSocket server;
 		private Map<Integer, Connection> connections = new HashMap<Integer, Connection>();
 		private volatile boolean running = false;
+		private volatile int nextID = 2;//id 1 for host
 		
 		private ServerThread(){
 			this.setName("InternalServerThread");
@@ -146,14 +133,13 @@ public class InternalServer implements GameStateListener{
 					return;
 				}
 				
-				synchronized(game){
-					if(game.getPlayerCount() < 4 && running){
+				synchronized(handler){
+					if(nextID <= 4 && running){
 						Player player = new RemotePlayer(con, false, data.getName());
-						con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
+						player.setID(nextID++);
+						con.sendPacket(new PacketPlayerJoinAccept(player.getID()));
 						connections.put(player.getID(), con);
-						if(playerHandler != null){
-							playerHandler.accept(player);
-						}
+						handler.handlePlayerJoin(player);
 					}else{
 						con.sendPacket(new PacketPlayerJoinReject(RejectReason.FULL));
 					}
@@ -171,17 +157,23 @@ public class InternalServer implements GameStateListener{
 		public void run(){
 			try{
 				running = true;
-				System.out.println("Server started on port: " + PORT);
-				server = new ServerSocket(PORT);
+				server = new ServerSocket(Constants.PORT);
 				while(running){
 					final Socket s = server.accept();
 					executor.submit(()->handleClient(s));
 				}
 			}catch(IOException e){
 				if(running){
-					exceptionHandler.accept(e);
+					handler.handleException(e);
 				}
 			}
 		}
+	}
+	
+	public static abstract interface InternalServerListener{
+		
+		public abstract void handlePlayerJoin(Player player);
+		
+		public abstract void handleException(Exception e);
 	}
 }

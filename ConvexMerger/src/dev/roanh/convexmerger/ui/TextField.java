@@ -54,6 +54,10 @@ public class TextField{
 		return focus;
 	}
 	
+	public void setText(String text){
+		this.text = text;
+	}
+	
 	/**
 	 * Handles a key event on this text field.
 	 * @param event The event to handle.

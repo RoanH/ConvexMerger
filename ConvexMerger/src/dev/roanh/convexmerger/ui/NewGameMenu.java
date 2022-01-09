@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import dev.roanh.convexmerger.game.GameConstructor;
+import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.game.PlayfieldGenerator.GeneratorProgressListener;
 import dev.roanh.convexmerger.player.AIRegistry;
@@ -23,11 +25,11 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * Maximum width used by the boxes.
 	 */
 	private static final int MAX_WIDTH = 1200;
-	private static final double SPACING = 4.0D;
-	private PlayerPanel p1 = new PlayerPanel(PlayerTheme.P1);
-	private PlayerPanel p2 = new PlayerPanel(PlayerTheme.P2);
-	private PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
-	private PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
+	protected static final double SPACING = 4.0D;
+	protected PlayerPanel p1 = new PlayerPanel(PlayerTheme.P1);
+	protected PlayerPanel p2 = new PlayerPanel(PlayerTheme.P2);
+	protected PlayerPanel p3 = new PlayerPanel(PlayerTheme.P3);
+	protected PlayerPanel p4 = new PlayerPanel(PlayerTheme.P4);
 	private Path2D start = new Path2D.Double();
 	private ButtonAssembly size = new ButtonAssembly(1, "Object Size", "Small", "Medium", "Large");
 	private ButtonAssembly density = new ButtonAssembly(2, "Density", "Low", "Medium", "High");
@@ -48,7 +50,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		renderMainInterface(g, width, height, null);
 		
 		g.setColor(Theme.CROWN_COLOR);
-		renderMenuTitle(g, width, "New game");
+		renderMenuTitle(g, width, getMenuTitle());
 		drawTitle(g, width);
 		
 		double size = Screen.getMaxWidth(width, 0.8D, MAX_WIDTH);
@@ -96,6 +98,14 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		density.render(g, tx + (size / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
 		spacing.render(g, tx + ((size * 2.0D) / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
 	}
+	
+	protected String getMenuTitle(){
+		return "New Game";
+	}
+	
+	protected void handleStart(List<Player> players, PlayfieldGenerator gen){
+		this.getContext().initialiseGame(()->new GameState(gen, players));
+	}
 
 	@Override
 	public void handleMouseClick(Point2D loc, int width, int height){
@@ -120,10 +130,10 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 				PlayfieldGenerator gen = new PlayfieldGenerator();
 				gen.setProgressListener(this);
 				gen.setRange(new int[]{10, 0, 50}[size.getSelectedIndex()], new int[]{20, 100, 100}[size.getSelectedIndex()]);
-				gen.setCoverage(new int[]{50, 90, 114}[density.getSelectedIndex()]);
+				gen.setCoverage(new int[]{30, 70, 114}[density.getSelectedIndex()]);
 				gen.setScaling(new int[]{240, 200, 100}[spacing.getSelectedIndex()]);
 				
-				this.getContext().initialiseGame(gen, players);
+				handleStart(players, gen);
 				started = true;
 			}
 		}
@@ -287,29 +297,29 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * Panel to configure a new AI or human player.
 	 * @author Roan
 	 */
-	private class PlayerPanel{
+	protected class PlayerPanel{
 		private static final double WIDTH = 150.0D;
 		private static final double HEIGHT = 62.0D;
 		private static final double BUTTON_INSET = 4.0D;
-		private static final double CONTENT_WIDTH = 134.0D;
-		private static final double CONTENT_HEIGHT = 21.0D;
+		protected static final double CONTENT_WIDTH = 134.0D;
+		protected static final double CONTENT_HEIGHT = 21.0D;
 		private Path2D addPlayer = null;
 		private Path2D addAI = null;
 		private PlayerTheme theme;
-		private TextField name = null;
+		protected TextField name = null;
 		private ComboBox<AIRegistry> ai = null;
 		private Path2D remove = new Path2D.Double();
 		private Image icon;
 		
-		private PlayerPanel(PlayerTheme theme){
+		protected PlayerPanel(PlayerTheme theme){
 			this.theme = theme;
 		}
 		
-		private boolean hasPlayer(){
+		protected boolean hasPlayer(){
 			return ai != null || name != null;
 		}
 		
-		private Optional<Player> getPlayer(){
+		protected Optional<Player> getPlayer(){
 			if(name != null){
 				return Optional.of(new HumanPlayer(name.getText()));
 			}else if(ai != null){
@@ -338,6 +348,11 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			}
 		}
 		
+		protected void setHuman(){
+			icon = theme.getSmallIconHuman();
+			name = new TextField(theme.getBaseOutline());
+		}
+		
 		private void handleMouseClick(Point2D loc){
 			if(name != null){
 				name.handleMouseClick(loc);
@@ -345,14 +360,13 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			
 			if(name == null && ai == null){
 				if(addPlayer.contains(loc)){
-					icon = theme.getSmallIconHuman();
-					name = new TextField(theme.getBaseOutline());
+					setHuman();
 				}else if(addAI.contains(loc)){
 					icon = theme.getSmallIconAI();
 					ai = new ComboBox<AIRegistry>(AIRegistry.values(), AIRegistry::getName, theme.getBaseOutline());
 				}
 			}else{
-				if(remove.contains(loc) && !(ai != null && ai.hasFocus())){
+				if(remove != null && remove.contains(loc) && !(ai != null && ai.hasFocus())){
 					name = null;
 					ai = null;
 				}
@@ -363,13 +377,13 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			}
 		}
 		
-		private void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
+		protected void renderRemoveButton(Graphics2D g, double x, double y, Point2D mouseLoc){
 			remove = computeBox(x, y, CONTENT_WIDTH, CONTENT_HEIGHT, 5.0D);
 			
 			g.setFont(Theme.PRIDI_REGULAR_14);
 			
 			FontMetrics fm = g.getFontMetrics();
-			double offset = (CONTENT_WIDTH - fm.stringWidth("Remove") -Theme.REMOVE_ICON_SIZE - SPACING) / 2.0D;
+			double offset = (CONTENT_WIDTH - fm.stringWidth("Remove") - Theme.REMOVE_ICON_SIZE - SPACING) / 2.0D;
 			
 			g.setColor(Theme.DOUBLE_LIGHTEN);
 			if(remove.contains(mouseLoc) && !(ai != null && ai.hasFocus())){

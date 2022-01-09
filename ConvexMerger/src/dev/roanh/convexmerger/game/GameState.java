@@ -421,7 +421,7 @@ public class GameState{
 	 * @author Roan
 	 */
 	public static abstract interface GameStateListener{
-
+		
 		/**
 		 * Called when a player claims a new object.
 		 * @param player The player that made the claim.

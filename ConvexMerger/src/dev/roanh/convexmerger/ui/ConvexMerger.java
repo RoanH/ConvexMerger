@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.GameConstructor;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.net.ClientConnection;
@@ -98,36 +99,9 @@ public class ConvexMerger{
 		});
 	}
 	
-	public void initialiseGame(PlayfieldGenerator gen, List<Player> players){
-		gameThread = new GameThread(gen, players);
+	public void initialiseGame(GameConstructor ctor){
+		gameThread = new GameThread(ctor);
 		gameThread.start();
-	}
-	
-	public void hostMultiplayerGame(){
-		frame.setTitle(Constants.TITLE + " [Server]");
-		Player self = new HumanPlayer("Player 1");
-		PlayfieldGenerator gen = new PlayfieldGenerator();
-		gen.setRange(50, 100);
-		gen.setScaling(200);
-		
-		InternalServer server = new InternalServer(self, gen, player->{
-			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
-		}, e->System.err.println("Server died: " + e.getMessage()));
-		
-		while(server.getPlayerCount() < 2){
-			try{
-				Thread.sleep(1000);
-			}catch(InterruptedException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		System.out.println("player count hit start game");
-		
-		GameState state = server.startGame();
-		//TODO initialiseGame(state);
-		showGame();
 	}
 	
 	public void joinMultiplayerGame(){
@@ -173,20 +147,18 @@ public class ConvexMerger{
 	 * @author Roan
 	 */
 	private final class GameThread extends Thread{
-		private PlayfieldGenerator gen;
-		private List<Player> players;
+		private GameConstructor ctor;
 		
-		private GameThread(PlayfieldGenerator gen, List<Player> players){
+		private GameThread(GameConstructor ctor){
 			this.setName("GameThread");
 			this.setDaemon(true);
-			this.gen = gen;
-			this.players = players;
+			this.ctor = ctor;
 		}
 		
 		@Override
 		public void run(){
 			try{
-				GameState state = new GameState(gen, players);
+				GameState state = ctor.create();
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
 				
 				while(!state.isFinished() && !this.isInterrupted()){

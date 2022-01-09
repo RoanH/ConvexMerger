@@ -24,7 +24,7 @@ public class MainMenu extends Screen{
 	@Override
 	protected boolean isRightButtonEnabled(){
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class MainMenu extends Screen{
 	@Override
 	protected String getRightButtonText(){
 		// TODO Auto-generated method stub
-		return null;
+		return "Host";
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class MainMenu extends Screen{
 	@Override
 	protected void handleRightButtonClick(){
 		// TODO Auto-generated method stub
-		
+		this.switchScene(new HostMenu(this.getContext()));
 	}
 
 }

@@ -106,7 +106,7 @@ public class ClientConnection extends Connection implements GameStateListener{
 	}
 
 	public static final ClientConnection connect(String host, Player player) throws IOException{
-		ClientConnection con = new ClientConnection(new Socket(host, InternalServer.PORT), player);
+		ClientConnection con = new ClientConnection(new Socket(host, Constants.PORT), player);
 		con.sendPacket(new PacketPlayerJoin(player.getName(), Constants.VERSION));
 		
 		Packet recv = con.readPacket();
