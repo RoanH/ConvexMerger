@@ -102,6 +102,10 @@ public class ConvexMerger{
 		});
 	}
 	
+	public void exit(){
+		frame.dispose();
+	}
+	
 	/**
 	 * Initialises a new game with the given game constructor.
 	 * @param ctor The constructor to build the game.
