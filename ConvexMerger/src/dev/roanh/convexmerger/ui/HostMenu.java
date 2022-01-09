@@ -114,9 +114,9 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		private Player player;
 		
 		/**
-		 * Constructs a new remote pannel for the given player.
+		 * Constructs a new remote panel for the given player.
 		 * @param theme The panel theme.
-		 * @param player The remote palayer.
+		 * @param player The remote player.
 		 */
 		private RemotePanel(PlayerTheme theme, Player player){
 			super(theme);

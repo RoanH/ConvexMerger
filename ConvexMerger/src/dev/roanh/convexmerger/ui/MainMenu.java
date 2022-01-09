@@ -64,7 +64,7 @@ public class MainMenu extends Screen{
 
 	@Override
 	protected void handleLeftButtonClick(){
-		this.switchScene(new HostMenu(this.getContext()));
+		this.switchScene(new NewGameMenu(this.getContext()));
 	}
 
 	@Override
