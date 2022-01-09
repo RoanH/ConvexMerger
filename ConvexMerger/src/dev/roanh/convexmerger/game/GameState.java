@@ -416,6 +416,10 @@ public class GameState{
 		selected = null;
 	}
 
+	/**
+	 * Signals that this game was forcefully terminated
+	 * before it was supposed to finish.
+	 */
 	public void abort(){
 		listeners.forEach(GameStateListener::abort);
 	}
@@ -447,7 +451,7 @@ public class GameState{
 		public abstract void end();
 		
 		/**
-		 * Called when the game is aborted.
+		 * Called when the game is aborted (forcefully terminated).
 		 */
 		public abstract void abort();
 	}
