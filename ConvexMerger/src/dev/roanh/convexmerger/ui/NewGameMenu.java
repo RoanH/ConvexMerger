@@ -96,8 +96,6 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	@Override
 	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMainInterface(g, width, height, null);
-		
-		g.setColor(Theme.CROWN_COLOR);
 		renderMenuTitle(g, width, getMenuTitle());
 		drawTitle(g, width);
 		

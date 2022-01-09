@@ -20,6 +20,8 @@ public class MainMenu extends Screen{
 	@Override
 	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMainInterface(g, width, height, null);
+		renderMenuTitle(g, width, "Main Menu");
+		drawTitle(g, width);
 		
 		single = new Rectangle2D.Double((width - 200.0D) / 2.0D, 200.0D, 200.0D, 50.0D);
 		host = new Rectangle2D.Double((width - 200.0D) / 2.0D, 300.0D, 200.0D, 50.0D);

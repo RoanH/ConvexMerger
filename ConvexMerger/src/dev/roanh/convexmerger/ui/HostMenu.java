@@ -72,7 +72,7 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 	
 	@Override
 	protected String getMenuTitle(){
-		return "Host Game";
+		return "Host Multiplayer";
 	}
 	
 	/**

@@ -16,7 +16,7 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class JoinMenu extends Screen{
 	private static String lastHost = "";
-	private static String lastName = "";
+	private static String lastName = System.getProperty("user.name", "Player 1");
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
 	private TextField name = new TextField(PlayerTheme.P1.getBaseOutline());
 	private TextField host = new TextField(PlayerTheme.P2.getBaseOutline());
@@ -34,12 +34,17 @@ public class JoinMenu extends Screen{
 	@Override
 	protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 		renderMainInterface(g, width, height, null);
+		renderMenuTitle(g, width, "Join Multiplayer");
+		drawTitle(g, width);
 		
 		name.render(g, 100.0D, 200.0D, 200.0D, 20.0D);
 		host.render(g, 100.0D, 230.0D, 200.0D, 20.0D);
 		g.setColor(Color.WHITE);
 		g.setFont(Theme.PRIDI_MEDIUM_14);
 		g.drawString(msg, 100.0F, 265.0F);
+		g.drawString("Name: ", 50.0F, 215.0F);
+		g.drawString("Host: ", 50.0F, 245.0F);
+		g.drawString("Status: ", 50.0F, 265.0F);
 	}
 
 	@Override
