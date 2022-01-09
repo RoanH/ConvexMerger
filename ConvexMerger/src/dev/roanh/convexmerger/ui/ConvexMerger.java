@@ -163,12 +163,15 @@ public class ConvexMerger{
 				
 				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();
-					if(player.isAI()){
-						Thread.sleep(Constants.AI_TURN_TIME);
-					}
+					
 					long start = System.currentTimeMillis();
 					state.executePlayerTurn();
-					player.getStats().addTurnTime(System.currentTimeMillis() - start);
+					long duration = System.currentTimeMillis() - start;
+					player.getStats().addTurnTime(duration);
+					if(duration < Constants.MIN_TURN_TIME){
+						Thread.sleep(Constants.MIN_TURN_TIME - duration);
+					}
+					
 					frame.repaint();
 				}
 			}catch(InvocationTargetException e){
