@@ -58,17 +58,23 @@ public class TextField{
 		this.text = text;
 	}
 	
+	public void removeFocus(){
+		focus = false;
+	}
+	
 	/**
 	 * Handles a key event on this text field.
 	 * @param event The event to handle.
 	 */
 	public void handleKeyEvent(KeyEvent event){
-		if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
-			if(!text.isEmpty()){
-				text = text.substring(0, text.length() - 1);
+		if(hasFocus()){
+			if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+				if(!text.isEmpty()){
+					text = text.substring(0, text.length() - 1);
+				}
+			}else if(event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
+				text += event.getKeyChar();
 			}
-		}else if(event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
-			text += event.getKeyChar();
 		}
 	}
 	

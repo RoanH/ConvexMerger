@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import dev.roanh.convexmerger.game.GameConstructor;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.game.PlayfieldGenerator.GeneratorProgressListener;
@@ -142,13 +141,13 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	@Override
 	public void handleKeyPressed(KeyEvent event){
 		if(!started){
-			if(p1.name != null && p1.name.hasFocus()){
+			if(p1.name != null){
 				p1.name.handleKeyEvent(event);
-			}else if(p2.name != null && p2.name.hasFocus()){
+			}else if(p2.name != null){
 				p2.name.handleKeyEvent(event);
-			}else if(p2.name != null && p3.name.hasFocus()){
+			}else if(p2.name != null){
 				p3.name.handleKeyEvent(event);
-			}else if(p4.name != null && p4.name.hasFocus()){
+			}else if(p4.name != null){
 				p4.name.handleKeyEvent(event);
 			}
 		}

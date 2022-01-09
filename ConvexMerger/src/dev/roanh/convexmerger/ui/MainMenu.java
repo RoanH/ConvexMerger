@@ -36,18 +36,19 @@ public class MainMenu extends Screen{
 	@Override
 	protected String getRightButtonText(){
 		// TODO Auto-generated method stub
-		return "Host";
+		return "Join";
 	}
 
 	@Override
 	protected void handleLeftButtonClick(){
-		this.switchScene(new NewGameMenu(this.getContext()));
+		this.switchScene(new HostMenu(this.getContext()));
 	}
 
 	@Override
 	protected void handleRightButtonClick(){
 		// TODO Auto-generated method stub
-		this.switchScene(new HostMenu(this.getContext()));
+		//this.switchScene(new HostMenu(this.getContext()));
+		this.switchScene(new JoinMenu(this.getContext()));
 	}
 
 }

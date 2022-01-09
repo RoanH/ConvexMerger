@@ -252,8 +252,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	protected void handleLeftButtonClick(){
 		//TODO menu
-		System.out.println("To main menu");
 		this.getContext().abortGame();
+		switchScene(new MainMenu(this.getContext()));
 	}
 
 	@Override

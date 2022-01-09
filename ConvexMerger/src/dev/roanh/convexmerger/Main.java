@@ -17,8 +17,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-//		game.hostMultiplayerGame();
-//		game.joinMultiplayerGame();
+		//game.joinMultiplayerGame();
 		game.showGame();
 	}
 }
