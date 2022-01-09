@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
@@ -20,7 +21,7 @@ import dev.roanh.convexmerger.Constants;
  * Main game renderer responsible for rendering screens.
  * @author Roan
  */
-public class ScreenRenderer extends JPanel implements MouseListener, MouseMotionListener, KeyListener{
+public class ScreenRenderer extends JPanel implements MouseListener, MouseMotionListener, KeyListener, ThreadFactory{
 	/**
 	 * Serial ID.
 	 */
@@ -28,7 +29,7 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 	/**
 	 * Executor service used to run animations.
 	 */
-	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(this);
 	/**
 	 * The active screen to render.
 	 */
@@ -109,5 +110,13 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseExited(MouseEvent e){
+	}
+
+	@Override
+	public Thread newThread(Runnable r){
+		Thread thread = Executors.defaultThreadFactory().newThread(r);
+		thread.setDaemon(true);
+		thread.setName("AnimationThread-" + thread.getName());
+		return thread;
 	}
 }
