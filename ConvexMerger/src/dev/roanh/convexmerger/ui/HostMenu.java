@@ -87,7 +87,7 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		 */
 		private HostPanel(PlayerTheme theme){
 			super(theme);
-			setHuman();
+			setHuman(null);
 		}
 		
 		@Override
@@ -121,8 +121,7 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		private RemotePanel(PlayerTheme theme, Player player){
 			super(theme);
 			this.player = player;
-			setHuman();
-			name.setText(player.getName());
+			setHuman(player.getName());
 		}
 		
 		@Override

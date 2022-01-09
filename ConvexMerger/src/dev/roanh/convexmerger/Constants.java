@@ -41,9 +41,9 @@ public final class Constants{
 	 */
 	public static final long ANIMATION_RATE = 33;
 	/**
-	 * Number of milliseconds before an AI turn.
+	 * Minimum number of milliseconds any turn should take.
 	 */
-	public static final long AI_TURN_TIME = 400;
+	public static final long MIN_TURN_TIME = 400;
 	/**
 	 * Multiplayer server port.
 	 */

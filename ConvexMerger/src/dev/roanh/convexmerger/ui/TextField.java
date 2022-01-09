@@ -56,10 +56,11 @@ public class TextField{
 	
 	/**
 	 * Sets the text for this text field.
-	 * @param text The new text.
+	 * @param text The new text or <code>
+	 *        null</code> to clear the text.
 	 */
 	public void setText(String text){
-		this.text = text;
+		this.text = text == null ? "" : text;
 	}
 	
 	/**

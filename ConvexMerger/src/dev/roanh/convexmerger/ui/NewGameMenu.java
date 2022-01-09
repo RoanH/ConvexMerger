@@ -461,7 +461,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		/**
 		 * Text field used to configure a human player.
 		 */
-		protected TextField name = null;
+		private TextField name = null;
 		/**
 		 * Combo box used to configure an AI.
 		 */
@@ -534,10 +534,30 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		/**
 		 * Sets the player currently being configured to a human
 		 * and activates the corresponding UI elements.
+		 * @param name The player name to use or <code>null</code>
+		 *        to use the default name.
 		 */
-		protected void setHuman(){
+		protected void setHuman(String name){
 			icon = theme.getSmallIconHuman();
-			name = new TextField(theme.getBaseOutline());
+			
+			if(name == null && p1.name == null && p2.name == null && p3.name == null && p4.name == null){
+				name = System.getProperty("user.name");
+			}
+			
+			if(name == null){
+				if(p1 == this){
+					name = "Player 1";
+				}else if(p2 == this){
+					name = "Player 2";
+				}else if(p3 == this){
+					name = "Player 3";
+				}else if(p4 == this){
+					name = "Player 4";
+				}
+			}
+			
+			this.name = new TextField(theme.getBaseOutline());
+			this.name.setText(name);
 		}
 		
 		/**
@@ -551,7 +571,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			
 			if(name == null && ai == null){
 				if(addPlayer.contains(loc)){
-					setHuman();
+					setHuman(null);
 				}else if(addAI.contains(loc)){
 					icon = theme.getSmallIconAI();
 					ai = new ComboBox<AIRegistry>(AIRegistry.values(), AIRegistry::getName, theme.getBaseOutline());
