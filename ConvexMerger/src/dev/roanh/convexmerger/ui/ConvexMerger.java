@@ -62,12 +62,12 @@ public class ConvexMerger{
 		frame.pack();
 		Insets insets = frame.getInsets();
 		frame.setMinimumSize(new Dimension(
-			16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * GamePanel.SIDE_OFFSET,
-			GamePanel.TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + GamePanel.TOP_OFFSET + GamePanel.BOTTOM_OFFSET)
+			16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * Screen.SIDE_OFFSET,
+			Screen.TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + Screen.TOP_OFFSET + Screen.BOTTOM_OFFSET)
 		);
 		frame.setSize(new Dimension(
-			16 * Constants.INIT_SIZE + insets.left + insets.right + 2 * GamePanel.SIDE_OFFSET,
-			GamePanel.TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom + GamePanel.TOP_OFFSET + GamePanel.BOTTOM_OFFSET)
+			16 * Constants.INIT_SIZE + insets.left + insets.right + 2 * Screen.SIDE_OFFSET,
+			Screen.TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom + Screen.TOP_OFFSET + Screen.BOTTOM_OFFSET)
 		);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);

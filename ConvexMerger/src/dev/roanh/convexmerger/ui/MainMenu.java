@@ -1,17 +1,21 @@
 package dev.roanh.convexmerger.ui;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
+/**
+ * Game main menu screen.
+ * @author Roan
+ */
 public class MainMenu extends Screen{
-	private Rectangle2D join = new Rectangle2D.Double();
-	private Rectangle2D host = new Rectangle2D.Double();
-	private Rectangle2D single = new Rectangle2D.Double();
-	private Rectangle2D info = new Rectangle2D.Double();
-	private Rectangle2D quit = new Rectangle2D.Double();
+	private static final double BUTTON_WIDTH = 250.0D;
+	private static final double BUTTON_HEIGHT = 70.0D;
+	private Path2D join = new Path2D.Double();
+	private Path2D host = new Path2D.Double();
+	private Path2D single = new Path2D.Double();
+	private Path2D info = new Path2D.Double();
+	private Path2D quit = new Path2D.Double();
 
 	protected MainMenu(ConvexMerger context){
 		super(context);
@@ -23,27 +27,11 @@ public class MainMenu extends Screen{
 		renderMenuTitle(g, width, "Main Menu");
 		drawTitle(g, width);
 		
-		single = new Rectangle2D.Double((width - 200.0D) / 2.0D, 200.0D, 200.0D, 50.0D);
-		host = new Rectangle2D.Double((width - 200.0D) / 2.0D, 300.0D, 200.0D, 50.0D);
-		join = new Rectangle2D.Double((width - 200.0D) / 2.0D, 400.0D, 200.0D, 50.0D);
-		info = new Rectangle2D.Double((width - 200.0D) / 2.0D, 500.0D, 200.0D, 50.0D);
-		quit = new Rectangle2D.Double((width - 200.0D) / 2.0D, 600.0D, 200.0D, 50.0D);
-		
-		g.setColor(Color.RED);
-		g.draw(single);
-		g.draw(join);
-		g.draw(host);
-		g.draw(info);
-		g.draw(quit);
-		
-		g.setColor(Color.WHITE);
-		g.setFont(Theme.PRIDI_MEDIUM_14);
-		FontMetrics fm = g.getFontMetrics();
-		g.drawString("Single player", (float)(single.getMinX() + (single.getWidth() - fm.stringWidth("Single player")) / 2.0F), (float)(single.getMaxY() - (single.getHeight() - fm.getAscent() + fm.getDescent()) / 2.0F));
-		g.drawString("Host Multiplayer", (float)(host.getMinX() + (host.getWidth() - fm.stringWidth("Host Multiplayer")) / 2.0F), (float)(host.getMaxY() - (host.getHeight() - fm.getAscent() + fm.getDescent()) / 2.0F));
-		g.drawString("Join Multiplayer", (float)(join.getMinX() + (join.getWidth() - fm.stringWidth("Join Multiplayer")) / 2.0F), (float)(join.getMaxY() - (join.getHeight() - fm.getAscent() + fm.getDescent()) / 2.0F));
-		g.drawString("Info & Rules", (float)(info.getMinX() + (info.getWidth() - fm.stringWidth("Info & Rules")) / 2.0F), (float)(info.getMaxY() - (info.getHeight() - fm.getAscent() + fm.getDescent()) / 2.0F));
-		g.drawString("Quit", (float)(quit.getMinX() + (quit.getWidth() - fm.stringWidth("Quit")) / 2.0F), (float)(quit.getMaxY() - (quit.getHeight() - fm.getAscent() + fm.getDescent()) / 2.0F));
+		single = drawButton(g, "Single Player", (width - BUTTON_WIDTH) / 2.0D, TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D + TOP_SPACE, BUTTON_WIDTH, BUTTON_HEIGHT, mouseLoc);
+		host = drawButton(g, "Host Multiplayer", (width - BUTTON_WIDTH) / 2.0D, TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D + TOP_SPACE + BOX_SPACING + BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT, mouseLoc);
+		join = drawButton(g, "Join Multiplayer", (width - BUTTON_WIDTH) / 2.0D, TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D + TOP_SPACE + (BOX_SPACING + BUTTON_HEIGHT) * 2.0D, BUTTON_WIDTH, BUTTON_HEIGHT, mouseLoc);
+		info = drawButton(g, "Info & Rules", (width - BUTTON_WIDTH) / 2.0D, TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D + TOP_SPACE + (BOX_SPACING + BUTTON_HEIGHT) * 3.0D, BUTTON_WIDTH, BUTTON_HEIGHT, mouseLoc);
+		quit = drawButton(g, "Quit", (width - BUTTON_WIDTH) / 2.0D, TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D + TOP_SPACE + (BOX_SPACING + BUTTON_HEIGHT) * 4.0D, BUTTON_WIDTH, BUTTON_HEIGHT, mouseLoc);
 	}
 	
 	@Override

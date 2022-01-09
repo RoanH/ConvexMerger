@@ -1,10 +1,5 @@
 package dev.roanh.convexmerger.ui;
 
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_MIDDLE_WIDTH;
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_MIDDLE_TEXT_OFFSET;
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_SPACE;
-import static dev.roanh.convexmerger.ui.GamePanel.TOP_OFFSET;
-
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -25,13 +20,37 @@ import dev.roanh.convexmerger.game.GameState;
  */
 public abstract class Screen{
 	/**
+	 * Height of the top score display part of the game panel.
+	 */
+	public static final int TOP_SPACE = 100;
+	/**
+	 * Offset from the side to the playfield rectangle.
+	 */
+	public static final int SIDE_OFFSET = 20 + 1;
+	/**
+	 * Offset from the score display part of the game panel to the playfield rectangle.
+	 */
+	public static final int TOP_OFFSET = 30 + 1;
+	/**
+	 * Offset from the bottom to the playfield rectangle.
+	 */
+	public static final int BOTTOM_OFFSET = 50 + 1;
+	/**
+	 * Width of the middle text area attached to the top part.
+	 */
+	public static final int TOP_MIDDLE_WIDTH = 200;
+	/**
+	 * Text offset from the bottom in the top middle text area.
+	 */
+	public static final int TOP_MIDDLE_TEXT_OFFSET = 2;
+	/**
 	 * Dimensions of the triangles on the left and right side of the top part.
 	 */
 	public static final int TOP_SIDE_TRIANGLE = 50;
 	/**
 	 * Height of the middle text area attached to the top part.
 	 */
-	private static final int TOP_MIDDLE_OFFSET = 30;
+	public static final int TOP_MIDDLE_OFFSET = 30;
 	/**
 	 * Height of the buttons in the bottom left and right.
 	 */
@@ -56,6 +75,10 @@ public abstract class Screen{
 	 * Text offset from the side of a box.
 	 */
 	public static final int BOX_TEXT_OFFSET = 4;
+	/**
+	 * Spacing between various components.
+	 */
+	public static final double SPACING = 4.0D;
 	/**
 	 * Bottom right button polygon.
 	 */
@@ -203,6 +226,35 @@ public abstract class Screen{
 		path.lineTo(x, y + h - inset);
 		path.closePath();
 		return path;
+	}
+	
+	/**
+	 * Draws a button at the given location with the given text.
+	 * @param g The graphics context to use.
+	 * @param text The button text.
+	 * @param x The x location of the top left corner of the button.
+	 * @param y The y location of the top left corner of the button.
+	 * @param w The width of the button.
+	 * @param h The height of the button.
+	 * @param mouseLoc The cursor location or <code>null</code>.
+	 * @return The bounds of the drawn button.
+	 */
+	protected Path2D drawButton(Graphics2D g, String text, double x, double y, double w, double h, Point2D mouseLoc){
+		g.setColor(Theme.MENU_BODY);
+		Path2D button = computeBox(x, y, w, h, BOX_INSETS);
+		g.fill(button);
+		g.setFont(Theme.PRIDI_REGULAR_18);
+		g.setColor(Theme.DOUBLE_LIGHTEN);
+		Path2D border = computeBox(x + SPACING, y + SPACING, w - SPACING * 2.0D, h - SPACING * 2.0D, BOX_INSETS);
+		g.draw(border);
+		if(mouseLoc != null && button.contains(mouseLoc)){
+			g.fill(border);
+		}
+		g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString(text, (float)(x + SPACING + (w - fm.stringWidth(text)) / 2.0D), (float)(y + h - (h - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+		
+		return button;
 	}
 	
 	/**

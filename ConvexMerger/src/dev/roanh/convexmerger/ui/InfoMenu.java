@@ -82,11 +82,11 @@ public class InfoMenu extends Screen{
 		
 		double size = Screen.getMaxWidth(width, 0.9D, MAX_WIDTH);
 		double offset = (width - size) / 2.0D;
-		g.translate(0, GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE);
+		g.translate(0, Screen.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		double boxWidth = (size - BOX_SPACING) / 2.0D;
 		Paint gradient = Theme.constructBorderGradient(game, width);
-		double rulesHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
-		double exampleBoxHeight = height - GamePanel.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - GamePanel.BOTTOM_OFFSET - GamePanel.TOP_OFFSET;
+		double rulesHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
+		double exampleBoxHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
 		
 		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, offset, 0.0D, boxWidth, rulesHeight);

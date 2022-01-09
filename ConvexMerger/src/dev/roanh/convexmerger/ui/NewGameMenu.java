@@ -33,10 +33,6 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 */
 	private static final double START_HEIGHT = 100.0D;
 	/**
-	 * Spacing between various components.
-	 */
-	protected static final double SPACING = 4.0D;
-	/**
 	 * Configuration for player 1.
 	 */
 	protected PlayerPanel p1 = new PlayerPanel(PlayerTheme.P1);
@@ -102,7 +98,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		double size = Screen.getMaxWidth(width, 0.8D, MAX_WIDTH);
 		Paint gradient = Theme.constructBorderGradient(null, width);
 		double tx = (width - size) / 2.0D;
-		double ty = GamePanel.TOP_SPACE + TOP_SIDE_TRIANGLE;
+		double ty = Screen.TOP_SPACE + TOP_SIDE_TRIANGLE;
 		
 		double playersHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS * 2.0D + PlayerPanel.HEIGHT;
 		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_REGULAR_16);
@@ -111,21 +107,9 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		drawTitledBox(g, gradient, tx, ty, size, playersHeight, "Players");
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
 
-		g.setColor(Theme.MENU_BODY);
-		start = computeBox(tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D, size / 3.0D, START_HEIGHT, BOX_INSETS);
-		g.fill(start);
-		g.setFont(Theme.PRIDI_REGULAR_18);
-		g.setColor(Theme.DOUBLE_LIGHTEN);
-		Path2D border = computeBox(tx + (size / 3.0D) + SPACING, ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + SPACING, size / 3.0D - SPACING * 2.0D, START_HEIGHT - SPACING * 2.0D, BOX_INSETS);
-		g.draw(border);
-		if(canStart() && start.contains(mouseLoc)){
-			g.fill(border);
-		}
-		g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
-		fm = g.getFontMetrics();
-		g.drawString("Start Game", (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth("Start Game")) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + START_HEIGHT - (START_HEIGHT - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
+		start = drawButton(g, "Start Game", tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D, (size / 3.0D), START_HEIGHT, canStart() ? mouseLoc : null);
 		if(!canStart() || started){
-			int offset = fm.getHeight();
+			int offset = g.getFontMetrics(Theme.PRIDI_REGULAR_18).getHeight();
 			g.setFont(Theme.PRIDI_REGULAR_12);
 			fm = g.getFontMetrics();
 			g.setColor(Theme.ADD_COLOR);
