@@ -4,6 +4,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class InfoMenu extends Screen{
 	 * Height of the credits box.
 	 */
 	private static final int CREDITS_HEIGHT = 174;
+	private static final double KEY_WIDTH = 31.0D;
 	/**
 	 * The latest version of the program.
 	 */
@@ -80,18 +82,75 @@ public class InfoMenu extends Screen{
 		renderMenuTitle(g, width, "Information");
 		drawTitle(g, width);
 		
+		//TODO magic
+		double keysHeight = 150.0D;
+		
 		double size = Screen.getMaxWidth(width, 0.9D, MAX_WIDTH);
 		double offset = (width - size) / 2.0D;
 		g.translate(0, Screen.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		double boxWidth = (size - BOX_SPACING) / 2.0D;
 		Paint gradient = Theme.constructBorderGradient(game, width);
-		double rulesHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
+		double rulesHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING * 2.0D - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET - keysHeight;
 		double exampleBoxHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
 		
 		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, offset, 0.0D, boxWidth, rulesHeight);
 		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, CREDITS_HEIGHT);
-		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, VERSION_HEIGHT);
+		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING * 2.0D + keysHeight, boxWidth, VERSION_HEIGHT);
+		renderKeys(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, keysHeight);
+	}
+	
+	/**
+	 * Renders the shortcuts box.
+	 * @param g The graphics context to use.
+	 * @param gradient The paint to use to draw the gradient of the box.
+	 * @param x The x position to render the box at.
+	 * @param y The y position to render the box at.
+	 * @param w The width of the box to render.
+	 * @param h The height of the box to render.
+	 */
+	private void renderKeys(Graphics2D g, Paint gradient, double x, double y, double w, double h){
+		drawTitledBox(g, gradient, x, y, w, h, "Shortcuts");
+		
+		g.setFont(Theme.PRIDI_REGULAR_14);
+		FontMetrics fm = g.getFontMetrics();
+		
+		x += BOX_INSETS;
+		y += BOX_HEADER_HEIGHT + BOX_TEXT_OFFSET * 2.0D;
+		drawKeyFrame(g, x, y, "F11");
+		g.drawString("FullScreen", (float)(x + KEY_WIDTH + SPACING), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "R");
+		g.drawString("Game Progress", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "C");
+		g.drawString("Show Centroids", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "D");
+		g.drawString("Vertical Decomposition", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+	}
+	
+	/**
+	 * Renders a keyboard key in a frame.
+	 * @param g The graphics context to use.
+	 * @param x The x position to render the frame at.
+	 * @param y The y position to render the frame at.
+	 * @param key The key to put in the box.
+	 */
+	private void drawKeyFrame(Graphics2D g, double x, double y, String key){
+		Path2D box = computeBox(x, y, KEY_WIDTH, 22.0D, 5.0D);
+		g.setColor(Theme.LIGHTEN);
+		g.fill(box);
+		g.setColor(Theme.DOUBLE_LIGHTEN);
+		g.setStroke(Theme.BORDER_STROKE);
+		g.draw(box);
+		
+		FontMetrics fm = g.getFontMetrics();
+		g.setColor(Theme.BOX_TEXT_COLOR);
+		g.drawString(key, (float)(x + (KEY_WIDTH - fm.stringWidth(key)) / 2.0D), (float)(y + fm.getAscent()));
 	}
 	
 	/**
@@ -131,9 +190,9 @@ public class InfoMenu extends Screen{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		FontMetrics fm = g.getFontMetrics();
 		
-		y += Screen.BOX_HEADER_HEIGHT + 1;
+		y += BOX_HEADER_HEIGHT + 1;
 		y += fm.getAscent();
-		x += Screen.BOX_TEXT_OFFSET;
+		x += BOX_INSETS;
 		for(Entry<String, String> entry : credits){
 			g.setColor(Theme.BOX_TEXT_COLOR);
 			String name = entry.getKey();
@@ -161,27 +220,27 @@ public class InfoMenu extends Screen{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		g.setColor(Theme.BOX_TEXT_COLOR);
 		FontMetrics fm = g.getFontMetrics();
-		h -= Screen.BOX_HEADER_HEIGHT + 1 + Screen.BOX_INSETS;
-		double rulesWidth = w - 2 * Screen.BOX_TEXT_OFFSET;
+		h -= BOX_HEADER_HEIGHT + 1 + BOX_INSETS;
+		double rulesWidth = w - 2 * BOX_INSETS;
 		
 		//intro
-		int dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET, Screen.BOX_HEADER_HEIGHT + 1, (int)rulesWidth, (int)h, rules.get(0));
+		int dy = fillText(g, (int)x + BOX_INSETS, BOX_HEADER_HEIGHT + 1, (int)Math.ceil(rulesWidth), (int)h, rules.get(0));
 		
 		//act 1
 		g.setColor(Theme.BOX_SECONDARY_COLOR);
-		g.drawString("1. ", (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight());
+		g.drawString("1. ", (int)x + BOX_INSETS, dy + fm.getHeight());
 		int offset = fm.stringWidth("1. ");
 		g.setColor(Theme.BOX_TEXT_COLOR);
-		dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(1));
+		dy = fillText(g, (int)x + BOX_INSETS + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(1));
 		
 		//act 2
 		g.setColor(Theme.BOX_SECONDARY_COLOR);
-		g.drawString("2. ", (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight());
+		g.drawString("2. ", (int)x + BOX_INSETS, dy + fm.getHeight());
 		g.setColor(Theme.BOX_TEXT_COLOR);
-		dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(2));
+		dy = fillText(g, (int)x + BOX_INSETS + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(2));
 
 		//end
-		fillText(g, (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + fm.getHeight()), rules.get(3));
+		fillText(g, (int)x + BOX_INSETS, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + fm.getHeight()), rules.get(3));
 	}
 	
 	/**
