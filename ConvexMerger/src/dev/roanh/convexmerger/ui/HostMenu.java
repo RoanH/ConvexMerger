@@ -18,6 +18,10 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  */
 public class HostMenu extends NewGameMenu implements InternalServerListener{
 	/**
+	 * Last name used by the host.
+	 */
+	private static String lastHostName = null;
+	/**
 	 * The multiplayer server.
 	 */
 	private InternalServer server;
@@ -87,7 +91,14 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		 */
 		private HostPanel(PlayerTheme theme){
 			super(theme);
-			setHuman(null);
+			setHuman(lastHostName);
+		}
+		
+		@Override
+		protected Optional<Player> getPlayer(){
+			Optional<Player> player = super.getPlayer();
+			player.map(Player::getName).ifPresent(name->lastHostName = name);
+			return player;
 		}
 		
 		@Override
