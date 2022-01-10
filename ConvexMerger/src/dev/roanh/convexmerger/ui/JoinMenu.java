@@ -1,8 +1,10 @@
 package dev.roanh.convexmerger.ui;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +17,14 @@ import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 public class JoinMenu extends Screen{
+	/**
+	 * Maximum width used by the boxes.
+	 */
+	private static final int MAX_WIDTH = 1200;
+	/**
+	 * Height of the connect button.
+	 */
+	private static final double CONNECT_HEIGHT = 100.0D;
 	private static String lastHost = "";
 	private static String lastName = System.getProperty("user.name", "Player 1");
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -24,6 +34,7 @@ public class JoinMenu extends Screen{
 	private Player self;
 	private volatile boolean connecting = false;
 	private volatile String msg = "Enter connection details...";
+	private Path2D connect;
 	
 	protected JoinMenu(ConvexMerger context){
 		super(context);
@@ -37,18 +48,33 @@ public class JoinMenu extends Screen{
 		renderMenuTitle(g, width, "Join Multiplayer");
 		drawTitle(g, width);
 		
-		name.render(g, 100.0D, 200.0D, 200.0D, 20.0D);
-		host.render(g, 100.0D, 230.0D, 200.0D, 20.0D);
-		g.setColor(Color.WHITE);
+		double size = getMaxWidth(width, 0.8D, MAX_WIDTH);
+		double offset = (width - size) / 2.0D;
+		
+		double boxSize = 100.0D;
+		double fieldWidth = 200.0D;
+		double fieldHeight = 20.0D;
+		double y = TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D;
+		drawTitledBox(g, Theme.constructBorderGradient(null, width), offset, y, size, boxSize, "Enter Details");
+		
 		g.setFont(Theme.PRIDI_MEDIUM_14);
-		g.drawString(msg, 100.0F, 265.0F);
-		g.drawString("Name: ", 50.0F, 215.0F);
-		g.drawString("Host: ", 50.0F, 245.0F);
-		g.drawString("Status: ", 50.0F, 265.0F);
+		FontMetrics fm = g.getFontMetrics();
+		name.render(g, offset + size / 2.0D - fieldWidth - BOX_SPACING, y + BOX_HEADER_HEIGHT + BOX_SPACING * 2.0D, fieldWidth, fieldHeight);
+		host.render(g, offset + size / 2.0D + fm.stringWidth("Host") + SPACING + BOX_SPACING, y + BOX_HEADER_HEIGHT + BOX_SPACING * 2.0D, fieldWidth, fieldHeight);
+
+		g.setColor(Color.WHITE);
+		g.drawString("Name", (float)(offset + size / 2.0D - fieldWidth - BOX_SPACING - fm.stringWidth("Name") - SPACING), (float)(y + BOX_HEADER_HEIGHT + BOX_SPACING * 2.0D + fieldHeight - fm.getMaxDescent()));
+		g.drawString("Host", (float)(offset + size / 2.0D + BOX_SPACING), (float)(y + BOX_HEADER_HEIGHT + BOX_SPACING * 2.0D + fieldHeight - fm.getMaxDescent()));
+		
+		y += boxSize + BOX_SPACING;
+		connect = drawButton(g, "Connect", offset + (size / 3.0D), y, (size / 3.0D), CONNECT_HEIGHT, connecting ? null : mouseLoc);
+		g.setFont(Theme.PRIDI_REGULAR_12);
+		fm = g.getFontMetrics();
+		g.setColor(Theme.ADD_COLOR);
+		g.drawString(msg, (float)(offset + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth(msg)) / 2.0D), (float)(y + g.getFontMetrics(Theme.PRIDI_REGULAR_18).getHeight() + (CONNECT_HEIGHT - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
 	}
 
-	@Override
-	protected void handleRightButtonClick(){
+	private void connect(){
 		name.removeFocus();
 		host.removeFocus();
 		self = new HumanPlayer(name.getText());
@@ -57,7 +83,6 @@ public class JoinMenu extends Screen{
 		executor.submit(()->{
 			try{
 				con = ClientConnection.connect(host.getText(), self);
-				
 				if(con.isConnected()){
 					lastHost = host.getText();
 					lastName = self.getName();
@@ -81,8 +106,18 @@ public class JoinMenu extends Screen{
 	@Override
 	public void handleKeyPressed(KeyEvent event){
 		if(!connecting){
-			name.handleKeyEvent(event);
-			host.handleKeyEvent(event);
+			if(event.getKeyCode() == KeyEvent.VK_TAB){
+				if(name.hasFocus()){
+					name.removeFocus();
+					host.giveFocus();
+				}else if(host.hasFocus()){
+					host.removeFocus();
+					name.giveFocus();
+				}
+			}else{
+				name.handleKeyEvent(event);
+				host.handleKeyEvent(event);
+			}
 		}
 	}
 	
@@ -92,6 +127,9 @@ public class JoinMenu extends Screen{
 		if(!connecting){
 			name.handleMouseClick(loc);
 			host.handleMouseClick(loc);
+			if(connect.contains(loc)){
+				connect();
+			}
 		}
 	}
 
@@ -102,7 +140,7 @@ public class JoinMenu extends Screen{
 
 	@Override
 	protected boolean isRightButtonEnabled(){
-		return !connecting;//TODO remove
+		return false;
 	}
 
 	@Override
@@ -112,7 +150,7 @@ public class JoinMenu extends Screen{
 
 	@Override
 	protected String getRightButtonText(){
-		return "Connect";//TODO remove
+		return null;
 	}
 
 	@Override
@@ -121,6 +159,10 @@ public class JoinMenu extends Screen{
 			con.close();
 		}
 		executor.shutdownNow();
-		switchScene(new MainMenu(this.getContext()));		
+		switchScene(new MainMenu(this.getContext()));
+	}
+
+	@Override
+	protected void handleRightButtonClick(){
 	}
 }

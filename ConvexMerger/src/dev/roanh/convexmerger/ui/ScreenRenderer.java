@@ -45,6 +45,7 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addKeyListener(this);
+		this.setFocusTraversalKeysEnabled(false);
 		setScreen(screen);
 	}
 	
