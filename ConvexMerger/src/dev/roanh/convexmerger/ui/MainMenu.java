@@ -9,14 +9,39 @@ import java.awt.geom.Point2D;
  * @author Roan
  */
 public class MainMenu extends Screen{
+	/**
+	 * Width of the buttons.
+	 */
 	private static final double BUTTON_WIDTH = 250.0D;
+	/**
+	 * Height of the buttons.
+	 */
 	private static final double BUTTON_HEIGHT = 70.0D;
+	/**
+	 * Bounds of the multiplayer join button.
+	 */
 	private Path2D join = new Path2D.Double();
+	/**
+	 * Bounds of the multiplayer host button.
+	 */
 	private Path2D host = new Path2D.Double();
+	/**
+	 * Bounds of the single player button.
+	 */
 	private Path2D single = new Path2D.Double();
+	/**
+	 * Bounds of the info button.
+	 */
 	private Path2D info = new Path2D.Double();
+	/**
+	 * Bounds of the quit button.
+	 */
 	private Path2D quit = new Path2D.Double();
 
+	/**
+	 * Constructs a new main menu with the given game context.
+	 * @param context The game context.
+	 */
 	protected MainMenu(ConvexMerger context){
 		super(context);
 	}
