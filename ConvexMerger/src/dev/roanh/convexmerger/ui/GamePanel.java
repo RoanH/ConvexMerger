@@ -34,6 +34,14 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private static final int PLAYER_TEXT_OFFSET = 24;
 	/**
+	 * Message dialog width.
+	 */
+	private static final double DIALOG_WIDTH = 270.0D;
+	/**
+	 * Message dialog height.
+	 */
+	private static final double DIALOG_HEIGHT = 110.0D;
+	/**
 	 * The game state to visualise.
 	 */
 	private GameState state = null;
@@ -80,12 +88,17 @@ public final class GamePanel extends Screen implements GameStateListener{
 		//render UI shapes
 		renderInterface(g, width, height);
 		
-		//TODO temp dialog
+		//dialog
 		if(activeDialog != null){
-			//TODO center and make look nice
-			g.drawString(activeDialog.getTitle(), 100, 10 + 120);
-			g.drawString(activeDialog.getMessage(), 100, 30 + 120);
-			g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
+			double offset = (width - DIALOG_WIDTH) / 2.0D;
+			drawTitledBox(g, Theme.constructBorderGradient(state, width), offset, TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D, DIALOG_WIDTH, DIALOG_HEIGHT, activeDialog.getTitle());
+			g.setColor(Theme.BOX_TEXT_COLOR);
+			g.setFont(Theme.PRIDI_REGULAR_14);
+			int end = fillText(g, (int)(offset + BOX_INSETS + BOX_TEXT_OFFSET), TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2 + BOX_HEADER_HEIGHT + BOX_TEXT_OFFSET, (int)(DIALOG_WIDTH - BOX_INSETS * 2.0D - BOX_TEXT_OFFSET * 2.0D), (int)(DIALOG_HEIGHT - BOX_HEADER_HEIGHT - BOX_TEXT_OFFSET), activeDialog.getMessage());
+			end += g.getFontMetrics().getHeight();
+			g.setFont(Theme.PRIDI_MEDIUM_14);
+			g.setColor(Theme.BOX_SECONDARY_COLOR);
+			g.drawString("(Click anywhere to dismiss)", (width - g.getFontMetrics().stringWidth("(Click anywhere to dismiss)")) / 2.0F, end);
 		}
 
 		//render results
@@ -198,6 +211,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 		
 		g.setTransform(transform);
 		g.setClip(null);
+		
+		if(activeDialog != null){
+			g.setColor(Theme.OVERLAY_BACKGROUND);
+			g.fillRect(0, 0, width, height);
+		}
 	}
 	
 	/**
