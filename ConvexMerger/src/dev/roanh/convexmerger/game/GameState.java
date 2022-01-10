@@ -415,13 +415,21 @@ public class GameState{
 	public void clearSelection(){
 		selected = null;
 	}
+
+	/**
+	 * Signals that this game was forcefully terminated
+	 * before it was supposed to finish.
+	 */
+	public void abort(){
+		listeners.forEach(GameStateListener::abort);
+	}
 	
 	/**
 	 * Interface that receives game state updates.
 	 * @author Roan
 	 */
 	public static abstract interface GameStateListener{
-
+		
 		/**
 		 * Called when a player claims a new object.
 		 * @param player The player that made the claim.
@@ -441,5 +449,10 @@ public class GameState{
 		 * Called when the game ends.
 		 */
 		public abstract void end();
+		
+		/**
+		 * Called when the game is aborted (forcefully terminated).
+		 */
+		public abstract void abort();
 	}
 }

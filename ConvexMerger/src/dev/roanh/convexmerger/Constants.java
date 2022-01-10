@@ -8,6 +8,10 @@ import java.awt.geom.Rectangle2D;
  */
 public final class Constants{
 	/**
+	 * Current game version.
+	 */
+	public static final String VERSION = "v1.0";//don't forget build.gradle
+	/**
 	 * Game and window title.
 	 */
 	public static final String TITLE = "Convex Merger";
@@ -37,11 +41,11 @@ public final class Constants{
 	 */
 	public static final long ANIMATION_RATE = 33;
 	/**
-	 * Number of milliseconds before an AI turn.
+	 * Minimum number of milliseconds any turn should take.
 	 */
-	public static final long AI_TURN_TIME = 400;
+	public static final long MIN_TURN_TIME = 400;
 	/**
-	 * Current game version.
+	 * Multiplayer server port.
 	 */
-	public static final String VERSION = "v1.0";//don't forget build.gradle
+	public static final int PORT = 11111;
 }

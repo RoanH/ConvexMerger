@@ -26,30 +26,6 @@ import dev.roanh.convexmerger.player.Player;
  */
 public final class GamePanel extends Screen implements GameStateListener{
 	/**
-	 * Height of the top score display part of the game panel.
-	 */
-	public static final int TOP_SPACE = 100;
-	/**
-	 * Offset from the side to the playfield rectangle.
-	 */
-	public static final int SIDE_OFFSET = 20 + 1;
-	/**
-	 * Offset from the score display part of the game panel to the playfield rectangle.
-	 */
-	public static final int TOP_OFFSET = 30 + 1;
-	/**
-	 * Offset from the bottom to the playfield rectangle.
-	 */
-	public static final int BOTTOM_OFFSET = 50 + 1;
-	/**
-	 * Width of the middle text area attached to the top part.
-	 */
-	public static final int TOP_MIDDLE_WIDTH = 200;
-	/**
-	 * Text offset from the bottom in the top middle text area.
-	 */
-	public static final int TOP_MIDDLE_TEXT_OFFSET = 2;
-	/**
 	 * Number of pixels between the player icon and the text.
 	 */
 	private static final int ICON_TEXT_SPACING = 4;
@@ -252,8 +228,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	protected void handleLeftButtonClick(){
 		//TODO menu
-		System.out.println("To main menu");
 		this.getContext().abortGame();
+		switchScene(new MainMenu(this.getContext()));
 	}
 
 	@Override
@@ -346,5 +322,9 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	public void end(){
 		resultOverlay.setEnabled(true);
+	}
+
+	@Override
+	public void abort(){
 	}
 }

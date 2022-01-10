@@ -11,7 +11,6 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -19,11 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.GameConstructor;
 import dev.roanh.convexmerger.game.GameState;
-import dev.roanh.convexmerger.game.PlayfieldGenerator;
-import dev.roanh.convexmerger.net.ClientConnection;
-import dev.roanh.convexmerger.net.InternalServer;
-import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
 
 /**
@@ -31,8 +27,17 @@ import dev.roanh.convexmerger.player.Player;
  * @author Roan
  */
 public class ConvexMerger{
+	/**
+	 * Application main frame.
+	 */
 	private JFrame frame = new JFrame(Constants.TITLE);
+	/**
+	 * The renderer rending the active game screen.
+	 */
 	private ScreenRenderer renderer = new ScreenRenderer(new MainMenu(this));
+	/**
+	 * The thread running the active game (if any).
+	 */
 	private GameThread gameThread;
 	
 	public void showGame(){
@@ -49,8 +54,7 @@ public class ConvexMerger{
 				ImageIO.read(ClassLoader.getSystemResourceAsStream("assets/logo/256.png"))
 			));
 		}catch(IOException e1){
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			//not important and internally resources should load
 		}
 		
 		frame.add(content);
@@ -58,12 +62,12 @@ public class ConvexMerger{
 		frame.pack();
 		Insets insets = frame.getInsets();
 		frame.setMinimumSize(new Dimension(
-			16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * GamePanel.SIDE_OFFSET,
-			GamePanel.TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + GamePanel.TOP_OFFSET + GamePanel.BOTTOM_OFFSET)
+			16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * Screen.SIDE_OFFSET,
+			Screen.TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + Screen.TOP_OFFSET + Screen.BOTTOM_OFFSET)
 		);
 		frame.setSize(new Dimension(
-			16 * Constants.INIT_SIZE + insets.left + insets.right + 2 * GamePanel.SIDE_OFFSET,
-			GamePanel.TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom + GamePanel.TOP_OFFSET + GamePanel.BOTTOM_OFFSET)
+			16 * Constants.INIT_SIZE + insets.left + insets.right + 2 * Screen.SIDE_OFFSET,
+			Screen.TOP_SPACE + 9 * Constants.INIT_SIZE + insets.top + insets.bottom + Screen.TOP_OFFSET + Screen.BOTTOM_OFFSET)
 		);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
@@ -98,69 +102,32 @@ public class ConvexMerger{
 		});
 	}
 	
-	public void initialiseGame(PlayfieldGenerator gen, List<Player> players){
-		gameThread = new GameThread(gen, players);
+	public void exit(){
+		frame.dispose();
+	}
+	
+	/**
+	 * Initialises a new game with the given game constructor.
+	 * @param ctor The constructor to build the game.
+	 */
+	public void initialiseGame(GameConstructor ctor){
+		gameThread = new GameThread(ctor);
 		gameThread.start();
 	}
 	
-	public void hostMultiplayerGame(){
-		frame.setTitle(Constants.TITLE + " [Server]");
-		Player self = new HumanPlayer("Player 1");
-		PlayfieldGenerator gen = new PlayfieldGenerator();
-		gen.setRange(50, 100);
-		gen.setScaling(200);
-		
-		InternalServer server = new InternalServer(self, gen, player->{
-			System.out.println("new player joined with name " + player.getName() + " and id " + player.getID());
-		}, e->System.err.println("Server died: " + e.getMessage()));
-		
-		while(server.getPlayerCount() < 2){
-			try{
-				Thread.sleep(1000);
-			}catch(InterruptedException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		System.out.println("player count hit start game");
-		
-		GameState state = server.startGame();
-		//TODO initialiseGame(state);
-		showGame();
-	}
-	
-	public void joinMultiplayerGame(){
-		try{
-			frame.setTitle(Constants.TITLE + " [Client]");
-			Player player = new HumanPlayer("Player 1");
-			ClientConnection con = ClientConnection.connect("localhost", player);
-			if(!con.isConnected()){
-				System.out.println("Connection failed with reason: " + con.getRejectReason());
-				return;
-			}
-			
-			con.setDisconnectHandler(e->{
-				System.err.println("Connection to server lost: " + e.getMessage());
-			});
-			
-			System.out.println("connected as client with player id " + player.getID());
-			
-			GameState state = con.getGameState();
-			
-			//TODO initialiseGame(state);
-			showGame();
-			
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+	/**
+	 * Switches the scene being displayed to the user
+	 * to the given screen.
+	 * @param next The new screen to display.
+	 * @return The previous screen on display.
+	 */
 	public Screen switchScene(Screen next){
 		return renderer.setScreen(next);
 	}
 	
+	/**
+	 * Aborts the active game, if any.
+	 */
 	public void abortGame(){
 		if(gameThread != null){
 			gameThread.interrupt();
@@ -173,36 +140,45 @@ public class ConvexMerger{
 	 * @author Roan
 	 */
 	private final class GameThread extends Thread{
-		private PlayfieldGenerator gen;
-		private List<Player> players;
+		/**
+		 * The constructor to use to create the game state.
+		 */
+		private GameConstructor ctor;
 		
-		private GameThread(PlayfieldGenerator gen, List<Player> players){
+		/**
+		 * Constructs a new game thread with the given game constructor.
+		 * @param ctor The constructor to create the game state with.
+		 */
+		private GameThread(GameConstructor ctor){
 			this.setName("GameThread");
 			this.setDaemon(true);
-			this.gen = gen;
-			this.players = players;
+			this.ctor = ctor;
 		}
 		
 		@Override
 		public void run(){
+			GameState state = ctor.create();
 			try{
-				GameState state = new GameState(gen, players);
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
 				
 				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();
-					if(player.isAI()){
-						Thread.sleep(Constants.AI_TURN_TIME);
-					}
+					
 					long start = System.currentTimeMillis();
 					state.executePlayerTurn();
-					player.getStats().addTurnTime(System.currentTimeMillis() - start);
+					long duration = System.currentTimeMillis() - start;
+					player.getStats().addTurnTime(duration);
+					if(duration < Constants.MIN_TURN_TIME){
+						Thread.sleep(Constants.MIN_TURN_TIME - duration);
+					}
+					
 					frame.repaint();
 				}
 			}catch(InvocationTargetException e){
 				//never happens
 			}catch(InterruptedException e){
 				//happens when the game is aborted
+				state.abort();
 			}
 		}
 	}

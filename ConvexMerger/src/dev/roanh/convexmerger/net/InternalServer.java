@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.Game;
+import dev.roanh.convexmerger.game.GameConstructor;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
@@ -27,47 +27,65 @@ import dev.roanh.convexmerger.net.packet.PacketPlayerJoinReject.RejectReason;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.player.RemotePlayer;
 
+/**
+ * Server responsible for hosting multiplayer games.
+ * @author Roan
+ */
 public class InternalServer implements GameStateListener{
-	public static final int PORT = 11111;
-	private Game game;
+	/**
+	 * Thread executing the main server logic.
+	 */
 	private ServerThread thread = new ServerThread();
-	private Consumer<Player> playerHandler;
-	private Consumer<Exception> exceptionHandler;
+	/**
+	 * Listener to send server events to.
+	 */
+	private InternalServerListener handler;
 	
-	public InternalServer(Player self, PlayfieldGenerator gen, Consumer<Player> handler, Consumer<Exception> exceptionHandler){
-		playerHandler = handler;
-		this.exceptionHandler = exceptionHandler;
-		game = new Game(gen);
-		game.addPlayer(self);
+	/**
+	 * Constructs a new server with the given listener.
+	 * @param handler The event listener.
+	 */
+	public InternalServer(InternalServerListener handler){
+		this.handler = handler;
 		thread.start();
 	}
 	
-	public int getPlayerCount(){
-		return game.getPlayerCount();
-	}
-	
-	public GameState startGame(){
+	/**
+	 * Immediately shuts down this server and closes
+	 * all the connections it had open.
+	 */
+	public void shutdown(){
 		thread.shutdown();
-		GameState state = game.toGameState();
-		thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
-		
-		state.registerStateListener(this);
-		return state;
+		thread.close();
 	}
 	
-	public void setNewPlayerHandler(Consumer<Player> handler){
-		playerHandler = handler;
-	}
+	/**
+	 * Gets the game constructor required to start
+	 * a game with the given set of players and with
+	 * the given playfield generator. After this
+	 * is called no new connections will be accepted anymore.
+	 * @param players The list of participating players.
+	 * @param gen The playfield generator.
+	 * @return The game state constructor for the game.
+	 */
+	public GameConstructor startGame(List<Player> players, PlayfieldGenerator gen){
+		thread.shutdown();
 
+		return ()->{
+			GameState state = new GameState(gen, players);
+			thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
+			state.registerStateListener(this);
+			return state;
+		};
+	}
+	
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		System.out.println("send claim for: " + player.getName());
 		thread.broadCast(player, new PacketPlayerMove(player, obj));
 	}
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target){
-		System.out.println("send merge for: " + player.getName());
 		thread.broadCast(player, new PacketPlayerMove(player, source, target));
 	}
 
@@ -77,23 +95,62 @@ public class InternalServer implements GameStateListener{
 		thread.close();
 	}
 	
+	@Override
+	public void abort(){
+		thread.close();
+	}
+	
+	/**
+	 * Main thread managing all connections and initially
+	 * responsible for accepting joining players.
+	 * @author Roan
+	 */
 	private class ServerThread extends Thread{
+		/**
+		 * Executor service used to handle incoming connections.
+		 */
 		private ExecutorService executor = Executors.newFixedThreadPool(4);
+		/**
+		 * Main server socket.
+		 */
 		private ServerSocket server;
+		/**
+		 * Map of active connections indexed by player ID.
+		 */
 		private Map<Integer, Connection> connections = new HashMap<Integer, Connection>();
+		/**
+		 * Whether the server is running and accepting new connections.
+		 */
 		private volatile boolean running = false;
+		/**
+		 * The ID to assign to the next valid player. ID 1 is reseved
+		 * for the player hosting the game.
+		 */
+		private volatile int nextID = 2;
 		
+		/**
+		 * Constructs a new server thread.
+		 */
 		private ServerThread(){
 			this.setName("InternalServerThread");
 			this.setDaemon(true);
 		}
 		
+		/**
+		 * Closes all connections held by this server thread.
+		 */
 		private void close(){
 			for(Connection con : connections.values()){
 				con.close();
 			}
 		}
 		
+		/**
+		 * Broadcasts a packet to all connected players
+		 * except for the given source player.
+		 * @param source The player to exclude.
+		 * @param packet The packet to send.
+		 */
 		private void broadCast(Player source, Packet packet){
 			for(Entry<Integer, Connection> entry : connections.entrySet()){
 				if(entry.getKey() != source.getID() && !entry.getValue().isClosed()){
@@ -107,6 +164,10 @@ public class InternalServer implements GameStateListener{
 			}
 		}
 		
+		/**
+		 * Broadcasts a packet to all connected players.
+		 * @param packet The packet to send.
+		 */
 		private void broadCast(Packet packet){
 			for(Connection con : connections.values()){
 				if(!con.isClosed()){
@@ -120,6 +181,11 @@ public class InternalServer implements GameStateListener{
 			}
 		}
 		
+		/**
+		 * Shuts down the part of this server responsible
+		 * for accepting incoming players. Connected players
+		 * will still remain connected.
+		 */
 		private void shutdown(){
 			running = false;
 			try{
@@ -129,6 +195,10 @@ public class InternalServer implements GameStateListener{
 			}
 		}
 		
+		/**
+		 * Handles an incoming client connection.
+		 * @param socket The client socket.
+		 */
 		private void handleClient(Socket socket){
 			try{
 				Connection con = new Connection(socket);
@@ -146,14 +216,13 @@ public class InternalServer implements GameStateListener{
 					return;
 				}
 				
-				synchronized(game){
-					if(game.getPlayerCount() < 4 && running){
+				synchronized(handler){
+					if(nextID <= 4 && running){
 						Player player = new RemotePlayer(con, false, data.getName());
-						con.sendPacket(new PacketPlayerJoinAccept(game.addPlayer(player)));
+						player.setID(nextID++);
+						con.sendPacket(new PacketPlayerJoinAccept(player.getID()));
 						connections.put(player.getID(), con);
-						if(playerHandler != null){
-							playerHandler.accept(player);
-						}
+						handler.handlePlayerJoin(player);
 					}else{
 						con.sendPacket(new PacketPlayerJoinReject(RejectReason.FULL));
 					}
@@ -171,17 +240,36 @@ public class InternalServer implements GameStateListener{
 		public void run(){
 			try{
 				running = true;
-				System.out.println("Server started on port: " + PORT);
-				server = new ServerSocket(PORT);
+				server = new ServerSocket(Constants.PORT);
 				while(running){
 					final Socket s = server.accept();
 					executor.submit(()->handleClient(s));
 				}
 			}catch(IOException e){
 				if(running){
-					exceptionHandler.accept(e);
+					handler.handleException(e);
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Interface that receives server events.
+	 * @author Roan
+	 */
+	public static abstract interface InternalServerListener{
+		
+		/**
+		 * Called when a new player joined the server.
+		 * @param player The player that joined.
+		 */
+		public abstract void handlePlayerJoin(Player player);
+		
+		/**
+		 * Called when the server encountered a fatal exception
+		 * while accepting incoming player connections.
+		 * @param e The exception that occurred.
+		 */
+		public abstract void handleException(Exception e);
 	}
 }

@@ -55,16 +55,34 @@ public class TextField{
 	}
 	
 	/**
+	 * Sets the text for this text field.
+	 * @param text The new text or <code>
+	 *        null</code> to clear the text.
+	 */
+	public void setText(String text){
+		this.text = text == null ? "" : text;
+	}
+	
+	/**
+	 * Removes the focus from this text field.
+	 */
+	public void removeFocus(){
+		focus = false;
+	}
+	
+	/**
 	 * Handles a key event on this text field.
 	 * @param event The event to handle.
 	 */
 	public void handleKeyEvent(KeyEvent event){
-		if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
-			if(!text.isEmpty()){
-				text = text.substring(0, text.length() - 1);
+		if(hasFocus()){
+			if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+				if(!text.isEmpty()){
+					text = text.substring(0, text.length() - 1);
+				}
+			}else if(event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
+				text += event.getKeyChar();
 			}
-		}else if(event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
-			text += event.getKeyChar();
 		}
 	}
 	
