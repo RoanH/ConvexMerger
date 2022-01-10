@@ -45,6 +45,13 @@ public class InfoMenu extends Screen{
 	 * Height of the credits box.
 	 */
 	private static final int CREDITS_HEIGHT = 174;
+	/**
+	 * Height of the shortcuts box.
+	 */
+	private static final int KEYS_HEIGHT = 150;
+	/**
+	 * Width of a keyboard key frame.
+	 */
 	private static final double KEY_WIDTH = 31.0D;
 	/**
 	 * The latest version of the program.
@@ -82,22 +89,19 @@ public class InfoMenu extends Screen{
 		renderMenuTitle(g, width, "Information");
 		drawTitle(g, width);
 		
-		//TODO magic
-		double keysHeight = 150.0D;
-		
 		double size = Screen.getMaxWidth(width, 0.9D, MAX_WIDTH);
 		double offset = (width - size) / 2.0D;
 		g.translate(0, Screen.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		double boxWidth = (size - BOX_SPACING) / 2.0D;
 		Paint gradient = Theme.constructBorderGradient(game, width);
-		double rulesHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING * 2.0D - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET - keysHeight;
+		double rulesHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING * 2.0D - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET - KEYS_HEIGHT;
 		double exampleBoxHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
 		
 		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
 		renderRules(g, gradient, offset, 0.0D, boxWidth, rulesHeight);
 		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, CREDITS_HEIGHT);
-		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING * 2.0D + keysHeight, boxWidth, VERSION_HEIGHT);
-		renderKeys(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, keysHeight);
+		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING * 2.0D + KEYS_HEIGHT, boxWidth, VERSION_HEIGHT);
+		renderKeys(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, KEYS_HEIGHT);
 	}
 	
 	/**
