@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -42,6 +43,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private static final double DIALOG_HEIGHT = 110.0D;
 	/**
+	 * Dialog yes/no button height.
+	 */
+	private static final double BUTTON_HEIGHT = 25.0D;
+	/**
 	 * The game state to visualise.
 	 */
 	private GameState state = null;
@@ -65,6 +70,14 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Result overlay.
 	 */
 	private ResultOverlay resultOverlay;
+	/**
+	 * Quit dialog yes button.
+	 */
+	private Path2D quitYes = new Path2D.Double();
+	/**
+	 * Quit dialog no button.
+	 */
+	private Path2D quitNo = new Path2D.Double();
 	
 	/**
 	 * Constructs a new game panel with the given game context.
@@ -97,8 +110,30 @@ public final class GamePanel extends Screen implements GameStateListener{
 			int end = fillText(g, (int)(offset + BOX_INSETS + BOX_TEXT_OFFSET), TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2 + BOX_HEADER_HEIGHT + BOX_TEXT_OFFSET, (int)(DIALOG_WIDTH - BOX_INSETS * 2.0D - BOX_TEXT_OFFSET * 2.0D), (int)(DIALOG_HEIGHT - BOX_HEADER_HEIGHT - BOX_TEXT_OFFSET), activeDialog.getMessage());
 			end += g.getFontMetrics().getHeight();
 			g.setFont(Theme.PRIDI_MEDIUM_14);
-			g.setColor(Theme.BOX_SECONDARY_COLOR);
-			g.drawString("(Click anywhere to dismiss)", (width - g.getFontMetrics().stringWidth("(Click anywhere to dismiss)")) / 2.0F, end);
+			if(activeDialog == MessageDialog.QUIT){
+				end -= SPACING;
+				FontMetrics fm = g.getFontMetrics();
+				quitYes = computeBox(offset + DIALOG_WIDTH / 9.0D, end, DIALOG_WIDTH / 3.0D, BUTTON_HEIGHT, 5.0D);
+				g.setColor(quitYes.contains(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(quitYes);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.setStroke(Theme.BUTTON_STROKE);
+				g.draw(quitYes);
+				g.setColor(quitYes.contains(mouseLoc) ? Theme.REMOVE_BUTTON_HIGHLIGHT : Theme.ADD_COLOR);
+				g.drawString("Yes", (float)(offset + DIALOG_WIDTH / 9.0D + (DIALOG_WIDTH / 3.0D - fm.stringWidth("Yes")) / 2.0D), (float)(end + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent()) / 2.0D));
+				
+				quitNo = computeBox(offset + (DIALOG_WIDTH * 5.0D) / 9.0D, end, DIALOG_WIDTH / 3.0D, BUTTON_HEIGHT, 5.0D);
+				g.setColor(quitNo.contains(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(quitNo);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.setStroke(Theme.BUTTON_STROKE);
+				g.draw(quitNo);
+				g.setColor(quitNo.contains(mouseLoc) ? Theme.REMOVE_BUTTON_HIGHLIGHT : Theme.ADD_COLOR);
+				g.drawString("No", (float)(offset + (DIALOG_WIDTH * 5.0D) / 9.0D + (DIALOG_WIDTH / 3.0D - fm.stringWidth("No")) / 2.0D), (float)(end + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent()) / 2.0D));
+			}else{
+				g.setColor(Theme.BOX_SECONDARY_COLOR);
+				g.drawString("(Click anywhere to dismiss)", (width - g.getFontMetrics().stringWidth("(Click anywhere to dismiss)")) / 2.0F, end);
+			}
 		}
 
 		//render results
@@ -245,9 +280,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 	
 	@Override
 	protected void handleLeftButtonClick(){
-		//TODO menu
-		this.getContext().abortGame();
-		switchScene(new MainMenu(this.getContext()));
+		if(state.isFinished()){
+			this.getContext().abortGame();
+			switchScene(new MainMenu(this.getContext()));
+		}else{
+			activeDialog = MessageDialog.QUIT;
+		}
 	}
 
 	@Override
@@ -262,8 +300,20 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 		
 		if(activeDialog != null){
-			activeDialog = null;
-		}else if(state.getActivePlayer().requireInput() && !state.isFinished()){
+			if(activeDialog == MessageDialog.QUIT){
+				if(quitNo.contains(point)){
+					activeDialog = null;
+				}else if(quitYes.contains(point)){
+					this.getContext().abortGame();
+					switchScene(new MainMenu(this.getContext()));
+				}
+			}else{
+				activeDialog = null;
+			}
+			return;
+		}
+		
+		if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
@@ -293,6 +343,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	public void handleKeyReleased(KeyEvent e){
 		if(e.isControlDown()){
 			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
+				activeDialog = null;
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
 				state.clearSelection();
 				helperLines = null;
@@ -326,6 +377,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 	@Override
 	protected void handleRightButtonClick(){
+		activeDialog = null;
 		this.switchScene(new InfoMenu(this.getContext(), state, this));
 	}
 
@@ -339,6 +391,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 	@Override
 	public void end(){
+		activeDialog = null;
 		resultOverlay.setEnabled(true);
 	}
 

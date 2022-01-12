@@ -23,9 +23,13 @@ public enum MessageDialog{
 	 */
 	NO_TURN("Not Your Turn", "Please wait for the other player(s) to finish their turn."),
 	/**
-	 * Shown when the player tires to perform a move after the game ended.
+	 * Shown when the player tries to perform a move after the game ended.
 	 */
-	GAME_END("Game Ended", "This game has ended, please start a new game.");
+	GAME_END("Game Ended", "This game has ended, please start a new game."),
+	/**
+	 * Shown when the player presses the menu button.
+	 */
+	QUIT("Quit", "    Are you sure you want to quit?");
 	
 	/**
 	 * The title for this dialog.
