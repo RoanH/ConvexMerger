@@ -43,7 +43,7 @@ public final class Constants{
 	/**
 	 * Minimum number of milliseconds any turn should take.
 	 */
-	public static final long MIN_TURN_TIME = 400;
+	public static final long MIN_TURN_TIME = 650;
 	/**
 	 * Multiplayer server port.
 	 */
