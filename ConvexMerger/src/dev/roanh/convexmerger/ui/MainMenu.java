@@ -144,7 +144,7 @@ public class MainMenu extends Screen{
 		}
 		
 		if(info.contains(loc)){
-			this.switchScene(new InfoMenu(this.getContext(), null, this));
+			this.switchScene(new InfoMenu(this.getContext(), null, new MainMenu(this.getContext())));
 		}
 		
 		if(quit.contains(loc)){
