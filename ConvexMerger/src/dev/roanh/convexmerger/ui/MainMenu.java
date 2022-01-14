@@ -128,8 +128,8 @@ public class MainMenu extends Screen{
 	}
 	
 	@Override
-	public void handleMouseClick(Point2D loc, int width, int height){
-		super.handleMouseClick(loc, width, height);
+	public void handleMouseRelease(Point2D loc, int width, int height){
+		super.handleMouseRelease(loc, width, height);
 		
 		if(join.contains(loc)){
 			this.switchScene(new JoinMenu(this.getContext()));

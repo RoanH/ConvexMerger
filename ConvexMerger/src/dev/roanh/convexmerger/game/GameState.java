@@ -415,6 +415,16 @@ public class GameState{
 	public void clearSelection(){
 		selected = null;
 	}
+	
+	/**
+	 * Gets the (first) object selected by the player.
+	 * @return The currently selected object to start
+	 *         a merge from or <code>null</code>.
+	 * @see #isSelectingSecond()
+	 */
+	public ConvexObject getSelectedObject(){
+		return selected;
+	}
 
 	/**
 	 * Signals that this game was forcefully terminated

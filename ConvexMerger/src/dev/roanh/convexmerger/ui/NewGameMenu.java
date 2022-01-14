@@ -155,8 +155,8 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	}
 
 	@Override
-	public void handleMouseClick(Point2D loc, int width, int height){
-		super.handleMouseClick(loc, width, height);
+	public void handleMouseRelease(Point2D loc, int width, int height){
+		super.handleMouseRelease(loc, width, height);
 		
 		if(!started){
 			p1.handleMouseClick(loc);

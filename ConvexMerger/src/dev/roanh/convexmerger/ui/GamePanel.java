@@ -287,10 +287,25 @@ public final class GamePanel extends Screen implements GameStateListener{
 			activeDialog = MessageDialog.QUIT;
 		}
 	}
+	
+	@Override
+	public void handleMousePress(Point2D point, int width, int height){
+		if(!resultOverlay.isEnabled() && activeDialog == null){
+			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
+			if(!state.isSelectingSecond()){
+				ConvexObject obj = state.getObject(loc);
+				if(obj != null && obj.isOwnedBy(state.getActivePlayer())){
+					state.claimObject(obj, loc);
+				}
+			}else if(state.getSelectedObject().equals(state.getObject(loc))){
+				state.clearSelection();
+			}
+		}
+	}
 
 	@Override
-	public void handleMouseClick(Point2D point, int width, int height){
-		super.handleMouseClick(point, width, height);
+	public void handleMouseRelease(Point2D point, int width, int height){
+		super.handleMouseRelease(point, width, height);
 		
 		if(resultOverlay.isEnabled()){
 			if(resultOverlay.intersectsMenuButton(point)){
@@ -316,7 +331,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
-			if(obj != null){
+			if(obj != null && (obj.canClaim() || (state.isSelectingSecond() && obj.isOwnedBy(state.getActivePlayer()) && !obj.equals(state.getSelectedObject())))){
 				ClaimResult result = state.claimObject(obj, loc);
 				activeDialog = result.getMessage();
 				helperLines = null;
@@ -329,6 +344,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
 		}
+	}
+	
+	@Override
+	public void handleMouseDrag(Point2D loc, int width, int height){
+		handleMouseMove(loc, width, height);
 	}
 
 	@Override

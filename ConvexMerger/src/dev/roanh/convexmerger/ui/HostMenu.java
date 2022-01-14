@@ -81,13 +81,13 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 	}
 	
 	@Override
-	public void handleMouseClick(Point2D loc, int width, int height){
+	public void handleMouseRelease(Point2D loc, int width, int height){
 		if(error == null){
 			synchronized(server){
-				super.handleMouseClick(loc, width, height);
+				super.handleMouseRelease(loc, width, height);
 			}
 		}else{
-			super.handleMouseClick(loc, width, height);
+			super.handleMouseRelease(loc, width, height);
 		}
 	}
 	

@@ -418,18 +418,27 @@ public abstract class Screen{
 	}
 	
 	/**
-	 * Handles a mouse click on this screen. If this method
-	 * is overridden a super call needs to be made.
+	 * Handles a mouse button release on this screen.
+	 * If this method is overridden a super call needs to be made.
 	 * @param loc The location that was clicked.
 	 * @param width The width of the screen.
 	 * @param height The height of the screen.
 	 */
-	public void handleMouseClick(Point2D loc, int width, int height){
+	public void handleMouseRelease(Point2D loc, int width, int height){
 		if(isLeftButtonEnabled() && leftPoly.contains(loc)){
 			handleLeftButtonClick();
 		}else if(isRightButtonEnabled() && rightPoly.contains(loc)){
 			handleRightButtonClick();
 		}
+	}
+	
+	/**
+	 * Handles a mouse button press on this screen.
+	 * @param loc The location that was clicked.
+	 * @param width The width of the screen.
+	 * @param height The height of the screen.
+	 */
+	public void handleMousePress(Point2D loc, int width, int height){
 	}
 	
 	/**
@@ -440,6 +449,17 @@ public abstract class Screen{
 	 * @param height The height of the screen.
 	 */
 	public void handleMouseMove(Point2D loc, int width, int height){
+		lastLocation = loc;
+	}
+	
+	/**
+	 * Handles a mouse move on this screen. If this method
+	 * is overridden a super call needs to be made.
+	 * @param loc The current cursor location.
+	 * @param width The width of the screen.
+	 * @param height The height of the screen.
+	 */
+	public void handleMouseDrag(Point2D loc, int width, int height){
 		lastLocation = loc;
 	}
 	

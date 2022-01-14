@@ -339,8 +339,8 @@ public class InfoMenu extends Screen{
 	}
 	
 	@Override
-	public void handleMouseClick(Point2D loc, int width, int height){
-		super.handleMouseClick(loc, width, height);
+	public void handleMouseRelease(Point2D loc, int width, int height){
+		super.handleMouseRelease(loc, width, height);
 		
 		try{
 			if(currentBox.contains(loc)){
