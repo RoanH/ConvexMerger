@@ -13,12 +13,30 @@ before_script:
 stages:
   - check
   - compile
+  - status
   - javadoc
 
 endings:
   allow_failure: true
   script: curl ${SERVER}ci/lf.sh | bash
   stage: check
+
+pending:
+  allow_failure: true
+  script: curl ${SERVER}ci/pending.sh | bash
+  stage: compile
+
+success:
+  allow_failure: true
+  script: curl ${SERVER}ci/success.sh | bash
+  when: on_success
+  stage: status
+
+failure:
+  allow_failure: true
+  script: curl ${SERVER}ci/failure.sh | bash
+  when: on_failure
+  stage: status
 
 verify:
   allow_failure: true
