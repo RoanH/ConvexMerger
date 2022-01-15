@@ -383,7 +383,6 @@ public class VerticalDecomposition{
 					return;
 				}
 				if(leftExists){
-					//TODO: check if the segment covers the whole thing
 					for(Point2D p : start.leftPoints){
 						if(orientedSegment.relativeCCW(p) == 0){
 							start.leftPoints.remove(p);
@@ -394,10 +393,15 @@ public class VerticalDecomposition{
 					
 					Line2D topLeftLine = new Line2D.Double(start.botLeft, leftp);
 					Line2D botLeftLine = new Line2D.Double(rightp, start.topLeft);
-					
 
 					for(Trapezoid neib : start.getNeighbours()){
-						boolean remove = true;
+						boolean remove = neib.leftPoints.get(0).getX() != start.rightPoints.get(0).getX();
+						
+						if(remove && leftp.equals(start.botLeft) && rightp.equals(start.topLeft)){
+							start.removeNeighbour(neib);
+							continue;
+						}
+						
 						for(Line2D decompLine : neib.getDecompLines()){
 							if(topLeftLine.intersectsLine(decompLine) || botLeftLine.intersectsLine(decompLine)){
 								remove = false;
@@ -412,7 +416,6 @@ public class VerticalDecomposition{
 					return;
 				}
 				if(rightExists){
-					//TODO: Check if the segment covers the whole thing
 					for(Point2D p : start.rightPoints){
 						if(orientedSegment.relativeCCW(p) == 0){
 							start.rightPoints.remove(p);
@@ -425,7 +428,12 @@ public class VerticalDecomposition{
 					Line2D botRightLine = new Line2D.Double(rightp, start.topRight);
 
 					for(Trapezoid neib : start.getNeighbours()){
-						boolean remove = true;
+						boolean remove = neib.rightPoints.get(0).getX() != start.leftPoints.get(0).getX();
+						
+						if(remove && leftp.equals(start.botRight) && rightp.equals(start.topRight)){
+							start.removeNeighbour(neib);
+							continue;
+						}
 						for(Line2D decompLine : neib.getDecompLines()){
 							if(topRightLine.intersectsLine(decompLine) || botRightLine.intersectsLine(decompLine)){
 								remove = false;
@@ -508,16 +516,14 @@ public class VerticalDecomposition{
 		private Line2D segment;
 		
 		/**
-		 * Constructs a vertex with no children and only a type.
-		 * @param type The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
+		 * Constructs a vertex with no children or linked objects and only a type of 0.
 		 */
 		public DecompVertex(){
 			this(0, null, null, null, null, null);
 		}
 		
 		/**
-		 * Constructs a Decomposition Vertex of expected type 0 (leaf) with a linked trapezoid.
-		 * @param type The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
+		 * Constructs a Decomposition Vertex of type 0 (leaf) with a linked trapezoid.
 		 * @param trapezoid The trapezoid to link to.
 		 */
 		public DecompVertex(Trapezoid trapezoid){
@@ -525,8 +531,7 @@ public class VerticalDecomposition{
 		}
 		
 		/**
-		 * Constructs a Decomposition Vertex of expected type 1 (point) with a corresponding point.
-		 * @param type The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
+		 * Constructs a Decomposition Vertex of type 1 (point) with a corresponding point.
 		 * @param left The  child of the vertex.
 		 * @param right The right child of the vertex.
 		 * @param point The corresponding point in the decomposition.
@@ -537,7 +542,6 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Constructs a Decomposition Vertex of expected type 2 (segment) with a corresponding line segment.
-		 * @param type The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
 		 * @param left The left child of the vertex.
 		 * @param right The right child of the vertex.
 		 * @param segment The corresponding line segment in the decomposition.
