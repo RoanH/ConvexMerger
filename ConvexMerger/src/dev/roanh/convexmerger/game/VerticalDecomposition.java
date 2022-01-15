@@ -224,9 +224,6 @@ public class VerticalDecomposition{
 					vertex.setPoint(leftp);
 					vertex.setLeftChild(leftVertex);
 					vertex.setRightChild(rightPointVertex);
-					
-					
-					//TODO: update search structure
 					return;
 				}
 				if(leftExists){
@@ -272,7 +269,22 @@ public class VerticalDecomposition{
 					trapezoids.add(top);
 					trapezoids.add(bottom);
 					trapezoids.add(left);
-					//TODO: Update search structure
+					
+					DecompVertex vertex = start.getDecompVertex();
+					DecompVertex topVertex = new DecompVertex(top);
+					DecompVertex botVertex = new DecompVertex(bottom);
+					DecompVertex leftVertex = new DecompVertex(left);
+					top.setDecompVertex(topVertex);
+					bottom.setDecompVertex(botVertex);
+					left.setDecompVertex(leftVertex);
+					
+					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
+					
+					vertex.setType(1);
+					vertex.setTrapezoid(null);
+					vertex.setPoint(leftp);
+					vertex.setLeftChild(leftVertex);
+					vertex.setRightChild(segmentVertex);
 					return;
 				}
 				if(rightExists){
@@ -319,7 +331,24 @@ public class VerticalDecomposition{
 					trapezoids.add(top);
 					trapezoids.add(bottom);
 					trapezoids.add(right);
-					//TODO: update search structure
+					
+					DecompVertex vertex = start.getDecompVertex();
+					DecompVertex topVertex = new DecompVertex(top);
+					DecompVertex botVertex = new DecompVertex(bottom);
+					DecompVertex rightVertex = new DecompVertex(right);
+					top.setDecompVertex(topVertex);
+					bottom.setDecompVertex(botVertex);
+					right.setDecompVertex(rightVertex);
+					
+					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
+					DecompVertex rightPointVertex = new DecompVertex(segmentVertex, rightVertex, rightp);
+					
+					vertex.setType(1);
+					vertex.setTrapezoid(null);
+					vertex.setPoint(leftp);
+					vertex.setLeftChild(segmentVertex);
+					vertex.setRightChild(rightPointVertex);
+					
 					return;
 				}
 				//The segment bisects the trapezoid completely
@@ -367,7 +396,19 @@ public class VerticalDecomposition{
 				trapezoids.remove(start);
 				trapezoids.add(top);
 				trapezoids.add(bottom);
-				//TODO: Update search structure.
+				
+				DecompVertex vertex = start.getDecompVertex();
+				DecompVertex topVertex = new DecompVertex(top);
+				DecompVertex botVertex = new DecompVertex(bottom);
+				top.setDecompVertex(topVertex);
+				bottom.setDecompVertex(botVertex);
+				
+				vertex.setType(2);
+				vertex.setTrapezoid(null);
+				vertex.setSegment(orientedSegment);
+				vertex.setLeftChild(topVertex);
+				vertex.setRightChild(botVertex);
+				
 				return;
 			}else{//vertical segment
 				//TODO
@@ -394,7 +435,21 @@ public class VerticalDecomposition{
 					trapezoids.remove(start);
 					trapezoids.add(left);
 					trapezoids.add(right);
-					//TODO: Update search structure
+					
+					DecompVertex vertex = start.getDecompVertex();
+					DecompVertex leftVertex = new DecompVertex(left);
+					DecompVertex rightVertex = new DecompVertex(right);
+					left.setDecompVertex(leftVertex);
+					right.setDecompVertex(rightVertex);
+					
+					DecompVertex segmentVertex = new DecompVertex(leftVertex, rightVertex, orientedSegment);//This one's kinda wonky, I know.
+					DecompVertex rightPointVertex = new DecompVertex(segmentVertex, rightVertex, rightp);
+					
+					vertex.setType(1);
+					vertex.setTrapezoid(null);
+					vertex.setPoint(leftp);
+					vertex.setLeftChild(leftVertex);
+					vertex.setRightChild(rightPointVertex);
 					return;
 				}
 				if(leftExists){
@@ -427,7 +482,7 @@ public class VerticalDecomposition{
 							start.removeNeighbour(neib);
 						}
 					}
-					//TODO: update search structure?
+					//No need to update search structure.
 					return;
 				}
 				if(rightExists){
@@ -459,8 +514,7 @@ public class VerticalDecomposition{
 							start.removeNeighbour(neib);
 						}
 					}
-					
-					//TODO: update search structure?
+					//No need to update search structure.
 					return;
 				}
 				//The whole trapezoid is a vertical line. Should not happen under the assumption of non-overlapping segments.
