@@ -173,12 +173,6 @@ public class VerticalDecomposition{
 			boolean topBotExist = leftp.getX() != rightp.getX();
 			boolean leftExists = leftp.getX() != start.leftPoints.get(0).getX();
 			boolean rightExists = rightp.getX() != start.rightPoints.get(0).getX();
-			
-//			DecompVertex vertex = start.getDecompVertex();
-//			top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight, null);
-//			bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp, null);
-//			left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
-//			right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
 
 			if(topBotExist){//not a vertical segment
 				Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight, null);
@@ -211,6 +205,27 @@ public class VerticalDecomposition{
 					trapezoids.add(bottom);
 					trapezoids.add(left);
 					trapezoids.add(right);
+					
+					DecompVertex vertex = start.getDecompVertex();
+					DecompVertex topVertex = new DecompVertex(top);
+					DecompVertex botVertex = new DecompVertex(bottom);
+					DecompVertex leftVertex = new DecompVertex(left);
+					DecompVertex rightVertex = new DecompVertex(right);
+					top.setDecompVertex(topVertex);
+					bottom.setDecompVertex(botVertex);
+					left.setDecompVertex(leftVertex);
+					right.setDecompVertex(rightVertex);
+					
+					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
+					DecompVertex rightPointVertex = new DecompVertex(segmentVertex, rightVertex, rightp);
+					
+					vertex.setType(1);
+					vertex.setTrapezoid(null);
+					vertex.setPoint(leftp);
+					vertex.setLeftChild(leftVertex);
+					vertex.setRightChild(rightPointVertex);
+					
+					
 					//TODO: update search structure
 					return;
 				}
@@ -542,8 +557,8 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Constructs a Decomposition Vertex of expected type 2 (segment) with a corresponding line segment.
-		 * @param left The left child of the vertex.
-		 * @param right The right child of the vertex.
+		 * @param left The left child of the vertex. (above the segment)
+		 * @param right The right child of the vertex. (below the segment)
 		 * @param segment The corresponding line segment in the decomposition.
 		 */
 		public DecompVertex(DecompVertex left, DecompVertex right, Line2D segment){
@@ -898,20 +913,18 @@ public class VerticalDecomposition{
 				if(!(topLeft.equals(botLeft) && leftPoints.contains(topLeft))){//Draw vertical line between top and bottom on the left
 					double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
 					double xRatioBot = (leftPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-//					verticalLines.add(new Line2D.Double(new Point2D.Double(topLeft.getX(), topLeft.getY()), new Point2D.Double(botLeft.getX(), botLeft.getY())));
 					
-					verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoints.get(0).getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
-														new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+					verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY()),
+														new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY())));
 					
 				}
 				
 				if(!(topRight.equals(botRight) && rightPoints.contains(topRight))){//Draw vertical line between top and bottom on the right
 					double xRatioTop = (rightPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
 					double xRatioBot = (rightPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-//					verticalLines.add(new Line2D.Double(new Point2D.Double(topRight.getX(), topRight.getY()), new Point2D.Double(botRight.getX(), botRight.getY())));
 
-					verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY()),
-														new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY())));
+					verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY()),
+														new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY())));
 				}
 			}
 			return verticalLines;
