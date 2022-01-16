@@ -331,14 +331,20 @@ public final class GamePanel extends Screen implements GameStateListener{
 		if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
-			if(obj != null && (obj.canClaim() || (state.isSelectingSecond() && obj.isOwnedBy(state.getActivePlayer()) && !obj.equals(state.getSelectedObject())))){
-				ClaimResult result = state.claimObject(obj, loc);
-				activeDialog = result.getMessage();
-				helperLines = null;
-				if(result.hasResult()){
-					synchronized(state){
-						state.notify();
+			if(obj != null){// && (/*obj.canClaim() ||*/ !(state.isSelectingSecond() && obj.equals(state.getSelectedObject())))){
+				if(obj.canClaim() || obj.isOwnedBy(state.getActivePlayer())){
+					ClaimResult result = state.claimObject(obj, loc);
+					activeDialog = result.getMessage();
+					helperLines = null;
+					if(result.hasResult()){
+						synchronized(state){
+							state.notify();
+						}
 					}
+				}else{// if(){
+					state.clearSelection();
+					helperLines = null;
+					activeDialog = MessageDialog.ALREADY_OWNED;
 				}
 			}
 		}else{
