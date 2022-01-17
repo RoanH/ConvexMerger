@@ -15,6 +15,12 @@ The goal of the game is to maximise the area of the playfield you own by claimin
 The game ends when the players whose turn it is has no possible moves available. You can visualise merging two objects as spanning an elastic band around both objects, the resulting shape is the new convex object. A merge of two objects is shown below:    
 ![merge](https://i.imgur.com/6ofU8Ys.gif)
 
+## Playfield Options
+When generation the playfield you can control the object size, density and spacing. The exact function of these parameters is as follows:
+- **Object size**: Controls the size of the playfield objects.
+- **Density**: Controls how much of the playfield is initially covered by objects.
+- **Spacing**: Controls how much space there is between the objects. The spacing also affects the object size, with a large spacing resulting in smaller objects.
+
 ## Downloads
 _Requires Java 8 or higher_    
 - [Windows executable](https://github.com/RoanH/ConvexMerger/releases/download/v1.0/ConvexMerger-v1.0.exe)    
