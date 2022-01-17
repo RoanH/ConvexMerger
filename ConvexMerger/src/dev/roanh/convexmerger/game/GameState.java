@@ -234,6 +234,7 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			
+			decomp.rebuild();
 			merged.setID(maxID + 1);
 			listeners.forEach(l->l.merge(player, first, second));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
