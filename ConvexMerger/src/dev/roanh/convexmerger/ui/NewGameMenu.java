@@ -82,6 +82,15 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	}
 	
 	/**
+	 * Resets this menu keeping the selected options
+	 * but resetting that the game was started.
+	 */
+	public void reset(){
+		started = false;
+		progress = 0.0D;
+	}
+	
+	/**
 	 * Checks if enough players are configured to start (at least 1).
 	 * @return True if enough players have been configured to start.
 	 */

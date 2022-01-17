@@ -140,7 +140,7 @@ public class MainMenu extends Screen{
 		}
 		
 		if(single.contains(loc)){
-			this.switchScene(new NewGameMenu(this.getContext()));
+			this.getContext().showNewGame();
 		}
 		
 		if(info.contains(loc)){

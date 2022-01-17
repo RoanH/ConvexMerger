@@ -47,6 +47,10 @@ public class ConvexMerger implements KeyEventDispatcher{
 	 * The thread running the active game (if any).
 	 */
 	private GameThread gameThread;
+	/**
+	 * Cached new game menu to persist settings.
+	 */
+	private NewGameMenu newGame = new NewGameMenu(this);
 	
 	/**
 	 * Shows the main game window.
@@ -92,6 +96,14 @@ public class ConvexMerger implements KeyEventDispatcher{
 	 */
 	public void exit(){
 		frame.dispose();
+	}
+	
+	/**
+	 * Shows the new game menu.
+	 */
+	public void showNewGame(){
+		newGame.reset();
+		switchScene(newGame);
 	}
 	
 	/**
