@@ -16,10 +16,10 @@ The game ends when the players whose turn it is has no possible moves available.
 ![merge](https://i.imgur.com/6ofU8Ys.gif)
 
 ## Playfield Options
-When generation the playfield you can control the object size, density and spacing. The exact function of these parameters is as follows:
+When generating the playfield you can control the object size, density and spacing. The exact function of these parameters is as follows:
 - **Object size**: Controls the size of the playfield objects.
 - **Density**: Controls how much of the playfield is initially covered by objects.
-- **Spacing**: Controls how much space there is between the objects. The spacing also affects the object size, with a large spacing resulting in smaller objects.
+- **Spacing**: Controls how much space there is between the objects. The spacing also affects the object size, with a larger spacing resulting in smaller objects.
 
 ## Downloads
 _Requires Java 8 or higher_    
