@@ -67,12 +67,17 @@ public class VerticalDecomposition{
 	 * @param obj The convex object to add.
 	 */
 	public void addObject(ConvexObject obj){
-//		return;
 		objects.add(obj);
 		List<Point2D> points = obj.getPoints();
 		for(int i = 0; i < points.size(); i++){
-			Line2D segment = new Line2D.Double(points.get(i), points.get((i + 1) % points.size()));
-			addSegment(segment, obj);
+			Point2D p1 = points.get(i), p2 = points.get((i+1) % points.size());
+			Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
+					Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2
+					: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
+			Point2D rightp = leftp.equals(p1) ? p2 : p1;
+			
+			Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+			addSegment(orientedSegment, obj);
 		}
 	}
 	
@@ -142,9 +147,9 @@ public class VerticalDecomposition{
 	public List<Line2D> getDecompLines(){
 		List<Line2D> lines = new ArrayList<Line2D>();
 		
-		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMinX(), bounds.getMaxY()));
+//		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMinX(), bounds.getMaxY()));
 		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMinY()));
-		lines.add(new Line2D.Double(bounds.getMaxX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()));
+//		lines.add(new Line2D.Double(bounds.getMaxX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()));
 		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMaxY(), bounds.getMaxX(), bounds.getMaxY()));
 		
 		for(Trapezoid trap : trapezoids){
@@ -169,15 +174,25 @@ public class VerticalDecomposition{
 		Trapezoid end = queryTrapezoid(rightp);
 		
 		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+		assert leftp.getX() <= rightp.getX();
+		
 		if(start.equals(end)){
+//			assert start.topLeft.getX() <= start.topRight.getX() : "Top faulty";
+//			assert start.botLeft.getX() <= start.botRight.getX() : "Bot faulty";
+//			assert leftp.getX() >= start.topLeft.getX() : "top " + leftp.getX() + " " + start.topLeft.getX()+ " " + start.topLeft.getY() + " " + start.topRight.getX() + " " + start.topRight.getY();
+//			assert leftp.getX() >= start.botLeft.getX() : "bot " + leftp.getX() + " " + start.botLeft.getX()+ " "  + start.botLeft.getY() + " " + start.botRight.getX() + " " + start.botRight.getY();
+
 			//segment is contained entirely inside 1 trapezoid.
 			boolean topBotExist = leftp.getX() != rightp.getX();
 			boolean leftExists = leftp.getX() != start.leftPoints.get(0).getX();
 			boolean rightExists = rightp.getX() != start.rightPoints.get(0).getX();
-
+//			assert leftp.getX() >= start.topLeft.getX() && leftp.getX() >= start.botLeft.getX() : "wot" ;
 			if(topBotExist){//not a vertical segment
 				Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight, null);
 				Trapezoid bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp, null);
+					assert start.botLeft.getX() <= start.botRight.getX();
+					assert leftp.getX() <= rightp.getX();
+					assert top.botLeft.getX() <= top.botRight.getX();
 				if(leftExists && rightExists){
 					Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
 					Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
@@ -362,13 +377,12 @@ public class VerticalDecomposition{
 					right.setDecompVertex(rightVertex);
 					
 					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
-					DecompVertex rightPointVertex = new DecompVertex(segmentVertex, rightVertex, rightp);
 					
 					vertex.setType(1);
 					vertex.setTrapezoid(null);
-					vertex.setPoint(leftp);
+					vertex.setPoint(rightp);
 					vertex.setLeftChild(segmentVertex);
-					vertex.setRightChild(rightPointVertex);
+					vertex.setRightChild(rightVertex);
 					
 					return;
 				}
@@ -591,391 +605,575 @@ public class VerticalDecomposition{
 					//No need to update search structure.
 					return;
 				}
+				
 				//The whole trapezoid is a vertical line. Should not happen under the assumption of non-overlapping segments.
 				return;
 			}
 		} else {
 			// Multiple trapezoids intersected by the segment.
-			
-			boolean leftExists = start.rightPoints.get(0).getX() != leftp.getX();
-			boolean rightExists = end.leftPoints.get(0).getX() != rightp.getX();
-			Queue<DecompVertex> upperQueue = new LinkedList<DecompVertex>();
-			Queue<DecompVertex> lowerQueue = new LinkedList<DecompVertex>();
-			Trapezoid top = null, bot = null, left = null;
-			Trapezoid oldBot = null, oldTop = null;
-			Trapezoid old = null;
-			if(leftExists){
-				old = start;
-				//The segment does not completely bisect the leftmost of its intersected trapezoids.
-				left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
-				top = new Trapezoid(leftp, new ArrayList<Point2D>(), leftp, rightp, start.topLeft, start.topRight, null);
-				bot = new Trapezoid(leftp, new ArrayList<Point2D>(), start.botLeft, start.botRight, leftp, rightp, null);
-				
-//				Attribute the right bounding points to top and bottom
-				for (Point2D p : start.rightPoints){
-					if(orientedSegment.relativeCCW(p) >= 0){
-						top.addRightPoint(p);
-					}
-					if(orientedSegment.relativeCCW(p) <= 0){
-						bot.addRightPoint(p);
-					}
-				}
-				if(top.rightPoints.size() > 0){
-					left.addNeighbour(top);
-					top.addNeighbour(left);
-				}
-				if(bot.rightPoints.size() > 0){
-					left.addNeighbour(bot);
-					bot.addNeighbour(left);
-				}
-				
-//				//find neighbours of left, top, and bottom
-				for(Trapezoid neib : start.getNeighbours()){
-					if(top.rightPoints.size() > 0){
-						if(neib.leftPoints.get(0).getX() == top.rightPoints.get(0).getX() && neib.botLeft.getY() < top.topRight.getY()){
-							top.addNeighbour(neib);
-							neib.addNeighbour(top);
-						}
-					}
-					if(bot.rightPoints.size() > 0){
-						if(neib.leftPoints.get(0).getX() == bot.rightPoints.get(0).getX() && neib.topLeft.getY() > bot.botRight.getY()){
-							bot.addNeighbour(neib);
-							neib.addNeighbour(bot);
-						}
-					}
-					if(start.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
-						left.addNeighbour(neib);
-						neib.addNeighbour(left);
-					}
-				}
-				trapezoids.remove(start);
-				start.freeNeighbours();
-				trapezoids.add(left);
-				
-				DecompVertex vertex = start.getDecompVertex();
-				DecompVertex leftVertex = new DecompVertex(left);
-				DecompVertex topVertex = null, botVertex = null;
-				left.setDecompVertex(leftVertex);
-				
-				if(top.rightPoints.size() > 0){
-					topVertex = new DecompVertex(top);
-					trapezoids.add(top);
-					top.setDecompVertex(topVertex);
-				}
-				
-				if(bot.rightPoints.size() > 0){
-					botVertex = new DecompVertex(bot);
-					trapezoids.add(bot);
-					bot.setDecompVertex(botVertex);
-				}
-				
-				DecompVertex segmentVertex = new DecompVertex(2, null, null, null, null, orientedSegment, vertex);
 
-				vertex.setType(1);
-				vertex.setTrapezoid(null);
-				vertex.setPoint(leftp);
-				vertex.setLeftChild(leftVertex);
-				vertex.setRightChild(segmentVertex);
-				
-				if(topVertex != null && botVertex != null){
-					segmentVertex.setLeftChild(topVertex);
-					segmentVertex.setRightChild(botVertex);
-					oldTop = top;
-					oldBot = bot;
-					top = null;
-					bot = null;
-				}else{
-					if(topVertex != null){
-						segmentVertex.setLeftChild(topVertex);
-						lowerQueue.add(segmentVertex);
-						oldTop = top;
-						top = null;
-					}else if(botVertex != null){
-						segmentVertex.setRightChild(botVertex);
-						upperQueue.add(segmentVertex);
-						oldBot = bot;
-						bot = null;
-					} else {
-						upperQueue.add(segmentVertex);
-						lowerQueue.add(segmentVertex);
-					}
-				}
-			}
+			boolean leftExists = Double.compare(start.rightPoints.get(0).getX(), leftp.getX()) > 0;
+			boolean rightExists = Double.compare(end.leftPoints.get(0).getX(), rightp.getX()) < 0;
 			
 			//Linked list of the fully bisected trapezoids.
 			Queue<Trapezoid> intersected = findIntersectedTrapezoids(orientedSegment);
+			
+			//Two trapezoids right next to each other
+			if(intersected.size() == 0){
+				if(leftExists && !rightExists){//left end sticks out
+					if(start.leftPoints.get(0).getX() < leftp.getX()){
+						Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight, null);
+						Trapezoid bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp, null);
+						Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
+						left.addNeighbour(top);
+						left.addNeighbour(bottom);
+						top.addNeighbour(left);
+						bottom.addNeighbour(left);
+						
+						//Attribute the right bounding points to top and bottom
+						for (Point2D p : start.rightPoints){
+							if(orientedSegment.relativeCCW(p) >= 0){
+								top.addRightPoint(p);
+							}
+							if(orientedSegment.relativeCCW(p) <= 0){
+								bottom.addRightPoint(p);
+							}
+						}
+						//find neighbours of left, top, and bottom
+						
+						for(Trapezoid neib : start.getNeighbours()){
+							boolean flagTop = false;
+							boolean flagBot = false;
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagTop) break;
+								for(Line2D topDecomp : top.getDecompLines()){
+									if(topDecomp.intersectsLine(decompLine)){
+										top.addNeighbour(neib);
+										neib.addNeighbour(top);
+										flagTop = true;
+										break;
+									}
+								}
+							}
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagBot) break;
+								for(Line2D botDecomp : bottom.getDecompLines()){
+									if(botDecomp.intersectsLine(decompLine)){
+										bottom.addNeighbour(neib);
+										neib.addNeighbour(bottom);
+										flagBot = true;
+										break;
+									}
+								}
+							}
+							if(start.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
+								left.addNeighbour(neib);
+								neib.addNeighbour(left);
+							}
+						}
+						trapezoids.remove(start);
+						start.freeNeighbours();
+						trapezoids.add(top);
+						trapezoids.add(bottom);
+						trapezoids.add(left);
+						
+						DecompVertex vertex = start.getDecompVertex();
+						DecompVertex topVertex = new DecompVertex(top);
+						DecompVertex botVertex = new DecompVertex(bottom);
+						DecompVertex leftVertex = new DecompVertex(left);
+						top.setDecompVertex(topVertex);
+						bottom.setDecompVertex(botVertex);
+						left.setDecompVertex(leftVertex);
+						
+						DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
+						
+						vertex.setType(1);
+						vertex.setTrapezoid(null);
+						vertex.setPoint(leftp);
+						vertex.setLeftChild(leftVertex);
+						vertex.setRightChild(segmentVertex);
+						return;
+					}else{//bisected
+						Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight, null);
+						Trapezoid bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp, null);
+						for (Point2D p : start.leftPoints){
+							if(orientedSegment.relativeCCW(p) >= 0){
+								top.addLeftPoint(p);
+							}
+							if(orientedSegment.relativeCCW(p) <= 0){
+								bottom.addLeftPoint(p);
+							}			
+						}
+						//Attribute the right bounding points to top and bottom
+						for (Point2D p : start.rightPoints){
+							if(orientedSegment.relativeCCW(p) >= 0){
+								top.addRightPoint(p);
+							}
+							if(orientedSegment.relativeCCW(p) <= 0){
+								bottom.addRightPoint(p);
+							}			
+						}
+						
+						//Find neighbours of top and bottom
+						for(Trapezoid neib : start.getNeighbours()){
+							boolean flagTop = false;
+							boolean flagBot = false;
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagTop) break;
+								for(Line2D topDecomp : top.getDecompLines()){
+									if(topDecomp.intersectsLine(decompLine)){
+										top.addNeighbour(neib);
+										neib.addNeighbour(top);
+										flagTop = true;
+										break;
+									}
+								}
+							}
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagBot) break;
+								for(Line2D botDecomp : bottom.getDecompLines()){
+									if(botDecomp.intersectsLine(decompLine)){
+										bottom.addNeighbour(neib);
+										neib.addNeighbour(bottom);
+										flagBot = true;
+										break;
+									}
+								}
+							}
+						}
+						trapezoids.remove(start);
+						start.freeNeighbours();
+						trapezoids.add(top);
+						trapezoids.add(bottom);
+						
+						DecompVertex vertex = start.getDecompVertex();
+						DecompVertex topVertex = new DecompVertex(top);
+						DecompVertex botVertex = new DecompVertex(bottom);
+						top.setDecompVertex(topVertex);
+						bottom.setDecompVertex(botVertex);
+						
+						vertex.setType(2);
+						vertex.setTrapezoid(null);
+						vertex.setSegment(orientedSegment);
+						vertex.setLeftChild(topVertex);
+						vertex.setRightChild(botVertex);
+						return;
+					}
+				}
+				if(!leftExists && rightExists){//start only has the left endpoint of the segment.
+					if(end.rightPoints.get(0).getX() > rightp.getX()){//cause of oof
+						Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, end.topLeft, end.topRight, null);
+						Trapezoid bottom = new Trapezoid(leftp, rightp, end.botLeft, end.botRight, leftp, rightp, null);
+						Trapezoid right = new Trapezoid(rightp, end.rightPoints, end.botLeft, end.botRight, end.topLeft, end.topRight, null);
+						right.addNeighbour(top);
+						right.addNeighbour(bottom);
+						top.addNeighbour(right);
+						bottom.addNeighbour(right);
+	
+						//Attribute the left bounding points to top and bottom
+						for (Point2D p : end.leftPoints){
+							if(orientedSegment.relativeCCW(p) >= 0){
+								top.addLeftPoint(p);
+							}
+							if(orientedSegment.relativeCCW(p) <= 0){
+								bottom.addLeftPoint(p);
+							}			
+						}
+						
+						//find neighbours of right, top, and bottom
+						for(Trapezoid neib : end.getNeighbours()){
+							boolean flagTop = false;
+							boolean flagBot = false;
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagTop) break;
+								for(Line2D topDecomp : top.getDecompLines()){
+									if(topDecomp.intersectsLine(decompLine)){
+										top.addNeighbour(neib);
+										neib.addNeighbour(top);
+										flagTop = true;
+										break;
+									}
+								}
+							}
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagBot) break;
+								for(Line2D botDecomp : bottom.getDecompLines()){
+									if(botDecomp.intersectsLine(decompLine)){
+										bottom.addNeighbour(neib);
+										neib.addNeighbour(bottom);
+										flagBot = true;
+										break;
+									}
+								}
+							}
+							if(end.rightPoints.get(0).getX() == neib.leftPoints.get(0).getX()){
+								right.addNeighbour(neib);
+								neib.addNeighbour(right);
+							}
+						}
+						trapezoids.remove(end);
+						end.freeNeighbours();
+						trapezoids.add(top);
+						trapezoids.add(bottom);
+						trapezoids.add(right);
+						
+						DecompVertex vertex = end.getDecompVertex();
+						DecompVertex topVertex = new DecompVertex(top);
+						DecompVertex botVertex = new DecompVertex(bottom);
+						DecompVertex rightVertex = new DecompVertex(right);
+						top.setDecompVertex(topVertex);
+						bottom.setDecompVertex(botVertex);
+						right.setDecompVertex(rightVertex);
+						
+						DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
+						
+						vertex.setType(1);
+						vertex.setTrapezoid(null);
+						vertex.setPoint(rightp);
+						vertex.setLeftChild(segmentVertex);
+						vertex.setRightChild(rightVertex);
+						
+						return;
+					} else {//bisected
+						Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, end.topLeft, end.topRight, null);
+						Trapezoid bottom = new Trapezoid(leftp, rightp, end.botLeft, end.botRight, leftp, rightp, null);
+						for (Point2D p : end.leftPoints){
+							if(orientedSegment.relativeCCW(p) >= 0){
+								top.addLeftPoint(p);
+							}
+							if(orientedSegment.relativeCCW(p) <= 0){
+								bottom.addLeftPoint(p);
+							}			
+						}
+						//Attribute the right bounding points to top and bottom
+						for (Point2D p : end.rightPoints){
+							if(orientedSegment.relativeCCW(p) >= 0){
+								top.addRightPoint(p);
+							}
+							if(orientedSegment.relativeCCW(p) <= 0){
+								bottom.addRightPoint(p);
+							}			
+						}
+						
+						//Find neighbours of top and bottom
+						for(Trapezoid neib : end.getNeighbours()){
+							boolean flagTop = false;
+							boolean flagBot = false;
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagTop) break;
+								for(Line2D topDecomp : top.getDecompLines()){
+									if(topDecomp.intersectsLine(decompLine)){
+										top.addNeighbour(neib);
+										neib.addNeighbour(top);
+										flagTop = true;
+										break;
+									}
+								}
+							}
+							for(Line2D decompLine : neib.getDecompLines()){
+								if(flagBot) break;
+								for(Line2D botDecomp : bottom.getDecompLines()){
+									if(botDecomp.intersectsLine(decompLine)){
+										bottom.addNeighbour(neib);
+										neib.addNeighbour(bottom);
+										flagBot = true;
+										break;
+									}
+								}
+							}
+						}
+						trapezoids.remove(end);
+						end.freeNeighbours();
+						trapezoids.add(top);
+						trapezoids.add(bottom);
+						
+						DecompVertex vertex = end.getDecompVertex();
+						DecompVertex topVertex = new DecompVertex(top);
+						DecompVertex botVertex = new DecompVertex(bottom);
+						top.setDecompVertex(topVertex);
+						bottom.setDecompVertex(botVertex);
+						
+						vertex.setType(2);
+						vertex.setTrapezoid(null);
+						vertex.setSegment(orientedSegment);
+						vertex.setLeftChild(topVertex);
+						vertex.setRightChild(botVertex);
+						
+						return;
+					}
+				}
+				//vertical line, shouldn't happen
+			}else{
+			
+				if(leftExists){
+//					Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight, null);
+//					left.addNeighbour(top);
+//					left.addNeighbour(bottom);
+//					top.addNeighbour(left);
+//					bottom.addNeighbour(left);
+//					
+//					//Attribute the right bounding points to top and bottom
+//					for (Point2D p : start.rightPoints){
+//						if(orientedSegment.relativeCCW(p) >= 0){
+//							top.addRightPoint(p);
+//						}
+//						if(orientedSegment.relativeCCW(p) <= 0){
+//							bottom.addRightPoint(p);
+//						}
+//					}
+//					//find neighbours of left, top, and bottom
+//					
+//					for(Trapezoid neib : start.getNeighbours()){
+//						boolean flagTop = false;
+//						boolean flagBot = false;
+//						for(Line2D decompLine : neib.getDecompLines()){
+//							if(flagTop) break;
+//							for(Line2D topDecomp : top.getDecompLines()){
+//								if(topDecomp.intersectsLine(decompLine)){
+//									top.addNeighbour(neib);
+//									neib.addNeighbour(top);
+//									flagTop = true;
+//									break;
+//								}
+//							}
+//						}
+//						for(Line2D decompLine : neib.getDecompLines()){
+//							if(flagBot) break;
+//							for(Line2D botDecomp : bottom.getDecompLines()){
+//								if(botDecomp.intersectsLine(decompLine)){
+//									bottom.addNeighbour(neib);
+//									neib.addNeighbour(bottom);
+//									flagBot = true;
+//									break;
+//								}
+//							}
+//						}
+//						if(start.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
+//							left.addNeighbour(neib);
+//							neib.addNeighbour(left);
+//						}
+//					}
+//					trapezoids.remove(start);
+//					start.freeNeighbours();
+//					trapezoids.add(top);
+//					trapezoids.add(bottom);
+//					trapezoids.add(left);
+//					
+//					DecompVertex vertex = start.getDecompVertex();
+//					DecompVertex topVertex = new DecompVertex(top);
+//					DecompVertex botVertex = new DecompVertex(bottom);
+//					DecompVertex leftVertex = new DecompVertex(left);
+//					top.setDecompVertex(topVertex);
+//					bottom.setDecompVertex(botVertex);
+//					left.setDecompVertex(leftVertex);
+//					
+//					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
+//					
+//					vertex.setType(1);
+//					vertex.setTrapezoid(null);
+//					vertex.setPoint(leftp);
+//					vertex.setLeftChild(leftVertex);
+//					vertex.setRightChild(segmentVertex);
 
-			while(!intersected.isEmpty()){
-				Trapezoid current = intersected.remove();
-				//expect that there will always be a leftpoint for each of top and bot, either the left end of the segment, or the point that bound the previous top/bot to the right.
-				//Well that wasn't the case.
-				if(top == null){
-					top = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), leftp, rightp, current.topLeft, current.topRight, null);
-					for (Point2D p : current.leftPoints){
-						if(orientedSegment.relativeCCW(p) >= 0){
-							top.addLeftPoint(p);
-						}
-					}
-					if(top.leftPoints.size() == 0){
-						if(oldTop != null){
-							top.leftPoints = oldTop.rightPoints;
-						} else {
-							top.addLeftPoint(leftp);
-						}
-					}
-				}
-				if(bot == null){
-					bot = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), current.botLeft, current.botRight, leftp, rightp, null);
-					for (Point2D p : current.leftPoints){
-						if(orientedSegment.relativeCCW(p) <= 0){
-							bot.addLeftPoint(p);
-						}
-					}
-					if(bot.leftPoints.size() == 0){
-						if(oldBot != null){
-							bot.leftPoints = oldBot.rightPoints;
-						} else {
-							bot.addLeftPoint(leftp);
-						}
-					}
-				}
-				//Attribute the right bounding points to top and bottom.
-				for (Point2D p : current.rightPoints){
-					if(orientedSegment.relativeCCW(p) >= 0){
-						top.addRightPoint(p);
-					}
-					if(orientedSegment.relativeCCW(p) <= 0){
-						bot.addRightPoint(p);
-					}			
 				}
 				
-				if(top.rightPoints.size() > 0 && bot.rightPoints.size() > 0){
-					for(Trapezoid neib : current.getNeighbours()){
-						boolean flagTop = false;
-						boolean flagBot = false;
-						for(Line2D decompLine : neib.getDecompLines()){
-							if(flagTop) break;
-							for(Line2D topDecomp : top.getDecompLines()){
-								if(topDecomp.intersectsLine(decompLine)){
-									top.addNeighbour(neib);
-									neib.addNeighbour(top);
-									flagTop = true;
-									break;
-								}
-							}
-						}
-						for(Line2D decompLine : neib.getDecompLines()){
-							if(flagBot) break;
-							for(Line2D botDecomp : bot.getDecompLines()){
-								if(botDecomp.intersectsLine(decompLine)){
-									bot.addNeighbour(neib);
-									neib.addNeighbour(bot);
-									flagBot = true;
-									break;
-								}
-							}
-						}
-					}
-					
-					DecompVertex topVertex = new DecompVertex(top);
-					top.setDecompVertex(topVertex);
-					while(!upperQueue.isEmpty()){
-						DecompVertex frontVertex = upperQueue.remove();
-						frontVertex.setLeftChild(topVertex);
-					}
-					
-					DecompVertex botVertex = new DecompVertex(bot);
-					bot.setDecompVertex(botVertex);
-					while(!lowerQueue.isEmpty()){
-						DecompVertex frontVertex = lowerQueue.remove();
-						frontVertex.setRightChild(botVertex);
-					}
-					
-					DecompVertex vertex = current.getDecompVertex();
-					vertex.setType(2);
-					vertex.setTrapezoid(null);
-					vertex.setSegment(orientedSegment);
-					vertex.setLeftChild(topVertex);
-					vertex.setRightChild(botVertex);
-					
-					trapezoids.add(top);
-					trapezoids.add(bot);
-					trapezoids.remove(current);
-					current.freeNeighbours();
-					oldTop = top;
-					oldBot = bot;
-					top = null;
-					bot = null;
-					continue;
+				while(!intersected.isEmpty()){
+					Trapezoid current = intersected.remove(); 
 				}
-				if(top.rightPoints.size() > 0){
-					for(Trapezoid neib : current.getNeighbours()){
-						boolean flagTop = false;
-						for(Line2D decompLine : neib.getDecompLines()){
-							if(flagTop) break;
-							for(Line2D topDecomp : top.getDecompLines()){
-								if(topDecomp.intersectsLine(decompLine)){
-									top.addNeighbour(neib);
-									neib.addNeighbour(top);
-									flagTop = true;
-									break;
-								}
-							}
-						}
-					}
+				
+				if(rightExists){
 					
-					DecompVertex topVertex = new DecompVertex(top);
-					top.setDecompVertex(topVertex);
-					while(!upperQueue.isEmpty()){
-						DecompVertex frontVertex = upperQueue.remove();
-						frontVertex.setLeftChild(topVertex);
-					}
-					
-					DecompVertex vertex = current.getDecompVertex();
-					vertex.setType(2);
-					vertex.setTrapezoid(null);
-					vertex.setSegment(orientedSegment);
-					vertex.setLeftChild(topVertex);
-					lowerQueue.add(vertex);
-					
-					trapezoids.add(top);
-					trapezoids.remove(current);
-					current.freeNeighbours();
-					oldTop = top;
-					top = null;
-					continue;
 				}
-				if(bot.rightPoints.size() > 0){
-					for(Trapezoid neib : current.getNeighbours()){
-						boolean flagBot = false;
-						for(Line2D decompLine : neib.getDecompLines()){
-							if(flagBot) break;
-							for(Line2D botDecomp : bot.getDecompLines()){
-								if(botDecomp.intersectsLine(decompLine)){
-									bot.addNeighbour(neib);
-									neib.addNeighbour(bot);
-									flagBot = true;
-									break;
-								}
-							}
-						}
-					}
-					
-					DecompVertex botVertex = new DecompVertex(bot);
-					bot.setDecompVertex(botVertex);
-					while(!lowerQueue.isEmpty()){
-						DecompVertex frontVertex = lowerQueue.remove();
-						frontVertex.setRightChild(botVertex);
-					}
-					
-					DecompVertex vertex = current.getDecompVertex();
-					vertex.setType(2);
-					vertex.setTrapezoid(null);
-					vertex.setSegment(orientedSegment);
-					vertex.setRightChild(botVertex);
-					upperQueue.add(vertex);
-					
-					trapezoids.add(bot);
-					old = current;
-					trapezoids.remove(current);
-					current.freeNeighbours();
-					oldBot = bot;
-					bot = null;
-					continue;
-				}
-				//Current has at least 1 right bounding point, so some of the cases above should be covered
 			}
-			if(rightExists){
-				Trapezoid right = new Trapezoid(rightp, end.rightPoints, end.botLeft, end.botRight, end.topLeft, end.topRight, null);
-				
-				if(top == null){
-					top = new Trapezoid(new ArrayList<Point2D>(), rightp, leftp, rightp, end.topLeft, end.topRight, null);
-					for (Point2D p : end.leftPoints){
-						if(orientedSegment.relativeCCW(p) >= 0){
-							top.addLeftPoint(p);
-						}
-					}
-					if(top.leftPoints.size() == 0){
-						top.leftPoints = end.leftPoints;
-					}
-				}
-				if(bot == null){
-					bot = new Trapezoid(new ArrayList<Point2D>(), rightp, end.botLeft, end.botRight, leftp, rightp, null);
-					for (Point2D p : end.leftPoints){
-						if(orientedSegment.relativeCCW(p) <= 0){
-							bot.addLeftPoint(p);
-						}
-					}
-					if(bot.leftPoints.size() == 0){
-						bot.leftPoints = end.leftPoints;
-					}
-				}
-				top.addRightPoint(rightp);
-				bot.addRightPoint(rightp);
-
-				top.addNeighbour(right);
-				bot.addNeighbour(right);
-				right.addNeighbour(top);
-				right.addNeighbour(bot);
-				
-				for(Trapezoid neib : end.getNeighbours()){
-					boolean flagTop = false;
-					for(Line2D decompLine : neib.getDecompLines()){
-						if(flagTop) break;
-						for(Line2D topDecomp : top.getDecompLines()){
-							if(topDecomp.intersectsLine(decompLine)){
-								top.addNeighbour(neib);
-								neib.addNeighbour(top);
-								flagTop = true;
-								break;
-							}
-						}
-					}
-					boolean flagBot = false;
-					for(Line2D decompLine : neib.getDecompLines()){
-						if(flagBot) break;
-						for(Line2D botDecomp : bot.getDecompLines()){
-							if(botDecomp.intersectsLine(decompLine)){
-								bot.addNeighbour(neib);
-								neib.addNeighbour(bot);
-								flagBot = true;
-								break;
-							}
-						}
-					}
-				}
-				DecompVertex topVertex = new DecompVertex(top);
-				top.setDecompVertex(topVertex);
-				while(!upperQueue.isEmpty()){
-					DecompVertex frontVertex = upperQueue.remove();
-					frontVertex.setLeftChild(topVertex);
-				}
-				
-				DecompVertex botVertex = new DecompVertex(bot);
-				bot.setDecompVertex(botVertex);
-				while(!lowerQueue.isEmpty()){
-					DecompVertex frontVertex = lowerQueue.remove();
-					frontVertex.setRightChild(botVertex);
-				}
-				
-				DecompVertex rightVertex = new DecompVertex(right);
-				right.setDecompVertex(rightVertex);
-				
-				DecompVertex segmentVertex = new DecompVertex(2, topVertex, botVertex, null, null, orientedSegment, (DecompVertex) null);
-				
-				DecompVertex vertex = end.getDecompVertex();
-				vertex.setType(1);
-				vertex.setTrapezoid(null);
-				vertex.setPoint(rightp);
-				vertex.setLeftChild(segmentVertex);
-				vertex.setRightChild(rightVertex);
-				
-				trapezoids.add(bot);
-				trapezoids.add(top);
-				trapezoids.add(right);
-				trapezoids.remove(end);
-				end.freeNeighbours();
-			}
+			
+//			boolean leftExists = start.rightPoints.get(0).getX() > leftp.getX();
+//			boolean rightExists = end.leftPoints.get(0).getX() < rightp.getX();
+//			Queue<DecompVertex> upperQueue = new LinkedList<DecompVertex>();
+//			Queue<DecompVertex> lowerQueue = new LinkedList<DecompVertex>();
+//			
+//			//Linked list of the fully bisected trapezoids.
+//			Queue<Trapezoid> intersected = findIntersectedTrapezoids(orientedSegment);
+//
+//			while(!intersected.isEmpty()){
+//				Trapezoid current = intersected.remove();
+//				//expect that there will always be a leftpoint for each of top and bot, either the left end of the segment, or the point that bound the previous top/bot to the right.
+//				//Well that wasn't the case.
+//				if(top == null){
+//					top = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), leftp, rightp, current.topLeft, current.topRight, null);
+//					for (Point2D p : current.leftPoints){
+//						if(orientedSegment.relativeCCW(p) >= 0){
+//							top.addLeftPoint(p);
+//						}
+//					}
+//					if(top.leftPoints.size() == 0){
+//						if(oldTop != null){
+//							top.leftPoints = oldTop.rightPoints;
+//						}else{
+//							top.addLeftPoint(leftp);
+//						}
+//					}
+//				}
+//				if(bot == null){
+//					bot = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), current.botLeft, current.botRight, leftp, rightp, null);
+//					for (Point2D p : current.leftPoints){
+//						if(orientedSegment.relativeCCW(p) <= 0){
+//							bot.addLeftPoint(p);
+//						}
+//					}
+//					if(bot.leftPoints.size() == 0){
+//						if(oldBot != null){
+//							bot.leftPoints = oldBot.rightPoints;
+//						}else{
+//							bot.addLeftPoint(leftp);
+//						}
+//					}
+//				}
+//				//Attribute the right bounding points to top and bottom.
+//				for (Point2D p : current.rightPoints){
+//					if(orientedSegment.relativeCCW(p) >= 0){
+//						top.addRightPoint(p);
+//					}
+//					if(orientedSegment.relativeCCW(p) <= 0){
+//						bot.addRightPoint(p);
+//					}			
+//				}
+//				
+//				if(top.rightPoints.size() > 0 && bot.rightPoints.size() > 0){
+//					for(Trapezoid neib : current.getNeighbours()){
+//						boolean flagTop = false;
+//						boolean flagBot = false;
+//						for(Line2D decompLine : neib.getDecompLines()){
+//							if(flagTop) break;
+//							for(Line2D topDecomp : top.getDecompLines()){
+//								if(topDecomp.intersectsLine(decompLine)){
+//									top.addNeighbour(neib);
+//									neib.addNeighbour(top);
+//									flagTop = true;
+//									break;
+//								}
+//							}
+//						}
+//						for(Line2D decompLine : neib.getDecompLines()){
+//							if(flagBot) break;
+//							for(Line2D botDecomp : bot.getDecompLines()){
+//								if(botDecomp.intersectsLine(decompLine)){
+//									bot.addNeighbour(neib);
+//									neib.addNeighbour(bot);
+//									flagBot = true;
+//									break;
+//								}
+//							}
+//						}
+//					}
+//					
+//					DecompVertex topVertex = new DecompVertex(top);
+//					top.setDecompVertex(topVertex);
+//					while(!upperQueue.isEmpty()){
+//						DecompVertex frontVertex = upperQueue.remove();
+//						frontVertex.setLeftChild(topVertex);
+//					}
+//					
+//					DecompVertex botVertex = new DecompVertex(bot);
+//					bot.setDecompVertex(botVertex);
+//					while(!lowerQueue.isEmpty()){
+//						DecompVertex frontVertex = lowerQueue.remove();
+//						frontVertex.setRightChild(botVertex);
+//					}
+//					
+//					DecompVertex vertex = current.getDecompVertex();
+//					vertex.setType(2);
+//					vertex.setTrapezoid(null);
+//					vertex.setSegment(orientedSegment);
+//					vertex.setLeftChild(topVertex);
+//					vertex.setRightChild(botVertex);
+//					
+//					trapezoids.add(top);
+//					trapezoids.add(bot);
+//					trapezoids.remove(current);
+//					current.freeNeighbours();
+//					oldTop = top;
+//					oldBot = bot;
+//					top = null;
+//					bot = null;
+//					continue;
+//				}
+//				if(top.rightPoints.size() > 0){
+//					for(Trapezoid neib : current.getNeighbours()){
+//						boolean flagTop = false;
+//						for(Line2D decompLine : neib.getDecompLines()){
+//							if(flagTop) break;
+//							for(Line2D topDecomp : top.getDecompLines()){
+//								if(topDecomp.intersectsLine(decompLine)){
+//									top.addNeighbour(neib);
+//									neib.addNeighbour(top);
+//									flagTop = true;
+//									break;
+//								}
+//							}
+//						}
+//					}
+//					
+//					DecompVertex topVertex = new DecompVertex(top);
+//					top.setDecompVertex(topVertex);
+//					while(!upperQueue.isEmpty()){
+//						DecompVertex frontVertex = upperQueue.remove();
+//						frontVertex.setLeftChild(topVertex);
+//					}
+//					
+//					DecompVertex vertex = current.getDecompVertex();
+//					vertex.setType(2);
+//					vertex.setTrapezoid(null);
+//					vertex.setSegment(orientedSegment);
+//					vertex.setLeftChild(topVertex);
+//					lowerQueue.add(vertex);
+//					
+//					trapezoids.add(top);
+//					trapezoids.remove(current);
+//					current.freeNeighbours();
+//					oldTop = top;
+//					top = null;
+//					continue;
+//				}
+//				if(bot.rightPoints.size() > 0){
+//					for(Trapezoid neib : current.getNeighbours()){
+//						boolean flagBot = false;
+//						for(Line2D decompLine : neib.getDecompLines()){
+//							if(flagBot) break;
+//							for(Line2D botDecomp : bot.getDecompLines()){
+//								if(botDecomp.intersectsLine(decompLine)){
+//									bot.addNeighbour(neib);
+//									neib.addNeighbour(bot);
+//									flagBot = true;
+//									break;
+//								}
+//							}
+//						}
+//					}
+//					
+//					DecompVertex botVertex = new DecompVertex(bot);
+//					bot.setDecompVertex(botVertex);
+//					while(!lowerQueue.isEmpty()){
+//						DecompVertex frontVertex = lowerQueue.remove();
+//						frontVertex.setRightChild(botVertex);
+//					}
+//					
+//					DecompVertex vertex = current.getDecompVertex();
+//					vertex.setType(2);
+//					vertex.setTrapezoid(null);
+//					vertex.setSegment(orientedSegment);
+//					vertex.setRightChild(botVertex);
+//					upperQueue.add(vertex);
+//					
+//					trapezoids.add(bot);
+//					trapezoids.remove(current);
+//					current.freeNeighbours();
+//					oldBot = bot;
+//					bot = null;
+//					continue;
+//				}
+//				//Current has at least 1 right bounding point, so some of the cases above should be covered
+//			}
+//			
 			
 			return;
 			
@@ -1312,7 +1510,7 @@ public class VerticalDecomposition{
 		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)),bot1, bot2, top1, top2, neighbours, null, null);
+			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), bot1, bot2, top1, top2, neighbours, null, null);
 		}
 		
 		/**
@@ -1354,7 +1552,7 @@ public class VerticalDecomposition{
 		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(List<Point2D> left, List<Point2D> right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours){
-			this(left, right,bot1, bot2, top1, top2, neighbours, null, null);
+			this(left, right, bot1, bot2, top1, top2, neighbours, null, null);
 		}
 		
 		/**
@@ -1369,12 +1567,15 @@ public class VerticalDecomposition{
 		 * @param vertex The decomposition vertex linked to this Trapezoid. 
 		 */
 		public Trapezoid(List<Point2D> left, List<Point2D> right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, List<Trapezoid> neighbours, DecompVertex vertex, ConvexObject object){
-			topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? (top1.getY() < top2.getY() ? top1 : top2) : (top1.getX() < top2.getX() ? top1 : top2);  
-			topRight = topLeft.equals(top1) ? top2 : top1;
-			botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? (bot1.getY() < bot2.getY() ? bot1 : bot2) : (bot1.getX() < bot2.getY() ? bot1 : bot2);
-			botRight = botLeft.equals(bot1) ? bot2 : bot1;
-			leftPoints = left;
-			rightPoints = right;
+			this.topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? ((Double.compare(top1.getY(), top2.getY()) < 0) ? top1 : top2) : Double.compare(top1.getX(), top2.getX()) < 0 ? top1 : top2;  
+			this.topRight = this.topLeft.equals(top1) ? top2 : top1;
+			this.botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? ((Double.compare(bot1.getY(), bot2.getY()) < 0) ? bot1 : bot2) : Double.compare(bot1.getX(), bot2.getX()) < 0 ? bot1 : bot2;
+			this.botRight = this.botLeft.equals(bot1) ? bot2 : bot1;
+			assert Double.compare(this.topLeft.getX(), this.topRight.getX()) <= 0;
+			assert Double.compare(this.botLeft.getX(), this.botRight.getX()) <= 0;
+			this.leftPoints = left;
+			this.rightPoints = right;
+			
 			this.neighbours = neighbours == null ? new ArrayList<Trapezoid>() : neighbours;
 			this.vertex = vertex;
 			this.object = object;
@@ -1429,38 +1630,19 @@ public class VerticalDecomposition{
 		 */
 		public List<Line2D> getDecompLines(){
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
-			
-			if(Double.compare(topLeft.getX(), topRight.getX()) == 0 &&  Double.compare(botLeft.getX(), botRight.getX()) == 0){//both lines vertical
-				Point2D topPoint = Double.compare(topLeft.getY(), topRight.getY()) >= 0 ? topRight : topLeft; 
-				Point2D botPoint = Double.compare(botLeft.getY(), botRight.getY()) <= 0 ? botRight : botLeft; 
-				verticalLines.add(new Line2D.Double(botPoint, topPoint));
-			}else if(Double.compare(topLeft.getX(), topRight.getX()) == 0){//only top line vertical
-				double xRatioBot = (topLeft.getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-				Point2D topPoint = Double.compare(topLeft.getY(), topRight.getY()) >= 0 ? topRight : topLeft; 
-				Point2D botPoint = new Point2D.Double(topLeft.getX(), xRatioBot * botLeft.getY() + (1 - xRatioBot) * botRight.getY());
-				verticalLines.add(new Line2D.Double(botPoint, topPoint));
-			}else if(Double.compare(botLeft.getX(), botRight.getX()) == 0){//only bottom line vertical
-				double xRatioTop = (botLeft.getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
-				Point2D botPoint = Double.compare(botLeft.getY(), botRight.getY()) >= 0 ? botRight : botLeft; 
-				Point2D topPoint = new Point2D.Double(botLeft.getX(), xRatioTop * topLeft.getY() + (1 - xRatioTop) * topRight.getY());
-				verticalLines.add(new Line2D.Double(botPoint, topPoint));
-			}else{
-				if(!(topLeft.equals(botLeft) && leftPoints.contains(topLeft))){//Draw vertical line between top and bottom on the left
-					double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
-					double xRatioBot = (leftPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-					
-					verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
-														new Point2D.Double(leftPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
-					
-				}
+			if(!(topLeft.equals(botLeft) && leftPoints.contains(topLeft))){//Draw vertical line between top and bottom on the left
+				double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
+				double xRatioBot = (leftPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
+				verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
+													new Point2D.Double(leftPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
 				
-				if(!(topRight.equals(botRight) && rightPoints.contains(topRight))){//Draw vertical line between top and bottom on the right
-					double xRatioTop = (rightPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
-					double xRatioBot = (rightPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-
-					verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
-									  					new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
-				}
+			}
+			
+			if(!(topRight.equals(botRight) && rightPoints.contains(topRight))){//Draw vertical line between top and bottom on the right
+				double xRatioTop = Math.abs((rightPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX()));
+				double xRatioBot = Math.abs((rightPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX()));
+				verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
+								  					new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
 			}
 			return verticalLines;
 		}
@@ -1504,25 +1686,32 @@ public class VerticalDecomposition{
 		 * @return True if the line segment is intersected, false otherwise.
 		 */
 		public boolean intersectsSegment(Line2D segment){
-			if((leftPoints.get(0).getX() > segment.getX1() && leftPoints.get(0).getX() > segment.getX2()) ||
-			   (rightPoints.get(0).getX() < segment.getX1() && rightPoints.get(0).getX() < segment.getX2())){
-				return false;
-			}
-			
-			double xCoord;
-			if(leftPoints.get(0).getX() < segment.getX1() || rightPoints.get(0).getX() > segment.getX1()){
-				xCoord = segment.getX1();
-			}else{
-				xCoord = segment.getX2();
-			}
-			
-			double xRatio = (xCoord - segment.getX1()) / (segment.getX2() - segment.getX1());;
-			double yCoord = xRatio * segment.getY1() + (1 - xRatio) * segment.getY2();
-			if(Line2D.relativeCCW(topLeft.getX(), topLeft.getY(), topRight.getX(), topRight.getY(), xCoord, yCoord) < 0 &&
-			   Line2D.relativeCCW(botLeft.getX(), botLeft.getY(), botRight.getX(), botRight.getY(), xCoord, yCoord) > 0){
-				return true;
+			List<Line2D> DecompLines = this.getDecompLines();
+			for(Line2D line : DecompLines){
+				if(line.intersectsLine(segment)){
+					return true;
+				}
 			}
 			return false;
+//			if((leftPoints.get(0).getX() > segment.getX1() && leftPoints.get(0).getX() > segment.getX2()) ||
+//			   (rightPoints.get(0).getX() < segment.getX1() && rightPoints.get(0).getX() < segment.getX2())){
+//				return false;
+//			}
+//			
+//			double xCoord;
+//			if(leftPoints.get(0).getX() < segment.getX1() || rightPoints.get(0).getX() > segment.getX1()){
+//				xCoord = segment.getX1();
+//			}else{
+//				xCoord = segment.getX2();
+//			}
+//			
+//			double xRatio = (xCoord - segment.getX1()) / (segment.getX2() - segment.getX1());;
+//			double yCoord = xRatio * segment.getY1() + (1 - xRatio) * segment.getY2();
+//			if(Line2D.relativeCCW(topLeft.getX(), topLeft.getY(), topRight.getX(), topRight.getY(), xCoord, yCoord) < 0 &&
+//			   Line2D.relativeCCW(botLeft.getX(), botLeft.getY(), botRight.getX(), botRight.getY(), xCoord, yCoord) > 0){
+//				return true;
+//			}
+//			return false;
 		}
 		
 		/**
