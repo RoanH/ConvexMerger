@@ -160,8 +160,9 @@ public class VerticalDecomposition{
 	}
 	
 	/**
-	 * Adds a line segment to the vertical decomposition.
+	 * Adds a line segment belonging to an object to the vertical decomposition.
 	 * @param seg The line segment to add to the decomposition.
+	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
 		
@@ -752,7 +753,7 @@ public class VerticalDecomposition{
 					vertex.setRightChild(botVertex);
 				}
 				return;
-			}else{
+			}else{//actual 2 or more trapezoids.
 				Trapezoid top = null, bot = null, left = null, right = null;
 				if(leftExists){
 					top = new Trapezoid(leftp, new ArrayList<Point2D>(), leftp, rightp, start.topLeft, start.topRight);
@@ -883,15 +884,15 @@ public class VerticalDecomposition{
 				}
 				
 				while(!intersected.isEmpty()){
-					Trapezoid current = intersected.remove(); 
+					Trapezoid current = intersected.remove();
+					
 				}
 				
-				if(rightExists){
-					if(rightBisected){
-						
-					}else{
-						
-					}
+				//Right always exists
+				if(rightBisected){
+					
+				}else{
+					
 				}
 			}
 			return;
@@ -966,7 +967,7 @@ public class VerticalDecomposition{
 		 * Constructs a vertex with no children or linked objects and only a type of 0.
 		 */
 		public DecompVertex(){
-			this(0, null, null, null, null, null, (DecompVertex) null);
+			this(0, null, null, null, null, null);
 		}
 		
 		/**
@@ -974,7 +975,7 @@ public class VerticalDecomposition{
 		 * @param trapezoid The trapezoid to link to.
 		 */
 		public DecompVertex(Trapezoid trapezoid){
-			this(0 , null, null, trapezoid, null, null, (DecompVertex) null);
+			this(0 , null, null, trapezoid, null, null);
 		}
 		
 		/**
@@ -984,7 +985,7 @@ public class VerticalDecomposition{
 		 * @param point The corresponding point in the decomposition.
 		 */
 		public DecompVertex(DecompVertex left, DecompVertex right, Point2D point){
-			this(1, left, right, null, point, null, (DecompVertex) null);
+			this(1, left, right, null, point, null);
 		}
 		
 		/**
@@ -994,11 +995,7 @@ public class VerticalDecomposition{
 		 * @param segment The corresponding line segment in the decomposition.
 		 */
 		public DecompVertex(DecompVertex left, DecompVertex right, Line2D segment){
-			this(2, left, right, null, null, segment, (DecompVertex) null);
-		}
-		
-		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment, DecompVertex parent){
-			this(type, left, right, trapezoid, point, segment, new ArrayList<DecompVertex>(Arrays.asList(parent)));
+			this(2, left, right, null, null, segment);
 		}
 		
 		/**
@@ -1010,9 +1007,9 @@ public class VerticalDecomposition{
 		 * @param point The point for point nodes to link to.
 		 * @param segment The line segment for segment nodes to link to.
 		 */
-		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment, ArrayList<DecompVertex> parents){
+		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment){
 			this.type  = type;
-			this.parents = parents;
+			this.parents = new ArrayList<DecompVertex>();
 			if(type == 0){
 				this.left  = null;
 				this.right = null;
@@ -1225,10 +1222,9 @@ public class VerticalDecomposition{
 		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
 		 * @param top1 One point of the top bounding line of the trapezoid.
 		 * @param top2 The other point of the bottom bounding line of the trapezoid.
-		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), bot1, bot2, top1, top2, null, null);
+			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), bot1, bot2, top1, top2);
 		}
 		
 		/**
@@ -1239,10 +1235,9 @@ public class VerticalDecomposition{
 		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
 		 * @param top1 One point of the top bounding line of the trapezoid.
 		 * @param top2 The other point of the bottom bounding line of the trapezoid.
-		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(List<Point2D> left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(left, new ArrayList<Point2D>(Arrays.asList(right)),bot1, bot2, top1, top2, null, null);
+			this(left, new ArrayList<Point2D>(Arrays.asList(right)),bot1, bot2, top1, top2);
 		}
 		
 		/**
@@ -1253,24 +1248,9 @@ public class VerticalDecomposition{
 		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
 		 * @param top1 One point of the top bounding line of the trapezoid.
 		 * @param top2 The other point of the bottom bounding line of the trapezoid.
-		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
 		 */
 		public Trapezoid(Point2D left, List<Point2D>  right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), right,bot1, bot2, top1, top2, null, null);
-		}
-		
-		/**
-		 * Constructs a trapezoid given multiple left and right bounding points, and top and the defining points of the top and bottom segments.
-		 * @param left The left bounding point of the trapezoid.
-		 * @param right The right bounding point of the trapezoid.
-		 * @param bot1 One point of the bottom bounding line of the trapezoid.
-		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
-		 * @param top1 One point of the top bounding line of the trapezoid.
-		 * @param top2 The other point of the bottom bounding line of the trapezoid.
-		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid. 
-		 */
-		public Trapezoid(List<Point2D> left, List<Point2D> right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(left, right, bot1, bot2, top1, top2, null, null);
+			this(new ArrayList<Point2D>(Arrays.asList(left)), right,bot1, bot2, top1, top2);
 		}
 		
 		/**
@@ -1281,10 +1261,8 @@ public class VerticalDecomposition{
 		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
 		 * @param top1 One point of the top bounding line of the trapezoid.
 		 * @param top2 The other point of the bottom bounding line of the trapezoid.
-		 * @param neighbours The neighbouring trapezoids of the constructed trapezoid.
-		 * @param vertex The decomposition vertex linked to this Trapezoid. 
 		 */
-		public Trapezoid(List<Point2D> left, List<Point2D> right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2, DecompVertex vertex, ConvexObject object){
+		public Trapezoid(List<Point2D> left, List<Point2D> right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
 			this.topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? ((Double.compare(top1.getY(), top2.getY()) < 0) ? top1 : top2) : Double.compare(top1.getX(), top2.getX()) < 0 ? top1 : top2;  
 			this.topRight = this.topLeft.equals(top1) ? top2 : top1;
 			this.botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? ((Double.compare(bot1.getY(), bot2.getY()) < 0) ? bot1 : bot2) : Double.compare(bot1.getX(), bot2.getX()) < 0 ? bot1 : bot2;
@@ -1295,8 +1273,8 @@ public class VerticalDecomposition{
 			this.rightPoints = right;
 			
 			this.neighbours = new ArrayList<Trapezoid>();
-			this.vertex = vertex;
-			this.object = object;
+			this.vertex = null;
+			this.object = null;
 		}
 		
 		/**
