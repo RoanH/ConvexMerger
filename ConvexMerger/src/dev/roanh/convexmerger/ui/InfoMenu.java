@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.AbstractMap.SimpleEntry;
 
 import dev.roanh.convexmerger.Constants;
@@ -63,7 +62,7 @@ public class InfoMenu extends Screen{
 	/**
 	 * The latest version of the program.
 	 */
-	private static String version = "Checking...";
+	private static volatile String version = "Checking...";
 	/**
 	 * Example animation that is shown in the example box.
 	 */
@@ -412,15 +411,6 @@ public class InfoMenu extends Screen{
 		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "UI Icons"));
 		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
 		
-		Thread versionChecker = new Thread(){
-			
-			@Override
-			public void run(){
-				version = Objects.toString(Util.checkVersion("RoanH", "ConvexMerger"), "Unknown");
-			}
-		};
-		versionChecker.setDaemon(true);
-		versionChecker.setName("VersionChecker");
-		versionChecker.start();
+		Util.checkVersion("RoanH", "ConvexMerger", ver->version = ver.orElse("Unknown"));
 	}
 }
