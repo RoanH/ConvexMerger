@@ -59,11 +59,11 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	/**
 	 * Configuration for the playfield density.
 	 */
-	private ButtonAssembly density = new ButtonAssembly(2, "Density", "Low", "Medium", "High");
+	private ButtonAssembly density = new ButtonAssembly(1, "Density", "Low", "Medium", "High");
 	/**
 	 * Configuration for the playfield spacing.
 	 */
-	private ButtonAssembly spacing = new ButtonAssembly(0, "Spacing", "Small", "Medium", "Large");
+	private ButtonAssembly spacing = new ButtonAssembly(1, "Spacing", "Small", "Medium", "Large");
 	/**
 	 * Playfield generation progress (0~1).
 	 */
