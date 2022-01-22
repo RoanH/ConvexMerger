@@ -494,7 +494,8 @@ public class VerticalDecomposition{
 				//First trapezoid;
 				//If the leftpoint is at the left border, no need to split.
 				if(current == old && leftp.getX() != current.leftPoints.get(0).getX()){
-					//Split current into left and right
+//					System.out.println("First");
+					//Split current into left and right of leftp.
 					left = new Trapezoid(current.leftPoints, leftp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 					right = new Trapezoid(leftp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
 					
@@ -512,6 +513,7 @@ public class VerticalDecomposition{
 						}
 					}
 					
+					//Update search structure
 					DecompVertex vertex = current.getDecompVertex();
 					current.freeNeighbours();
 					current.setDecompVertex(null);
@@ -527,16 +529,55 @@ public class VerticalDecomposition{
 					vertex.setLeftChild(leftVertex);
 					vertex.setRightChild(rightVertex);
 					
+					//Update trapezoids
 					trapezoids.remove(current);
 					trapezoids.add(left);
 					trapezoids.add(right);
-					
+					//Right has to be bisected.
 					current = right;
 					//TODO: possibly handle case when first == last here
 				}
 				//Last trapezoid
-				if(intersected.isEmpty()){
-					end = current;
+				//If rightp is on the right border, no need to split.
+				if(intersected.isEmpty() && rightp.getX() != current.rightPoints.get(0).getX()){
+//					System.out.println("Last");
+					//Split current into left and right of rightp.
+					left = new Trapezoid(current.leftPoints, rightp, current.botLeft, current.botRight, current.topLeft, current.topRight);
+					right = new Trapezoid(rightp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
+					//Add neighbours to left and right.
+					left.addNeighbour(right);
+					right.addNeighbour(left);
+					for(Trapezoid neib : current.neighbours){
+						if(current.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
+							left.addNeighbour(neib);
+							neib.addNeighbour(left);
+						}
+						if(current.rightPoints.get(0).getX() == neib.leftPoints.get(0).getX()){
+							right.addNeighbour(neib);
+							neib.addNeighbour(right);
+						}
+					}
+					//Update search structure.
+					DecompVertex vertex = current.getDecompVertex();
+					current.freeNeighbours();
+					current.setDecompVertex(null);
+					vertex.setTrapezoid(null);
+					
+					DecompVertex leftVertex = new DecompVertex(left);
+					left.setDecompVertex(leftVertex);
+					DecompVertex rightVertex = new DecompVertex(right);
+					right.setDecompVertex(rightVertex);
+					
+					vertex.setType(1);
+					vertex.setPoint(rightp);
+					vertex.setLeftChild(leftVertex);
+					vertex.setRightChild(rightVertex);
+					//Update trapezoids list.
+					trapezoids.remove(current);
+					trapezoids.add(left);
+					trapezoids.add(right);
+					//Left has to be bisected.
+					current = left;
 				}
 //				//Good stuff assertions
 //				if(leftp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= leftp.getX()){
