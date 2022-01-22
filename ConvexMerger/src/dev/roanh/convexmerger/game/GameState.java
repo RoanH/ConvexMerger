@@ -234,6 +234,7 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			
+			decomp.rebuild();
 			merged.setID(maxID + 1);
 			listeners.forEach(l->l.merge(player, first, second));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
@@ -414,6 +415,16 @@ public class GameState{
 	 */
 	public void clearSelection(){
 		selected = null;
+	}
+	
+	/**
+	 * Gets the (first) object selected by the player.
+	 * @return The currently selected object to start
+	 *         a merge from or <code>null</code>.
+	 * @see #isSelectingSecond()
+	 */
+	public ConvexObject getSelectedObject(){
+		return selected;
 	}
 
 	/**

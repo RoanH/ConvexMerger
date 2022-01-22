@@ -71,6 +71,13 @@ public class TextField{
 	}
 	
 	/**
+	 * Gives focus to this text field.
+	 */
+	public void giveFocus(){
+		focus = true;
+	}
+	
+	/**
 	 * Handles a key event on this text field.
 	 * @param event The event to handle.
 	 */

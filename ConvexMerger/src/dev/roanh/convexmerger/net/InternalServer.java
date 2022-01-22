@@ -189,7 +189,9 @@ public class InternalServer implements GameStateListener{
 		private void shutdown(){
 			running = false;
 			try{
-				server.close();
+				if(server != null){
+					server.close();
+				}
 			}catch(IOException e){
 				//not very important, just reject connections
 			}

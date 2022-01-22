@@ -68,6 +68,26 @@ public class ConvexObject implements Identity, Serializable{
 	}
 	
 	/**
+	 * Constructs a new convex object defined by the given four points.
+	 * @param x1 The x coordinate of the first point.
+	 * @param y1 The y coordinate of the first point.
+	 * @param x2 The x coordinate of the second point.
+	 * @param y2 The y coordinate of the second point.
+	 * @param x3 The x coordinate of the third point.
+	 * @param y3 The y coordinate of the third point.
+	 * @param x4 The x coordinate of the fourth point.
+	 * @param y4 The y coordinate of the fourth point.
+	 */
+	public ConvexObject(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
+		this(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(x1, y1),
+			new Point2D.Double(x2, y2),
+			new Point2D.Double(x3, y3),
+			new Point2D.Double(x4, y4)
+		)));
+	}
+	
+	/**
 	 * Constructs a new convex object defined by the given three points.
 	 * @param x1 The x coordinate of the first point.
 	 * @param y1 The y coordinate of the first point.

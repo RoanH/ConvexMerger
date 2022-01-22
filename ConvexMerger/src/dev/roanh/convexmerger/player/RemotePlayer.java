@@ -54,8 +54,8 @@ public class RemotePlayer extends GreedyPlayer{
 	private boolean fallback() throws InterruptedException{
 		con.close();
 		lost = true;
-		if(!getName().endsWith("[Lost]")){
-			this.setName(this.getName() + "[Lost]");
+		if(!getName().endsWith(" [Lost]")){
+			this.setName(this.getName() + " [Lost]");
 		}
 		return super.executeMove();
 	}
@@ -90,8 +90,8 @@ public class RemotePlayer extends GreedyPlayer{
 				return fallback();
 			}
 			
-			if(move.getPlayer().isLost() && !getName().endsWith("[Lost]")){
-				this.setName(this.getName() + "[Lost]");
+			if(move.getPlayer().isLost() && !getName().endsWith(" [Lost]")){
+				this.setName(this.getName() + " [Lost]");
 			}
 			
 			if(move.getType() == MoveType.CLAIM){

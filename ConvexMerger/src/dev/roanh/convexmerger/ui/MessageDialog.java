@@ -1,5 +1,8 @@
 package dev.roanh.convexmerger.ui;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Enum of feedback messages shown to the player.
  * @author Roan
@@ -20,9 +23,13 @@ public enum MessageDialog{
 	 */
 	NO_TURN("Not Your Turn", "Please wait for the other player(s) to finish their turn."),
 	/**
-	 * Shown when the player tires to perform a move after the game ended.
+	 * Shown when the player tries to perform a move after the game ended.
 	 */
-	GAME_END("Game Ended", "This game has ended, please start a new game to continue playing.");
+	GAME_END("Game Ended", "This game has ended, please start a new game."),
+	/**
+	 * Shown when the player presses the menu button.
+	 */
+	QUIT("Quit", "    Are you sure you want to quit?");
 	
 	/**
 	 * The title for this dialog.
@@ -31,7 +38,7 @@ public enum MessageDialog{
 	/**
 	 * The message for this dialog.
 	 */
-	private final String message;
+	private final List<String> message;
 	
 	/**
 	 * Constructs a new message dialog with the given
@@ -41,7 +48,7 @@ public enum MessageDialog{
 	 */
 	private MessageDialog(String title, String message){
 		this.title = title;
-		this.message = message;
+		this.message = Arrays.asList(message.split(" "));
 	}
 	
 	/**
@@ -54,9 +61,10 @@ public enum MessageDialog{
 	
 	/**
 	 * Gets the feedback message for this dialog.
-	 * @return The feedback message for this dialog.
+	 * @return The feedback message for this dialog
+	 *         as a list of words.
 	 */
-	public String getMessage(){
+	public List<String> getMessage(){
 		return message;
 	}
 }

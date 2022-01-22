@@ -26,11 +26,19 @@ import dev.roanh.convexmerger.player.Player;
  * Main game entry point, manages the main state of the game.
  * @author Roan
  */
-public class ConvexMerger{
+public class ConvexMerger implements KeyEventDispatcher{
 	/**
 	 * Application main frame.
 	 */
 	private JFrame frame = new JFrame(Constants.TITLE);
+	/**
+	 * Window size before switching to full screen.
+	 */
+	private Dimension lastSize = null;
+	/**
+	 * Window location before switching to full screen.
+	 */
+	private Point lastLocation = null;
 	/**
 	 * The renderer rending the active game screen.
 	 */
@@ -39,7 +47,14 @@ public class ConvexMerger{
 	 * The thread running the active game (if any).
 	 */
 	private GameThread gameThread;
+	/**
+	 * Cached new game menu to persist settings.
+	 */
+	private NewGameMenu newGame = new NewGameMenu(this);
 	
+	/**
+	 * Shows the main game window.
+	 */
 	public void showGame(){
 		JPanel content = new JPanel(new BorderLayout());
 		content.add(renderer, BorderLayout.CENTER);
@@ -72,38 +87,23 @@ public class ConvexMerger{
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
-			private Dimension lastSize = null;
-			private Point lastLocation = null;
-			
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent e){
-				if(e.getKeyCode() == KeyEvent.VK_F11 && e.getID() == KeyEvent.KEY_RELEASED){
-					if(frame.isUndecorated()){
-						frame.setVisible(false);
-						frame.dispose();
-						frame.setUndecorated(false);
-						frame.setSize(lastSize);
-						frame.setLocation(lastLocation);
-						frame.setVisible(true);
-					}else{
-						lastSize = frame.getSize();
-						lastLocation = frame.getLocation();
-						frame.setVisible(false);
-						frame.dispose();
-						frame.setUndecorated(true);
-						frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-						frame.setLocationRelativeTo(null);
-						frame.setVisible(true);
-					}
-				}
-				return false;
-			}
-		});
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
 	}
 	
+	/**
+	 * Exits this game context, possibly exiting
+	 * the application as a whole.
+	 */
 	public void exit(){
 		frame.dispose();
+	}
+	
+	/**
+	 * Shows the new game menu.
+	 */
+	public void showNewGame(){
+		newGame.reset();
+		switchScene(newGame);
 	}
 	
 	/**
@@ -134,6 +134,30 @@ public class ConvexMerger{
 		}
 	}
 	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent e){
+		if(e.getKeyCode() == KeyEvent.VK_F11 && e.getID() == KeyEvent.KEY_RELEASED){
+			if(frame.isUndecorated()){
+				frame.setVisible(false);
+				frame.dispose();
+				frame.setUndecorated(false);
+				frame.setSize(lastSize);
+				frame.setLocation(lastLocation);
+				frame.setVisible(true);
+			}else{
+				lastSize = frame.getSize();
+				lastLocation = frame.getLocation();
+				frame.setVisible(false);
+				frame.dispose();
+				frame.setUndecorated(true);
+				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				frame.setLocationRelativeTo(null);
+				frame.setVisible(true);
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Thread responsible for managing the game turns,
 	 * generating the playfield and executing AI moves.
@@ -160,6 +184,10 @@ public class ConvexMerger{
 			GameState state = ctor.create();
 			try{
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
+				
+				if(state.getActivePlayer().isAI()){
+					Thread.sleep(Constants.MIN_TURN_TIME);
+				}
 				
 				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();

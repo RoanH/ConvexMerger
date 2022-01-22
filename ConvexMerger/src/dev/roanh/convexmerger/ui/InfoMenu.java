@@ -1,19 +1,26 @@
 package dev.roanh.convexmerger.ui;
 
+import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.AbstractMap.SimpleEntry;
 
+import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ExampleAnimation;
 import dev.roanh.convexmerger.game.GameState;
@@ -39,15 +46,23 @@ public class InfoMenu extends Screen{
 	/**
 	 * Height of the version box.
 	 */
-	private static final int VERSION_HEIGHT = 80;
+	private static final int VERSION_HEIGHT = 70;
 	/**
 	 * Height of the credits box.
 	 */
 	private static final int CREDITS_HEIGHT = 174;
 	/**
+	 * Height of the shortcuts box.
+	 */
+	private static final int KEYS_HEIGHT = 150;
+	/**
+	 * Width of a keyboard key frame.
+	 */
+	private static final double KEY_WIDTH = 31.0D;
+	/**
 	 * The latest version of the program.
 	 */
-	private static String version = null;
+	private static volatile String version = "Checking...";
 	/**
 	 * Example animation that is shown in the example box.
 	 */
@@ -60,6 +75,18 @@ public class InfoMenu extends Screen{
 	 * The screen to switch to after this screen is closed.
 	 */
 	private Screen prev;
+	/**
+	 * Bounds of the current version link.
+	 */
+	private Rectangle2D currentBox = new Rectangle2D.Double();
+	/**
+	 * Bounds of the latest version link.
+	 */
+	private Rectangle2D latestBox = new Rectangle2D.Double();
+	/**
+	 * Bounds of the GitHub link.
+	 */
+	private Rectangle2D githubBox = new Rectangle2D.Double();
 	
 	/**
 	 * Constructs a new info menu with the given game context and state
@@ -82,16 +109,69 @@ public class InfoMenu extends Screen{
 		
 		double size = Screen.getMaxWidth(width, 0.9D, MAX_WIDTH);
 		double offset = (width - size) / 2.0D;
-		g.translate(0, Screen.TOP_SPACE + TOP_SIDE_TRIANGLE);
 		double boxWidth = (size - BOX_SPACING) / 2.0D;
 		Paint gradient = Theme.constructBorderGradient(game, width);
-		double rulesHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
-		double exampleBoxHeight = height - Screen.TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - Screen.BOTTOM_OFFSET - Screen.TOP_OFFSET;
+		double rulesHeight = height - TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING * 2.0D - BOTTOM_OFFSET - TOP_OFFSET - KEYS_HEIGHT;
+		double exampleBoxHeight = height - TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - BOTTOM_OFFSET - TOP_OFFSET;
 		
-		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, 0.0D, boxWidth, exampleBoxHeight);
-		renderRules(g, gradient, offset, 0.0D, boxWidth, rulesHeight);
-		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING, boxWidth, CREDITS_HEIGHT);
-		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING, boxWidth, VERSION_HEIGHT);
+		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, exampleBoxHeight);
+		renderRules(g, gradient, offset, TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, rulesHeight);
+		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING + TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, CREDITS_HEIGHT);
+		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING * 2.0D + KEYS_HEIGHT + TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, VERSION_HEIGHT, mouseLoc);
+		renderKeys(g, gradient, offset, rulesHeight + BOX_SPACING + TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, KEYS_HEIGHT);
+	}
+	
+	/**
+	 * Renders the shortcuts box.
+	 * @param g The graphics context to use.
+	 * @param gradient The paint to use to draw the gradient of the box.
+	 * @param x The x position to render the box at.
+	 * @param y The y position to render the box at.
+	 * @param w The width of the box to render.
+	 * @param h The height of the box to render.
+	 */
+	private void renderKeys(Graphics2D g, Paint gradient, double x, double y, double w, double h){
+		drawTitledBox(g, gradient, x, y, w, h, "Shortcuts");
+		
+		g.setFont(Theme.PRIDI_REGULAR_14);
+		FontMetrics fm = g.getFontMetrics();
+		
+		x += BOX_INSETS;
+		y += BOX_HEADER_HEIGHT + BOX_TEXT_OFFSET * 2.0D;
+		drawKeyFrame(g, x, y, "F11");
+		g.drawString("FullScreen", (float)(x + KEY_WIDTH + SPACING), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "R");
+		g.drawString("Game Progress", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "C");
+		g.drawString("Show Centroids", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "D");
+		g.drawString("Vertical Decomposition", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+	}
+	
+	/**
+	 * Renders a keyboard key in a frame.
+	 * @param g The graphics context to use.
+	 * @param x The x position to render the frame at.
+	 * @param y The y position to render the frame at.
+	 * @param key The key to put in the box.
+	 */
+	private void drawKeyFrame(Graphics2D g, double x, double y, String key){
+		Path2D box = computeBox(x, y, KEY_WIDTH, 22.0D, 5.0D);
+		g.setColor(Theme.LIGHTEN);
+		g.fill(box);
+		g.setColor(Theme.DOUBLE_LIGHTEN);
+		g.setStroke(Theme.BORDER_STROKE);
+		g.draw(box);
+		
+		FontMetrics fm = g.getFontMetrics();
+		g.setColor(Theme.BOX_TEXT_COLOR);
+		g.drawString(key, (float)(x + (KEY_WIDTH - fm.stringWidth(key)) / 2.0D), (float)(y + fm.getAscent()));
 	}
 	
 	/**
@@ -102,18 +182,64 @@ public class InfoMenu extends Screen{
 	 * @param y The y position to render the box at.
 	 * @param w The width of the box to render.
 	 * @param h The height of the box to render.
+	 * @param mouseLoc The current cursor location.
 	 */
-	private void renderVersion(Graphics2D g, Paint gradient, double x, double y, double w, double h){
+	private void renderVersion(Graphics2D g, Paint gradient, double x, double y, double w, double h, Point2D mouseLoc){
 		drawTitledBox(g, gradient, x, y, w, h, "Version");
 		
 		g.setFont(Theme.PRIDI_REGULAR_14);
+		g.setStroke(Theme.BORDER_STROKE);
 		FontMetrics fm = g.getFontMetrics();
 		
 		y += Screen.BOX_HEADER_HEIGHT + 1;
-		y += fm.getAscent();
+		y += fm.getAscent() + fm.getDescent();
 		x += Screen.BOX_TEXT_OFFSET;
 		
-		g.drawString("Current: TODO " + version, (float)x, (float)y);
+		final String ver = version;
+		float dx = (float)(x + (w - fm.stringWidth("Current:  \u2022 Latest:  \u2022 Visit GitHub Page") - fm.stringWidth(ver) - fm.stringWidth(Constants.VERSION)) / 2.0F);
+		
+		String text = "Current: ";
+		g.drawString(text, dx, (float)y);
+		dx += fm.stringWidth(text);
+		
+		g.setColor(Theme.LINK_COLOR);
+		g.drawString(Constants.VERSION, dx, (float)y);
+		currentBox.setRect(dx, y - fm.getAscent(), fm.stringWidth(Constants.VERSION), fm.getAscent() + fm.getDescent());
+		dx += currentBox.getWidth();
+		if(currentBox.contains(mouseLoc)){
+			g.draw(new Line2D.Double(currentBox.getMinX(), y + fm.getDescent() / 2.0D, currentBox.getMaxX(), y + fm.getDescent() / 2.0D));
+		}
+		
+		g.setColor(Theme.BOX_SECONDARY_COLOR);
+		text = " \u2022 ";
+		g.drawString(text, dx, (float)y);
+		dx += fm.stringWidth(text);
+		
+		g.setColor(Theme.BOX_TEXT_COLOR);
+		text = "Latest: ";
+		g.drawString(text, dx, (float)y);
+		dx += fm.stringWidth(text);
+		
+		g.setColor(Theme.LINK_COLOR);
+		g.drawString(ver, dx, (float)y);
+		latestBox.setRect(dx, y - fm.getAscent(), fm.stringWidth(ver), fm.getAscent() + fm.getDescent());
+		dx += latestBox.getWidth();
+		if(latestBox.contains(mouseLoc)){
+			g.draw(new Line2D.Double(latestBox.getMinX(), y + fm.getDescent() / 2.0D, latestBox.getMaxX(), y + fm.getDescent() / 2.0D));
+		}
+		
+		g.setColor(Theme.BOX_SECONDARY_COLOR);
+		text = " \u2022 ";
+		g.drawString(text, dx, (float)y);
+		dx += fm.stringWidth(text);
+
+		g.setColor(Theme.LINK_COLOR);
+		text = "Visit GitHub Page";
+		g.drawString(text, dx, (float)y);
+		githubBox.setRect(dx, y - fm.getAscent(), fm.stringWidth(text), fm.getAscent() + fm.getDescent());
+		if(githubBox.contains(mouseLoc)){
+			g.draw(new Line2D.Double(githubBox.getMinX(), y + fm.getDescent() / 2.0D, githubBox.getMaxX(), y + fm.getDescent() / 2.0D));
+		}
 	}
 	
 	/**
@@ -131,9 +257,9 @@ public class InfoMenu extends Screen{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		FontMetrics fm = g.getFontMetrics();
 		
-		y += Screen.BOX_HEADER_HEIGHT + 1;
+		y += BOX_HEADER_HEIGHT + 1;
 		y += fm.getAscent();
-		x += Screen.BOX_TEXT_OFFSET;
+		x += BOX_INSETS;
 		for(Entry<String, String> entry : credits){
 			g.setColor(Theme.BOX_TEXT_COLOR);
 			String name = entry.getKey();
@@ -161,27 +287,27 @@ public class InfoMenu extends Screen{
 		g.setFont(Theme.PRIDI_REGULAR_14);
 		g.setColor(Theme.BOX_TEXT_COLOR);
 		FontMetrics fm = g.getFontMetrics();
-		h -= Screen.BOX_HEADER_HEIGHT + 1 + Screen.BOX_INSETS;
-		double rulesWidth = w - 2 * Screen.BOX_TEXT_OFFSET;
+		h -= BOX_HEADER_HEIGHT + 1 + BOX_INSETS;
+		double rulesWidth = w - 2 * BOX_INSETS;
 		
 		//intro
-		int dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET, Screen.BOX_HEADER_HEIGHT + 1, (int)rulesWidth, (int)h, rules.get(0));
+		int dy = fillText(g, (int)x + BOX_INSETS, (int)(y + BOX_HEADER_HEIGHT + 1), (int)Math.ceil(rulesWidth), (int)h, rules.get(0));
 		
 		//act 1
 		g.setColor(Theme.BOX_SECONDARY_COLOR);
-		g.drawString("1. ", (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight());
+		g.drawString("1. ", (int)x + BOX_INSETS, dy + fm.getHeight());
 		int offset = fm.stringWidth("1. ");
 		g.setColor(Theme.BOX_TEXT_COLOR);
-		dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(1));
+		dy = fillText(g, (int)x + BOX_INSETS + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + y + fm.getHeight()), rules.get(1));
 		
 		//act 2
 		g.setColor(Theme.BOX_SECONDARY_COLOR);
-		g.drawString("2. ", (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight());
+		g.drawString("2. ", (int)x + BOX_INSETS, dy + fm.getHeight());
 		g.setColor(Theme.BOX_TEXT_COLOR);
-		dy = fillText(g, (int)x + Screen.BOX_TEXT_OFFSET + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + fm.getHeight()), rules.get(2));
+		dy = fillText(g, (int)x + BOX_INSETS + offset, dy + fm.getHeight() - fm.getAscent(), (int)(rulesWidth - offset), (int)(h - dy + y + fm.getHeight()), rules.get(2));
 
 		//end
-		fillText(g, (int)x + Screen.BOX_TEXT_OFFSET, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + fm.getHeight()), rules.get(3));
+		fillText(g, (int)x + BOX_INSETS, dy + fm.getHeight() - fm.getAscent(), (int)rulesWidth, (int)(h - dy + y + fm.getHeight()), rules.get(3));
 	}
 	
 	/**
@@ -194,10 +320,10 @@ public class InfoMenu extends Screen{
 	 * @param h The height of the box to render.
 	 */
 	private void renderExample(Graphics2D g, Paint gradient, double x, double y, double w, double h){
-		drawTitledBox(g, gradient, x, 0.0D, w, h, "Example");
+		drawTitledBox(g, gradient, x, y, w, h, "Example");
 		
 		AffineTransform transform = g.getTransform();
-		g.translate(x, Screen.BOX_HEADER_HEIGHT + 1.0D);
+		g.translate(x, y + Screen.BOX_HEADER_HEIGHT + 1.0D);
 		double sx = w / ExampleAnimation.WIDTH;
 		double sy = (h - Screen.BOX_HEADER_HEIGHT) / ExampleAnimation.HEIGHT;
 		if(sx > sy){
@@ -209,6 +335,31 @@ public class InfoMenu extends Screen{
 		}
 		example.run(g);
 		g.setTransform(transform);
+	}
+	
+	@Override
+	public void handleMouseRelease(Point2D loc, int width, int height){
+		super.handleMouseRelease(loc, width, height);
+		
+		try{
+			if(currentBox.contains(loc)){
+				Desktop.getDesktop().browse(new URI("https://github.com/RoanH/ConvexMerger/releases/tag/" + Constants.VERSION));
+			}
+			
+			if(latestBox.contains(loc)){
+				String uri = "https://github.com/RoanH/ConvexMerger/releases";
+				if(version.matches("v\\d\\.\\d")){
+					uri = uri + "/tag/" + version;
+				}
+				Desktop.getDesktop().browse(new URI(uri));
+			}
+			
+			if(githubBox.contains(loc)){
+				Desktop.getDesktop().browse(new URI("https://github.com/RoanH/ConvexMerger"));
+			}
+		}catch(IOException | URISyntaxException e){
+			//pity but not important
+		}
 	}
 
 	@Override
@@ -260,18 +411,6 @@ public class InfoMenu extends Screen{
 		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "UI Icons"));
 		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
 		
-		Thread versionChecker = new Thread(){
-			
-			@Override
-			public void run(){
-				version = Util.checkVersion("RoanH", "ConvexMerger");
-				if(version == null){
-					version = "Unknown";
-				}
-			}
-		};
-		versionChecker.setDaemon(true);
-		versionChecker.setName("VersionChecker");
-		versionChecker.start();
+		Util.checkVersion("RoanH", "ConvexMerger", ver->version = ver.orElse("Unknown"));
 	}
 }

@@ -18,9 +18,17 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  */
 public class HostMenu extends NewGameMenu implements InternalServerListener{
 	/**
+	 * Last name used by the host.
+	 */
+	private static String lastHostName = null;
+	/**
 	 * The multiplayer server.
 	 */
 	private InternalServer server;
+	/**
+	 * Error message, if any.
+	 */
+	private String error = null;
 
 	/**
 	 * Constructs a new host menu with the given game context.
@@ -58,15 +66,28 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 
 	@Override
 	public void handleException(Exception e){
-		//force close on error
-		//TODO show dialog?
-		handleLeftButtonClick();
+		server.shutdown();
+		error = e.getClass().getSimpleName() + ": " + e.getMessage();
 	}
 	
 	@Override
-	public void handleMouseClick(Point2D loc, int width, int height){
-		synchronized(server){
-			super.handleMouseClick(loc, width, height);
+	protected String getButtonMessage(){
+		return error == null ? super.getButtonMessage() : error;
+	}
+	
+	@Override
+	protected boolean canStart(){
+		return error == null && super.canStart();
+	}
+	
+	@Override
+	public void handleMouseRelease(Point2D loc, int width, int height){
+		if(error == null){
+			synchronized(server){
+				super.handleMouseRelease(loc, width, height);
+			}
+		}else{
+			super.handleMouseRelease(loc, width, height);
 		}
 	}
 	
@@ -87,7 +108,14 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 		 */
 		private HostPanel(PlayerTheme theme){
 			super(theme);
-			setHuman(null);
+			setHuman(lastHostName);
+		}
+		
+		@Override
+		protected Optional<Player> getPlayer(){
+			Optional<Player> player = super.getPlayer();
+			player.map(Player::getName).ifPresent(name->lastHostName = name);
+			return player;
 		}
 		
 		@Override

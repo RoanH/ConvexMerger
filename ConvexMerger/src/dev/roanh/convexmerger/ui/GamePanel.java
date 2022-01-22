@@ -37,6 +37,18 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private static final int PLAYER_TEXT_OFFSET = 24;
 	/**
+	 * Message dialog width.
+	 */
+	private static final double DIALOG_WIDTH = 270.0D;
+	/**
+	 * Message dialog height.
+	 */
+	private static final double DIALOG_HEIGHT = 110.0D;
+	/**
+	 * Dialog yes/no button height.
+	 */
+	private static final double BUTTON_HEIGHT = 25.0D;
+	/**
 	 * The game state to visualise.
 	 */
 	private GameState state = null;
@@ -60,6 +72,14 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Result overlay.
 	 */
 	private ResultOverlay resultOverlay;
+	/**
+	 * Quit dialog yes button.
+	 */
+	private Path2D quitYes = new Path2D.Double();
+	/**
+	 * Quit dialog no button.
+	 */
+	private Path2D quitNo = new Path2D.Double();
 	
 	/**
 	 * Constructs a new game panel with the given game context.
@@ -83,12 +103,39 @@ public final class GamePanel extends Screen implements GameStateListener{
 		//render UI shapes
 		renderInterface(g, width, height);
 		
-		//TODO temp dialog
+		//dialog
 		if(activeDialog != null){
-			//TODO center and make look nice
-			g.drawString(activeDialog.getTitle(), 100, 10 + 120);
-			g.drawString(activeDialog.getMessage(), 100, 30 + 120);
-			g.drawString("Click anywhere to close this dialog.", 100, 50 + 120);
+			double offset = (width - DIALOG_WIDTH) / 2.0D;
+			drawTitledBox(g, Theme.constructBorderGradient(state, width), offset, TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D, DIALOG_WIDTH, DIALOG_HEIGHT, activeDialog.getTitle());
+			g.setColor(Theme.BOX_TEXT_COLOR);
+			g.setFont(Theme.PRIDI_REGULAR_14);
+			int end = fillText(g, (int)(offset + BOX_INSETS + BOX_TEXT_OFFSET), TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2 + BOX_HEADER_HEIGHT + BOX_TEXT_OFFSET, (int)(DIALOG_WIDTH - BOX_INSETS * 2.0D - BOX_TEXT_OFFSET * 2.0D), (int)(DIALOG_HEIGHT - BOX_HEADER_HEIGHT - BOX_TEXT_OFFSET), activeDialog.getMessage());
+			end += g.getFontMetrics().getHeight();
+			g.setFont(Theme.PRIDI_MEDIUM_14);
+			if(activeDialog == MessageDialog.QUIT){
+				end -= SPACING;
+				FontMetrics fm = g.getFontMetrics();
+				quitYes = computeBox(offset + DIALOG_WIDTH / 9.0D, end, DIALOG_WIDTH / 3.0D, BUTTON_HEIGHT, 5.0D);
+				g.setColor(quitYes.contains(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(quitYes);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.setStroke(Theme.BUTTON_STROKE);
+				g.draw(quitYes);
+				g.setColor(quitYes.contains(mouseLoc) ? Theme.REMOVE_BUTTON_HIGHLIGHT : Theme.ADD_COLOR);
+				g.drawString("Yes", (float)(offset + DIALOG_WIDTH / 9.0D + (DIALOG_WIDTH / 3.0D - fm.stringWidth("Yes")) / 2.0D), (float)(end + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent()) / 2.0D));
+				
+				quitNo = computeBox(offset + (DIALOG_WIDTH * 5.0D) / 9.0D, end, DIALOG_WIDTH / 3.0D, BUTTON_HEIGHT, 5.0D);
+				g.setColor(quitNo.contains(mouseLoc) ? Theme.DOUBLE_LIGHTEN : Theme.LIGHTEN);
+				g.fill(quitNo);
+				g.setColor(Theme.DOUBLE_LIGHTEN);
+				g.setStroke(Theme.BUTTON_STROKE);
+				g.draw(quitNo);
+				g.setColor(quitNo.contains(mouseLoc) ? Theme.REMOVE_BUTTON_HIGHLIGHT : Theme.ADD_COLOR);
+				g.drawString("No", (float)(offset + (DIALOG_WIDTH * 5.0D) / 9.0D + (DIALOG_WIDTH / 3.0D - fm.stringWidth("No")) / 2.0D), (float)(end + (BUTTON_HEIGHT + fm.getAscent() - fm.getDescent()) / 2.0D));
+			}else{
+				g.setColor(Theme.BOX_SECONDARY_COLOR);
+				g.drawString("(Click anywhere to dismiss)", (width - g.getFontMetrics().stringWidth("(Click anywhere to dismiss)")) / 2.0F, end);
+			}
 		}
 
 		//render results
@@ -260,6 +307,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 		
 		g.setTransform(transform);
 		g.setClip(null);
+		
+		if(activeDialog != null){
+			g.setColor(Theme.OVERLAY_BACKGROUND);
+			g.fillRect(0, 0, width, height);
+		}
 	}
 	
 	/**
@@ -289,14 +341,32 @@ public final class GamePanel extends Screen implements GameStateListener{
 	
 	@Override
 	protected void handleLeftButtonClick(){
-		//TODO menu
-		this.getContext().abortGame();
-		switchScene(new MainMenu(this.getContext()));
+		if(state.isFinished()){
+			this.getContext().abortGame();
+			switchScene(new MainMenu(this.getContext()));
+		}else{
+			activeDialog = MessageDialog.QUIT;
+		}
+	}
+	
+	@Override
+	public void handleMousePress(Point2D point, int width, int height){
+		if(!resultOverlay.isEnabled() && activeDialog == null){
+			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
+			if(!state.isSelectingSecond()){
+				ConvexObject obj = state.getObject(loc);
+				if(obj != null && obj.isOwnedBy(state.getActivePlayer())){
+					state.claimObject(obj, loc);
+				}
+			}else if(state.getSelectedObject().equals(state.getObject(loc))){
+				state.clearSelection();
+			}
+		}
 	}
 
 	@Override
-	public void handleMouseClick(Point2D point, int width, int height){
-		super.handleMouseClick(point, width, height);
+	public void handleMouseRelease(Point2D point, int width, int height){
+		super.handleMouseRelease(point, width, height);
 		
 		if(resultOverlay.isEnabled()){
 			if(resultOverlay.intersectsMenuButton(point)){
@@ -306,23 +376,46 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 		
 		if(activeDialog != null){
-			activeDialog = null;
-		}else if(state.getActivePlayer().requireInput() && !state.isFinished()){
+			if(activeDialog == MessageDialog.QUIT){
+				if(quitNo.contains(point)){
+					activeDialog = null;
+				}else if(quitYes.contains(point)){
+					this.getContext().abortGame();
+					switchScene(new MainMenu(this.getContext()));
+				}
+			}else{
+				activeDialog = null;
+			}
+			return;
+		}
+		
+		if(state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
-				ClaimResult result = state.claimObject(obj, loc);
-				activeDialog = result.getMessage();
-				helperLines = null;
-				if(result.hasResult()){
-					synchronized(state){
-						state.notify();
+				if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
+					ClaimResult result = state.claimObject(obj, loc);
+					activeDialog = result.getMessage();
+					helperLines = null;
+					if(result.hasResult()){
+						synchronized(state){
+							state.notify();
+						}
 					}
+				}else if(!obj.isOwnedBy(state.getActivePlayer())){
+					state.clearSelection();
+					helperLines = null;
+					activeDialog = MessageDialog.ALREADY_OWNED;
 				}
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
 		}
+	}
+	
+	@Override
+	public void handleMouseDrag(Point2D loc, int width, int height){
+		handleMouseMove(loc, width, height);
 	}
 
 	@Override
@@ -337,6 +430,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	public void handleKeyReleased(KeyEvent e){
 		if(e.isControlDown()){
 			if(e.getKeyCode() == KeyEvent.VK_R && resultOverlay != null){
+				activeDialog = null;
 				resultOverlay.setEnabled(!resultOverlay.isEnabled());
 				state.clearSelection();
 				helperLines = null;
@@ -370,6 +464,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 	@Override
 	protected void handleRightButtonClick(){
+		activeDialog = null;
 		this.switchScene(new InfoMenu(this.getContext(), state, this));
 	}
 
@@ -383,6 +478,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 	@Override
 	public void end(){
+		activeDialog = null;
 		resultOverlay.setEnabled(true);
 	}
 

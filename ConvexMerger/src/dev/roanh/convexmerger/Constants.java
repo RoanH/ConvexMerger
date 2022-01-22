@@ -31,7 +31,7 @@ public final class Constants{
 	/**
 	 * Minimum frame size scaling factor
 	 */
-	public static final int MIN_SIZE = 60;
+	public static final int MIN_SIZE = 70;
 	/**
 	 * Initial frame size scaling factor
 	 */
@@ -43,7 +43,7 @@ public final class Constants{
 	/**
 	 * Minimum number of milliseconds any turn should take.
 	 */
-	public static final long MIN_TURN_TIME = 400;
+	public static final long MIN_TURN_TIME = 650;
 	/**
 	 * Multiplayer server port.
 	 */

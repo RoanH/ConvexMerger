@@ -123,6 +123,10 @@ public final class Theme{
 	 */
 	public static final Color MAIN_MENU_BUTTON_HOVER = SCORE_COLOR_LEAD;
 	/**
+	 * Hyper link color.
+	 */
+	public static final Color LINK_COLOR = BUTTON_SELECT;
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -435,11 +439,11 @@ public final class Theme{
 			PRIDI_MEDIUM_10 = medium.deriveFont(10.0F);
 			PRIDI_MEDIUM_12 = medium.deriveFont(12.0F);
 			PRIDI_MEDIUM_13 = medium.deriveFont(13.0F);
-			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);//TODO technically needs spacing
+			PRIDI_MEDIUM_14 = medium.deriveFont(14.0F);
 			PRIDI_MEDIUM_16 = medium.deriveFont(16.0F);
-			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);//TODO technically needs spacing
-			PRIDI_MEDIUM_30 = medium.deriveFont(30.0F);//TODO technically needs spacing
-			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);//TODO technically needs spacing
+			PRIDI_MEDIUM_24 = medium.deriveFont(24.0F);
+			PRIDI_MEDIUM_30 = medium.deriveFont(30.0F);
+			PRIDI_MEDIUM_36 = medium.deriveFont(36.0F);
 			
 			CROWN_ICON = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_SIZE, CROWN_COLOR);
 			CROWN_ICON_LARGE = loadImage(ClassLoader.getSystemResourceAsStream("assets/icons/crown.png"), CROWN_ICON_LARGE_SIZE, CROWN_COLOR);

@@ -59,11 +59,11 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	/**
 	 * Configuration for the playfield density.
 	 */
-	private ButtonAssembly density = new ButtonAssembly(2, "Density", "Low", "Medium", "High");
+	private ButtonAssembly density = new ButtonAssembly(1, "Density", "Low", "Medium", "High");
 	/**
 	 * Configuration for the playfield spacing.
 	 */
-	private ButtonAssembly spacing = new ButtonAssembly(0, "Spacing", "Small", "Medium", "Large");
+	private ButtonAssembly spacing = new ButtonAssembly(1, "Spacing", "Small", "Medium", "Large");
 	/**
 	 * Playfield generation progress (0~1).
 	 */
@@ -82,11 +82,28 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	}
 	
 	/**
+	 * Resets this menu keeping the selected options
+	 * but resetting that the game was started.
+	 */
+	public void reset(){
+		started = false;
+		progress = 0.0D;
+	}
+	
+	/**
 	 * Checks if enough players are configured to start (at least 1).
 	 * @return True if enough players have been configured to start.
 	 */
-	private boolean canStart(){
+	protected boolean canStart(){
 		return p1.hasPlayer() || p2.hasPlayer() || p3.hasPlayer() || p4.hasPlayer();
+	}
+	
+	/**
+	 * Gets the status message to display on the start button.
+	 * @return The status message to display.
+	 */
+	protected String getButtonMessage(){
+		return started ? String.format("Generating game: %.1f%%", progress * 100.0D) : "At least one player required";
 	}
 
 	@Override
@@ -113,7 +130,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			g.setFont(Theme.PRIDI_REGULAR_12);
 			fm = g.getFontMetrics();
 			g.setColor(Theme.ADD_COLOR);
-			String text = started ? String.format("Generating game: %.1f%%", progress * 100.0D) : "At least one player required";
+			String text = getButtonMessage();
 			g.drawString(text, (float)(tx + (size / 3.0D) + SPACING + ((size / 3.0D) - fm.stringWidth(text)) / 2.0D), (float)(ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D + START_HEIGHT + offset - (START_HEIGHT - fm.getAscent() + fm.getDescent() + fm.getLeading()) / 2.0D));
 		}
 		
@@ -147,8 +164,8 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	}
 
 	@Override
-	public void handleMouseClick(Point2D loc, int width, int height){
-		super.handleMouseClick(loc, width, height);
+	public void handleMouseRelease(Point2D loc, int width, int height){
+		super.handleMouseRelease(loc, width, height);
 		
 		if(!started){
 			p1.handleMouseClick(loc);

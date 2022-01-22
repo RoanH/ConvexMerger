@@ -45,6 +45,7 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addKeyListener(this);
+		this.setFocusTraversalKeysEnabled(false);
 		setScreen(screen);
 	}
 	
@@ -84,6 +85,7 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseDragged(MouseEvent e){
+		screen.handleMouseDrag(e.getPoint(), this.getWidth(), this.getHeight());
 	}
 
 	@Override
@@ -97,11 +99,12 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 
 	@Override
 	public void mousePressed(MouseEvent e){
+		screen.handleMousePress(e.getPoint(), this.getWidth(), this.getHeight());
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e){
-		screen.handleMouseClick(e.getPoint(), this.getWidth(), this.getHeight());
+		screen.handleMouseRelease(e.getPoint(), this.getWidth(), this.getHeight());
 	}
 
 	@Override
