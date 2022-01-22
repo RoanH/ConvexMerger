@@ -33,7 +33,7 @@ public class GameState{
 	/**
 	 * The vertical decomposition for the game state.
 	 */
-	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+	public VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 	/**
 	 * The index of the player whose turn it is.
 	 */
