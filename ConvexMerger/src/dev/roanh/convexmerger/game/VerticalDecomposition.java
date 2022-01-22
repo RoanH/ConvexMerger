@@ -26,7 +26,7 @@ public class VerticalDecomposition{
 	/**
 	 * The trapezoids of the decomposition.
 	 */
-	private List<Trapezoid> trapezoids;
+	public List<Trapezoid> trapezoids;
 	/**
 	 * The bounding box that all objects that will ever be added will be contained in (strictly inside, there will be no overlap with the edges).
 	 */
@@ -882,11 +882,11 @@ public class VerticalDecomposition{
 		 * The four points representing the lines that
 		 * bound the trapezoid from the top and the bottom.
 		 */
-		private Point2D topLeft, topRight, botLeft, botRight;
+		public Point2D topLeft, topRight, botLeft, botRight;
 		/**
 		 * The points that bound the trapezoid from the left and right.
 		 */
-		private List<Point2D> leftPoints, rightPoints;
+		public List<Point2D> leftPoints, rightPoints;
 		/**
 		 * The neighbouring trapezoids of the trapezoid.
 		 */
