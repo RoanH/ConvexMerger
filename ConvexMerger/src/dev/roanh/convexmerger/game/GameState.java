@@ -109,11 +109,12 @@ public class GameState{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		long s = System.currentTimeMillis();
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
 			decomp.addObject(obj);
 		}
-		System.out.println("===== done =====");
+		System.out.println("===== done =====: " + (System.currentTimeMillis() - s));
 		decomp.rebuild();
 	}
 	
@@ -284,11 +285,11 @@ public class GameState{
 	 */
 	public ConvexObject getObject(double x, double y){
 		//TODO remove when decomp done
-		for(ConvexObject obj : objects){
-			if(obj.contains(x, y)){
-				return obj;
-			}
-		}
+//		for(ConvexObject obj : objects){
+//			if(obj.contains(x, y)){
+//				return obj;
+//			}
+//		}
 		return decomp.queryObject(x, y);
 	}
 	

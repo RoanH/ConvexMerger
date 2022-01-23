@@ -167,14 +167,14 @@ public class VerticalDecomposition{
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
-		try{
-			Thread.sleep(100);
-		}catch(InterruptedException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try{
+//			Thread.sleep(100);
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
-		System.out.println("===== addSegment =====");
+		//System.out.println("===== addSegment =====");
 		synchronized(this){
 			addedSegs.add(seg);
 

@@ -236,15 +236,15 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 		
 		if(showDecomp){
-			g.setColor(Color.WHITE);
-			g.setStroke(Theme.BORDER_STROKE);
-			state.getVerticalDecompLines().forEach(g::draw);
 			
 			//TODO cleanup
 			int onel = 0;
 			int isRight = 0;
 			int isLeft = 0;
 			synchronized(state.decomp){
+				g.setColor(Color.WHITE);
+				g.setStroke(Theme.BORDER_STROKE);
+				state.getVerticalDecompLines().forEach(g::draw);
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
 				state.decomp.addedSegs.forEach(g::draw);
