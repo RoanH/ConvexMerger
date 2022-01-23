@@ -6,9 +6,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -184,6 +186,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 			e.printStackTrace();
 		}
 		
+		System.out.println("===== addSegment =====");
 		synchronized(this){
 			addedSegs.add(seg);
 			
@@ -205,6 +208,20 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 						st.push(v.right);
 					}
 				}
+			}
+			
+			for(DecompVertex vert : fullVerts){
+				assert vert.trapezoid == null || trapezoids.contains(vert.trapezoid) : " vert " + vert.id + " refs trap " + vert.trapezoid.id;
+			}
+			
+			Map<Trapezoid, Integer> refCnt = new HashMap<Trapezoid, Integer>();
+			for(DecompVertex vert : fullVerts){
+				if(vert.trapezoid != null){
+					refCnt.compute(vert.trapezoid, (k, v)->(v == null ? 1 : v + 1));
+				}
+			}
+			for(Trapezoid trap : trapezoids){
+				System.out.println(trap.id + " | " + refCnt.get(trap));
 			}
 		
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
@@ -803,11 +820,16 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		return intersectedTraps;
 	}
 	
+	private static int decompID = 0;
+	private static List<Trapezoid> fullTraps = new ArrayList<Trapezoid>();
+	private static List<DecompVertex> fullVerts = new ArrayList<DecompVertex>();
+	
 	/**
 	 * Represents a vertex in the search structure of the decomposition.
 	 * @author Emu
 	 */
 	public class DecompVertex{
+		private int id = decompID++;
 		/**
 		 * The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
 		 */
@@ -881,6 +903,8 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment){
 			this.type  = type;
 			this.parents = new ArrayList<DecompVertex>();
+			fullVerts.add(this);
+			System.out.println("new decomp vertex " + id + " created with type " + type + " and trap " + trapezoid);
 			if(type == 0){
 				this.left  = null;
 				this.right = null;
@@ -946,6 +970,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param type The type to set
 		 */
 		public void setType(int type){
+			System.out.println("type for decomp vertex " + id + " set to " + type);
 			this.type = type;
 		}
 		
@@ -1002,6 +1027,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		public void setTrapezoid(Trapezoid trapezoid){
 			//if(type == 0){
 				this.trapezoid = trapezoid;
+				System.out.println("trapezoid for decomp vertex " + id + " set to " + trapezoid);
 			//}
 		}
 		
@@ -1020,6 +1046,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		public void setPoint(Point2D point){
 			//if(type == 1){
 				this.point = point;
+				System.out.println("point for decomp vertex " + id + " set to " + point);
 			//}
 		}
 		
@@ -1038,6 +1065,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		public void setSegment(Line2D segment){
 			//if(type == 2){
 				this.segment = segment;
+				System.out.println("segment for decomp vertex " + id + " set to " + segment);
 			//}
 		}
 		
@@ -1058,11 +1086,13 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		}
 	}
 	
+	private static int trapID = 0;
 	/**
 	 * Defines the trapezoid structure that is used in the Vertical decomposition.
 	 * @author Emu
 	 */
 	public class Trapezoid{
+		private int id = trapID++;
 		/**
 		 * The four points representing the lines that
 		 * bound the trapezoid from the top and the bottom.
@@ -1144,6 +1174,9 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 			this.neighbours = new ArrayList<Trapezoid>();
 			this.vertex = null;
 			this.object = null;
+			
+			System.out.println("new trapezoid " + id + " created with vertex " + vertex);
+			fullTraps.add(this);
 		}
 		
 		/**
@@ -1185,6 +1218,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * Useful for when we want to delete a Trapezoid.
 		 */
 		public void freeNeighbours (){
+			System.out.println("free trapezoid " + id);
 			for(Trapezoid t : neighbours){
 				t.removeNeighbour(this);
 			}
@@ -1222,6 +1256,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @return The decomposition vertex that this trapezoid is linked to.
 		 */
 		public DecompVertex getDecompVertex(){
+			System.out.println("get trapezoid " + id + " vertex " + vertex);
 			return vertex;
 		}
 		
@@ -1230,6 +1265,8 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param vertex The Decomposition vertex to link to.
 		 */
 		public void setDecompVertex(DecompVertex vertex){
+			System.out.println("set trapezoid " + id + " vertex to " + vertex);
+			Thread.dumpStack();
 			this.vertex = vertex;
 		}
 		
