@@ -247,11 +247,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 				state.getVerticalDecompLines().forEach(g::draw);
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
-//				state.decomp.addedSegs.forEach(g::draw);
-//				if(!state.decomp.addedSegs.isEmpty()){
-//					g.setColor(Color.BLUE);
-//					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
-//				}
+				state.decomp.addedSegs.forEach(g::draw);
+				if(!state.decomp.addedSegs.isEmpty()){
+					g.setColor(Color.BLUE);
+					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
+				}
 				
 				for(Trapezoid trap : state.decomp.trapezoids){
 					g.setColor(Color.CYAN);

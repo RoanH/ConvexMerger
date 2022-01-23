@@ -285,11 +285,11 @@ public class GameState{
 	 */
 	public ConvexObject getObject(double x, double y){
 		//TODO remove when decomp done
-//		for(ConvexObject obj : objects){
-//			if(obj.contains(x, y)){
-//				return obj;
-//			}
-//		}
+		for(ConvexObject obj : objects){
+			if(obj.contains(x, y)){
+				return obj;
+			}
+		}
 		return decomp.queryObject(x, y);
 	}
 	

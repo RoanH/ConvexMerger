@@ -175,21 +175,26 @@ public class VerticalDecomposition{
 		return lines;
 	}
 	
+	public static List<Line2D> addedSegs = new ArrayList<Line2D>();
+	
 	/**
 	 * Adds a line segment belonging to an object to the vertical decomposition and updates the structures.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
-		Trapezoid start = queryTrapezoid(seg.getP1());
-		Trapezoid end = queryTrapezoid(seg.getP2());
-		
-		if(start.equals(end)){
-			handleSingleIntersectedTrapezoid(seg, obj);
-		}else{
-			handleMultipleIntersectedTrapezoids(seg, obj);
+		synchronized(this){
+			addedSegs.add(seg);
+			Trapezoid start = queryTrapezoid(seg.getP1());
+			Trapezoid end = queryTrapezoid(seg.getP2());
+
+			if(start.equals(end)){
+				handleSingleIntersectedTrapezoid(seg, obj);
+			}else{
+				handleMultipleIntersectedTrapezoids(seg, obj);
+			}
+			return;
 		}
-		return;	
 	}
 	
 	/**
