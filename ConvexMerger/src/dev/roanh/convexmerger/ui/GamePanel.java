@@ -243,23 +243,32 @@ public final class GamePanel extends Screen implements GameStateListener{
 			int onel = 0;
 			int isRight = 0;
 			int isLeft = 0;
-			for(Trapezoid trap : state.decomp.trapezoids){
-				g.setColor(Color.CYAN);
-				g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
-				g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
-				g.fill(new Ellipse2D.Double(trap.topLeft.getX() - 5, trap.topLeft.getY() - 5, 10, 10));	
-				g.fill(new Ellipse2D.Double(trap.topRight.getX() - 5, trap.topRight.getY() - 5, 10, 10));
-				
-				g.setColor(Color.GREEN);
-				for(Point2D p : trap.leftPoints){
-					g.fill(new Ellipse2D.Double(p.getX() - 4, p.getY() - 4, 8, 8));
+			synchronized(state.decomp){
+				g.setStroke(Theme.POLY_STROKE);
+				g.setColor(Color.BLACK);
+				state.decomp.addedSegs.forEach(g::draw);
+				if(!state.decomp.addedSegs.isEmpty()){
+					g.setColor(Color.BLUE);
+					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
 				}
 				
-				g.setColor(Color.ORANGE);
-				for(Point2D p : trap.rightPoints){
-					g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
-				}
-				
+				for(Trapezoid trap : state.decomp.trapezoids){
+					g.setColor(Color.CYAN);
+					g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
+					g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
+					g.fill(new Ellipse2D.Double(trap.topLeft.getX() - 5, trap.topLeft.getY() - 5, 10, 10));	
+					g.fill(new Ellipse2D.Double(trap.topRight.getX() - 5, trap.topRight.getY() - 5, 10, 10));
+
+					g.setColor(Color.GREEN);
+					for(Point2D p : trap.leftPoints){
+						g.fill(new Ellipse2D.Double(p.getX() - 4, p.getY() - 4, 8, 8));
+					}
+
+					g.setColor(Color.ORANGE);
+					for(Point2D p : trap.rightPoints){
+						g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
+					}
+
 //				g.setColor(new Color(255, 0, 0, 10));
 //				Path2D.Double p = new Path2D.Double();
 //				p.moveTo(trap.botLeft.getX(), trap.botLeft.getY());
@@ -268,35 +277,36 @@ public final class GamePanel extends Screen implements GameStateListener{
 //				p.lineTo(trap.topLeft.getX(), trap.topLeft.getY());
 //				p.closePath();
 //				g.fill(p);
-				
-				g.setColor(new Color(0, 255, 255, 50));
-				Path2D.Double p = new Path2D.Double();
-				List<Line2D> lines =  trap.getDecompLines();
-				Line2D l = lines.get(0);
-				p.moveTo(l.getX1(), l.getY1());
-				p.lineTo(l.getX2(), l.getY2());
-				if(lines.size() > 1){
-					l = lines.get(1);
+
+					g.setColor(new Color(0, 255, 255, 50));
+					Path2D.Double p = new Path2D.Double();
+					List<Line2D> lines =  trap.getDecompLines();
+					Line2D l = lines.get(0);
+					p.moveTo(l.getX1(), l.getY1());
 					p.lineTo(l.getX2(), l.getY2());
-					p.lineTo(l.getX1(), l.getY1());
-				}else{
-					g.setColor(Color.RED);
-					g.setStroke(Theme.POLY_STROKE);
-					g.draw(p);
-					onel++;
+					if(lines.size() > 1){
+						l = lines.get(1);
+						p.lineTo(l.getX2(), l.getY2());
+						p.lineTo(l.getX1(), l.getY1());
+					}else{
+						g.setColor(Color.RED);
+						g.setStroke(Theme.POLY_STROKE);
+						g.draw(p);
+						onel++;
 //					if(Math.abs(trap.rightPoints.get(0).getX() - l.getX1()) < 0.005D){
 //						isRight++;
 //					}
 //					if(Math.abs(trap.leftPoints.get(0).getX() - l.getX1()) < 0.005D){
 //						isLeft++;
 //					}
+					}
+					p.closePath();
+					g.fill(p);
 				}
-				p.closePath();
-				g.fill(p);
-			}
-			
+
 //			System.out.println(onel + " traps with just one line, right: " + isRight + ", left: " + isLeft);
-			
+
+			}
 		}
 		
 		if(helperLines != null){

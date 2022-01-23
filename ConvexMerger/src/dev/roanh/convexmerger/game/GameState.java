@@ -92,15 +92,29 @@ public class GameState{
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
 			obj.setID(i + 1);
-			decomp.addObject(obj);
 		}
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 		}
-		decomp.rebuild();
+		//decomp.rebuild();
 		gameStart = System.currentTimeMillis();
+	}
+	
+	public void ppi(){
+		try{
+			Thread.sleep(2000);
+		}catch(InterruptedException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(int i = 0; i < objects.size(); i++){
+			ConvexObject obj = objects.get(i);
+			decomp.addObject(obj);
+		}
+		System.out.println("===== done =====");
+		decomp.rebuild();
 	}
 	
 	/**

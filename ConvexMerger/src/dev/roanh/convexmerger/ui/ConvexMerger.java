@@ -184,6 +184,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 			GameState state = ctor.create();
 			try{
 				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
+				state.ppi();
 				
 				if(state.getActivePlayer().isAI()){
 					Thread.sleep(Constants.MIN_TURN_TIME);

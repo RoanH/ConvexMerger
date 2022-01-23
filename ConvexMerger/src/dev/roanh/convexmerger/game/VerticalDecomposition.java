@@ -11,6 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * Vertical decomposition of a plane containing non-overlapping
@@ -139,7 +143,9 @@ public class VerticalDecomposition{
 	 *         the given position.
 	 */
 	public Trapezoid queryTrapezoid(Point2D point){
-		return searchStructure.get(0).queryPoint(point);
+		Trapezoid trap = searchStructure.get(0).queryPoint(point);
+		//assert trap.vertex != null;
+		return trap;
 	}
 	
 	/**
@@ -163,12 +169,43 @@ public class VerticalDecomposition{
 		return lines;
 	}
 	
+public List<Line2D> addedSegs = new ArrayList<Line2D>();
+	
 	/**
 	 * Adds a line segment belonging to an object to the vertical decomposition.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
+		try{
+			Thread.sleep(100);
+		}catch(InterruptedException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		synchronized(this){
+			addedSegs.add(seg);
+			
+			for(Trapezoid trap : trapezoids){
+				assert trap.vertex != null;
+			}
+			
+			LinkedList<DecompVertex> st = new LinkedList<DecompVertex>(searchStructure);
+			while(!st.isEmpty()){
+				DecompVertex v = st.pop();
+				if(v.type == 0){
+					assert v.trapezoid != null;
+				}else{
+					assert v.trapezoid == null;
+					if(v.left != null){
+						st.push(v.left);
+					}
+					if(v.right != null){
+						st.push(v.right);
+					}
+				}
+			}
 		
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
 				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
@@ -219,6 +256,10 @@ public class VerticalDecomposition{
 					trapezoids.add(bottom);
 					trapezoids.add(left);
 					trapezoids.add(right);
+					
+					if(start.getDecompVertex() == null){
+						System.out.println("trap");
+					}
 					
 					DecompVertex vertex = start.getDecompVertex();
 					DecompVertex topVertex = new DecompVertex(top);
@@ -719,7 +760,7 @@ public class VerticalDecomposition{
 //			assert cnt == 0;
 		}
 		return;	
-	}
+	}}
 	
 	/**
 	 * Computes a list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
@@ -959,9 +1000,9 @@ public class VerticalDecomposition{
 		 * @param trapezoid The trapezoid to associate with the vertex.
 		 */
 		public void setTrapezoid(Trapezoid trapezoid){
-			if(type == 0){
+			//if(type == 0){
 				this.trapezoid = trapezoid;
-			}
+			//}
 		}
 		
 		/**
@@ -977,9 +1018,9 @@ public class VerticalDecomposition{
 		 * @param point The point to associate with the vertex.
 		 */
 		public void setPoint(Point2D point){
-			if(type == 1){
+			//if(type == 1){
 				this.point = point;
-			}
+			//}
 		}
 		
 		/**
@@ -995,9 +1036,9 @@ public class VerticalDecomposition{
 		 * @param segment The point to associate with the vertex.
 		 */
 		public void setSegment(Line2D segment){
-			if(type == 2){
+			//if(type == 2){
 				this.segment = segment;
-			}
+			//}
 		}
 		
 		/**
