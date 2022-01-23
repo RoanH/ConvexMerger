@@ -52,6 +52,12 @@ public class VerticalDecomposition{
 		objects = new ArrayList<ConvexObject>();
 		
 		this.bounds = bounds;
+		initializeDecomposition();
+	}
+	
+	private void initializeDecomposition(){
+		trapezoids.clear();
+		searchStructure.clear();
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
 		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
 		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
@@ -70,7 +76,15 @@ public class VerticalDecomposition{
 	 * @param obj The convex object to add.
 	 */
 	public void addObject(ConvexObject obj){
-		objects.add(obj);
+		if(!objects.contains(obj)){
+			objects.add(obj);
+		}
+	}
+	
+	private void decomposeObject(ConvexObject obj){
+		if(!objects.contains(obj)){
+			return;
+		}
 		List<Point2D> points = obj.getPoints();
 		for(int i = 0; i < points.size(); i++){
 			Point2D p1 = points.get(i), p2 = points.get((i+1) % points.size());
@@ -83,13 +97,12 @@ public class VerticalDecomposition{
 			addSegment(orientedSegment, obj);
 		}
 	}
-	
 	/**
 	 * Removes a convex object from this vertical decomposition.
 	 * @param obj The convex object to remove.
 	 */
 	public void removeObject(ConvexObject obj){
-		//TODO
+		objects.remove(obj);
 	}
 	
 	/**
@@ -97,10 +110,12 @@ public class VerticalDecomposition{
 	 * current set of stored convex objects.
 	 */
 	public void rebuild(){
-		//TODO optional, you can assume that multiple object additions/removals happen at the same time,
-		//this method will be called when there will be no more changes meaning you
-		//could rebuild once instead of on each object change. You can delete this method if you decide
-		//its more efficient to just do everything in add/remove
+		trapezoids.clear();
+		searchStructure.clear();
+		initializeDecomposition();
+		for(ConvexObject obj : objects){
+			decomposeObject(obj);
+		}
 	}
 	
 	/**
@@ -530,6 +545,7 @@ public class VerticalDecomposition{
 					//Add neighbours to left and right.
 					left.addNeighbour(right);
 					right.addNeighbour(left);
+					assert current.rightPoints.size() > 0;
 					for(Trapezoid neib : current.neighbours){
 						if(current.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
 							left.addNeighbour(neib);
@@ -731,13 +747,6 @@ public class VerticalDecomposition{
 		 * If the vertex represents a segment, it points to it.
 		 */
 		private Line2D segment;
-		
-		/**
-		 * Constructs a vertex with no children or linked objects and only a type of 0.
-		 */
-		public DecompVertex(){
-			this(0, null, null, null, null, null);
-		}
 		
 		/**
 		 * Constructs a Decomposition Vertex of type 0 (leaf) with a linked trapezoid.
