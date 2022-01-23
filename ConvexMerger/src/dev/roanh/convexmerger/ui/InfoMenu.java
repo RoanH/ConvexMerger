@@ -408,7 +408,7 @@ public class InfoMenu extends Screen{
 		credits.add(new SimpleEntry<String, String>("RockRoller: ", "UI Design & Logo"));
 		credits.add(new SimpleEntry<String, String>("Thiam-Wai: ", "Playfield Generation"));
 		credits.add(new SimpleEntry<String, String>("Emiliyan: ", "Vertical Decomposition"));
-		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "UI Icons"));
+		credits.add(new SimpleEntry<String, String>("Phosphor Icons: ", "UI Icons"));
 		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
 		
 		Util.checkVersion("RoanH", "ConvexMerger", ver->version = ver.orElse("Unknown"));
