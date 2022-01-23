@@ -76,7 +76,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		Insets insets = frame.getInsets();
-		Dimension minSize = new Dimension(1024, 768);//Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension minSize = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setMinimumSize(new Dimension(
 			Math.min(16 * Constants.MIN_SIZE + insets.left + insets.right + 2 * Screen.SIDE_OFFSET, minSize.width),
 			Math.min(Screen.TOP_SPACE + 9 * Constants.MIN_SIZE + insets.top + insets.bottom + Screen.TOP_OFFSET + Screen.BOTTOM_OFFSET, minSize.height)
