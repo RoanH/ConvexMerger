@@ -21,6 +21,7 @@ import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
+import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.game.VerticalDecomposition.Trapezoid;
 import dev.roanh.convexmerger.player.Player;
 
@@ -236,24 +237,29 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 		
 		if(showDecomp){
-			
+			VerticalDecomposition decomp = state.getVerticalDecomposition();
+
 			//TODO cleanup
-			int onel = 0;
-			int isRight = 0;
-			int isLeft = 0;
-			synchronized(state.decomp){
+			synchronized(decomp){
+				
+				long start = System.currentTimeMillis();
 				g.setColor(Color.WHITE);
 				g.setStroke(Theme.BORDER_STROKE);
-				state.getVerticalDecompLines().forEach(g::draw);
+				decomp.getDecompLines().forEach(g::draw);
+				System.out.println("decomp lines: " + (System.currentTimeMillis() - start));
+				
+				start = System.currentTimeMillis();
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
-				state.decomp.addedSegs.forEach(g::draw);
-				if(!state.decomp.addedSegs.isEmpty()){
-					g.setColor(Color.BLUE);
-					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
-				}
+				decomp.addedSegs.forEach(g::draw);
+//				if(!state.decomp.addedSegs.isEmpty()){
+//					g.setColor(Color.BLUE);
+//					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
+//				}
+				System.out.println("seg lines " + decomp.addedSegs.size() + ": " + (System.currentTimeMillis() - start));
 				
-				for(Trapezoid trap : state.decomp.trapezoids){
+				start = System.currentTimeMillis();
+				for(Trapezoid trap : decomp.trapezoids){
 					g.setColor(Color.CYAN);
 					g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
 					g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
@@ -270,15 +276,6 @@ public final class GamePanel extends Screen implements GameStateListener{
 						g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
 					}
 
-//				g.setColor(new Color(255, 0, 0, 10));
-//				Path2D.Double p = new Path2D.Double();
-//				p.moveTo(trap.botLeft.getX(), trap.botLeft.getY());
-//				p.lineTo(trap.botRight.getX(), trap.botRight.getY());
-//				p.lineTo(trap.topRight.getX(), trap.topRight.getY());
-//				p.lineTo(trap.topLeft.getX(), trap.topLeft.getY());
-//				p.closePath();
-//				g.fill(p);
-
 					g.setColor(new Color(0, 255, 255, 50));
 					Path2D.Double p = new Path2D.Double();
 					List<Line2D> lines =  trap.getDecompLines();
@@ -293,20 +290,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 						g.setColor(Color.RED);
 						g.setStroke(Theme.POLY_STROKE);
 						g.draw(p);
-						onel++;
-//					if(Math.abs(trap.rightPoints.get(0).getX() - l.getX1()) < 0.005D){
-//						isRight++;
-//					}
-//					if(Math.abs(trap.leftPoints.get(0).getX() - l.getX1()) < 0.005D){
-//						isLeft++;
-//					}
 					}
 					p.closePath();
 					g.fill(p);
 				}
 
-//			System.out.println(onel + " traps with just one line, right: " + isRight + ", left: " + isLeft);
-
+				System.out.println("traps: " + (System.currentTimeMillis() - start));
 			}
 		}
 		

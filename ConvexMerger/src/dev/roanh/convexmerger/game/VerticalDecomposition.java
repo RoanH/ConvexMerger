@@ -6,9 +6,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -20,7 +22,6 @@ import java.util.Set;
  * @author Emu
  */
 public class VerticalDecomposition{
-	
 	/**
 	 * The objects that are decomposed.
 	 */
@@ -38,6 +39,7 @@ public class VerticalDecomposition{
 	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
 	 */
 	private List<DecompVertex> searchStructure;
+	public Set<Line2D> addedSegs = new HashSet<Line2D>();
 	
 	/**
 	 * Constructs a new vertical decomposition with
@@ -175,16 +177,22 @@ public class VerticalDecomposition{
 		return lines;
 	}
 	
-	public static List<Line2D> addedSegs = new ArrayList<Line2D>();
-	
 	/**
 	 * Adds a line segment belonging to an object to the vertical decomposition and updates the structures.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
+//		try{
+//			Thread.sleep(100);
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
 		synchronized(this){
 			addedSegs.add(seg);
+			
 			Trapezoid start = queryTrapezoid(seg.getP1());
 			Trapezoid end = queryTrapezoid(seg.getP2());
 

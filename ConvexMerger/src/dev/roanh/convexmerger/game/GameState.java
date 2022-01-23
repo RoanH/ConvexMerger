@@ -33,7 +33,7 @@ public class GameState{
 	/**
 	 * The vertical decomposition for the game state.
 	 */
-	public VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 	/**
 	 * The index of the player whose turn it is.
 	 */
@@ -91,6 +91,7 @@ public class GameState{
 		this.seed = seed;
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
+			decomp.addObject(obj);
 			obj.setID(i + 1);
 		}
 		for(int i = 0; i < players.size(); i++){
@@ -109,12 +110,6 @@ public class GameState{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		long s = System.currentTimeMillis();
-		for(int i = 0; i < objects.size(); i++){
-			ConvexObject obj = objects.get(i);
-			decomp.addObject(obj);
-		}
-		System.out.println("===== done =====: " + (System.currentTimeMillis() - s));
 		decomp.rebuild();
 	}
 	
@@ -302,14 +297,11 @@ public class GameState{
 	}
 	
 	/**
-	 * Gets a list of lines that represent the vertical
-	 * decomposition lines for the vertical decomposition
-	 * used in this game. Lines to represent the bounding
-	 * box will be included as well.
-	 * @return The vertical decomposition lines.
+	 * Gets the vertical decomposition for the game state.
+	 * @return The vertical decomposition.
 	 */
-	public List<Line2D> getVerticalDecompLines(){
-		return decomp.getDecompLines();
+	public VerticalDecomposition getVerticalDecomposition(){
+		return decomp;
 	}
 	
 	/**
