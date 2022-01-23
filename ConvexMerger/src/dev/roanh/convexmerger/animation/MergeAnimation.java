@@ -1,8 +1,10 @@
 package dev.roanh.convexmerger.animation;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -27,7 +29,7 @@ public class MergeAnimation extends ClaimAnimation{
 	 * Number of milliseconds the body merge drawing
 	 * phase lasts for.
 	 */
-	private static final float FLOW_DURATION = 400.0F;
+	private static final float FLOW_DURATION = 4000.0F;
 	/**
 	 * Whether or not the target object was unclaimed before.
 	 */
@@ -82,6 +84,10 @@ public class MergeAnimation extends ClaimAnimation{
 	 * @see #secondInner
 	 */
 	private List<Point2D> secondInnerData;
+	/**
+	 * Shape of the resulting convex object.
+	 */
+	private Path2D bounds;
 		
 	/**
 	 * Constructs a new merge animation with the given event data.
@@ -97,6 +103,7 @@ public class MergeAnimation extends ClaimAnimation{
 		this.owned = owned;
 		this.target = target;
 		this.contained = contained;
+		bounds = result.getShape();
 		
 		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), result.getPoints());
 		List<List<Point2D>> mergeBounds = ConvexUtil.computeMergeBounds(owned.getPoints(), target.getPoints(), mergeLines);
@@ -107,6 +114,7 @@ public class MergeAnimation extends ClaimAnimation{
 		firstInnerData = mergeBounds.get(0);
 		secondInnerData = mergeBounds.get(2);
 		start = System.currentTimeMillis();
+		i++;
 	}
 
 	@Override
@@ -129,8 +137,20 @@ public class MergeAnimation extends ClaimAnimation{
 		float factor = Math.min(2.0F, elapsed / LINE_DURATION);
 		
 		g.setColor(Theme.getPlayerBody(owned));
-		g.fill(owned.getShape());
-		g.fill(target.getShape());
+		//g.fill(owned.getShape());
+		//g.fill(target.getShape());
+		
+		//remove
+		
+		g.setColor(Theme.getPlayerOutline(owned));
+		g.setStroke(Theme.POLY_STROKE);
+		g.draw(new Line2D.Double(mergeLines[0],	interpolate(mergeLines[0], mergeLines[1], factor)));
+		g.draw(new Line2D.Double(mergeLines[2],	interpolate(mergeLines[2], mergeLines[3], factor)));
+		
+		g.draw(firstOuter);
+		g.draw(secondOuter);
+		
+		//end remove
 		
 		Composite composite = g.getComposite();
 		g.setStroke(Theme.POLY_STROKE);
@@ -144,30 +164,38 @@ public class MergeAnimation extends ClaimAnimation{
 		g.setComposite(composite);
 		
 		if(factor >= 1.0F){
+			//elapsed = 900;
 			float flowFactor = Math.min(1.0F, (elapsed - LINE_DURATION) / FLOW_DURATION);
 			
 			//draw flow polygons
-			g.setColor(Theme.getPlayerBody(owned));
+			Color c = Theme.getPlayerBody(owned);
+			g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 100));
 			g.fill(computeFlowPath(firstInnerData, mergeLines[0], mergeLines[1], mergeLines[3], mergeLines[2], flowFactor));
-			g.fill(computeFlowPath(secondInnerData, mergeLines[2], mergeLines[3], mergeLines[1], mergeLines[0], flowFactor));
+			//g.fill(computeFlowPath(secondInnerData, mergeLines[2], mergeLines[3], mergeLines[1], mergeLines[0], flowFactor));
 			
 			//prevent seem lines
-			g.setColor(Theme.getPlayerBody(owned));
+			g.setColor(Color.RED);//Theme.getPlayerBody(owned));
 			g.setStroke(Theme.POLY_STROKE);
 			g.draw(new Line2D.Double(mergeLines[0],	mergeLines[3]));
 			g.draw(new Line2D.Double(mergeLines[1],	mergeLines[2]));
+			
+			g.setColor(Color.GREEN);
+			g.draw(new Line2D.Double(mergeLines[0],	mergeLines[1]));
+			g.draw(new Line2D.Double(mergeLines[2],	mergeLines[3]));
+			//System.out.println(mergeLines[1] + " | " + mergeLines[2]);
 		}
 		
-		g.setColor(Theme.getPlayerOutline(owned));
-		g.setStroke(Theme.POLY_STROKE);
-		g.draw(new Line2D.Double(mergeLines[0],	interpolate(mergeLines[0], mergeLines[1], factor)));
-		g.draw(new Line2D.Double(mergeLines[2],	interpolate(mergeLines[2], mergeLines[3], factor)));
+//		g.setColor(Theme.getPlayerOutline(owned));
+//		g.setStroke(Theme.POLY_STROKE);
+//		g.draw(new Line2D.Double(mergeLines[0],	interpolate(mergeLines[0], mergeLines[1], factor)));
+//		g.draw(new Line2D.Double(mergeLines[2],	interpolate(mergeLines[2], mergeLines[3], factor)));
+//		
+//		g.draw(firstOuter);
+//		g.draw(secondOuter);
 		
-		g.draw(firstOuter);
-		g.draw(secondOuter);
-		
-		return elapsed <= LINE_DURATION + FLOW_DURATION;
+		return elapsed <= LINE_DURATION + FLOW_DURATION || i == 3;
 	}
+	static int i = 0;
 	
 	/**
 	 * Computes the flow path showing the merge progress, this
@@ -293,7 +321,7 @@ public class MergeAnimation extends ClaimAnimation{
 	 * @return True if the given point is on the given line segment.
 	 */
 	private boolean onLine(Point2D p, Point2D a, Point2D b){
-		return Math.min(a.getX(), b.getX()) <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) && Math.min(a.getY(), b.getY()) <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()); 
+		return Math.min(a.getX(), b.getX()) - 0.00005D <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) + 0.00005D && Math.min(a.getY(), b.getY()) - 0.00005D <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()) + 0.00005D; 
 	}
 	
 	/**
