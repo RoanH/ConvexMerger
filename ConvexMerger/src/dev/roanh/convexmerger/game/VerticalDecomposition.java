@@ -534,6 +534,7 @@ public class VerticalDecomposition{
 					trapezoids.add(left);
 					trapezoids.add(right);
 					//Right has to be bisected.
+					current = null;
 					current = right;
 					//TODO: possibly handle case when first == last here
 				}
@@ -579,6 +580,126 @@ public class VerticalDecomposition{
 					//Left has to be bisected.
 					current = left;
 				}
+				//Split along the segment.
+				if(top == null){
+					//Create a new top trapezoid
+					top = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), leftp, rightp, current.topLeft, current.topRight);
+					//Assign left points to top.
+					for(Point2D p : current.leftPoints){
+						if(orientedSegment.relativeCCW(p) >= 0){
+							top.addLeftPoint(p);
+						}
+					}
+					//Assign left neighbours to top.
+					for(Trapezoid neib : current.getNeighbours()){
+						for(Line2D decompLine : neib.getDecompLines()){
+							if(decompLine.getP1().getX() != current.leftPoints.get(0).getX())
+								continue;
+							if(orientedSegment.relativeCCW(decompLine.getP2()) > 0){//P2 is the top point
+								top.addNeighbour(neib);
+								neib.addNeighbour(top);
+							}
+						}
+					}
+				}
+				if(bot == null){
+					//Create a new bot trapezoid.
+					bot = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), current.botLeft, current.botRight, leftp, rightp);
+					//Assign left points to bot.
+					for(Point2D p : current.leftPoints){
+						if(orientedSegment.relativeCCW(p) <= 0){
+							bot.addLeftPoint(p);
+						}
+					}
+					//Assign left neighbours to bot.
+					for(Trapezoid neib : current.getNeighbours()){
+						for(Line2D decompLine : neib.getDecompLines()){
+							if(decompLine.getP1().getX() != current.leftPoints.get(0).getX())
+								continue;
+							if(orientedSegment.relativeCCW(decompLine.getP1()) < 0){//P1 is the bottom point
+								bot.addNeighbour(neib);
+								neib.addNeighbour(bot);
+							}
+						}
+					}
+				}
+				//Distribute right points among top and bot.
+				for(Point2D p : current.rightPoints){
+					if(orientedSegment.relativeCCW(p) >= 0){
+						top.addRightPoint(p);
+					}
+					if(orientedSegment.relativeCCW(p) <= 0){
+						bot.addRightPoint(p);
+					}
+				}
+				//Assign right neighbours to top if it is bound on the right.
+				if(top.rightPoints.size() > 0){
+					for(Trapezoid neib : current.getNeighbours()){
+						for(Line2D decompLine : neib.getDecompLines()){
+							if(decompLine.getP1().getX() != current.rightPoints.get(0).getX())
+								continue;
+							if(orientedSegment.relativeCCW(decompLine.getP2()) > 0){//P2 is the top point
+								top.addNeighbour(neib);
+								neib.addNeighbour(top);
+							}
+						}
+					}
+				}
+				if(bot.rightPoints.size() > 0){
+					for(Trapezoid neib : current.getNeighbours()){
+						for(Line2D decompLine : neib.getDecompLines()){
+							if(decompLine.getP1().getX() != current.rightPoints.get(0).getX())
+								continue;
+							if(orientedSegment.relativeCCW(decompLine.getP1()) < 0){//P1 is the bottom point
+								bot.addNeighbour(neib);
+								neib.addNeighbour(bot);
+							}
+						}
+					}
+				}
+				//Update search structure.
+				DecompVertex vertex = current.getDecompVertex();
+				current.freeNeighbours();
+				current.setDecompVertex(null);
+				vertex.setTrapezoid(null);
+				
+				DecompVertex topVertex = new DecompVertex(top);
+				top.setDecompVertex(topVertex);
+				DecompVertex botVertex = new DecompVertex(bot);
+				bot.setDecompVertex(botVertex);
+				
+				vertex.setType(2);
+				vertex.setSegment(orientedSegment);
+				vertex.setLeftChild(topVertex);
+				vertex.setRightChild(botVertex);
+				//Update trapezoid list
+				trapezoids.remove(current);
+				if(top.rightPoints.size() > 0){
+					trapezoids.add(top);
+					top = null;
+				}
+				assert topVertex != null;
+				assert botVertex != null;
+				assert vertex != null;
+				if(bot.rightPoints.size() > 0){
+					trapezoids.add(bot);
+					bot = null;
+				}
+				
+//				//Good stuff assertions
+//				if(leftp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= leftp.getX()){
+//					cnt ++;
+//					System.out.println("left " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints + " " + current.topLeft + " "+ current.topRight + " " + current.botLeft + " " + current.botRight);
+//				}
+//				if(leftp.getX() < current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() < rightp.getX()){
+//					System.out.println("mid " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints);
+//					assert old.rightPoints.get(0).getX() == current.leftPoints.get(0).getX();
+//				}
+//				if(rightp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= rightp.getX()){
+//					System.out.println("right " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints+ " " + current.topLeft + " "+ current.topRight + " " + current.botLeft + " " + current.botRight);
+//					cnt --;
+//					assert old == null || old.rightPoints.get(0).getX() == current.leftPoints.get(0).getX();
+//				}
 //				//Good stuff assertions
 //				if(leftp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= leftp.getX()){
 //					cnt ++;
