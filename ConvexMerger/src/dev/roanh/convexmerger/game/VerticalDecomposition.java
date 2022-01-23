@@ -6,17 +6,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.xml.transform.stream.StreamSource;
 
 /**
  * Vertical decomposition of a plane containing non-overlapping
@@ -67,7 +61,6 @@ public class VerticalDecomposition{
 		initialTrapezoid.addLeftPoint(botLeft);
 		initialTrapezoid.addRightPoint(topRight);
 		DecompVertex initialVertex =  new DecompVertex(initialTrapezoid);
-		initialTrapezoid.setDecompVertex(initialVertex);
 		trapezoids.add(initialTrapezoid);
 		searchStructure.add(initialVertex);
 	}
@@ -145,9 +138,7 @@ public class VerticalDecomposition{
 	 *         the given position.
 	 */
 	public Trapezoid queryTrapezoid(Point2D point){
-		Trapezoid trap = searchStructure.get(0).queryPoint(point);
-		//assert trap.vertex != null;
-		return trap;
+		return searchStructure.get(0).queryPoint(point);
 	}
 	
 	/**
@@ -159,9 +150,7 @@ public class VerticalDecomposition{
 	public List<Line2D> getDecompLines(){
 		List<Line2D> lines = new ArrayList<Line2D>();
 		
-//		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMinX(), bounds.getMaxY()));
 		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMinY()));
-//		lines.add(new Line2D.Double(bounds.getMaxX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()));
 		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMaxY(), bounds.getMaxX(), bounds.getMaxY()));
 		
 		for(Trapezoid trap : trapezoids){
@@ -171,58 +160,12 @@ public class VerticalDecomposition{
 		return lines;
 	}
 	
-public List<Line2D> addedSegs = new ArrayList<Line2D>();
-	
 	/**
 	 * Adds a line segment belonging to an object to the vertical decomposition.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
-		try{
-			Thread.sleep(100);
-		}catch(InterruptedException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.out.println("===== addSegment =====");
-		synchronized(this){
-			addedSegs.add(seg);
-			
-			for(Trapezoid trap : trapezoids){
-				assert trap.vertex != null;
-			}
-			
-			LinkedList<DecompVertex> st = new LinkedList<DecompVertex>(searchStructure);
-			while(!st.isEmpty()){
-				DecompVertex v = st.pop();
-				if(v.type == 0){
-					assert v.trapezoid != null;
-				}else{
-					assert v.trapezoid == null;
-					if(v.left != null){
-						st.push(v.left);
-					}
-					if(v.right != null){
-						st.push(v.right);
-					}
-				}
-			}
-			
-			for(DecompVertex vert : fullVerts){
-				assert vert.trapezoid == null || trapezoids.contains(vert.trapezoid) : " vert " + vert.id + " refs trap " + vert.trapezoid.id;
-			}
-			
-			Map<Trapezoid, Integer> refCnt = new HashMap<Trapezoid, Integer>();
-			for(DecompVertex vert : fullVerts){
-				if(vert.trapezoid != null){
-					refCnt.compute(vert.trapezoid, (k, v)->(v == null ? 1 : v + 1));
-				}
-			}
-			for(Trapezoid trap : trapezoids){
-				System.out.println(trap.id + " | " + refCnt.get(trap));
-			}
 		
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
 				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
@@ -231,7 +174,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		
 		Trapezoid start = queryTrapezoid(leftp);
 		Trapezoid end = queryTrapezoid(rightp);
-		
 		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
 		
 		if(start.equals(end)){
@@ -267,26 +209,15 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					}
 					
 					//Update trapezoid list and search structure.
-					trapezoids.remove(start);
-					start.freeNeighbours();
-					trapezoids.add(top);
-					trapezoids.add(bottom);
-					trapezoids.add(left);
-					trapezoids.add(right);
-					
-					if(start.getDecompVertex() == null){
-						System.out.println("trap");
-					}
 					
 					DecompVertex vertex = start.getDecompVertex();
+					start.freeNeighbours();
+					start.setDecompVertex(null);
+					
 					DecompVertex topVertex = new DecompVertex(top);
 					DecompVertex botVertex = new DecompVertex(bottom);
 					DecompVertex leftVertex = new DecompVertex(left);
 					DecompVertex rightVertex = new DecompVertex(right);
-					top.setDecompVertex(topVertex);
-					bottom.setDecompVertex(botVertex);
-					left.setDecompVertex(leftVertex);
-					right.setDecompVertex(rightVertex);
 					
 					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
 					DecompVertex rightPointVertex = new DecompVertex(segmentVertex, rightVertex, rightp);
@@ -296,6 +227,12 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					vertex.setPoint(leftp);
 					vertex.setLeftChild(leftVertex);
 					vertex.setRightChild(rightPointVertex);
+					
+					trapezoids.remove(start);
+					trapezoids.add(top);
+					trapezoids.add(bottom);
+					trapezoids.add(left);
+					trapezoids.add(right);
 					return;
 				}
 				else{
@@ -355,19 +292,13 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 						}
 					}
 					//Update trapezoid list and search structure.
-					trapezoids.remove(start);
-					start.freeNeighbours();
-					trapezoids.add(top);
-					trapezoids.add(bottom);
-					trapezoids.add(left);
 					
-					DecompVertex vertex = start.getDecompVertex();
+					DecompVertex vertex = start.getDecompVertex(); 
+					start.setDecompVertex(null);
+					start.freeNeighbours();
 					DecompVertex topVertex = new DecompVertex(top);
 					DecompVertex botVertex = new DecompVertex(bottom);
 					DecompVertex leftVertex = new DecompVertex(left);
-					top.setDecompVertex(topVertex);
-					bottom.setDecompVertex(botVertex);
-					left.setDecompVertex(leftVertex);
 					
 					DecompVertex segmentVertex = new DecompVertex(topVertex, botVertex, orientedSegment);
 					
@@ -376,12 +307,18 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					vertex.setPoint(leftp);
 					vertex.setLeftChild(leftVertex);
 					vertex.setRightChild(segmentVertex);
+					
+					trapezoids.remove(start);
+					trapezoids.add(top);
+					trapezoids.add(bottom);
+					trapezoids.add(left);
 					return;
 				}
 				//If one of the endpoints is on the left end, then the segment would be considered as a 2-trapezoid intersection.
 			}else{//vertical segment
 				if(rightExists){
 					//Inside the trapezoid.
+					//Create left and right trapezoids.
 					Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
 					Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
 					
@@ -391,7 +328,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					//Assign neighbours.
 					left.addNeighbour(right);
 					right.addNeighbour(left);
-
 					for(Trapezoid neib : start.getNeighbours()){
 						if(start.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
 							left.addNeighbour(neib);
@@ -412,12 +348,10 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					DecompVertex vertex = start.getDecompVertex();
 					DecompVertex leftVertex = new DecompVertex(left);
 					DecompVertex rightVertex = new DecompVertex(right);
-					left.setDecompVertex(leftVertex);
-					right.setDecompVertex(rightVertex);
 										
-					vertex.setType(1);
+					vertex.setType(2);
 					vertex.setTrapezoid(null);
-					vertex.setPoint(leftp);
+					vertex.setSegment(orientedSegment);;
 					vertex.setLeftChild(leftVertex);
 					vertex.setRightChild(rightVertex);
 					return;
@@ -461,11 +395,12 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 				//Cannot be on the left border, as that would be accounted to the neighbour to the left, and cannot bisect either.
 			}
 		}else{// Multiple trapezoids touched by the segment.
+			//The top, bottom, left, and right trapezoids to be used when splitting the trapezoids.
 			Trapezoid top = null, bot = null, left = null, right = null;
-			Trapezoid oldTop = null, oldBot = null;
-			
+			//The trapezoids that are intersected by the segment.
 			Queue<Trapezoid> intersected = findIntersectedTrapezoids(orientedSegment);
 			
+			//Add leftp to the bounding points of any neighbouring trapezoids that might not have it yet.
 			if(leftp.getX() == start.rightPoints.get(0).getX()){
 				if(!start.rightPoints.contains(leftp)){
 					start.addRightPoint(leftp);
@@ -480,7 +415,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					}
 				}
 			}
-			
+			//Add rightp to the bounding points of any neighbouring trapezoids that might not have it yet.
 			if(rightp.getX() == end.rightPoints.get(0).getX()){
 				if(!end.rightPoints.contains(rightp)){
 					end.addRightPoint(rightp);
@@ -495,13 +430,9 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					}
 				}
 			}
-			assert leftp.getX() >= start.leftPoints.get(0).getX();
-			//Linked list of the fully bisected trapezoids.
-
 			//Vertical segment whose endpoints are considered part of 2 different trapezoids. The traps should be divided by a segment i.e. one above the other. 
 			if(intersected.size() == 0){
-//				System.out.println("VERTICAL MULTISEGMENT");
-//				System.out.println("right " + leftp + " " + rightp + "\n l/r" + end.leftPoints + " " + end.rightPoints+ "\n top segment" + end.topLeft + " "+ end.topRight + "\n bot segment" + end.botLeft + " " + end.botRight);
+				//End is the trapezoid whose right side the segment is on.
 				//Add leftp and rightp to the right bounding points, and to the left bounding points of eligible neighbours.
 				if(!end.rightPoints.contains(leftp)){
 					end.addRightPoint(leftp);
@@ -542,17 +473,17 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 				//No need to update search structure, no new trapezoids should be created.
 				return;
 			}
-			
+			//The current trapezoid that is being split up.
 			Trapezoid current = null;
-			Trapezoid old = intersected.peek();
-//			int cnt = 0;
+			//The first (leftmost) trapezoid that the segment intersects.
+			Trapezoid first = intersected.peek();
+			//The vertices for the running bottom and top trapezoids.
+			DecompVertex botVertex = null, topVertex = null;
 			
 			while(!intersected.isEmpty()){
 				current = intersected.remove();
-				//First trapezoid;
-				//If the leftpoint is at the left border, no need to split.
-				if(current == old && leftp.getX() != current.leftPoints.get(0).getX()){
-//					System.out.println("First");
+				//First trapezoid. If the leftpoint is at the left border, no need to split horizontally.
+				if(current == first && leftp.getX() != current.leftPoints.get(0).getX() && leftp.getX() != current.rightPoints.get(0).getX()){
 					//Split current into left and right of leftp.
 					left = new Trapezoid(current.leftPoints, leftp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 					right = new Trapezoid(leftp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
@@ -573,15 +504,12 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					
 					//Update search structure
 					DecompVertex vertex = current.getDecompVertex();
+					DecompVertex leftVertex = new DecompVertex(left);
+					DecompVertex rightVertex = new DecompVertex(right);
+					
 					current.freeNeighbours();
 					current.setDecompVertex(null);
 					vertex.setTrapezoid(null);
-					
-					DecompVertex leftVertex = new DecompVertex(left);
-					left.setDecompVertex(leftVertex);
-					DecompVertex rightVertex = new DecompVertex(right);
-					right.setDecompVertex(rightVertex);
-					
 					vertex.setType(1);
 					vertex.setPoint(leftp);
 					vertex.setLeftChild(leftVertex);
@@ -592,14 +520,10 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					trapezoids.add(left);
 					trapezoids.add(right);
 					//Right has to be bisected.
-					current = null;
 					current = right;
-					//TODO: possibly handle case when first == last here
 				}
-				//Last trapezoid
-				//If rightp is on the right border, no need to split.
-				if(intersected.isEmpty() && rightp.getX() != current.rightPoints.get(0).getX()){
-//					System.out.println("Last");
+				//Last trapezoid. If rightp is on the right border, no need to split.
+				if(intersected.isEmpty() && rightp.getX() != current.rightPoints.get(0).getX() && rightp.getX() != current.leftPoints.get(0).getX()){
 					//Split current into left and right of rightp.
 					left = new Trapezoid(current.leftPoints, rightp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 					right = new Trapezoid(rightp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
@@ -623,11 +547,10 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					vertex.setTrapezoid(null);
 					
 					DecompVertex leftVertex = new DecompVertex(left);
-					left.setDecompVertex(leftVertex);
 					DecompVertex rightVertex = new DecompVertex(right);
-					right.setDecompVertex(rightVertex);
 					
 					vertex.setType(1);
+					vertex.setTrapezoid(null);
 					vertex.setPoint(rightp);
 					vertex.setLeftChild(leftVertex);
 					vertex.setRightChild(rightVertex);
@@ -659,6 +582,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 							}
 						}
 					}
+					topVertex = new DecompVertex(top);
 				}
 				if(bot == null){
 					//Create a new bot trapezoid.
@@ -680,6 +604,8 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 							}
 						}
 					}
+					
+					botVertex = new DecompVertex(bot);
 				}
 				//Distribute right points among top and bot.
 				for(Point2D p : current.rightPoints){
@@ -721,12 +647,8 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 				current.setDecompVertex(null);
 				vertex.setTrapezoid(null);
 				
-				DecompVertex topVertex = new DecompVertex(top);
-				top.setDecompVertex(topVertex);
-				DecompVertex botVertex = new DecompVertex(bot);
-				bot.setDecompVertex(botVertex);
-				
 				vertex.setType(2);
+				vertex.setTrapezoid(null);
 				vertex.setSegment(orientedSegment);
 				vertex.setLeftChild(topVertex);
 				vertex.setRightChild(botVertex);
@@ -736,48 +658,14 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 					trapezoids.add(top);
 					top = null;
 				}
-				assert topVertex != null;
-				assert botVertex != null;
-				assert vertex != null;
 				if(bot.rightPoints.size() > 0){
 					trapezoids.add(bot);
 					bot = null;
 				}
-				
-//				//Good stuff assertions
-//				if(leftp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= leftp.getX()){
-//					cnt ++;
-//					System.out.println("left " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints + " " + current.topLeft + " "+ current.topRight + " " + current.botLeft + " " + current.botRight);
-//				}
-//				if(leftp.getX() < current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() < rightp.getX()){
-//					System.out.println("mid " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints);
-//					assert old.rightPoints.get(0).getX() == current.leftPoints.get(0).getX();
-//				}
-//				if(rightp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= rightp.getX()){
-//					System.out.println("right " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints+ " " + current.topLeft + " "+ current.topRight + " " + current.botLeft + " " + current.botRight);
-//					cnt --;
-//					assert old == null || old.rightPoints.get(0).getX() == current.leftPoints.get(0).getX();
-//				}
-//				//Good stuff assertions
-//				if(leftp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= leftp.getX()){
-//					cnt ++;
-//					System.out.println("left " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints + " " + current.topLeft + " "+ current.topRight + " " + current.botLeft + " " + current.botRight);
-//				}
-//				if(leftp.getX() < current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() < rightp.getX()){
-//					System.out.println("mid " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints);
-//					assert old.rightPoints.get(0).getX() == current.leftPoints.get(0).getX();
-//				}
-//				if(rightp.getX() >= current.leftPoints.get(0).getX() && current.rightPoints.get(0).getX() >= rightp.getX()){
-//					System.out.println("right " + leftp + " " + rightp + " " + current.leftPoints + " " + current.rightPoints+ " " + current.topLeft + " "+ current.topRight + " " + current.botLeft + " " + current.botRight);
-//					cnt --;
-//					assert old == null || old.rightPoints.get(0).getX() == current.leftPoints.get(0).getX();
-//				}
-				old = current;
 			}
-//			assert cnt == 0;
 		}
 		return;	
-	}}
+	}
 	
 	/**
 	 * Computes a list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
@@ -794,16 +682,14 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		while(!q.isEmpty()){
 			Trapezoid current = q.remove();
 			if(current.intersectsSegment(seg)){
-				if(!intersectedTraps.contains(current)){//TODO: add additional checks for inclusiveness
+				if(!intersectedTraps.contains(current)){
 					int cnt = 0;
 					for(Line2D decompLine : current.getDecompLines()){
-						if(decompLine.intersectsLine(seg)){
+						if(decompLine.intersectsLine(seg) || seg.relativeCCW(decompLine.getP1()) == 0 || seg.relativeCCW(decompLine.getP2()) == 0){
 							cnt ++;
 						}
 					}
-					if(current.getDecompLines().size() == 1)
-						cnt ++;
-					if(cnt == 2 || current.pointInside(seg.getP1()) || current.pointInside(seg.getP2())){
+					if(cnt > 1 || current.pointInside(seg.getP1()) || current.pointInside(seg.getP2())){
 						intersectedTraps.add(current);
 					}
 				}
@@ -820,16 +706,11 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		return intersectedTraps;
 	}
 	
-	private static int decompID = 0;
-	private static List<Trapezoid> fullTraps = new ArrayList<Trapezoid>();
-	private static List<DecompVertex> fullVerts = new ArrayList<DecompVertex>();
-	
 	/**
 	 * Represents a vertex in the search structure of the decomposition.
 	 * @author Emu
 	 */
 	public class DecompVertex{
-		private int id = decompID++;
 		/**
 		 * The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
 		 */
@@ -850,11 +731,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * If the vertex represents a segment, it points to it.
 		 */
 		private Line2D segment;
-		/**
-		 * The parent of the vertex in the search structure.
-		 * Self if the root.
-		 */
-		private ArrayList<DecompVertex> parents;
 		
 		/**
 		 * Constructs a vertex with no children or linked objects and only a type of 0.
@@ -869,6 +745,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 */
 		public DecompVertex(Trapezoid trapezoid){
 			this(0 , null, null, trapezoid, null, null);
+			trapezoid.setDecompVertex(this);
 		}
 		
 		/**
@@ -902,9 +779,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 */
 		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment){
 			this.type  = type;
-			this.parents = new ArrayList<DecompVertex>();
-			fullVerts.add(this);
-			System.out.println("new decomp vertex " + id + " created with type " + type + " and trap " + trapezoid);
 			if(type == 0){
 				this.left  = null;
 				this.right = null;
@@ -912,12 +786,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 				this.point = null;
 				this.segment = null;
 			}else if(type < 3){
-				if(left != null){
-					left.addParent(this);
-				}
-				if(right != null){
-					right.addParent(this);
-				}
 				this.left = left;
 				this.right = right;
 				if(type == 1){
@@ -970,8 +838,10 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param type The type to set
 		 */
 		public void setType(int type){
-			System.out.println("type for decomp vertex " + id + " set to " + type);
 			this.type = type;
+			if(this.type != 0){
+				this.trapezoid = null;
+			}
 		}
 		
 		/**
@@ -987,9 +857,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param vert The vertex to set the left child to.
 		 */
 		public void setLeftChild(DecompVertex vert){
-			if(vert != null){
-				vert.addParent(this);
-			}
 			this.left = vert;
 		}
 		
@@ -1006,9 +873,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param vert The vertex to set the right child to.
 		 */
 		public void setRightChild(DecompVertex vert){
-			if(vert != null){
-				vert.addParent(this);
-			}
 			this.right = vert;
 		}
 		
@@ -1025,10 +889,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param trapezoid The trapezoid to associate with the vertex.
 		 */
 		public void setTrapezoid(Trapezoid trapezoid){
-			//if(type == 0){
-				this.trapezoid = trapezoid;
-				System.out.println("trapezoid for decomp vertex " + id + " set to " + trapezoid);
-			//}
+			this.trapezoid = trapezoid;
 		}
 		
 		/**
@@ -1044,10 +905,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param point The point to associate with the vertex.
 		 */
 		public void setPoint(Point2D point){
-			//if(type == 1){
-				this.point = point;
-				System.out.println("point for decomp vertex " + id + " set to " + point);
-			//}
+			this.point = point;
 		}
 		
 		/**
@@ -1063,36 +921,15 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param segment The point to associate with the vertex.
 		 */
 		public void setSegment(Line2D segment){
-			//if(type == 2){
-				this.segment = segment;
-				System.out.println("segment for decomp vertex " + id + " set to " + segment);
-			//}
-		}
-		
-		/**
-		 * Gets the parents of this vertex.
-		 * @return The parents of this vertex
-		 */
-		public List<DecompVertex> getParents(){
-			return parents;
-		}
-		
-		/**
-		 * Adds a parent of this vertex.
-		 * @param parent The parent to add to this vertex.
-		 */
-		public void addParent(DecompVertex parent){
-			this.parents.add(parent);
+			this.segment = segment;
 		}
 	}
 	
-	private static int trapID = 0;
 	/**
 	 * Defines the trapezoid structure that is used in the Vertical decomposition.
 	 * @author Emu
 	 */
 	public class Trapezoid{
-		private int id = trapID++;
 		/**
 		 * The four points representing the lines that
 		 * bound the trapezoid from the top and the bottom.
@@ -1112,7 +949,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		private DecompVertex vertex;
 		/**
 		 * The convex object that the trapezoid is a part of.
-		 */
+		 */		
 		private ConvexObject object;
 		
 		/**
@@ -1174,9 +1011,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 			this.neighbours = new ArrayList<Trapezoid>();
 			this.vertex = null;
 			this.object = null;
-			
-			System.out.println("new trapezoid " + id + " created with vertex " + vertex);
-			fullTraps.add(this);
 		}
 		
 		/**
@@ -1218,7 +1052,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * Useful for when we want to delete a Trapezoid.
 		 */
 		public void freeNeighbours (){
-			System.out.println("free trapezoid " + id);
 			for(Trapezoid t : neighbours){
 				t.removeNeighbour(this);
 			}
@@ -1230,11 +1063,8 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @return The vertical decomposition lines, unless one or more of the bounding lines is vertical.
 		 */
 		public List<Line2D> getDecompLines(){
-			assert leftPoints.size() > 0;
-			assert rightPoints.size() > 0;
-			assert !this.getNeighbours().contains(this);
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
-			if(leftPoints.size() > 0 && !(topLeft.equals(botLeft) && leftPoints.contains(topLeft))){//Draw vertical line between top and bottom on the left
+			if(leftPoints.size() > 0){//Draw vertical line between top and bottom on the left
 				double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
 				double xRatioBot = (leftPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
 				verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
@@ -1242,7 +1072,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 				
 			}
 			
-			if(rightPoints.size() > 0 && !(topRight.equals(botRight) && rightPoints.contains(topRight))){//Draw vertical line between top and bottom on the right
+			if(rightPoints.size() > 0){//Draw vertical line between top and bottom on the right
 				double xRatioTop = Math.abs((rightPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX()));
 				double xRatioBot = Math.abs((rightPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX()));
 				verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
@@ -1256,7 +1086,6 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @return The decomposition vertex that this trapezoid is linked to.
 		 */
 		public DecompVertex getDecompVertex(){
-			System.out.println("get trapezoid " + id + " vertex " + vertex);
 			return vertex;
 		}
 		
@@ -1265,9 +1094,8 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 * @param vertex The Decomposition vertex to link to.
 		 */
 		public void setDecompVertex(DecompVertex vertex){
-			System.out.println("set trapezoid " + id + " vertex to " + vertex);
-			//Thread.dumpStack();
 			this.vertex = vertex;
+			
 		}
 		
 		/**
@@ -1302,6 +1130,11 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 			return false;
 		}
 		
+		/**
+		 * Checks whether a given point is strictly inside a trapezoid
+		 * @param p The point to check.
+		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
+		 */
 		public boolean pointInside(Point2D p){
 			Line2D topLine = new Line2D.Double(topLeft, topRight);
 			Line2D botLine = new Line2D.Double(botLeft, botRight);
@@ -1310,6 +1143,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 			}
 			return false;
 		}
+		
 		/**
 		 * Adds a left bounding point to the trapezoid.
 		 * @param point The new left bounding point.
