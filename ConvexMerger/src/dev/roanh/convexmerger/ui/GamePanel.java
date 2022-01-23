@@ -13,6 +13,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
@@ -246,11 +247,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 			synchronized(state.decomp){
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
-//				state.decomp.addedSegs.forEach(g::draw);
-//				if(!state.decomp.addedSegs.isEmpty()){
-//					g.setColor(Color.BLUE);
-//					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
-//				}
+				state.decomp.addedSegs.forEach(g::draw);
+				if(!state.decomp.addedSegs.isEmpty()){
+					g.setColor(Color.BLUE);
+					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
+				}
 				
 				for(Trapezoid trap : state.decomp.trapezoids){
 					g.setColor(Color.CYAN);

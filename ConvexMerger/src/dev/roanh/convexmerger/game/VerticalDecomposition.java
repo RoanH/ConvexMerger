@@ -38,6 +38,7 @@ public class VerticalDecomposition{
 	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
 	 */
 	private List<DecompVertex> searchStructure;
+	public List<Line2D> addedSegs = new ArrayList<Line2D>();
 	
 	/**
 	 * Constructs a new vertical decomposition with
@@ -166,6 +167,17 @@ public class VerticalDecomposition{
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
+		try{
+			Thread.sleep(100);
+		}catch(InterruptedException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("===== addSegment =====");
+		synchronized(this){
+			addedSegs.add(seg);
+
 		
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
 				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
@@ -665,7 +677,7 @@ public class VerticalDecomposition{
 			}
 		}
 		return;	
-	}
+	}}
 	
 	/**
 	 * Computes a list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
