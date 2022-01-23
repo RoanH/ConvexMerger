@@ -1266,7 +1266,7 @@ public List<Line2D> addedSegs = new ArrayList<Line2D>();
 		 */
 		public void setDecompVertex(DecompVertex vertex){
 			System.out.println("set trapezoid " + id + " vertex to " + vertex);
-			Thread.dumpStack();
+			//Thread.dumpStack();
 			this.vertex = vertex;
 		}
 		
