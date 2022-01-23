@@ -1,7 +1,6 @@
 package dev.roanh.convexmerger.animation;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
@@ -28,7 +27,7 @@ public class MergeAnimation extends ClaimAnimation{
 	 * Number of milliseconds the body merge drawing
 	 * phase lasts for.
 	 */
-	private static final float FLOW_DURATION = 4000.0F;
+	private static final float FLOW_DURATION = 400.0F;
 	/**
 	 * Whether or not the target object was unclaimed before.
 	 */
@@ -148,8 +147,7 @@ public class MergeAnimation extends ClaimAnimation{
 			float flowFactor = Math.min(1.0F, (elapsed - LINE_DURATION) / FLOW_DURATION);
 			
 			//draw flow polygons
-			Color c = Theme.getPlayerBody(owned);
-			g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 100));
+			g.setColor(Theme.getPlayerBody(owned));
 			g.fill(computeFlowPath(firstInnerData, mergeLines[0], mergeLines[1], mergeLines[3], mergeLines[2], flowFactor));
 			g.fill(computeFlowPath(secondInnerData, mergeLines[2], mergeLines[3], mergeLines[1], mergeLines[0], flowFactor));
 			
