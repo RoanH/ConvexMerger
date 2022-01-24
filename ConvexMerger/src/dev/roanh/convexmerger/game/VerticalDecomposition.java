@@ -522,15 +522,8 @@ public class VerticalDecomposition{
 		//The vertices for the running bottom and top trapezoids.
 		DecompVertex botVertex = null, topVertex = null;
 		Trapezoid oldTop = null, oldBot = null;
-		System.out.println("\nstart: " + leftp+ " " + rightp);
 		while(!intersected.isEmpty()){
 			current = intersected.remove();
-			System.out.println(current.leftPoints + " " + current.rightPoints);
-			assert current == first || current.leftPoints.get(0).getX() == old.rightPoints.get(0).getX() :
-					"\n" + leftp + " " + rightp + "\n" 
-					+ oldTop.leftPoints+ " " + oldTop.rightPoints + "\n" 
-					+ current.leftPoints + " " + current.rightPoints+ " " + current.topLeft + " " + current.topRight + " " + current.botLeft + " " + current.botRight +"\n"
-					+ old.leftPoints + " " + old.rightPoints + " " + old.topLeft + " " + old.topRight + " " + old.botLeft + " " + old.botRight;;
 			//First trapezoid. If the leftpoint is at the left border, no need to split horizontally.
 			if(current == first && leftp.getX() != current.leftPoints.get(0).getX() && leftp.getX() != current.rightPoints.get(0).getX()){
 				//Split current into left and right of leftp.
@@ -570,11 +563,6 @@ public class VerticalDecomposition{
 				trapezoids.add(right);
 				//Right has to be bisected.
 				current = right;
-				assert left.rightPoints.size() > 0;
-				assert left.leftPoints.size() > 0;
-				assert right.rightPoints.size() > 0;
-				assert right.leftPoints.size() > 0;
-				assert left.rightPoints.get(0).getX() == right.leftPoints.get(0).getX();
 			}
 			//Last trapezoid. If rightp is on the right border, no need to split.
 			if(intersected.isEmpty() && rightp.getX() != current.leftPoints.get(0).getX() && rightp.getX() != current.rightPoints.get(0).getX()){
@@ -584,8 +572,6 @@ public class VerticalDecomposition{
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
 				right.addNeighbour(left);
-				assert current.rightPoints.size() > 0;
-				assert current.leftPoints.size() > 0;
 				for(Trapezoid neib : current.neighbours){
 					if(current.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
 						left.addNeighbour(neib);
@@ -616,14 +602,6 @@ public class VerticalDecomposition{
 				trapezoids.add(right);
 				//Left has to be bisected.
 				current = left;
-				assert left.rightPoints.size() > 0;
-				assert left.leftPoints.size() > 0;
-				assert right.rightPoints.size() > 0;
-				assert right.leftPoints.size() > 0;
-				assert left.rightPoints.get(0).getX() == right.leftPoints.get(0).getX();
-			}
-			if(current != left && intersected.isEmpty()){
-				assert current.rightPoints.get(0).getX() == rightp.getX();
 			}
 			//Split along the segment.
 			if(top == null){
@@ -646,10 +624,6 @@ public class VerticalDecomposition{
 						}
 					}
 				}
-//				assert top.leftPoints.size() > 0: "\n" + leftp + " " + rightp + "\n" 
-//											+ oldTop.leftPoints+ " " + oldTop.rightPoints + "\n" 
-//											+ current.leftPoints + " " + current.rightPoints+ " " + current.topLeft + " " + current.topRight + " " + current.botLeft + " " + current.botRight +"\n"
-//											+ old.leftPoints + " " + old.rightPoints + " " + old.topLeft + " " + old.topRight + " " + old.botLeft + " " + old.botRight;
 				topVertex = new DecompVertex(top);
 			}
 			if(bot == null){
@@ -669,17 +643,13 @@ public class VerticalDecomposition{
 						if(orientedSegment.relativeCCW(decompLine.getP1()) < 0){//P1 is the bottom point
 							bot.addNeighbour(neib);
 							neib.addNeighbour(bot);
-							System.out.println("LeftNeighbour " + neib.leftPoints.get(0).getX() + " " + neib.rightPoints.get(0).getX());
 						}
 					}
 				}
-				assert bot.leftPoints.size() > 0;
 				botVertex = new DecompVertex(bot);
 			}
 			//Distribute right points among top and bot.
-			assert current.rightPoints.size() > 0;
 			for(Point2D p : current.rightPoints){
-//				System.out.println(p+ " ");
 				if(orientedSegment.relativeCCW(p) >= 0){
 					top.addRightPoint(p);
 				}
@@ -706,20 +676,13 @@ public class VerticalDecomposition{
 						if(decompLine.getP1().getX() != current.rightPoints.get(0).getX())
 							continue;
 						if(orientedSegment.relativeCCW(decompLine.getP1()) < 0){//P1 is the bottom point
-//							if(bot.leftPoints.get(0).getX() == 579.532530212028){
-//								System.out.println("decomp line P1 " + decompLine.getP1());
-//							}
 							
 							bot.addNeighbour(neib);
 							neib.addNeighbour(bot);
-							if(bot.rightPoints.get(0).getX() == neib.leftPoints.get(0).getX()){
-								System.out.println("rightNeighbour " + neib.leftPoints.get(0).getX() + " " + neib.rightPoints.get(0).getX());
-							}
 						}
 					}
 				}
 			}
-//			System.out.println(top.leftPoints.size()+","+top.rightPoints.size() + " " + bot.leftPoints.size()+","+ bot.rightPoints.size());
 			//Update search structure.
 			DecompVertex vertex = current.getDecompVertex();
 			current.freeNeighbours();
@@ -763,7 +726,6 @@ public class VerticalDecomposition{
 		while(!q.isEmpty()){
 			Trapezoid current = q.remove();
 			if(current.intersectsSegment(seg)){
-				System.out.print(current.leftPoints.get(0).getX() + " " +current.rightPoints.get(0).getX() + ", ");
 				if(!intersectedTraps.contains(current)){
 					int cnt = 0;
 					for(Line2D decompLine : current.getDecompLines()){
@@ -772,7 +734,6 @@ public class VerticalDecomposition{
 						}
 					}
 					if(cnt > 1 || current.pointInside(seg.getP1()) || current.pointInside(seg.getP2())){
-						System.out.print("selected\n");
 						intersectedTraps.add(current);
 					}
 				}
@@ -786,7 +747,6 @@ public class VerticalDecomposition{
 				}
 			}
 		}
-		System.out.println();
 		return intersectedTraps;
 	}
 	
