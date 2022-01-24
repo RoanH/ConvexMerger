@@ -45,7 +45,7 @@ public class VerticalDecomposition{
 	 */
 	private List<Line2D> orientedSegments;
 	/**
-	 * Map of segments to the object above them.
+	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line2D, ConvexObject> segToObj;
 	/**
@@ -104,6 +104,10 @@ public class VerticalDecomposition{
 		}
 	}
 	
+	/**
+	 * Adds all segments of a given object to the vertical decomposition, if the object is part of the decomposition.
+	 * @param obj The object whose segments to add to the vertical decomposition.
+	 */
 	private void decomposeObject(ConvexObject obj){
 		if(!objects.contains(obj)){
 			return;
@@ -116,6 +120,7 @@ public class VerticalDecomposition{
 			addSegment(segment, obj);
 		}
 	}
+	
 	/**
 	 * Removes a convex object from this vertical decomposition.
 	 * @param obj The convex object to remove.
