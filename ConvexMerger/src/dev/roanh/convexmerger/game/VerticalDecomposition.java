@@ -6,9 +6,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -38,7 +40,14 @@ public class VerticalDecomposition{
 	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
 	 */
 	private List<DecompVertex> searchStructure;
-	
+	/**
+	 * The list of segments that have been added to the decomposition. 
+	 */
+	private List<Line2D> orientedSegments;
+	/**
+	 * Map of segments to the object above them.
+	 */
+	private Map<Line2D, ConvexObject> segToObj;
 	/**
 	 * Constructs a new vertical decomposition with
 	 * the given bounding box.
@@ -50,18 +59,31 @@ public class VerticalDecomposition{
 		trapezoids = new ArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
 		objects = new ArrayList<ConvexObject>();
+		orientedSegments = new ArrayList<Line2D>();
+		segToObj = new HashMap<Line2D, ConvexObject>();
 		
 		this.bounds = bounds;
 		initializeDecomposition();
 	}
 	
+	/**
+	 * Clears all structures except of the objects,
+	 * and initializes a blank vertical decomposition
+	 * with a bounding box trapezoid and a corresponding search structure vertex.
+	 */
 	private void initializeDecomposition(){
 		trapezoids.clear();
 		searchStructure.clear();
+		orientedSegments.clear();
+		segToObj.clear();
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
 		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
 		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
 		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
+		
+		Line2D botSegment = new Line2D.Double(botLeft, botRight);
+		orientedSegments.add(botSegment);
+		segToObj.put(botSegment, null);
 		
 		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botLeft, botRight, topLeft, topRight);
 		initialTrapezoid.addLeftPoint(botLeft);
@@ -89,13 +111,9 @@ public class VerticalDecomposition{
 		List<Point2D> points = obj.getPoints();
 		for(int i = 0; i < points.size(); i++){
 			Point2D p1 = points.get(i), p2 = points.get((i+1) % points.size());
-			Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
-					Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2
-					: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
-			Point2D rightp = leftp.equals(p1) ? p2 : p1;
 			
-			Line2D orientedSegment = new Line2D.Double(leftp, rightp);
-			addSegment(orientedSegment, obj);
+			Line2D segment = new Line2D.Double(p1, p2);
+			addSegment(segment, obj);
 		}
 	}
 	/**
@@ -182,28 +200,38 @@ public class VerticalDecomposition{
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
-		Trapezoid start = queryTrapezoid(seg.getP1());
-		Trapezoid end = queryTrapezoid(seg.getP2());
+		Point2D p1 = seg.getP1(), p2 = seg.getP2();
+		Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
+				Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2
+				: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
+		Point2D rightp = leftp.equals(p1) ? p2 : p1;
+		
+		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+		
+		Trapezoid start = queryTrapezoid(orientedSegment.getP1());
+		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
+		
+		orientedSegments.add(orientedSegment);
+		segToObj.put(orientedSegment, p1 == leftp ? obj : null);
 		
 		if(start.equals(end)){
-			handleSingleIntersectedTrapezoid(seg, obj);
+			handleSingleIntersectedTrapezoid(orientedSegment);
 		}else{
-			handleMultipleIntersectedTrapezoids(seg, obj);
+			handleMultipleIntersectedTrapezoids(orientedSegment);
 		}
-		return;	
 	}
 	
 	/**
 	 * Adds a segment that only crosses one trapezoid inside the decomposition.
 	 * @param seg The segment to add to the decomposition.
-	 * @param obj The object that this segment is a part of.
 	 */
-	private void handleSingleIntersectedTrapezoid(Line2D seg, ConvexObject obj){
+	private void handleSingleIntersectedTrapezoid(Line2D seg){
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
 				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
 				: Double.compare(seg.getP1().getX(), seg.getP2().getX()) < 0 ? seg.getP1() : seg.getP2();
 		Point2D rightp = leftp.equals(seg.getP1()) ? seg.getP2() : seg.getP1();
 		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+		boolean segmentReoriented = seg.getP1() == rightp;
 		Trapezoid start = queryTrapezoid(leftp);
 		//Segment is contained entirely inside 1 trapezoid.
 		boolean topBotExist = leftp.getX() != rightp.getX();
@@ -430,7 +458,7 @@ public class VerticalDecomposition{
 	 * @param seg The segment to add to the decomposition.
 	 * @param obj The object that the segment is a part of.
 	 */
-	public void handleMultipleIntersectedTrapezoids(Line2D seg, ConvexObject obj){
+	public void handleMultipleIntersectedTrapezoids(Line2D seg){
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
 				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
 				: Double.compare(seg.getP1().getX(), seg.getP2().getX()) < 0 ? seg.getP1() : seg.getP2();
@@ -982,10 +1010,6 @@ public class VerticalDecomposition{
 		 */
 		private DecompVertex vertex;
 		/**
-		 * The convex object that the trapezoid is a part of.
-		 */		
-		private ConvexObject object;
-		/**
 		 * The decomposition lines of the trapezoid.
 		 */
 		private List<Line2D> decompLines;
@@ -1052,7 +1076,6 @@ public class VerticalDecomposition{
 
 			this.neighbours = new ArrayList<Trapezoid>();
 			this.vertex = null;
-			this.object = null;
 			
 			if(!leftPoints.isEmpty() && !rightPoints.isEmpty()){
 				computeDecompLines();
@@ -1156,15 +1179,7 @@ public class VerticalDecomposition{
 		 * @return The convex object that this trapezoid is a part of.
 		 */
 		public ConvexObject getObject(){
-			return object;
-		}
-		
-		/**
-		 * Sets the convex object that this trapezoid is a part of.
-		 * @param object The convex object that this trapezoid is a part of.
-		 */
-		public void setObject(ConvexObject object){
-			this.object = object;
+			return segToObj.get(new Line2D.Double(botLeft, botRight));
 		}
 		
 		/**
