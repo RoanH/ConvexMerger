@@ -65,8 +65,10 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 		Graphics2D g = (Graphics2D)g1.create();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		
+		long start = System.currentTimeMillis();
 		screen.render(g, this.getWidth(), this.getHeight());
-		executor.schedule(()->this.repaint(), Constants.ANIMATION_RATE, TimeUnit.MILLISECONDS);
+		executor.schedule(()->this.repaint(), Math.max(0, Constants.ANIMATION_RATE - System.currentTimeMillis() + start), TimeUnit.MILLISECONDS);
 	}
 
 	@Override
