@@ -68,6 +68,7 @@ public class VerticalDecomposition{
 		initialTrapezoid.addRightPoint(topRight);
 		DecompVertex initialVertex =  new DecompVertex(initialTrapezoid);
 		trapezoids.add(initialTrapezoid);
+		initialTrapezoid.computeDecompLines();
 		searchStructure.add(initialVertex);
 	}
 	
@@ -210,10 +211,14 @@ public class VerticalDecomposition{
 		if(topBotExist){//Not a vertical segment
 			Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight);
 			Trapezoid bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp);
+			top.computeDecompLines();
+			bottom.computeDecompLines();
 			if(rightExists){
 				//completely inside.
 				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
 				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
+				left.computeDecompLines();
+				right.computeDecompLines();
 				
 				//Add neighbours.
 				left.addNeighbour(top);
@@ -265,6 +270,8 @@ public class VerticalDecomposition{
 			else{
 				//Segment ends on the right border.
 				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
+				left.computeDecompLines();
+				
 				left.addNeighbour(top);
 				left.addNeighbour(bottom);
 				top.addNeighbour(left);
@@ -348,6 +355,8 @@ public class VerticalDecomposition{
 				//Create left and right trapezoids.
 				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
 				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
+				left.computeDecompLines();
+				right.computeDecompLines();
 				
 				left.addRightPoint(rightp);
 				right.addLeftPoint(leftp);
@@ -529,6 +538,8 @@ public class VerticalDecomposition{
 				//Split current into left and right of leftp.
 				left = new Trapezoid(current.leftPoints, leftp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 				right = new Trapezoid(leftp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
+				left.computeDecompLines();
+				right.computeDecompLines();
 				
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
@@ -569,6 +580,9 @@ public class VerticalDecomposition{
 				//Split current into left and right of rightp.
 				left = new Trapezoid(current.leftPoints, rightp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 				right = new Trapezoid(rightp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
+				left.computeDecompLines();
+				right.computeDecompLines();
+				
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
 				right.addNeighbour(left);
@@ -698,11 +712,13 @@ public class VerticalDecomposition{
 			trapezoids.remove(current);
 			if(top.rightPoints.size() > 0){
 				trapezoids.add(top);
+				top.computeDecompLines();
 				oldTop = top;
 				top = null;
 			}
 			if(bot.rightPoints.size() > 0){
 				trapezoids.add(bot);
+				bot.computeDecompLines();
 				oldBot = bot;
 				bot = null;
 			}
@@ -988,6 +1004,10 @@ public class VerticalDecomposition{
 		 * The convex object that the trapezoid is a part of.
 		 */		
 		private ConvexObject object;
+		/**
+		 * The decomposition lines of the trapezoid.
+		 */
+		private List<Line2D> decompLines;
 		
 		/**
 		 * Constructs a trapezoid given a left and a right bounding point, and top and the defining points of the top and bottom segments.
@@ -1095,11 +1115,15 @@ public class VerticalDecomposition{
 			this.neighbours.clear();;
 		}
 		
+		public List<Line2D> getDecompLines(){
+			return decompLines;
+		}
+		
 		/**
 		 * Computes and outputs the decomposition lines related to this trapezoid.
 		 * @return The vertical decomposition lines, unless one or more of the bounding lines is vertical.
 		 */
-		public List<Line2D> getDecompLines(){
+		public void computeDecompLines(){
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
 			if(leftPoints.size() > 0){//Draw vertical line between top and bottom on the left
 				double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
@@ -1115,7 +1139,7 @@ public class VerticalDecomposition{
 				verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
 								  					new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
 			}
-			return verticalLines;
+			decompLines = verticalLines;
 		}
 		
 		/**
