@@ -236,7 +236,7 @@ public class VerticalDecomposition{
 				: Double.compare(seg.getP1().getX(), seg.getP2().getX()) < 0 ? seg.getP1() : seg.getP2();
 		Point2D rightp = leftp.equals(seg.getP1()) ? seg.getP2() : seg.getP1();
 		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
-		boolean segmentReoriented = seg.getP1() == rightp;
+
 		Trapezoid start = queryTrapezoid(leftp);
 		//Segment is contained entirely inside 1 trapezoid.
 		boolean topBotExist = leftp.getX() != rightp.getX();
@@ -461,7 +461,6 @@ public class VerticalDecomposition{
 	/**
 	 * Adds a segment that crosses more than one trapezoid inside the decomposition.
 	 * @param seg The segment to add to the decomposition.
-	 * @param obj The object that the segment is a part of.
 	 */
 	public void handleMultipleIntersectedTrapezoids(Line2D seg){
 		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
