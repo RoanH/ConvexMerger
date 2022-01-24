@@ -211,14 +211,10 @@ public class VerticalDecomposition{
 		if(topBotExist){//Not a vertical segment
 			Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight);
 			Trapezoid bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp);
-			top.computeDecompLines();
-			bottom.computeDecompLines();
 			if(rightExists){
 				//completely inside.
 				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
 				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
-				left.computeDecompLines();
-				right.computeDecompLines();
 				
 				//Add neighbours.
 				left.addNeighbour(top);
@@ -270,7 +266,6 @@ public class VerticalDecomposition{
 			else{
 				//Segment ends on the right border.
 				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
-				left.computeDecompLines();
 				
 				left.addNeighbour(top);
 				left.addNeighbour(bottom);
@@ -355,8 +350,6 @@ public class VerticalDecomposition{
 				//Create left and right trapezoids.
 				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
 				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
-				left.computeDecompLines();
-				right.computeDecompLines();
 				
 				left.addRightPoint(rightp);
 				right.addLeftPoint(leftp);
@@ -447,7 +440,6 @@ public class VerticalDecomposition{
 		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
 		//The top, bottom, left, and right trapezoids to be used when splitting the trapezoids.
 		Trapezoid top = null, bot = null, left = null, right = null;
-		Trapezoid old = null;
 		//The trapezoids that are intersected by the segment.
 		Queue<Trapezoid> intersected = findIntersectedTrapezoids(orientedSegment);
 		
@@ -530,7 +522,6 @@ public class VerticalDecomposition{
 		Trapezoid first = intersected.peek();
 		//The vertices for the running bottom and top trapezoids.
 		DecompVertex botVertex = null, topVertex = null;
-		Trapezoid oldTop = null, oldBot = null;
 		while(!intersected.isEmpty()){
 			current = intersected.remove();
 			//First trapezoid. If the leftpoint is at the left border, no need to split horizontally.
@@ -538,8 +529,6 @@ public class VerticalDecomposition{
 				//Split current into left and right of leftp.
 				left = new Trapezoid(current.leftPoints, leftp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 				right = new Trapezoid(leftp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
-				left.computeDecompLines();
-				right.computeDecompLines();
 				
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
@@ -580,8 +569,6 @@ public class VerticalDecomposition{
 				//Split current into left and right of rightp.
 				left = new Trapezoid(current.leftPoints, rightp, current.botLeft, current.botRight, current.topLeft, current.topRight);
 				right = new Trapezoid(rightp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
-				left.computeDecompLines();
-				right.computeDecompLines();
 				
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
@@ -712,19 +699,13 @@ public class VerticalDecomposition{
 			trapezoids.remove(current);
 			if(top.rightPoints.size() > 0){
 				trapezoids.add(top);
-				top.computeDecompLines();
-				oldTop = top;
 				top = null;
 			}
 			if(bot.rightPoints.size() > 0){
 				trapezoids.add(bot);
-				bot.computeDecompLines();
-				oldBot = bot;
 				bot = null;
 			}
-			old = current;
 		}
-		
 	}
 	
 	/**
@@ -1011,6 +992,7 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Constructs a trapezoid given a left and a right bounding point, and top and the defining points of the top and bottom segments.
+		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
 		 * @param bot1 One point of the bottom bounding line of the trapezoid.
@@ -1024,6 +1006,7 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Constructs a trapezoid given multiple left bounding points and a right bounding point, and top and the defining points of the top and bottom segments.
+		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
 		 * @param bot1 One point of the bottom bounding line of the trapezoid.
@@ -1037,6 +1020,7 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Constructs a trapezoid given a left bounding point and multiple right bounding points, and top and the defining points of the top and bottom segments.
+		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
 		 * @param bot1 One point of the bottom bounding line of the trapezoid.
@@ -1050,6 +1034,7 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Constructs a trapezoid and links the corresponding vertex in the search structure and the object that the trapezoid is part of.
+		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
 		 * @param bot1 One point of the bottom bounding line of the trapezoid.
@@ -1064,10 +1049,14 @@ public class VerticalDecomposition{
 			this.botRight = this.botLeft.equals(bot1) ? bot2 : bot1;
 			this.leftPoints = left;
 			this.rightPoints = right;
-			
+
 			this.neighbours = new ArrayList<Trapezoid>();
 			this.vertex = null;
 			this.object = null;
+			
+			if(!leftPoints.isEmpty() && !rightPoints.isEmpty()){
+				computeDecompLines();
+			}
 		}
 		
 		/**
@@ -1115,13 +1104,16 @@ public class VerticalDecomposition{
 			this.neighbours.clear();;
 		}
 		
+		/**
+		 * Gets the vertical decomposition lines of this trapezoid.
+		 * @return The vertical decomposition lines of this trapezoid.
+		 */
 		public List<Line2D> getDecompLines(){
 			return decompLines;
 		}
 		
 		/**
-		 * Computes and outputs the decomposition lines related to this trapezoid.
-		 * @return The vertical decomposition lines, unless one or more of the bounding lines is vertical.
+		 * Computes and sets the decomposition lines related to this trapezoid.
 		 */
 		public void computeDecompLines(){
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
@@ -1207,18 +1199,26 @@ public class VerticalDecomposition{
 		
 		/**
 		 * Adds a left bounding point to the trapezoid.
+		 * Also computes the vertical decomposition lines if this is the first left bounding point and at least 1 right bounding point exists.
 		 * @param point The new left bounding point.
 		 */
 		public void addLeftPoint(Point2D point){
 			leftPoints.add(point);
+			if(leftPoints.size() == 1 && !rightPoints.isEmpty()){
+				computeDecompLines();
+			}
 		}
 		
 		/**
-		 * Adds a right bounding point to the trapezoid
+		 * Adds a right bounding point to the trapezoid.
+		 * Also computes the vertical decomposition lines if this is the first right bounding point and at least 1 left bounding point exists.
 		 * @param point The new right bounding point
 		 */
 		public void addRightPoint(Point2D point){
 			rightPoints.add(point);
+			if(rightPoints.size() == 1 && !leftPoints.isEmpty()){
+				computeDecompLines();
+			}
 		}
 	}
 }
