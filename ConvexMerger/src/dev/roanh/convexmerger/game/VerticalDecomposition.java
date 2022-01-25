@@ -50,7 +50,7 @@ public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
-	private Map<Line2D, ConvexObject> segToObj;
+	private Map<Line, ConvexObject> segToObj;
 	
 	/**
 	 * Constructs a new vertical decomposition with
@@ -64,7 +64,7 @@ public class VerticalDecomposition implements GameStateListener{
 		searchStructure = new ArrayList<DecompVertex>();
 		objects = new ArrayList<ConvexObject>();
 		orientedSegments = new ArrayList<Line2D>();
-		segToObj = new HashMap<Line2D, ConvexObject>();
+		segToObj = new HashMap<Line, ConvexObject>();
 		
 		this.bounds = bounds;
 		initializeDecomposition();
@@ -214,7 +214,7 @@ public class VerticalDecomposition implements GameStateListener{
 				: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
 		Point2D rightp = leftp.equals(p1) ? p2 : p1;
 		
-		Line2D orientedSegment = new Line(leftp, rightp);
+		Line orientedSegment = new Line(leftp, rightp);
 		
 		Trapezoid start = queryTrapezoid(orientedSegment.getP1());
 		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
