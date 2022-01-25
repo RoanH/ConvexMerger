@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -25,7 +26,6 @@ import dev.roanh.convexmerger.player.Player;
  * @author Emu
  */
 public class VerticalDecomposition implements GameStateListener{
-	
 	/**
 	 * The objects that are decomposed.
 	 */
@@ -50,7 +50,8 @@ public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
-	private Map<Line2D, ConvexObject> segToObj;
+	private Map<Line, ConvexObject> segToObj;
+	
 	/**
 	 * Constructs a new vertical decomposition with
 	 * the given bounding box.
@@ -63,7 +64,7 @@ public class VerticalDecomposition implements GameStateListener{
 		searchStructure = new ArrayList<DecompVertex>();
 		objects = new ArrayList<ConvexObject>();
 		orientedSegments = new ArrayList<Line2D>();
-		segToObj = new HashMap<Line2D, ConvexObject>();
+		segToObj = new HashMap<Line, ConvexObject>();
 		
 		this.bounds = bounds;
 		initializeDecomposition();
@@ -84,8 +85,8 @@ public class VerticalDecomposition implements GameStateListener{
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
 		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
 		
-		Line2D botSegment = new Line2D.Double(botLeft, botRight);
-		Line2D topSegment = new Line2D.Double(topLeft, topRight);
+		Line2D botSegment = new Line(botLeft, botRight);
+		Line2D topSegment = new Line(topLeft, topRight);
 
 		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botSegment, topSegment);
 		initialTrapezoid.addLeftPoint(botLeft);
@@ -116,9 +117,9 @@ public class VerticalDecomposition implements GameStateListener{
 		}
 		List<Point2D> points = obj.getPoints();
 		for(int i = 0; i < points.size(); i++){
-			Point2D p1 = points.get(i), p2 = points.get((i+1) % points.size());
+			Point2D p1 = points.get(i), p2 = points.get((i + 1) % points.size());
 			
-			Line2D segment = new Line2D.Double(p1, p2);
+			Line2D segment = new Line(p1, p2);
 			addSegment(segment, obj);
 		}
 	}
@@ -213,7 +214,7 @@ public class VerticalDecomposition implements GameStateListener{
 				: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
 		Point2D rightp = leftp.equals(p1) ? p2 : p1;
 		
-		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+		Line orientedSegment = new Line(leftp, rightp);
 		
 		Trapezoid start = queryTrapezoid(orientedSegment.getP1());
 		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
@@ -352,8 +353,8 @@ public class VerticalDecomposition implements GameStateListener{
 						}
 					}
 				}
-				//Update trapezoid list and search structure.
 				
+				//Update trapezoid list and search structure.
 				DecompVertex vertex = start.getDecompVertex(); 
 				start.setDecompVertex(null);
 				start.freeNeighbours();
@@ -412,7 +413,7 @@ public class VerticalDecomposition implements GameStateListener{
 									
 				vertex.setType(2);
 				vertex.setTrapezoid(null);
-				vertex.setSegment(orientedSegment);;
+				vertex.setSegment(orientedSegment);
 				vertex.setLeftChild(leftVertex);
 				vertex.setRightChild(rightVertex);
 				return;
@@ -711,6 +712,7 @@ public class VerticalDecomposition implements GameStateListener{
 					}
 				}
 			}
+			
 			//Update search structure.
 			DecompVertex vertex = current.getDecompVertex();
 			current.freeNeighbours();
@@ -776,8 +778,6 @@ public class VerticalDecomposition implements GameStateListener{
 	
 	@Override
 	public void claim(Player player, ConvexObject obj){
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -788,14 +788,10 @@ public class VerticalDecomposition implements GameStateListener{
 
 	@Override
 	public void end(){
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void abort(){
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/**
@@ -911,7 +907,7 @@ public class VerticalDecomposition implements GameStateListener{
 								: Double.compare(segment.getP1().getX(), segment.getP2().getX()) < 0 ? segment.getP1() : segment.getP2();
 				Point2D rightp = leftp.equals(segment.getP1()) ? segment.getP2() : segment.getP1();
 				
-				Line2D orientedSegment = new Line2D.Double(leftp, rightp);
+				Line2D orientedSegment = new Line(leftp, rightp);
 				return orientedSegment.relativeCCW(query) <= 0 ? left.queryPoint(query) : right.queryPoint(query); //Can be subject to change.
 			}else{
 				return null;
@@ -1136,7 +1132,7 @@ public class VerticalDecomposition implements GameStateListener{
 			for(Trapezoid t : neighbours){
 				t.removeNeighbour(this);
 			}
-			this.neighbours.clear();;
+			this.neighbours.clear();
 		}
 		
 		/**
@@ -1157,16 +1153,19 @@ public class VerticalDecomposition implements GameStateListener{
 			if(leftPoints.size() > 0){//Draw vertical line between top and bottom on the left
 				double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
 				double xRatioBot = (leftPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
-				verticalLines.add(new Line2D.Double(new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
-													new Point2D.Double(leftPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
-				
+				verticalLines.add(new Line(
+					new Point2D.Double(leftPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
+					new Point2D.Double(leftPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY()))
+				);
 			}
 			
 			if(rightPoints.size() > 0){//Draw vertical line between top and bottom on the right
 				double xRatioTop = Math.abs((rightPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX()));
 				double xRatioBot = Math.abs((rightPoints.get(0).getX() - botLeft.getX()) / (botRight.getX() - botLeft.getX()));
-				verticalLines.add(new Line2D.Double(new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
-								  					new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY())));
+				verticalLines.add(new Line(
+					new Point2D.Double(rightPoints.get(0).getX(), xRatioBot * botRight.getY() + (1 - xRatioBot) * botLeft.getY()),
+					new Point2D.Double(rightPoints.get(0).getX(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY()))
+				);
 			}
 			decompLines = verticalLines;
 		}
@@ -1185,7 +1184,6 @@ public class VerticalDecomposition implements GameStateListener{
 		 */
 		public void setDecompVertex(DecompVertex vertex){
 			this.vertex = vertex;
-			
 		}
 		
 		/**
@@ -1195,8 +1193,8 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @return True if the line segment is intersected, false otherwise.
 		 */
 		public boolean intersectsSegment(Line2D segment){
-			List<Line2D> DecompLines = this.getDecompLines();
-			for(Line2D line : DecompLines){
+			List<Line2D> decompLines = this.getDecompLines();
+			for(Line2D line : decompLines){
 				if(line.intersectsLine(segment)){
 					return true;
 				}
@@ -1237,6 +1235,95 @@ public class VerticalDecomposition implements GameStateListener{
 			rightPoints.add(point);
 			if(rightPoints.size() == 1 && !leftPoints.isEmpty()){
 				computeDecompLines();
+			}
+		}
+	}
+	
+	/**
+	 * A line instance with equality based
+	 * on its end points.
+	 * @author Roan
+	 */
+	public class Line extends Line2D{
+		/**
+		 * First end point of the line.
+		 */
+		private Point2D p1;
+		/**
+		 * Second end point of the line.
+		 */
+		private Point2D p2;
+		
+		/**
+		 * Constructs a new line with the given
+		 * end points. Any line with the exact
+		 * same objects as end points is considered
+		 * equal to this line.
+		 * @param p1 The first end point of the line.
+		 * @param p2 The second end point of hte line.
+		 */
+		public Line(Point2D p1, Point2D p2){
+			this.p1 = p1;
+			this.p2 = p2;
+		}
+
+		@Override
+		public Rectangle2D getBounds2D(){
+			return new Rectangle2D.Double(
+				Math.min(p1.getX(), p2.getX()),
+				Math.min(p1.getY(), p2.getY()),
+				Math.abs(p1.getX() - p2.getX()),
+				Math.abs(p1.getY() - p2.getY())
+			);
+		}
+
+		@Override
+		public double getX1(){
+			return p1.getX();
+		}
+
+		@Override
+		public double getY1(){
+			return p1.getY();
+		}
+
+		@Override
+		public Point2D getP1(){
+			return p1;
+		}
+
+		@Override
+		public double getX2(){
+			return p2.getX();
+		}
+
+		@Override
+		public double getY2(){
+			return p2.getY();
+		}
+
+		@Override
+		public Point2D getP2(){
+			return p2;
+		}
+
+		@Override
+		public void setLine(double x1, double y1, double x2, double y2){
+			throw new IllegalStateException("Unsupported operation");
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(p1, p2);
+		}
+		
+		@Override
+		public boolean equals(Object other){
+			if(other instanceof Line){
+				Line line = (Line)other;
+				return (line.p1 == p1 && line.p2 == p2) || (line.p1 == p2 && line.p2 == p1);
+			}else{
+				return false;
 			}
 		}
 	}
