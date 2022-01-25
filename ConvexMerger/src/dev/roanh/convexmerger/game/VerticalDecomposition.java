@@ -79,16 +79,14 @@ public class VerticalDecomposition implements GameStateListener{
 		searchStructure.clear();
 		orientedSegments.clear();
 		segToObj.clear();
-		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
-		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
-		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
-		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
+		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
+		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
+		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
+		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
 		
 		Line2D botSegment = new Line2D.Double(botLeft, botRight);
 		Line2D topSegment = new Line2D.Double(topLeft, topRight);
-		orientedSegments.add(botSegment);
-		segToObj.put(botSegment, null);
-		
+
 		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botSegment, topSegment);
 		initialTrapezoid.addLeftPoint(botLeft);
 		initialTrapezoid.addRightPoint(topRight);
@@ -156,14 +154,14 @@ public class VerticalDecomposition implements GameStateListener{
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
-//		return searchStructure.get(0).queryPoint(new Point2D.Double(x, y)).getObject();
+//		return segToObj(queryTrapezoid(x,y).botSegment);
 		return null;
 	}
 	
 	/**
 	 * Queries the trapezoid that is at the given position.
 	 * If no such trapezoid exists <code>null</code> is returned.
-	 * @param x The x-coordinate of the query point.
+	 * @param x The x-coordinate of the query point.	
 	 * @param y The y-coordinate of the query point.
 	 * @return The convex object at the given position or
 	 *         <code>null</code> is there is no convex object at
@@ -222,7 +220,7 @@ public class VerticalDecomposition implements GameStateListener{
 		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
 		
 		orientedSegments.add(orientedSegment);
-		segToObj.put(orientedSegment, p1 == leftp ? obj : null);
+		segToObj.put(orientedSegment, p1.getX() < p2.getX() ? obj : null);
 		
 		if(start.equals(end)){
 			handleSingleIntersectedTrapezoid(orientedSegment);
@@ -233,7 +231,7 @@ public class VerticalDecomposition implements GameStateListener{
 	
 	/**
 	 * Adds a segment that only crosses one trapezoid inside the decomposition.
-	 * @param seg The segment to add to the decomposition.
+	 * @param orientedSegment The segment to add to the decomposition.
 	 */
 	private void handleSingleIntersectedTrapezoid(Line2D orientedSegment){
 		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
@@ -308,10 +306,10 @@ public class VerticalDecomposition implements GameStateListener{
 				
 				//Attribute the right bounding points to top and bottom.
 				for (Point2D p : start.rightPoints){
-					if(orientedSegment.relativeCCW(p) >= 0){
+					if(orientedSegment.relativeCCW(p) <= 0){
 						top.addRightPoint(p);
 					}
-					if(orientedSegment.relativeCCW(p) <= 0){
+					if(orientedSegment.relativeCCW(p) >= 0){
 						bottom.addRightPoint(p);
 					}
 				}
@@ -461,16 +459,12 @@ public class VerticalDecomposition implements GameStateListener{
 	
 	/**
 	 * Adds a segment that crosses more than one trapezoid inside the decomposition.
-	 * @param seg The segment to add to the decomposition.
+	 * @param orientedSegment The segment to add to the decomposition.
 	 */
-	public void handleMultipleIntersectedTrapezoids(Line2D seg){
-		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
-				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
-				: Double.compare(seg.getP1().getX(), seg.getP2().getX()) < 0 ? seg.getP1() : seg.getP2();
-		Point2D rightp = leftp.equals(seg.getP1()) ? seg.getP2() : seg.getP1();
+	public void handleMultipleIntersectedTrapezoids(Line2D orientedSegment){
+		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
 		Trapezoid start = queryTrapezoid(leftp);
 		Trapezoid end = queryTrapezoid(rightp);
-		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
 		//The top, bottom, left, and right trapezoids to be used when splitting the trapezoids.
 		Trapezoid top = null, bot = null, left = null, right = null;
 		//The trapezoids that are intersected by the segment.
@@ -643,7 +637,7 @@ public class VerticalDecomposition implements GameStateListener{
 				top = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), orientedSegment, current.topSegment);
 				//Assign left points to top.
 				for(Point2D p : current.leftPoints){
-					if(orientedSegment.relativeCCW(p) >= 0){
+					if(orientedSegment.relativeCCW(p) <= 0){
 						top.addLeftPoint(p);
 					}
 				}
@@ -652,7 +646,7 @@ public class VerticalDecomposition implements GameStateListener{
 					for(Line2D decompLine : neib.getDecompLines()){
 						if(decompLine.getP1().getX() != current.leftPoints.get(0).getX())
 							continue;
-						if(orientedSegment.relativeCCW(decompLine.getP2()) > 0){//P2 is the top point
+						if(orientedSegment.relativeCCW(decompLine.getP2()) < 0){//P2 is the top point
 							top.addNeighbour(neib);
 							neib.addNeighbour(top);
 						}
@@ -665,7 +659,7 @@ public class VerticalDecomposition implements GameStateListener{
 				bot = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), current.botSegment, orientedSegment);
 				//Assign left points to bot.
 				for(Point2D p : current.leftPoints){
-					if(orientedSegment.relativeCCW(p) <= 0){
+					if(orientedSegment.relativeCCW(p) >= 0){
 						bot.addLeftPoint(p);
 					}
 				}
@@ -674,7 +668,7 @@ public class VerticalDecomposition implements GameStateListener{
 					for(Line2D decompLine : neib.getDecompLines()){
 						if(decompLine.getP1().getX() != current.leftPoints.get(0).getX())
 							continue;
-						if(orientedSegment.relativeCCW(decompLine.getP1()) < 0){//P1 is the bottom point
+						if(orientedSegment.relativeCCW(decompLine.getP1()) > 0){//P1 is the bottom point
 							bot.addNeighbour(neib);
 							neib.addNeighbour(bot);
 						}
@@ -684,10 +678,10 @@ public class VerticalDecomposition implements GameStateListener{
 			}
 			//Distribute right points among top and bot.
 			for(Point2D p : current.rightPoints){
-				if(orientedSegment.relativeCCW(p) >= 0){
+				if(orientedSegment.relativeCCW(p) <= 0){
 					top.addRightPoint(p);
 				}
-				if(orientedSegment.relativeCCW(p) <= 0){
+				if(orientedSegment.relativeCCW(p) >= 0){
 					bot.addRightPoint(p);
 				}
 			}
@@ -697,7 +691,7 @@ public class VerticalDecomposition implements GameStateListener{
 					for(Line2D decompLine : neib.getDecompLines()){
 						if(decompLine.getP1().getX() != current.rightPoints.get(0).getX())
 							continue;
-						if(orientedSegment.relativeCCW(decompLine.getP2()) > 0){//P2 is the top point
+						if(orientedSegment.relativeCCW(decompLine.getP2()) < 0){//P2 is the top point
 							top.addNeighbour(neib);
 							neib.addNeighbour(top);
 						}
@@ -709,7 +703,7 @@ public class VerticalDecomposition implements GameStateListener{
 					for(Line2D decompLine : neib.getDecompLines()){
 						if(decompLine.getP1().getX() != current.rightPoints.get(0).getX())
 							continue;
-						if(orientedSegment.relativeCCW(decompLine.getP1()) < 0){//P1 is the bottom point
+						if(orientedSegment.relativeCCW(decompLine.getP1()) > 0){//P1 is the bottom point
 							
 							bot.addNeighbour(neib);
 							neib.addNeighbour(bot);
@@ -918,7 +912,7 @@ public class VerticalDecomposition implements GameStateListener{
 				Point2D rightp = leftp.equals(segment.getP1()) ? segment.getP2() : segment.getP1();
 				
 				Line2D orientedSegment = new Line2D.Double(leftp, rightp);
-				return orientedSegment.relativeCCW(query) >= 0 ? left.queryPoint(query) : right.queryPoint(query); //Can be subject to change.
+				return orientedSegment.relativeCCW(query) <= 0 ? left.queryPoint(query) : right.queryPoint(query); //Can be subject to change.
 			}else{
 				return null;
 			}
@@ -1216,7 +1210,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
 		 */
 		public boolean pointInside(Point2D p){
-			if(botSegment.relativeCCW(p) > 0 && topSegment.relativeCCW(p) < 0 && p.getX() > leftPoints.get(0).getX() && p.getX() < rightPoints.get(0).getX()){//TODO: change up relatives?
+			if(botSegment.relativeCCW(p) < 0 && topSegment.relativeCCW(p) > 0 && p.getX() > leftPoints.get(0).getX() && p.getX() < rightPoints.get(0).getX()){//TODO: change up relatives?
 				return true;
 			}
 			return false;
