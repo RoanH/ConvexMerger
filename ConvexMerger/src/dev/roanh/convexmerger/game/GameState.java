@@ -270,12 +270,6 @@ public class GameState{
 	 * @return The object at the given coordinates.
 	 */
 	public ConvexObject getObject(double x, double y){
-		//TODO remove when decomp done
-		for(ConvexObject obj : objects){
-			if(obj.contains(x, y)){
-				return obj;
-			}
-		}
 		return decomp.queryObject(x, y);
 	}
 	

@@ -154,8 +154,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
-//		return segToObj(queryTrapezoid(x,y).botSegment);
-		return null;
+		return segToObj.get(queryTrapezoid(x,y).botSegment);
 	}
 	
 	/**
@@ -220,7 +219,8 @@ public class VerticalDecomposition implements GameStateListener{
 		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
 		
 		orientedSegments.add(orientedSegment);
-		segToObj.put(orientedSegment, p1.getX() < p2.getX() ? obj : null);
+		ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
+		segToObj.put(orientedSegment, toPut);
 		
 		if(start.equals(end)){
 			handleSingleIntersectedTrapezoid(orientedSegment);
