@@ -85,7 +85,7 @@ public class InternalServer implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 		thread.broadCast(player, new PacketPlayerMove(player, source, target));
 	}
 
