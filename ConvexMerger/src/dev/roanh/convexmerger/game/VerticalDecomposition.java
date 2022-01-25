@@ -26,7 +26,6 @@ import dev.roanh.convexmerger.player.Player;
  * @author Emu
  */
 public class VerticalDecomposition implements GameStateListener{
-	
 	/**
 	 * The objects that are decomposed.
 	 */
@@ -52,6 +51,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line2D, ConvexObject> segToObj;
+	
 	/**
 	 * Constructs a new vertical decomposition with
 	 * the given bounding box.
@@ -117,7 +117,7 @@ public class VerticalDecomposition implements GameStateListener{
 		}
 		List<Point2D> points = obj.getPoints();
 		for(int i = 0; i < points.size(); i++){
-			Point2D p1 = points.get(i), p2 = points.get((i+1) % points.size());
+			Point2D p1 = points.get(i), p2 = points.get((i + 1) % points.size());
 			
 			Line2D segment = new Line(p1, p2);
 			addSegment(segment, obj);
@@ -353,8 +353,8 @@ public class VerticalDecomposition implements GameStateListener{
 						}
 					}
 				}
-				//Update trapezoid list and search structure.
 				
+				//Update trapezoid list and search structure.
 				DecompVertex vertex = start.getDecompVertex(); 
 				start.setDecompVertex(null);
 				start.freeNeighbours();
@@ -712,6 +712,7 @@ public class VerticalDecomposition implements GameStateListener{
 					}
 				}
 			}
+			
 			//Update search structure.
 			DecompVertex vertex = current.getDecompVertex();
 			current.freeNeighbours();
@@ -1183,7 +1184,6 @@ public class VerticalDecomposition implements GameStateListener{
 		 */
 		public void setDecompVertex(DecompVertex vertex){
 			this.vertex = vertex;
-			
 		}
 		
 		/**
