@@ -1284,7 +1284,7 @@ public class VerticalDecomposition implements GameStateListener{
 
 		@Override
 		public double getY1(){
-			return p1.getX();
+			return p1.getY();
 		}
 
 		@Override
