@@ -85,10 +85,11 @@ public class VerticalDecomposition implements GameStateListener{
 		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
 		
 		Line2D botSegment = new Line2D.Double(botLeft, botRight);
+		Line2D topSegment = new Line2D.Double(topLeft, topRight);
 		orientedSegments.add(botSegment);
 		segToObj.put(botSegment, null);
 		
-		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botLeft, botRight, topLeft, topRight);
+		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botSegment, topSegment);
 		initialTrapezoid.addLeftPoint(botLeft);
 		initialTrapezoid.addRightPoint(topRight);
 		DecompVertex initialVertex =  new DecompVertex(initialTrapezoid);
@@ -155,7 +156,8 @@ public class VerticalDecomposition implements GameStateListener{
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
-		return searchStructure.get(0).queryPoint(new Point2D.Double(x, y)).getObject();
+//		return searchStructure.get(0).queryPoint(new Point2D.Double(x, y)).getObject();
+		return null;
 	}
 	
 	/**
@@ -233,24 +235,20 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Adds a segment that only crosses one trapezoid inside the decomposition.
 	 * @param seg The segment to add to the decomposition.
 	 */
-	private void handleSingleIntersectedTrapezoid(Line2D seg){
-		Point2D leftp = Double.compare(seg.getP1().getX(), seg.getP2().getX()) == 0 ? 
-				Double.compare(seg.getP1().getY(), seg.getP2().getY()) <= 0 ? seg.getP1() : seg.getP2() 
-				: Double.compare(seg.getP1().getX(), seg.getP2().getX()) < 0 ? seg.getP1() : seg.getP2();
-		Point2D rightp = leftp.equals(seg.getP1()) ? seg.getP2() : seg.getP1();
-		Line2D orientedSegment = new Line2D.Double(leftp, rightp);
-
+	private void handleSingleIntersectedTrapezoid(Line2D orientedSegment){
+		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
+		
 		Trapezoid start = queryTrapezoid(leftp);
 		//Segment is contained entirely inside 1 trapezoid.
 		boolean topBotExist = leftp.getX() != rightp.getX();
 		boolean rightExists = rightp.getX() != start.rightPoints.get(0).getX();
 		if(topBotExist){//Not a vertical segment
-			Trapezoid top = new Trapezoid(leftp, rightp, leftp, rightp, start.topLeft, start.topRight);
-			Trapezoid bottom = new Trapezoid(leftp, rightp, start.botLeft, start.botRight, leftp, rightp);
+			Trapezoid top = new Trapezoid(leftp, rightp, orientedSegment, start.topSegment);
+			Trapezoid bottom = new Trapezoid(leftp, rightp, start.botSegment, orientedSegment);
 			if(rightExists){
 				//completely inside.
-				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
-				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
+				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botSegment, start.topSegment);
+				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botSegment, start.topSegment);
 				
 				//Add neighbours.
 				left.addNeighbour(top);
@@ -301,7 +299,7 @@ public class VerticalDecomposition implements GameStateListener{
 			}
 			else{
 				//Segment ends on the right border.
-				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
+				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botSegment, start.topSegment);
 				
 				left.addNeighbour(top);
 				left.addNeighbour(bottom);
@@ -384,8 +382,8 @@ public class VerticalDecomposition implements GameStateListener{
 			if(rightExists){
 				//Inside the trapezoid.
 				//Create left and right trapezoids.
-				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botLeft, start.botRight, start.topLeft, start.topRight);
-				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botLeft, start.botRight, start.topLeft, start.topRight);
+				Trapezoid left = new Trapezoid(start.leftPoints, leftp, start.botSegment, start.topSegment);
+				Trapezoid right = new Trapezoid(rightp, start.rightPoints, start.botSegment, start.topSegment);
 				
 				left.addRightPoint(rightp);
 				right.addLeftPoint(leftp);
@@ -446,7 +444,7 @@ public class VerticalDecomposition implements GameStateListener{
 				List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
 				for(Trapezoid neib : start.getNeighbours()){
 					if(neib.leftPoints.get(0).getX() == start.rightPoints.get(0).getX() && 
-							leftp.equals(start.botRight) && rightp.equals(start.topRight)){
+							leftp.equals(start.botSegment.getP2()) && rightp.equals(start.topSegment.getP2())){
 						removeNeighbours.add(neib);
 						continue;
 					}
@@ -539,7 +537,7 @@ public class VerticalDecomposition implements GameStateListener{
 			List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
 			for(Trapezoid neib : end.getNeighbours()){
 				if(neib.leftPoints.get(0).getX() == end.rightPoints.get(0).getX() && 
-						leftp.equals(end.botRight) && rightp.equals(end.topRight)){
+						leftp.equals(end.botSegment.getP2()) && rightp.equals(end.topSegment.getP2())){
 					removeNeighbours.add(neib);
 					continue;
 				}
@@ -562,8 +560,8 @@ public class VerticalDecomposition implements GameStateListener{
 			//First trapezoid. If the leftpoint is at the left border, no need to split horizontally.
 			if(current == first && leftp.getX() != current.leftPoints.get(0).getX() && leftp.getX() != current.rightPoints.get(0).getX()){
 				//Split current into left and right of leftp.
-				left = new Trapezoid(current.leftPoints, leftp, current.botLeft, current.botRight, current.topLeft, current.topRight);
-				right = new Trapezoid(leftp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
+				left = new Trapezoid(current.leftPoints, leftp, current.botSegment, current.topSegment);
+				right = new Trapezoid(leftp, current.rightPoints, current.botSegment, current.topSegment);
 				
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
@@ -602,8 +600,8 @@ public class VerticalDecomposition implements GameStateListener{
 			//Last trapezoid. If rightp is on the right border, no need to split.
 			if(intersected.isEmpty() && rightp.getX() != current.leftPoints.get(0).getX() && rightp.getX() != current.rightPoints.get(0).getX()){
 				//Split current into left and right of rightp.
-				left = new Trapezoid(current.leftPoints, rightp, current.botLeft, current.botRight, current.topLeft, current.topRight);
-				right = new Trapezoid(rightp, current.rightPoints, current.botLeft, current.botRight, current.topLeft, current.topRight);
+				left = new Trapezoid(current.leftPoints, rightp, current.botSegment, current.topSegment);
+				right = new Trapezoid(rightp, current.rightPoints, current.botSegment, current.topSegment);
 				
 				//Add neighbours to left and right.
 				left.addNeighbour(right);
@@ -642,7 +640,7 @@ public class VerticalDecomposition implements GameStateListener{
 			//Split along the segment.
 			if(top == null){
 				//Create a new top trapezoid
-				top = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), leftp, rightp, current.topLeft, current.topRight);
+				top = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), orientedSegment, current.topSegment);
 				//Assign left points to top.
 				for(Point2D p : current.leftPoints){
 					if(orientedSegment.relativeCCW(p) >= 0){
@@ -664,7 +662,7 @@ public class VerticalDecomposition implements GameStateListener{
 			}
 			if(bot == null){
 				//Create a new bot trapezoid.
-				bot = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), current.botLeft, current.botRight, leftp, rightp);
+				bot = new Trapezoid(new ArrayList<Point2D>(), new ArrayList<Point2D>(), current.botSegment, orientedSegment);
 				//Assign left points to bot.
 				for(Point2D p : current.leftPoints){
 					if(orientedSegment.relativeCCW(p) <= 0){
@@ -1024,10 +1022,9 @@ public class VerticalDecomposition implements GameStateListener{
 	 */
 	public class Trapezoid{
 		/**
-		 * The four points representing the lines that
-		 * bound the trapezoid from the top and the bottom.
+		 * The segments that bound the trapezoid from the top and bottom
 		 */
-		public Point2D topLeft, topRight, botLeft, botRight;
+		public Line2D botSegment, topSegment;
 		/**
 		 * The points that bound the trapezoid from the left and right.
 		 */
@@ -1046,62 +1043,52 @@ public class VerticalDecomposition implements GameStateListener{
 		private List<Line2D> decompLines;
 		
 		/**
-		 * Constructs a trapezoid given a left and a right bounding point, and top and the defining points of the top and bottom segments.
+		 * Constructs a trapezoid given a left and a right bounding point, and the top and bottom bounding segments.
 		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
-		 * @param bot1 One point of the bottom bounding line of the trapezoid.
-		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
-		 * @param top1 One point of the top bounding line of the trapezoid.
-		 * @param top2 The other point of the bottom bounding line of the trapezoid.
+		 * @param botSegment The bottom bounding segment of the trapezoid.
+		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(Point2D left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), bot1, bot2, top1, top2);
+		public Trapezoid(Point2D left, Point2D right, Line2D botSegment, Line2D topSegment){
+			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), botSegment, topSegment);
 		}
 		
 		/**
-		 * Constructs a trapezoid given multiple left bounding points and a right bounding point, and top and the defining points of the top and bottom segments.
+		 * Constructs a trapezoid given a list of left bounding points and a right bounding point, and the top and bottom bounding segments.
 		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
-		 * @param bot1 One point of the bottom bounding line of the trapezoid.
-		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
-		 * @param top1 One point of the top bounding line of the trapezoid.
-		 * @param top2 The other point of the bottom bounding line of the trapezoid.
+		 * @param botSegment The bottom bounding segment of the trapezoid.
+		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(List<Point2D> left, Point2D right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(left, new ArrayList<Point2D>(Arrays.asList(right)),bot1, bot2, top1, top2);
+		public Trapezoid(List<Point2D> left, Point2D right, Line2D botSegment, Line2D topSegment){
+			this(left, new ArrayList<Point2D>(Arrays.asList(right)), botSegment, topSegment);
 		}
 		
 		/**
-		 * Constructs a trapezoid given a left bounding point and multiple right bounding points, and top and the defining points of the top and bottom segments.
+		 * Constructs a trapezoid given a left bounding point and a list of right bounding points, and the top and bottom bounding segments.
 		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
-		 * @param bot1 One point of the bottom bounding line of the trapezoid.
-		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
-		 * @param top1 One point of the top bounding line of the trapezoid.
-		 * @param top2 The other point of the bottom bounding line of the trapezoid.
+		 * @param botSegment The bottom bounding segment of the trapezoid.
+		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(Point2D left, List<Point2D>  right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), right,bot1, bot2, top1, top2);
+		public Trapezoid(Point2D left, List<Point2D>  right, Line2D botSegment, Line2D topSegment){
+			this(new ArrayList<Point2D>(Arrays.asList(left)), right, botSegment, topSegment);
 		}
 		
 		/**
-		 * Constructs a trapezoid and links the corresponding vertex in the search structure and the object that the trapezoid is part of.
+		 * Constructs a trapezoid given lists of left and right bounding points, and the top and bottom bounding segments.
 		 * Also computes the vertical decomposition lines if at least one left and right point are passed.
 		 * @param left The left bounding point of the trapezoid.
 		 * @param right The right bounding point of the trapezoid.
-		 * @param bot1 One point of the bottom bounding line of the trapezoid.
-		 * @param bot2 The other point of the bottom bounding line of the trapezoid.
-		 * @param top1 One point of the top bounding line of the trapezoid.
-		 * @param top2 The other point of the bottom bounding line of the trapezoid.
+		 * @param botSegment The bottom bounding segment of the trapezoid.
+		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(List<Point2D> left, List<Point2D> right, Point2D bot1, Point2D bot2, Point2D top1, Point2D top2){
-			this.topLeft = Double.compare(top1.getX(), top2.getX()) == 0 ? ((Double.compare(top1.getY(), top2.getY()) < 0) ? top1 : top2) : Double.compare(top1.getX(), top2.getX()) < 0 ? top1 : top2;  
-			this.topRight = this.topLeft.equals(top1) ? top2 : top1;
-			this.botLeft = Double.compare(bot1.getX(), bot2.getX()) == 0 ? ((Double.compare(bot1.getY(), bot2.getY()) < 0) ? bot1 : bot2) : Double.compare(bot1.getX(), bot2.getX()) < 0 ? bot1 : bot2;
-			this.botRight = this.botLeft.equals(bot1) ? bot2 : bot1;
+		public Trapezoid(List<Point2D> left, List<Point2D> right, Line2D botSegment, Line2D topSegment){
+			this.botSegment = botSegment;
+			this.topSegment = topSegment;
 			this.leftPoints = left;
 			this.rightPoints = right;
 
@@ -1170,6 +1157,8 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Computes and sets the decomposition lines related to this trapezoid.
 		 */
 		public void computeDecompLines(){
+			Point2D botLeft = botSegment.getP1(), botRight = botSegment.getP2();
+			Point2D topLeft = topSegment.getP1(), topRight = topSegment.getP2();
 			List<Line2D> verticalLines = new ArrayList<Line2D>(); 
 			if(leftPoints.size() > 0){//Draw vertical line between top and bottom on the left
 				double xRatioTop = (leftPoints.get(0).getX() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
@@ -1206,14 +1195,6 @@ public class VerticalDecomposition implements GameStateListener{
 		}
 		
 		/**
-		 * Gets the convex object that this trapezoid is a part of.
-		 * @return The convex object that this trapezoid is a part of.
-		 */
-		public ConvexObject getObject(){
-			return segToObj.get(new Line2D.Double(botLeft, botRight));
-		}
-		
-		/**
 		 * Checks whether a given line segment intersects with this trapezoid.
 		 * A 
 		 * @param segment The line segment to check intersection with.
@@ -1235,9 +1216,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
 		 */
 		public boolean pointInside(Point2D p){
-			Line2D topLine = new Line2D.Double(topLeft, topRight);
-			Line2D botLine = new Line2D.Double(botLeft, botRight);
-			if(botLine.relativeCCW(p) > 0 && topLine.relativeCCW(p) < 0 && p.getX() > leftPoints.get(0).getX() && p.getX() < rightPoints.get(0).getX()){
+			if(botSegment.relativeCCW(p) > 0 && topSegment.relativeCCW(p) < 0 && p.getX() > leftPoints.get(0).getX() && p.getX() < rightPoints.get(0).getX()){//TODO: change up relatives?
 				return true;
 			}
 			return false;

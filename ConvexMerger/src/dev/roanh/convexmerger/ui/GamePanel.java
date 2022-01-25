@@ -245,10 +245,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 			int isLeft = 0;
 			for(Trapezoid trap : state.decomp.trapezoids){
 				g.setColor(Color.CYAN);
-				g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
-				g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
-				g.fill(new Ellipse2D.Double(trap.topLeft.getX() - 5, trap.topLeft.getY() - 5, 10, 10));	
-				g.fill(new Ellipse2D.Double(trap.topRight.getX() - 5, trap.topRight.getY() - 5, 10, 10));
+				g.fill(new Ellipse2D.Double(trap.botSegment.getP1().getX() - 5, trap.botSegment.getP1().getY() - 5, 10, 10));
+				g.fill(new Ellipse2D.Double(trap.botSegment.getP2().getX() - 5, trap.botSegment.getP2().getY() - 5, 10, 10));	
+				g.fill(new Ellipse2D.Double(trap.topSegment.getP1().getX() - 5, trap.topSegment.getP1().getY() - 5, 10, 10));	
+				g.fill(new Ellipse2D.Double(trap.topSegment.getP2().getX() - 5, trap.topSegment.getP2().getY() - 5, 10, 10));
 				
 				g.setColor(Color.GREEN);
 				for(Point2D p : trap.leftPoints){
