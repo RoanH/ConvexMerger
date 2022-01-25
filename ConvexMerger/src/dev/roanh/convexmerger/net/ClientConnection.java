@@ -106,7 +106,7 @@ public class ClientConnection extends Connection implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 		if(player.isLocal()){
 			try{
 				sendPacket(new PacketPlayerMove(player, source, target));

@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import dev.roanh.convexmerger.game.GameState.GameStateListener;
+import dev.roanh.convexmerger.player.Player;
+
 /**
  * Vertical decomposition of a plane containing non-overlapping
  * convex objects. The decomposition supports efficient modifications
@@ -21,7 +24,7 @@ import java.util.Set;
  * @author Roan
  * @author Emu
  */
-public class VerticalDecomposition{
+public class VerticalDecomposition implements GameStateListener{
 	
 	/**
 	 * The objects that are decomposed.
@@ -777,6 +780,30 @@ public class VerticalDecomposition{
 			}
 		}
 		return intersectedTraps;
+	}
+	
+	@Override
+	public void claim(Player player, ConvexObject obj){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void end(){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void abort(){
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/**
