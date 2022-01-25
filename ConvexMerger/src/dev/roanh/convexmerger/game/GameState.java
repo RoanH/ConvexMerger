@@ -100,6 +100,7 @@ public class GameState{
 			player.setID(i + 1);
 		}
 		//decomp.rebuild();
+		registerStateListener(decomp);
 		gameStart = System.currentTimeMillis();
 	}
 	
@@ -246,7 +247,7 @@ public class GameState{
 			
 			decomp.rebuild();
 			merged.setID(maxID + 1);
-			listeners.forEach(l->l.merge(player, first, second));
+			listeners.forEach(l->l.merge(player, first, second, merged, contained));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			return merged;
@@ -279,12 +280,6 @@ public class GameState{
 	 * @return The object at the given coordinates.
 	 */
 	public ConvexObject getObject(double x, double y){
-		//TODO remove when decomp done
-		for(ConvexObject obj : objects){
-			if(obj.contains(x, y)){
-				return obj;
-			}
-		}
 		return decomp.queryObject(x, y);
 	}
 	
@@ -460,8 +455,10 @@ public class GameState{
 		 * @param player The player that performed the merge.
 		 * @param source The object the merge was started from.
 		 * @param target The target object of the merge.
+		 * @param result The object resulting from the merge.
+		 * @param absorbed The objects absorbed in the merge.
 		 */
-		public abstract void merge(Player player, ConvexObject source, ConvexObject target);
+		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed);
 		
 		/**
 		 * Called when the game ends.

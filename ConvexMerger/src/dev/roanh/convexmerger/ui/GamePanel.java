@@ -251,20 +251,20 @@ public final class GamePanel extends Screen implements GameStateListener{
 				start = System.currentTimeMillis();
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
-				decomp.addedSegs.forEach(g::draw);
+//				decomp.addedSegs.forEach(g::draw);
 //				if(!state.decomp.addedSegs.isEmpty()){
 //					g.setColor(Color.BLUE);
 //					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
 //				}
-				System.out.println("seg lines " + decomp.addedSegs.size() + ": " + (System.currentTimeMillis() - start));
+//				System.out.println("seg lines " + decomp.addedSegs.size() + ": " + (System.currentTimeMillis() - start));
 				
 				start = System.currentTimeMillis();
 				for(Trapezoid trap : decomp.trapezoids){
 					g.setColor(Color.CYAN);
-					g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
-					g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
-					g.fill(new Ellipse2D.Double(trap.topLeft.getX() - 5, trap.topLeft.getY() - 5, 10, 10));	
-					g.fill(new Ellipse2D.Double(trap.topRight.getX() - 5, trap.topRight.getY() - 5, 10, 10));
+//					g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
+//					g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
+//					g.fill(new Ellipse2D.Double(trap.topLeft.getX() - 5, trap.topLeft.getY() - 5, 10, 10));	
+//					g.fill(new Ellipse2D.Double(trap.topRight.getX() - 5, trap.topRight.getY() - 5, 10, 10));
 
 					g.setColor(Color.GREEN);
 					for(Point2D p : trap.leftPoints){
@@ -473,7 +473,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 	}
 
 	@Override
