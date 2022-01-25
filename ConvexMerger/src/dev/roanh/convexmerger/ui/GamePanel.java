@@ -251,12 +251,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 				start = System.currentTimeMillis();
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
-//				decomp.addedSegs.forEach(g::draw);
-//				if(!state.decomp.addedSegs.isEmpty()){
-//					g.setColor(Color.BLUE);
-//					g.draw(state.decomp.addedSegs.get(state.decomp.addedSegs.size() - 1));
-//				}
-//				System.out.println("seg lines " + decomp.addedSegs.size() + ": " + (System.currentTimeMillis() - start));
+				decomp.orientedSegments.forEach(g::draw);
+				if(!decomp.orientedSegments.isEmpty()){
+					g.setColor(Color.BLUE);
+					g.draw(decomp.orientedSegments.get(decomp.orientedSegments.size() - 1));
+				}
+				System.out.println("seg lines " + decomp.orientedSegments.size() + ": " + (System.currentTimeMillis() - start));
 				
 				start = System.currentTimeMillis();
 				for(Trapezoid trap : decomp.trapezoids){

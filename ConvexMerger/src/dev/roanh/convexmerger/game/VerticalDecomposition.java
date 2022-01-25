@@ -46,7 +46,7 @@ public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * The list of segments that have been added to the decomposition. 
 	 */
-	private List<Line2D> orientedSegments;
+	public List<Line2D> orientedSegments;
 	/**
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
@@ -208,6 +208,13 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @param obj The object that the segment belongs to.
 	 */
 	public void addSegment(Line2D seg, ConvexObject obj){
+		try{
+			Thread.sleep(100);
+		}catch(InterruptedException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		synchronized(this){
 		Point2D p1 = seg.getP1(), p2 = seg.getP2();
 		Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
 				Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2
@@ -227,6 +234,7 @@ public class VerticalDecomposition implements GameStateListener{
 			handleSingleIntersectedTrapezoid(orientedSegment);
 		}else{
 			handleMultipleIntersectedTrapezoids(orientedSegment);
+		}
 		}
 	}
 	
