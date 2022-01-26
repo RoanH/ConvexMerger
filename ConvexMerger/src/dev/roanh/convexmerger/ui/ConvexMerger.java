@@ -183,7 +183,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 		public void run(){
 			GameState state = ctor.create();
 			try{
-				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state, state.getVerticalDecomposition().isAnimated())));
+				SwingUtilities.invokeAndWait(()->renderer.setScreen(new GamePanel(ConvexMerger.this, state)));
 				state.init();
 				
 				if(state.getActivePlayer().isAI()){

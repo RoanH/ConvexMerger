@@ -91,8 +91,8 @@ public class GameState{
 		this.seed = seed;
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
-			decomp.addObject(obj);
 			obj.setID(i + 1);
+			decomp.addObject(obj);
 		}
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
@@ -103,10 +103,19 @@ public class GameState{
 		gameStart = System.currentTimeMillis();
 	}
 	
+	/**
+	 * Initialises the game state running tasks that
+	 * need to run on the main game thread.
+	 * @throws InterruptedException When the game was aborted.
+	 */
 	public void init() throws InterruptedException{
 		decomp.rebuild();
 	}
 	
+	/**
+	 * Checks if the game state is ready to handle the next turn.
+	 * @return True if the game state is ready for the next turn.
+	 */
 	public boolean ready(){
 		return !decomp.needsRebuild();
 	}
@@ -242,7 +251,6 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			
-			//decomp.rebuild();
 			merged.setID(maxID + 1);
 			listeners.forEach(l->l.merge(player, first, second, merged, contained));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));

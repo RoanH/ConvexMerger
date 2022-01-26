@@ -46,13 +46,24 @@ public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * The list of segments that have been added to the decomposition. 
 	 */
-	public List<Line2D> orientedSegments;
+	private List<Line2D> orientedSegments;
 	/**
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line, ConvexObject> segToObj;
+	/**
+	 * True if the vertical decomposition data has changed
+	 * such that a rebuild is required.
+	 */
 	private boolean needsRebuild;
+	/**
+	 * All line segments ever added into the vertical decomposition.
+	 */
 	private Set<Line> lines = new HashSet<Line>();
+	/**
+	 * True the vertical decomposition is animated and showing
+	 * individual segment updates.
+	 */
 	private boolean animate = false;
 	
 	/**
@@ -73,14 +84,27 @@ public class VerticalDecomposition implements GameStateListener{
 		initializeDecomposition();
 	}
 	
+	/**
+	 * Gets all lines that were ever added to the vertical decomposition.
+	 * @return All line segments ever added.
+	 */
 	public Set<? extends Line2D> getLines(){
 		return lines;
 	}
 	
+	/**
+	 * Gets the last line segment added into the vertical decomposition.
+	 * @return The last line segment added to the vertical decomposition.
+	 */
 	public Line2D getLastLine(){
 		return orientedSegments.isEmpty() ? null : orientedSegments.get(orientedSegments.size() - 1);
 	}
 	
+	/**
+	 * Sets whether the vertical decomposition is animated and
+	 * showing individual segment updates.
+	 * @param animated True to animate segment updates.
+	 */
 	public void setAnimated(boolean animated){
 		animate = animated;
 	}
@@ -150,10 +174,20 @@ public class VerticalDecomposition implements GameStateListener{
 		needsRebuild = true;
 	}
 	
+	/**
+	 * Checks if the vertical decomposition data has changed
+	 * such that a rebuild is required.
+	 * @return True if a rebuild is required.
+	 */
 	public boolean needsRebuild(){
 		return needsRebuild;
 	}
 	
+	/**
+	 * Checks if the vertical decomposition is animated,
+	 * meaning it is showing individual segment updates.
+	 * @return True if the vertical decomposition is animated.
+	 */
 	public boolean isAnimated(){
 		return animate;
 	}

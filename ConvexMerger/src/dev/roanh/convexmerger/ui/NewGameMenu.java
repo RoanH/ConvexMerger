@@ -72,6 +72,10 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * Whether the start button was clicked.
 	 */
 	private boolean started = false;
+	/**
+	 * Whether to show the vertical decomposition
+	 * from the start of the game.
+	 */
 	private boolean showDecomp = false;
 	
 	/**
