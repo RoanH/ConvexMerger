@@ -782,8 +782,52 @@ public class VerticalDecomposition implements GameStateListener{
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
-		// TODO Auto-generated method stub
+		Point2D[] mergePoints = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
 		
+		Line firstLine, secondLine;
+		firstLine = mergePoints[0].getX() < mergePoints[1].getX() ? new Line(mergePoints[0], mergePoints[1]) : new Line(mergePoints[1], mergePoints[0]);
+		secondLine = new Line(mergePoints[2], mergePoints[3]);
+		addSegment(firstLine, result);
+		addSegment(secondLine, result);
+		
+//		assert botLine.relativeCCW(mergePoints[2]) < 0;
+//		assert botLine.relativeCCW(mergePoints[3]) < 0;
+//		assert topLine.relativeCCW(mergePoints[0]) < 0;
+//		assert topLine.relativeCCW(mergePoints[1]) < 0;
+//		
+		List<Line> toUpdate = new ArrayList<Line>();
+		
+		List<Point2D> points = source.getPoints();
+		for(int i = 0; i < points.size(); i++){
+			toUpdate.add(new Line(points.get(i), points.get((i+1) % points.size())));
+		}
+		
+		points = target.getPoints();
+		for(int i = 0; i < points.size(); i++){
+			toUpdate.add(new Line(points.get(i), points.get((i+1) % points.size())));
+		}
+		
+		for(ConvexObject obj : absorbed){
+			points = obj.getPoints();
+			for(int i = 0; i < points.size(); i++){
+				toUpdate.add(new Line(points.get(i), points.get((i+1) % points.size())));
+			}
+		}
+		
+		
+		
+//		points = result.getPoints();
+//		for(int i = 0; i < points.size(); i++){
+//			Line currLine = new Line(points.get(i), points.get((i+1)%points.size()));
+//			if(currLine.getX1() >= currLine.getX2() && toUpdate.contains(currLine)){
+//				toUpdate.remove(currLine);
+//			}
+//		}
+		for(Line line : toUpdate){
+			if(segToObj.get(line) != null){
+				segToObj.put(line, result);
+			}
+		}
 	}
 
 	@Override
