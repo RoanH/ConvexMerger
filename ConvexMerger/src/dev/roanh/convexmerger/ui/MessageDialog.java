@@ -29,7 +29,8 @@ public enum MessageDialog{
 	/**
 	 * Shown when the player presses the menu button.
 	 */
-	QUIT("Quit", "    Are you sure you want to quit?");
+	QUIT("Quit", "    Are you sure you want to quit?"),
+	NOT_READY("Game Not Ready", "The game is not ready yet to handle the next turn, please wait a bit.");
 	
 	/**
 	 * The title for this dialog.

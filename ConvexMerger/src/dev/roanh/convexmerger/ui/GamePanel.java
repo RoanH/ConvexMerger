@@ -389,7 +389,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 				}
 			}
 		}else{
-			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
+			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);
 		}
 	}
 	
