@@ -66,13 +66,16 @@ public class InternalServer implements GameStateListener{
 	 * is called no new connections will be accepted anymore.
 	 * @param players The list of participating players.
 	 * @param gen The playfield generator.
+	 * @param showDecomp Whether to show the vertical decomposition
+	 *        from the start of the game.
 	 * @return The game state constructor for the game.
 	 */
-	public GameConstructor startGame(List<Player> players, PlayfieldGenerator gen){
+	public GameConstructor startGame(List<Player> players, PlayfieldGenerator gen, boolean showDecomp){
 		thread.shutdown();
 
 		return ()->{
 			GameState state = new GameState(gen, players);
+			state.getVerticalDecomposition().setAnimated(showDecomp);
 			thread.broadCast(new PacketGameInit(state.getObjects(), state.getSeed(), state.getPlayers()));
 			state.registerStateListener(this);
 			return state;
@@ -85,7 +88,7 @@ public class InternalServer implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 		thread.broadCast(player, new PacketPlayerMove(player, source, target));
 	}
 

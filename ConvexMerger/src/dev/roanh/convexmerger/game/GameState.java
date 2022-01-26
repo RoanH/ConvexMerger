@@ -99,8 +99,24 @@ public class GameState{
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 		}
-		decomp.rebuild();
 		gameStart = System.currentTimeMillis();
+	}
+	
+	/**
+	 * Initialises the game state running tasks that
+	 * need to run on the main game thread.
+	 * @throws InterruptedException When the game was aborted.
+	 */
+	public void init() throws InterruptedException{
+		decomp.rebuild();
+	}
+	
+	/**
+	 * Checks if the game state is ready to handle the next turn.
+	 * @return True if the game state is ready for the next turn.
+	 */
+	public boolean ready(){
+		return !decomp.needsRebuild();
 	}
 	
 	/**
@@ -234,9 +250,8 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			
-			decomp.rebuild();
 			merged.setID(maxID + 1);
-			listeners.forEach(l->l.merge(player, first, second));
+			listeners.forEach(l->l.merge(player, first, second, merged, contained));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			return merged;
@@ -269,12 +284,6 @@ public class GameState{
 	 * @return The object at the given coordinates.
 	 */
 	public ConvexObject getObject(double x, double y){
-		//TODO remove when decomp done
-		for(ConvexObject obj : objects){
-			if(obj.contains(x, y)){
-				return obj;
-			}
-		}
 		return decomp.queryObject(x, y);
 	}
 	
@@ -287,14 +296,11 @@ public class GameState{
 	}
 	
 	/**
-	 * Gets a list of lines that represent the vertical
-	 * decomposition lines for the vertical decomposition
-	 * used in this game. Lines to represent the bounding
-	 * box will be included as well.
-	 * @return The vertical decomposition lines.
+	 * Gets the vertical decomposition for the game state.
+	 * @return The vertical decomposition.
 	 */
-	public List<Line2D> getVerticalDecompLines(){
-		return decomp.getDecompLines();
+	public VerticalDecomposition getVerticalDecomposition(){
+		return decomp;
 	}
 	
 	/**
@@ -379,6 +385,9 @@ public class GameState{
 			listeners.forEach(GameStateListener::end);
 		}
 		turns++;
+		if(decomp.needsRebuild()){
+			decomp.rebuild();
+		}
 	}
 	
 	/**
@@ -453,8 +462,10 @@ public class GameState{
 		 * @param player The player that performed the merge.
 		 * @param source The object the merge was started from.
 		 * @param target The target object of the merge.
+		 * @param result The object resulting from the merge.
+		 * @param absorbed The objects absorbed in the merge.
 		 */
-		public abstract void merge(Player player, ConvexObject source, ConvexObject target);
+		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed);
 		
 		/**
 		 * Called when the game ends.

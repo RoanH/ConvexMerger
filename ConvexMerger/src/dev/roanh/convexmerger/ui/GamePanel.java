@@ -19,6 +19,7 @@ import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
+import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.Player;
 
 /**
@@ -87,6 +88,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	protected GamePanel(ConvexMerger context, GameState state){
 		super(context);
 		resultOverlay = new ResultOverlay(state);
+		this.showDecomp = state.getVerticalDecomposition().isAnimated();
 		this.state = state;
 		state.registerStateListener(this);
 	}
@@ -233,9 +235,24 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 		
 		if(showDecomp){
-			g.setColor(Color.WHITE);
-			g.setStroke(Theme.BORDER_STROKE);
-			state.getVerticalDecompLines().forEach(g::draw);
+			VerticalDecomposition decomp = state.getVerticalDecomposition();
+			synchronized(decomp){
+				g.setStroke(Theme.POLY_STROKE);
+				g.setColor(Color.BLACK);
+				decomp.getLines().forEach(g::draw);
+				Line2D last = decomp.getLastLine();
+				if(last != null){
+					g.setColor(Color.BLUE);
+					g.draw(last);
+				}
+				
+				g.setColor(new Color(0, 255, 255, 50));
+				g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+				
+				g.setColor(Color.WHITE);
+				g.setStroke(Theme.BORDER_STROKE);
+				decomp.getDecompLines().forEach(g::draw);
+			}
 		}
 		
 		if(helperLines != null){
@@ -328,7 +345,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 			return;
 		}
 		
-		if(state.getActivePlayer().requireInput() && !state.isFinished()){
+		if(state.ready() && state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
@@ -348,7 +365,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 				}
 			}
 		}else{
-			activeDialog = state.isFinished() ? MessageDialog.GAME_END : MessageDialog.NO_TURN;
+			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);
 		}
 	}
 	
@@ -377,6 +394,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 				showCentroids = !showCentroids;
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
 				showDecomp = !showDecomp;
+				state.getVerticalDecomposition().setAnimated(showDecomp);
 			}
 		}
 	}
@@ -412,7 +430,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 	}
 
 	@Override

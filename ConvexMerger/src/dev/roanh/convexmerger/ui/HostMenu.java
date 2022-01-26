@@ -42,7 +42,7 @@ public class HostMenu extends NewGameMenu implements InternalServerListener{
 	
 	@Override
 	protected void handleStart(List<Player> players, PlayfieldGenerator gen){
-		this.getContext().initialiseGame(server.startGame(players, gen));
+		this.getContext().initialiseGame(server.startGame(players, gen, showDecomp));
 	}
 	
 	@Override
