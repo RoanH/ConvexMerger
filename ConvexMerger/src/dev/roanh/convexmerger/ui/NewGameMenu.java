@@ -76,7 +76,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * Whether to show the vertical decomposition
 	 * from the start of the game.
 	 */
-	private boolean showDecomp = false;
+	protected boolean showDecomp = false;
 	
 	/**
 	 * Constructs a new new game menu with the given game context.
