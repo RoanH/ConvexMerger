@@ -99,7 +99,6 @@ public class GameState{
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 		}
-		registerStateListener(decomp);
 		gameStart = System.currentTimeMillis();
 	}
 	
