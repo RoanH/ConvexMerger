@@ -99,20 +99,13 @@ public class GameState{
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 		}
-		decomp.rebuild();
 		registerStateListener(decomp);
 		gameStart = System.currentTimeMillis();
 	}
 	
-//	public void ppi(){
-//		try{
-//			Thread.sleep(2000);
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		decomp.rebuild();
-//	}
+	public void init() throws InterruptedException{
+		decomp.rebuild();
+	}
 	
 	public boolean ready(){
 		return !decomp.needsRebuild();

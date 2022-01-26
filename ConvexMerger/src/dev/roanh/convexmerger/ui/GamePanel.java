@@ -85,10 +85,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Constructs a new game panel with the given game context.
 	 * @param context The game context.
 	 * @param state The game state to visualise.
+	 * @param showDecomp Whether to show the vertical decomposition from the start.
 	 */
-	protected GamePanel(ConvexMerger context, GameState state){
+	protected GamePanel(ConvexMerger context, GameState state, boolean showDecomp){
 		super(context);
 		resultOverlay = new ResultOverlay(state);
+		state.getVerticalDecomposition().setAnimated(showDecomp);
+		this.showDecomp = showDecomp;
 		this.state = state;
 		state.registerStateListener(this);
 	}
@@ -415,6 +418,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 				showCentroids = !showCentroids;
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
 				showDecomp = !showDecomp;
+				state.getVerticalDecomposition().setAnimated(showDecomp);
 			}
 		}
 	}

@@ -53,6 +53,7 @@ public class VerticalDecomposition implements GameStateListener{
 	private Map<Line, ConvexObject> segToObj;
 	private boolean needsRebuild;
 	private Set<Line> lines = new HashSet<Line>();
+	private boolean animate = false;
 	
 	/**
 	 * Constructs a new vertical decomposition with
@@ -78,6 +79,10 @@ public class VerticalDecomposition implements GameStateListener{
 	
 	public Line2D getLastLine(){
 		return orientedSegments.isEmpty() ? null : orientedSegments.get(orientedSegments.size() - 1);
+	}
+	
+	public void setAnimated(boolean animated){
+		animate = animated;
 	}
 	
 	/**
@@ -121,8 +126,9 @@ public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * Adds all segments of a given object to the vertical decomposition, if the object is part of the decomposition.
 	 * @param obj The object whose segments to add to the vertical decomposition.
+	 * @throws InterruptedException When the game is aborted.
 	 */
-	private void decomposeObject(ConvexObject obj){
+	private void decomposeObject(ConvexObject obj) throws InterruptedException{
 		if(!objects.contains(obj)){
 			return;
 		}
@@ -148,11 +154,16 @@ public class VerticalDecomposition implements GameStateListener{
 		return needsRebuild;
 	}
 	
+	public boolean isAnimated(){
+		return animate;
+	}
+	
 	/**
 	 * Rebuilds the vertical composition to match the
 	 * current set of stored convex objects.
+	 * @throws InterruptedException When the game is aborted.
 	 */
-	public void rebuild(){
+	public void rebuild() throws InterruptedException{
 		trapezoids.clear();
 		searchStructure.clear();
 		initializeDecomposition();
@@ -223,14 +234,13 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Adds a line segment belonging to an object to the vertical decomposition and updates the structures.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
+	 * @throws InterruptedException When the game is aborted.
 	 */
-	public void addSegment(Line2D seg, ConvexObject obj){
-		try{
+	public void addSegment(Line2D seg, ConvexObject obj) throws InterruptedException{
+		if(animate){
 			Thread.sleep(100);
-		}catch(InterruptedException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+		
 		synchronized(this){
 			Point2D p1 = seg.getP1(), p2 = seg.getP2();
 			Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 

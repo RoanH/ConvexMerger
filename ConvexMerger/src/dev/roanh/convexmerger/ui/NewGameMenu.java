@@ -72,6 +72,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * Whether the start button was clicked.
 	 */
 	private boolean started = false;
+	private boolean showDecomp = false;
 	
 	/**
 	 * Constructs a new new game menu with the given game context.
@@ -103,7 +104,13 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * @return The status message to display.
 	 */
 	protected String getButtonMessage(){
-		return started ? String.format("Generating game: %.1f%%", progress * 100.0D) : "At least one player required";
+		if(started){
+			return String.format("Generating game: %.1f%%", progress * 100.0D);
+		}else if(!canStart()){
+			return "At least one player required";
+		}else{
+			return "Will show vertical decomposition construction";
+		}
 	}
 
 	@Override
@@ -125,7 +132,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
 
 		start = drawButton(g, "Start Game", tx + (size / 3.0D), ty + playersHeight + optionsHeight + BOX_SPACING * 2.0D, (size / 3.0D), START_HEIGHT, canStart() ? mouseLoc : null);
-		if(!canStart() || started){
+		if(!canStart() || started || showDecomp){
 			int offset = g.getFontMetrics(Theme.PRIDI_REGULAR_18).getHeight();
 			g.setFont(Theme.PRIDI_REGULAR_12);
 			fm = g.getFontMetrics();
@@ -160,7 +167,18 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * @param gen The playfield generator to use.
 	 */
 	protected void handleStart(List<Player> players, PlayfieldGenerator gen){
-		this.getContext().initialiseGame(()->new GameState(gen, players));
+		this.getContext().initialiseGame(()->{
+			GameState state = new GameState(gen, players);
+			state.getVerticalDecomposition().setAnimated(showDecomp);
+			return state;
+		});
+	}
+	
+	@Override
+	public void handleKeyReleased(KeyEvent e){
+		if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_D){
+			showDecomp = !showDecomp;
+		}
 	}
 
 	@Override
