@@ -51,6 +51,20 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line, ConvexObject> segToObj;
+	/**
+	 * True if the vertical decomposition data has changed
+	 * such that a rebuild is required.
+	 */
+	private boolean needsRebuild;
+	/**
+	 * All line segments ever added into the vertical decomposition.
+	 */
+	private Set<Line> lines = new HashSet<Line>();
+	/**
+	 * True the vertical decomposition is animated and showing
+	 * individual segment updates.
+	 */
+	private boolean animate = false;
 	
 	/**
 	 * Constructs a new vertical decomposition with
@@ -68,6 +82,31 @@ public class VerticalDecomposition implements GameStateListener{
 		
 		this.bounds = bounds;
 		initializeDecomposition();
+	}
+	
+	/**
+	 * Gets all lines that were ever added to the vertical decomposition.
+	 * @return All line segments ever added.
+	 */
+	public Set<? extends Line2D> getLines(){
+		return lines;
+	}
+	
+	/**
+	 * Gets the last line segment added into the vertical decomposition.
+	 * @return The last line segment added to the vertical decomposition.
+	 */
+	public Line2D getLastLine(){
+		return orientedSegments.isEmpty() ? null : orientedSegments.get(orientedSegments.size() - 1);
+	}
+	
+	/**
+	 * Sets whether the vertical decomposition is animated and
+	 * showing individual segment updates.
+	 * @param animated True to animate segment updates.
+	 */
+	public void setAnimated(boolean animated){
+		animate = animated;
 	}
 	
 	/**
@@ -104,14 +143,16 @@ public class VerticalDecomposition implements GameStateListener{
 	public void addObject(ConvexObject obj){
 		if(!objects.contains(obj)){
 			objects.add(obj);
+			needsRebuild = true;
 		}
 	}
 	
 	/**
 	 * Adds all segments of a given object to the vertical decomposition, if the object is part of the decomposition.
 	 * @param obj The object whose segments to add to the vertical decomposition.
+	 * @throws InterruptedException When the game is aborted.
 	 */
-	private void decomposeObject(ConvexObject obj){
+	private void decomposeObject(ConvexObject obj) throws InterruptedException{
 		if(!objects.contains(obj)){
 			return;
 		}
@@ -130,19 +171,40 @@ public class VerticalDecomposition implements GameStateListener{
 	 */
 	public void removeObject(ConvexObject obj){
 		objects.remove(obj);
+		needsRebuild = true;
+	}
+	
+	/**
+	 * Checks if the vertical decomposition data has changed
+	 * such that a rebuild is required.
+	 * @return True if a rebuild is required.
+	 */
+	public boolean needsRebuild(){
+		return needsRebuild;
+	}
+	
+	/**
+	 * Checks if the vertical decomposition is animated,
+	 * meaning it is showing individual segment updates.
+	 * @return True if the vertical decomposition is animated.
+	 */
+	public boolean isAnimated(){
+		return animate;
 	}
 	
 	/**
 	 * Rebuilds the vertical composition to match the
 	 * current set of stored convex objects.
+	 * @throws InterruptedException When the game is aborted.
 	 */
-	public void rebuild(){
+	public void rebuild() throws InterruptedException{
 		trapezoids.clear();
 		searchStructure.clear();
 		initializeDecomposition();
 		for(ConvexObject obj : objects){
 			decomposeObject(obj);
 		}
+		needsRebuild = false;
 	}
 	
 	/**
@@ -206,27 +268,35 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Adds a line segment belonging to an object to the vertical decomposition and updates the structures.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
+	 * @throws InterruptedException When the game is aborted.
 	 */
-	public void addSegment(Line2D seg, ConvexObject obj){
-		Point2D p1 = seg.getP1(), p2 = seg.getP2();
-		Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
+	public void addSegment(Line2D seg, ConvexObject obj) throws InterruptedException{
+		if(animate){
+			Thread.sleep(100);
+		}
+		
+		synchronized(this){
+			Point2D p1 = seg.getP1(), p2 = seg.getP2();
+			Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
 				Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2
-				: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
-		Point2D rightp = leftp.equals(p1) ? p2 : p1;
-		
-		Line orientedSegment = new Line(leftp, rightp);
-		
-		Trapezoid start = queryTrapezoid(orientedSegment.getP1());
-		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
-		
-		orientedSegments.add(orientedSegment);
-		ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
-		segToObj.put(orientedSegment, toPut);
-		
-		if(start.equals(end)){
-			handleSingleIntersectedTrapezoid(orientedSegment);
-		}else{
-			handleMultipleIntersectedTrapezoids(orientedSegment);
+					: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
+			Point2D rightp = leftp.equals(p1) ? p2 : p1;
+
+			Line orientedSegment = new Line(leftp, rightp);
+
+			Trapezoid start = queryTrapezoid(orientedSegment.getP1());
+			Trapezoid end = queryTrapezoid(orientedSegment.getP2());
+
+			orientedSegments.add(orientedSegment);
+			lines.add(orientedSegment);
+			ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
+			segToObj.put(orientedSegment, toPut);
+
+			if(start.equals(end)){
+				handleSingleIntersectedTrapezoid(orientedSegment);
+			}else{
+				handleMultipleIntersectedTrapezoids(orientedSegment);
+			}
 		}
 	}
 	
@@ -1012,11 +1082,11 @@ public class VerticalDecomposition implements GameStateListener{
 		/**
 		 * The segments that bound the trapezoid from the top and bottom
 		 */
-		public Line2D botSegment, topSegment;
+		private Line2D botSegment, topSegment;
 		/**
 		 * The points that bound the trapezoid from the left and right.
 		 */
-		public List<Point2D> leftPoints, rightPoints;
+		private List<Point2D> leftPoints, rightPoints;
 		/**
 		 * The neighbouring trapezoids of the trapezoid.
 		 */
