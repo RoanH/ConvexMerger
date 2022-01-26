@@ -23,8 +23,8 @@ When generating the playfield you can control the object size, density and spaci
 
 ## Downloads
 _Requires Java 8 or higher_    
-- [Windows executable](https://github.com/RoanH/ConvexMerger/releases/download/v1.0/ConvexMerger-v1.0.exe)    
-- [Runnable Java Archive](https://github.com/RoanH/ConvexMerger/releases/download/v1.0/ConvexMerger-v1.0.jar)
+- [Windows executable](https://github.com/RoanH/ConvexMerger/releases/download/v1.1/ConvexMerger-v1.1.exe)    
+- [Runnable Java Archive](https://github.com/RoanH/ConvexMerger/releases/download/v1.1/ConvexMerger-v1.1.jar)
 
 All releases: [releases](https://github.com/RoanH/ConvexMerger/releases)    
 GitHub repository: [here](https://github.com/RoanH/ConvexMerger)
