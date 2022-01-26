@@ -72,6 +72,14 @@ public class VerticalDecomposition implements GameStateListener{
 		initializeDecomposition();
 	}
 	
+	public Set<? extends Line2D> getLines(){
+		return lines;
+	}
+	
+	public Line2D getLastLine(){
+		return orientedSegments.isEmpty() ? null : orientedSegments.get(orientedSegments.size() - 1);
+	}
+	
 	/**
 	 * Clears all structures except of the objects,
 	 * and initializes a blank vertical decomposition
@@ -224,26 +232,27 @@ public class VerticalDecomposition implements GameStateListener{
 			e.printStackTrace();
 		}
 		synchronized(this){
-		Point2D p1 = seg.getP1(), p2 = seg.getP2();
-		Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
+			Point2D p1 = seg.getP1(), p2 = seg.getP2();
+			Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
 				Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2
-				: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
-		Point2D rightp = leftp.equals(p1) ? p2 : p1;
-		
-		Line orientedSegment = new Line(leftp, rightp);
-		
-		Trapezoid start = queryTrapezoid(orientedSegment.getP1());
-		Trapezoid end = queryTrapezoid(orientedSegment.getP2());
-		
-		orientedSegments.add(orientedSegment);
-		ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
-		segToObj.put(orientedSegment, toPut);
-		
-		if(start.equals(end)){
-			handleSingleIntersectedTrapezoid(orientedSegment);
-		}else{
-			handleMultipleIntersectedTrapezoids(orientedSegment);
-		}
+					: Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2;
+			Point2D rightp = leftp.equals(p1) ? p2 : p1;
+
+			Line orientedSegment = new Line(leftp, rightp);
+
+			Trapezoid start = queryTrapezoid(orientedSegment.getP1());
+			Trapezoid end = queryTrapezoid(orientedSegment.getP2());
+
+			orientedSegments.add(orientedSegment);
+			lines.add(orientedSegment);
+			ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
+			segToObj.put(orientedSegment, toPut);
+
+			if(start.equals(end)){
+				handleSingleIntersectedTrapezoid(orientedSegment);
+			}else{
+				handleMultipleIntersectedTrapezoids(orientedSegment);
+			}
 		}
 	}
 	
@@ -1031,11 +1040,11 @@ public class VerticalDecomposition implements GameStateListener{
 		/**
 		 * The segments that bound the trapezoid from the top and bottom
 		 */
-		public Line2D botSegment, topSegment;
+		private Line2D botSegment, topSegment;
 		/**
 		 * The points that bound the trapezoid from the left and right.
 		 */
-		public List<Point2D> leftPoints, rightPoints;
+		private List<Point2D> leftPoints, rightPoints;
 		/**
 		 * The neighbouring trapezoids of the trapezoid.
 		 */

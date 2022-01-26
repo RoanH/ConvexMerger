@@ -6,14 +6,12 @@ import static dev.roanh.convexmerger.ui.Theme.PLAYER_ICON_SIZE;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
@@ -241,41 +239,17 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 			//TODO cleanup
 			synchronized(decomp){
-				
-				long start = System.currentTimeMillis();
-				g.setColor(Color.WHITE);
-				g.setStroke(Theme.BORDER_STROKE);
-				decomp.getDecompLines().forEach(g::draw);
-				System.out.println("decomp lines: " + (System.currentTimeMillis() - start));
-				
-				start = System.currentTimeMillis();
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
-				decomp.orientedSegments.forEach(g::draw);
-				if(!decomp.orientedSegments.isEmpty()){
+				decomp.getLines().forEach(g::draw);
+				Line2D last = decomp.getLastLine();
+				if(last != null){
 					g.setColor(Color.BLUE);
-					g.draw(decomp.orientedSegments.get(decomp.orientedSegments.size() - 1));
+					g.draw(last);
 				}
-				System.out.println("seg lines " + decomp.orientedSegments.size() + ": " + (System.currentTimeMillis() - start));
 				
-				start = System.currentTimeMillis();
+				//TODO Remove
 				for(Trapezoid trap : decomp.trapezoids){
-					g.setColor(Color.CYAN);
-//					g.fill(new Ellipse2D.Double(trap.botLeft.getX() - 5, trap.botLeft.getY() - 5, 10, 10));
-//					g.fill(new Ellipse2D.Double(trap.botRight.getX() - 5, trap.botRight.getY() - 5, 10, 10));	
-//					g.fill(new Ellipse2D.Double(trap.topLeft.getX() - 5, trap.topLeft.getY() - 5, 10, 10));	
-//					g.fill(new Ellipse2D.Double(trap.topRight.getX() - 5, trap.topRight.getY() - 5, 10, 10));
-
-					g.setColor(Color.GREEN);
-					for(Point2D p : trap.leftPoints){
-						g.fill(new Ellipse2D.Double(p.getX() - 4, p.getY() - 4, 8, 8));
-					}
-
-					g.setColor(Color.ORANGE);
-					for(Point2D p : trap.rightPoints){
-						g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
-					}
-
 					g.setColor(new Color(0, 255, 255, 50));
 					Path2D.Double p = new Path2D.Double();
 					List<Line2D> lines =  trap.getDecompLines();
@@ -294,8 +268,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 					p.closePath();
 					g.fill(p);
 				}
-
-				System.out.println("traps: " + (System.currentTimeMillis() - start));
+				//End Remove
+				
+				g.setColor(Color.WHITE);
+				g.setStroke(Theme.BORDER_STROKE);
+				decomp.getDecompLines().forEach(g::draw);
 			}
 		}
 		
