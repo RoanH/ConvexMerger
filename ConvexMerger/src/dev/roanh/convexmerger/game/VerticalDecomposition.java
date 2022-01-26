@@ -30,7 +30,7 @@ public class VerticalDecomposition{
 	/**
 	 * The trapezoids of the decomposition.
 	 */
-	public List<Trapezoid> trapezoids;
+	private List<Trapezoid> trapezoids;
 	/**
 	 * The bounding box that all objects that will ever be added will be contained in (strictly inside, there will be no overlap with the edges).
 	 */
@@ -267,7 +267,7 @@ public class VerticalDecomposition{
 	 * @param obj The object that the segment belongs to.
 	 * @throws InterruptedException When the game is aborted.
 	 */
-	public void addSegment(Line2D seg, ConvexObject obj) throws InterruptedException{
+	private void addSegment(Line2D seg, ConvexObject obj) throws InterruptedException{
 		if(animate){
 			Thread.sleep(100);
 		}
@@ -536,7 +536,7 @@ public class VerticalDecomposition{
 	 * Adds a segment that crosses more than one trapezoid inside the decomposition.
 	 * @param orientedSegment The segment to add to the decomposition.
 	 */
-	public void handleMultipleIntersectedTrapezoids(Line2D orientedSegment){
+	private void handleMultipleIntersectedTrapezoids(Line2D orientedSegment){
 		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
 		Trapezoid start = queryTrapezoid(leftp);
 		Trapezoid end = queryTrapezoid(rightp);
@@ -830,7 +830,7 @@ public class VerticalDecomposition{
 	 * @param seg The line segment.
 	 * @return A list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
 	 */
-	public Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg){
+	private Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg){
 		Queue<Trapezoid> intersectedTraps = new LinkedList<Trapezoid>();
 		Trapezoid start = queryTrapezoid(seg.getP1());
 
