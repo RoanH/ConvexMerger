@@ -18,13 +18,13 @@ public class HumanPlayer extends Player{
 
 	@Override
 	public boolean executeMove() throws InterruptedException{
-		if(state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent()){
-			synchronized(state){
+		synchronized(state){
+			if(state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent()){
 				state.wait();
+				return true;
+			}else{
+				return false;
 			}
-			return true;
-		}else{
-			return false;
 		}
 	}
 }
