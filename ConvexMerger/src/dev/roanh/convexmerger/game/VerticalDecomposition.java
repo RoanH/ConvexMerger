@@ -124,8 +124,8 @@ public class VerticalDecomposition implements GameStateListener{
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
 		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
 		
-		Line2D botSegment = new Line(botLeft, botRight);
-		Line2D topSegment = new Line(topLeft, topRight);
+		Line botSegment = new Line(botLeft, botRight);
+		Line topSegment = new Line(topLeft, topRight);
 
 		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botSegment, topSegment);
 		initialTrapezoid.addLeftPoint(botLeft);
@@ -304,7 +304,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Adds a segment that only crosses one trapezoid inside the decomposition.
 	 * @param orientedSegment The segment to add to the decomposition.
 	 */
-	private void handleSingleIntersectedTrapezoid(Line2D orientedSegment){
+	private void handleSingleIntersectedTrapezoid(Line orientedSegment){
 		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
 		
 		Trapezoid start = queryTrapezoid(leftp);
@@ -532,7 +532,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Adds a segment that crosses more than one trapezoid inside the decomposition.
 	 * @param orientedSegment The segment to add to the decomposition.
 	 */
-	public void handleMultipleIntersectedTrapezoids(Line2D orientedSegment){
+	public void handleMultipleIntersectedTrapezoids(Line orientedSegment){
 		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
 		Trapezoid start = queryTrapezoid(leftp);
 		Trapezoid end = queryTrapezoid(rightp);
@@ -1082,7 +1082,7 @@ public class VerticalDecomposition implements GameStateListener{
 		/**
 		 * The segments that bound the trapezoid from the top and bottom
 		 */
-		private Line2D botSegment, topSegment;
+		private Line botSegment, topSegment;
 		/**
 		 * The points that bound the trapezoid from the left and right.
 		 */
@@ -1108,7 +1108,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param botSegment The bottom bounding segment of the trapezoid.
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(Point2D left, Point2D right, Line2D botSegment, Line2D topSegment){
+		public Trapezoid(Point2D left, Point2D right, Line botSegment, Line topSegment){
 			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), botSegment, topSegment);
 		}
 		
@@ -1120,7 +1120,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param botSegment The bottom bounding segment of the trapezoid.
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(List<Point2D> left, Point2D right, Line2D botSegment, Line2D topSegment){
+		public Trapezoid(List<Point2D> left, Point2D right, Line botSegment, Line topSegment){
 			this(left, new ArrayList<Point2D>(Arrays.asList(right)), botSegment, topSegment);
 		}
 		
@@ -1132,7 +1132,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param botSegment The bottom bounding segment of the trapezoid.
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(Point2D left, List<Point2D>  right, Line2D botSegment, Line2D topSegment){
+		public Trapezoid(Point2D left, List<Point2D>  right, Line botSegment, Line topSegment){
 			this(new ArrayList<Point2D>(Arrays.asList(left)), right, botSegment, topSegment);
 		}
 		
@@ -1144,9 +1144,11 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param botSegment The bottom bounding segment of the trapezoid.
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
-		public Trapezoid(List<Point2D> left, List<Point2D> right, Line2D botSegment, Line2D topSegment){
+		public Trapezoid(List<Point2D> left, List<Point2D> right, Line botSegment, Line topSegment){
 			this.botSegment = botSegment;
 			this.topSegment = topSegment;
+			topSegment.addTrapBelow(this);
+			botSegment.addTrapAbove(this);
 			this.leftPoints = left;
 			this.rightPoints = right;
 
@@ -1200,7 +1202,9 @@ public class VerticalDecomposition implements GameStateListener{
 			for(Trapezoid t : neighbours){
 				t.removeNeighbour(this);
 			}
-			this.neighbours.clear();
+			neighbours.clear();
+			topSegment.removeTrapBelow(this);
+			botSegment.removeTrapAbove(this);
 		}
 		
 		/**
@@ -1321,6 +1325,14 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Second end point of the line.
 		 */
 		private Point2D p2;
+		/**
+		 * Trapezoids with this line as its top segment.
+		 */
+		List<Trapezoid> trapsBelow;
+		/**
+		 * Trapezoids with this line as its bottom segment.
+		 */
+		List<Trapezoid> trapsAbove;
 		
 		/**
 		 * Constructs a new line with the given
@@ -1333,6 +1345,8 @@ public class VerticalDecomposition implements GameStateListener{
 		public Line(Point2D p1, Point2D p2){
 			this.p1 = p1;
 			this.p2 = p2;
+			trapsAbove = new ArrayList<Trapezoid>();
+			trapsBelow = new ArrayList<Trapezoid>();
 		}
 
 		@Override
@@ -1393,6 +1407,53 @@ public class VerticalDecomposition implements GameStateListener{
 			}else{
 				return false;
 			}
+		}
+		
+		/**
+		 * Retrieves the list of trapezoids above this line.
+		 * @return The list of trapezoids above this line.
+		 */
+		public List<Trapezoid> getTrapsAbove(){
+			return trapsAbove;
+		}
+		
+		/**
+		 * Retrieves the list of trapezoids below this line.
+		 * @return The list of trapezoids below this line.
+		 */
+		public List<Trapezoid> getTrapsBelow(){
+			return trapsBelow;
+		}
+		
+		/**
+		 * Adds a given trapezoid to the list of trapezoids below this line.
+		 * @param trap The trapezoid to add.
+		 */
+		public void addTrapAbove(Trapezoid trap){
+			trapsAbove.add(trap);
+		}
+		
+		/**
+		 * Adds a given trapezoid to the list of trapezoids below this line.
+		 * @param trap The trapezoid to add.
+		 */
+		public void addTrapBelow(Trapezoid trap){
+			trapsBelow.add(trap);
+		}
+		
+		/**
+		 * Removes a given trapezoid from the list of trapezoids above this line.
+		 * @param trap The trapezoid to remove.
+		 */
+		public void removeTrapAbove(Trapezoid trap){
+			trapsAbove.remove(trap);
+		}
+		/**
+		 * Removes a given trapezoid from the list of trapezoids below this line.
+		 * @param trap The trapezoid to remove.
+		 */
+		public void removeTrapBelow(Trapezoid trap){
+			trapsBelow.remove(trap);
 		}
 	}
 }
