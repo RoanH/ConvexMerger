@@ -99,19 +99,23 @@ public class GameState{
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 		}
-		//decomp.rebuild();
+		decomp.rebuild();
 		registerStateListener(decomp);
 		gameStart = System.currentTimeMillis();
 	}
 	
-	public void ppi(){
-		try{
-			Thread.sleep(2000);
-		}catch(InterruptedException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		decomp.rebuild();
+//	public void ppi(){
+//		try{
+//			Thread.sleep(2000);
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		decomp.rebuild();
+//	}
+	
+	public boolean ready(){
+		return !decomp.needsRebuild();
 	}
 	
 	/**
@@ -245,7 +249,7 @@ public class GameState{
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
 			
-			decomp.rebuild();
+			//decomp.rebuild();
 			merged.setID(maxID + 1);
 			listeners.forEach(l->l.merge(player, first, second, merged, contained));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
@@ -381,6 +385,9 @@ public class GameState{
 			listeners.forEach(GameStateListener::end);
 		}
 		turns++;
+		if(decomp.needsRebuild()){
+			decomp.rebuild();
+		}
 	}
 	
 	/**

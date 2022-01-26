@@ -51,6 +51,8 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line, ConvexObject> segToObj;
+	private boolean needsRebuild;
+	private Set<Line> lines = new HashSet<Line>();
 	
 	/**
 	 * Constructs a new vertical decomposition with
@@ -104,6 +106,7 @@ public class VerticalDecomposition implements GameStateListener{
 	public void addObject(ConvexObject obj){
 		if(!objects.contains(obj)){
 			objects.add(obj);
+			needsRebuild = true;
 		}
 	}
 	
@@ -130,6 +133,11 @@ public class VerticalDecomposition implements GameStateListener{
 	 */
 	public void removeObject(ConvexObject obj){
 		objects.remove(obj);
+		needsRebuild = true;
+	}
+	
+	public boolean needsRebuild(){
+		return needsRebuild;
 	}
 	
 	/**
@@ -143,6 +151,7 @@ public class VerticalDecomposition implements GameStateListener{
 		for(ConvexObject obj : objects){
 			decomposeObject(obj);
 		}
+		needsRebuild = false;
 	}
 	
 	/**

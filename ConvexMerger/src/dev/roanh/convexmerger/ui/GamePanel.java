@@ -389,7 +389,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 			return;
 		}
 		
-		if(state.getActivePlayer().requireInput() && !state.isFinished()){
+		if(state.ready() && state.getActivePlayer().requireInput() && !state.isFinished()){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
