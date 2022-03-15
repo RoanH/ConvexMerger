@@ -4,7 +4,7 @@ Convex Merger is an area maximisation game based on the idea of merging convex s
 [Jump directly to downloads](#downloads)
 
 ## Example Game
-A short example game between two AIs is shown below.
+A short example game between two AIs is shown below.    
 ![example game](https://i.imgur.com/48W3hwE.gif)
 
 ## Rules
