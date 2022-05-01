@@ -262,7 +262,7 @@ public abstract class Player implements Identity{
 					}
 					
 					for(ConvexObject check : state.getObjects()){
-						if(!obj.equals(other) && !obj.equals(obj) && combined.contains(check)){
+						if(!obj.equals(check) && !other.equals(check) && combined.contains(check)){
 							if(check.isOwnedBy(this)){
 								area -= check.getArea();
 							}else if(check.isOwned()){
