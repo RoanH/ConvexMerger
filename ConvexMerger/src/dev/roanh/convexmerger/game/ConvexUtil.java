@@ -253,4 +253,48 @@ public class ConvexUtil{
 		
 		return Arrays.asList(first, second);
 	}
+	
+	//first points are left most by game invariant
+	public static final List<List<Point2D>> computePocketLids(List<Point2D> first, List<Point2D> second){
+		//TODO for certain cases of co linearity the two calipers can overlap, this needs to be handled
+		
+		
+		
+		
+		
+		return null;//TODO
+	}
+	
+	//angle from line a to line b in radians in clockwise direction and as a positive number
+	public static final double angleBetweenLines(Line2D a, Line2D b){
+		double relative =  Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
+		return -(relative >= 0.0D ? relative - 2.0D * Math.PI : relative);
+	}
+	
+	public static void main(String[] args){
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, 10, 0)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, -10, 0)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, -5, 5)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, 0, -10)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, -10, -10)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, 10, -10)
+		)));
+	}
 }
