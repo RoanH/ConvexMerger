@@ -265,6 +265,19 @@ public class ConvexUtil{
 		return null;//TODO
 	}
 	
+	public static final double angleFromVertical(Line2D b){
+		return angleFromVertical(b.getX1(), b.getY1(), b.getX2(), b.getY2());
+	}
+	
+	public static final double angleFromVertical(Point2D p1, Point2D p2){
+		return angleFromVertical(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+	}
+	
+	public static final double angleFromVertical(double x1, double y1, double x2, double y2){
+		double relative = Math.atan2(y2 - y1, x2 - x1) - 0.5D * Math.PI;
+		return -(relative >= 0.0D ? relative - 2.0D * Math.PI : relative);
+	}
+	
 	//angle from line a to line b in radians in clockwise direction and as a positive number
 	public static final double angleBetweenLines(Line2D a, Line2D b){
 		double relative =  Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
@@ -272,6 +285,7 @@ public class ConvexUtil{
 	}
 	
 	public static void main(String[] args){
+		System.out.println(Math.atan2(1, 0) + " / " + (Math.PI / 2));
 		System.out.println(Math.toDegrees(angleBetweenLines(
 			new Line2D.Double(0, 0, 0, 10),
 			new Line2D.Double(0, 0, 10, 0)
