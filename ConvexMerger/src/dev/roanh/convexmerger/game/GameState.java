@@ -379,7 +379,8 @@ public class GameState{
 	 * @see #getActivePlayer()
 	 */
 	public void executePlayerTurn() throws InterruptedException{
-		if(ended = !getActivePlayer().executeMove()){
+		ended = !getActivePlayer().executeMove();
+		if(ended){
 			turns--;
 			gameEnd = System.currentTimeMillis();
 			listeners.forEach(GameStateListener::end);
