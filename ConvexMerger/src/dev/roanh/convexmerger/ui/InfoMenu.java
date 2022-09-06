@@ -392,8 +392,7 @@ public class InfoMenu extends Screen{
 	}
 	
 	static{
-		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt")));
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt")))){
 			String line;
 			while((line = reader.readLine()) != null){
 				rules.add(Arrays.asList(line.split(" ")));
