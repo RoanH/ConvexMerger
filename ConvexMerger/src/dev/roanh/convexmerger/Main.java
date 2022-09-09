@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger;
 
+import dev.roanh.convexmerger.game.ConvexUtil.TestScreen;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.util.Util;
 
@@ -18,5 +19,7 @@ public class Main{
 		
 		ConvexMerger game = new ConvexMerger();
 		game.showGame();
+		
+		game.switchScene(new TestScreen(game));
 	}
 }

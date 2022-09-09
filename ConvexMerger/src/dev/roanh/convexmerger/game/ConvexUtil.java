@@ -1,10 +1,16 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import dev.roanh.convexmerger.ui.ConvexMerger;
+import dev.roanh.convexmerger.ui.Screen;
 
 /**
  * Class containing various utilities related
@@ -258,11 +264,144 @@ public class ConvexUtil{
 	public static final List<List<Point2D>> computePocketLids(List<Point2D> first, List<Point2D> second){
 		//TODO for certain cases of co linearity the two calipers can overlap, this needs to be handled
 		
+		int lidx = 0;
+		int ridx = 0;
+		boolean isLeft = true;
 		
+		if(angleFromVertical(first.get(lidx), first.get(lidx + 1)) < angleFromVertical(second.get(ridx), second.get(ridx + 1))){
+			
+		}
 		
 		
 		
 		return null;//TODO
+	}
+	
+	public static final class TestScreen extends Screen{
+		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(33, 118),
+			new Point2D.Double(57, 178),
+			new Point2D.Double(98, 236),
+			new Point2D.Double(180, 270),
+			new Point2D.Double(204, 171),
+			new Point2D.Double(175, 106),
+			new Point2D.Double(146, 77),
+			new Point2D.Double(116, 65),
+			new Point2D.Double(38, 70)
+		)));
+		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(100 + 116, 177),
+			new Point2D.Double(100 + 133, 212),
+			new Point2D.Double(100 + 263, 217),
+			new Point2D.Double(100 + 286, 150),
+			new Point2D.Double(100 + 281, 65),
+			new Point2D.Double(100 + 256, 24),
+			new Point2D.Double(100 + 219, 42),
+			new Point2D.Double(100 + 181, 71),
+			new Point2D.Double(100 + 133, 113)
+		)));
+
+		public TestScreen(ConvexMerger context){
+			super(context);
+		}
+
+		@Override
+		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+			g.translate(0.0D, 800.0D);
+			g.scale(2.0D, -2.0D);
+			obj1.render(g);
+			obj2.render(g);
+			
+			List<Point2D> first = obj1.getPoints();
+			List<Point2D> second = obj2.getPoints();
+
+			//drawLine(g, new Point2D.Double(0, 0), new Point2D.Double(100, 100));
+			
+			g.setStroke(new BasicStroke(1.0F));
+			g.setColor(Color.RED);
+//			for(int i = 0; i < obj1.getPoints().size(); i++){
+//				drawLine(g, obj1.getPoints().get(i), obj1.getPoints().get((i + 1) % obj1.getPoints().size()));
+//			}
+			
+			
+			int lidx = 0;
+			int ridx = 0;
+			boolean isLeft = true;
+			
+			
+			
+			System.out.println(
+				Math.toDegrees(angleFromVertical(first.get(lidx), first.get(lidx + 1))) 
+				+ " vs " +
+				Math.toDegrees(angleFromVertical(second.get(ridx), second.get(ridx + 1)))
+			);
+			
+			while(lidx < first.size() - 1 && ridx < second.size() - 1){
+				double la = angleFromVertical(first.get(lidx), first.get(lidx + 1));
+				double ra = angleFromVertical(second.get(ridx), second.get(ridx + 1));
+				
+				if(la < ra){
+					drawLine(g, first.get(lidx), first.get(lidx + 1));
+					lidx++;
+					while(lidx < first.size() - 1 && angleFromVertical(first.get(lidx), first.get(lidx + 1)) < ra){
+						lidx++;
+					}
+				}else{
+					drawLine(g, second.get(ridx), second.get(ridx + 1));
+					ridx++;
+					while(ridx < second.size() - 1 && angleFromVertical(second.get(ridx), second.get(ridx + 1)) < la){
+						ridx++;
+					}
+				}
+			}
+			
+			
+			
+			
+		}
+		
+		private void drawLine(Graphics2D g, Point2D a, Point2D b){
+			double coef = (b.getY() - a.getY()) / (b.getX() - a.getX());
+			double base = a.getY() - a.getX() * coef;
+			g.draw(new Line2D.Double(0.0D, base, 1600.0D, base + coef * 1600.0D));
+		}
+
+		@Override
+		protected boolean isLeftButtonEnabled(){
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		protected boolean isRightButtonEnabled(){
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		protected String getLeftButtonText(){
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected String getRightButtonText(){
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected void handleLeftButtonClick(){
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		protected void handleRightButtonClick(){
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	
 	public static final double angleFromVertical(Line2D b){
@@ -271,17 +410,19 @@ public class ConvexUtil{
 	
 	public static final double angleFromVertical(Point2D p1, Point2D p2){
 		return angleFromVertical(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+		//return 2.0D * Math.PI - angleBetweenLines(new Line2D.Double(0.0D, 0.0, 0.0D, -1.0D), new Line2D.Double(p1, p2));
 	}
 	
 	public static final double angleFromVertical(double x1, double y1, double x2, double y2){
-		double relative = Math.atan2(y2 - y1, x2 - x1) - 0.5D * Math.PI;
-		return -(relative >= 0.0D ? relative - 2.0D * Math.PI : relative);
+		double relative = Math.atan2(y2 - y1, x2 - x1) + 0.5D * Math.PI;
+		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
 	}
 	
 	//angle from line a to line b in radians in clockwise direction and as a positive number
 	public static final double angleBetweenLines(Line2D a, Line2D b){
-		double relative =  Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
-		return -(relative >= 0.0D ? relative - 2.0D * Math.PI : relative);
+		//System.out.println("a: " + Math.toDegrees(Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1())) + " / " + b.getP1() + " / " + b.getP2());
+		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
+		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
 	}
 	
 	public static void main(String[] args){
@@ -289,6 +430,10 @@ public class ConvexUtil{
 		System.out.println(Math.toDegrees(angleBetweenLines(
 			new Line2D.Double(0, 0, 0, 10),
 			new Line2D.Double(0, 0, 10, 0)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(5, 5, 10, 10)
 		)));
 		System.out.println(Math.toDegrees(angleBetweenLines(
 			new Line2D.Double(0, 0, 0, 10),
@@ -310,5 +455,13 @@ public class ConvexUtil{
 			new Line2D.Double(0, 0, 0, 10),
 			new Line2D.Double(0, 0, 10, -10)
 		)));
+		System.out.println("---");
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, -10)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, -10)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, -10)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 0)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, 10)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 10)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, 0)));
 	}
 }
