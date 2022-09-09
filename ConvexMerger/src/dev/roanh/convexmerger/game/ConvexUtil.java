@@ -326,8 +326,9 @@ public class ConvexUtil{
 			
 			int lidx = 0;
 			int ridx = 0;
-			boolean isLeft = true;
+			//boolean isLeft = true;
 			
+			int ccw = Line2D.relativeCCW(first.get(0).getX(), first.get(0).getY(), first.get(1).getX(), first.get(1).getY(), second.get(0).getX(), second.get(0).getY());
 			
 			
 			System.out.println(
@@ -336,28 +337,57 @@ public class ConvexUtil{
 				Math.toDegrees(angleFromVertical(second.get(ridx), second.get(ridx + 1)))
 			);
 			
-			while(lidx < first.size() - 1 && ridx < second.size() - 1){
-				double la = angleFromVertical(first.get(lidx), first.get(lidx + 1));
-				double ra = angleFromVertical(second.get(ridx), second.get(ridx + 1));
+			int i = 0;//TODO remove
+			double la = 0.0D;
+			double ra = 0.0D;
+			while(lidx < first.size() - 1 && ridx < second.size() - 1 && i < 13){//TODO properly handle wrap around for the last point
+				double nla = angleFromVertical(first.get(lidx), first.get(lidx + 1));
+				double nra = angleFromVertical(second.get(ridx), second.get(ridx + 1));
 				
-				if(la < ra){
+				if(nla < nra){
+					la = nla;
+					g.setColor(Color.RED);
 					drawLine(g, first.get(lidx), first.get(lidx + 1));
 					lidx++;
 					while(lidx < first.size() - 1 && angleFromVertical(first.get(lidx), first.get(lidx + 1)) < ra){
 						lidx++;
 					}
+					
+					int nccw = Line2D.relativeCCW(first.get(lidx - 1).getX(), first.get(lidx - 1).getY(), first.get(lidx).getX(), first.get(lidx).getY(), second.get(ridx).getX(), second.get(ridx).getY());
+					if(nccw != 0 && nccw != ccw){
+						ccw = nccw;
+						//isLeft = true;
+						g.setColor(Color.MAGENTA);
+						drawLineClosed(g, first.get(lidx), second.get(ridx + 1));
+					}
 				}else{
+					ra = nra;
+					g.setColor(Color.GREEN);
 					drawLine(g, second.get(ridx), second.get(ridx + 1));
 					ridx++;
 					while(ridx < second.size() - 1 && angleFromVertical(second.get(ridx), second.get(ridx + 1)) < la){
 						ridx++;
 					}
+					
+					int nccw = Line2D.relativeCCW(first.get(lidx).getX(), first.get(lidx).getY(), first.get(lidx + 1).getX(), first.get(lidx + 1).getY(), second.get(ridx - 1).getX(), second.get(ridx - 1).getY());
+					if(nccw != 0 && nccw != ccw){
+						ccw = nccw;
+						//isLeft = false;
+						g.setColor(Color.MAGENTA);
+						drawLineClosed(g, second.get(ridx), first.get(lidx));
+					}
 				}
+				
+				i++;
 			}
 			
-			
-			
-			
+			g.setColor(Color.BLUE);
+			drawLine(g, first.get(lidx), first.get(lidx + 1));
+			drawLine(g, second.get(ridx), second.get(ridx + 1));
+		}
+		
+		private void drawLineClosed(Graphics2D g, Point2D a, Point2D b){
+			g.draw(new Line2D.Double(a, b));
 		}
 		
 		private void drawLine(Graphics2D g, Point2D a, Point2D b){
