@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import dev.roanh.convexmerger.Main;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
 
@@ -278,17 +279,17 @@ public class ConvexUtil{
 	}
 	
 	public static final class TestScreen extends Screen{
-		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(33, 118),
-			new Point2D.Double(57, 178),
-			new Point2D.Double(98, 236),
-			new Point2D.Double(180, 270),
-			new Point2D.Double(204, 171),
-			new Point2D.Double(175, 106),
-			new Point2D.Double(146, 77),
-			new Point2D.Double(116, 65),
-			new Point2D.Double(38, 70)
-		)));
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(33, 118),
+//			new Point2D.Double(57, 178),
+//			new Point2D.Double(98, 236),
+//			new Point2D.Double(180, 270),
+//			new Point2D.Double(204, 171),
+//			new Point2D.Double(175, 106),
+//			new Point2D.Double(146, 77),
+//			new Point2D.Double(116, 65),
+//			new Point2D.Double(38, 70)
+//		)));
 		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
 			new Point2D.Double(100 + 116, 177),
 			new Point2D.Double(100 + 133, 212),
@@ -300,13 +301,22 @@ public class ConvexUtil{
 			new Point2D.Double(100 + 181, 71),
 			new Point2D.Double(100 + 133, 113)
 		)));
+		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(30, 100),
+			new Point2D.Double(100, 100),
+			new Point2D.Double(100, 200)
+		)));
 
 		public TestScreen(ConvexMerger context){
 			super(context);
 		}
+		
+		private int max = 0;
 
 		@Override
 		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
+			super.renderMainInterface(g, width, height, null);
+
 			g.translate(0.0D, 800.0D);
 			g.scale(2.0D, -2.0D);
 			obj1.render(g);
@@ -331,45 +341,123 @@ public class ConvexUtil{
 			int ccw = Line2D.relativeCCW(first.get(0).getX(), first.get(0).getY(), first.get(1).getX(), first.get(1).getY(), second.get(0).getX(), second.get(0).getY());
 			
 			
-			System.out.println(
-				Math.toDegrees(angleFromVertical(first.get(lidx), first.get(lidx + 1))) 
-				+ " vs " +
-				Math.toDegrees(angleFromVertical(second.get(ridx), second.get(ridx + 1)))
-			);
+//			System.out.println(
+//				Math.toDegrees(angleFromVertical(first.get(lidx), first.get(lidx + 1))) 
+//				+ " vs " +
+//				Math.toDegrees(angleFromVertical(second.get(ridx), second.get(ridx + 1)))
+//			);
+
+//			double la = angleFromVertical(first.get(lidx), first.get(lidx + 1));
+//			double ra = angleFromVertical(second.get(ridx), second.get(ridx + 1));
+			
+//			int i = 0;
+//			while(lidx < first.size() - 1 || ridx < second.size() - 1){
+//				if(i >= max){
+//					break;
+//				}
+//				
+//				double la = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
+//				double ra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
+//				
+//				if(la < ra){
+//					g.setColor(Color.RED);
+//					drawLine(g, first.get(lidx), first.get(lidx + 1));
+//					lidx++;
+//					
+//					do{
+//						ridx++;
+//					}while(angleFromVertical(second.get(ridx + 1), second.get((ridx + 2) % second.size())) < angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size())));
+//					
+//					if(angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size())) >= ra){
+//						g.setColor(Color.MAGENTA);
+//						drawLineClosed(g, first.get(lidx), second.get(ridx + 1));
+//					}
+//				}else{
+//					g.setColor(Color.GREEN);
+//					drawLine(g, second.get(ridx), second.get(ridx + 1));
+//					ridx++;
+//					
+//					do{
+//						lidx++;
+//					}while(angleFromVertical(first.get(lidx + 1), first.get((lidx + 2) % first.size())) < angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size())));
+//					
+//					if(angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size())) >= la){
+//						g.setColor(Color.MAGENTA);
+//						drawLineClosed(g, second.get(ridx), first.get(lidx + 1));
+//					}
+//				}
+//				
+//				g.setColor(Color.BLUE);
+//				drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
+//				drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
+//				
+//				i++;
+//			}
+//			
+//			g.scale(1.0D, -1.0D);
+//			g.drawString(angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size())) + " " + angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size())), 0, 0);
+
 			
 			int i = 0;//TODO remove
 			double la = 0.0D;
 			double ra = 0.0D;
-			while(lidx < first.size() - 1 && ridx < second.size() - 1 && i < 13){//TODO properly handle wrap around for the last point
-				double nla = angleFromVertical(first.get(lidx), first.get(lidx + 1));
-				double nra = angleFromVertical(second.get(ridx), second.get(ridx + 1));
+			while((lidx < first.size() - 1 || ridx < second.size() - 1) && i < max){//TODO properly handle wrap around for the last point
+				double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
+				double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
 				
 				if(nla < nra){
 					la = nla;
 					g.setColor(Color.RED);
-					drawLine(g, first.get(lidx), first.get(lidx + 1));
+					drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
 					lidx++;
-					while(lidx < first.size() - 1 && angleFromVertical(first.get(lidx), first.get(lidx + 1)) < ra){
-						lidx++;
-					}
+//					while(lidx < first.size() - 1 && angleFromVertical(first.get(lidx), first.get(lidx + 1)) < ra){
+//						lidx++;
+//					}
 					
-					int nccw = Line2D.relativeCCW(first.get(lidx - 1).getX(), first.get(lidx - 1).getY(), first.get(lidx).getX(), first.get(lidx).getY(), second.get(ridx).getX(), second.get(ridx).getY());
+					int nccw = Line2D.relativeCCW(
+						first.get(lidx - 1).getX(), first.get(lidx - 1).getY(),
+						first.get(lidx).getX(), first.get(lidx).getY(),
+						second.get(ridx).getX(), second.get(ridx).getY()
+					);
+					System.out.println(nccw + " /a " + ccw);
+					
 					if(nccw != 0 && nccw != ccw){
 						ccw = nccw;
 						//isLeft = true;
 						g.setColor(Color.MAGENTA);
-						drawLineClosed(g, first.get(lidx), second.get(ridx + 1));
+						drawLineClosed(g, first.get(lidx), second.get(ridx));
 					}
 				}else{
 					ra = nra;
 					g.setColor(Color.GREEN);
-					drawLine(g, second.get(ridx), second.get(ridx + 1));
+					drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
 					ridx++;
-					while(ridx < second.size() - 1 && angleFromVertical(second.get(ridx), second.get(ridx + 1)) < la){
-						ridx++;
-					}
+//					while(ridx < second.size() - 1 && angleFromVertical(second.get(ridx), second.get(ridx + 1)) < la){
+//						ridx++;
+//					}
 					
-					int nccw = Line2D.relativeCCW(first.get(lidx).getX(), first.get(lidx).getY(), first.get(lidx + 1).getX(), first.get(lidx + 1).getY(), second.get(ridx - 1).getX(), second.get(ridx - 1).getY());
+//					g.setColor(Color.ORANGE);
+					Point2D a = second.get(ridx);
+					Point2D b = second.get((ridx + 1) % second.size());
+					Point2D c = first.get(lidx);
+					double dx = c.getX() - a.getX();
+					double dy = c.getY() - a.getY();
+					
+//					drawLine(
+//						g,
+//						a.getX() + dx, a.getY() + dy,
+//						b.getX() + dx, b.getY() + dy
+//					);
+					
+					int nccw = Line2D.relativeCCW(
+//						first.get(lidx).getX(), first.get(lidx).getY(),
+//						first.get(lidx + 1).getX(), first.get(lidx + 1).getY(),
+						a.getX() + dx, a.getY() + dy,
+						b.getX() + dx, b.getY() + dy,
+						second.get(ridx).getX(), second.get(ridx).getY()
+					);
+					System.out.println(nccw + " /b " + ccw);
+					
 					if(nccw != 0 && nccw != ccw){
 						ccw = nccw;
 						//isLeft = false;
@@ -378,12 +466,32 @@ public class ConvexUtil{
 					}
 				}
 				
+				
+				
 				i++;
 			}
 			
 			g.setColor(Color.BLUE);
-			drawLine(g, first.get(lidx), first.get(lidx + 1));
-			drawLine(g, second.get(ridx), second.get(ridx + 1));
+			drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
+			drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
+			
+			g.setColor(Color.ORANGE);
+			Point2D a = second.get(ridx);
+			Point2D b = second.get((ridx + 1) % second.size());
+			Point2D c = first.get(lidx);
+			double dx = c.getX() - a.getX();
+			double dy = c.getY() - a.getY();
+			
+			drawLine(
+				g,
+				a.getX() + dx, a.getY() + dy,
+				b.getX() + dx, b.getY() + dy
+			);
+			
+		}
+		
+		private void drawLineClosed(Graphics2D g, double x1, double y1, double x2, double y2){
+			g.draw(new Line2D.Double(x1, y1, x2, y2));
 		}
 		
 		private void drawLineClosed(Graphics2D g, Point2D a, Point2D b){
@@ -391,21 +499,25 @@ public class ConvexUtil{
 		}
 		
 		private void drawLine(Graphics2D g, Point2D a, Point2D b){
-			double coef = (b.getY() - a.getY()) / (b.getX() - a.getX());
-			double base = a.getY() - a.getX() * coef;
+			drawLine(g, a.getX(), a.getY(), b.getX(), b.getY());
+		}
+		
+		private void drawLine(Graphics2D g, double x1, double y1, double x2, double y2){
+			double coef = (y2 - y1) / (x2 - x1);
+			double base = y1 - x1 * coef;
 			g.draw(new Line2D.Double(0.0D, base, 1600.0D, base + coef * 1600.0D));
 		}
 
 		@Override
 		protected boolean isLeftButtonEnabled(){
 			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 
 		@Override
 		protected boolean isRightButtonEnabled(){
 			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 
 		@Override
@@ -423,13 +535,14 @@ public class ConvexUtil{
 		@Override
 		protected void handleLeftButtonClick(){
 			// TODO Auto-generated method stub
-			
+			max++;
 		}
 
 		@Override
 		protected void handleRightButtonClick(){
 			// TODO Auto-generated method stub
-			
+			max--;
+
 		}
 		
 	}
@@ -493,5 +606,7 @@ public class ConvexUtil{
 		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, 10)));
 		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 10)));
 		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, 0)));
+		
+		Main.main(null);
 	}
 }
