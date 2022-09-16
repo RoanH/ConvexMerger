@@ -345,36 +345,36 @@ public class ConvexUtil{
 //			new Point2D.Double(100, 100),
 //			new Point2D.Double(100, 200)
 //		)));
-//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(30, 100),
-//			new Point2D.Double(100, 130),
-//			new Point2D.Double(100, 200)
-//		)));
+		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(30, 100),
+			new Point2D.Double(100, 130),
+			new Point2D.Double(100, 200)
+		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(30, 100),
 //			new Point2D.Double(100, 80),
 //			new Point2D.Double(100, 200)
 //			//,new Point2D.Double(50, 150)
 //		)));
-//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(100 + 30, 100),
-//			new Point2D.Double(100 + 100, 110),
-//			new Point2D.Double(100 + 100, 200)
-//			//,new Point2D.Double(100 + 50, 150)
-//		)));
-		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(10, 150),
-			new Point2D.Double(30, 200),
-			new Point2D.Double(30, 100),
-			new Point2D.Double(100, 100),
-			new Point2D.Double(100, 200)
-		)));
 		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 30, 200),
 			new Point2D.Double(100 + 30, 100),
-			new Point2D.Double(100 + 100, 100),
+			new Point2D.Double(100 + 100, 110),
 			new Point2D.Double(100 + 100, 200)
+			//,new Point2D.Double(100 + 50, 150)
 		)));
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			//new Point2D.Double(10, 150),
+//			new Point2D.Double(30, 200),
+//			new Point2D.Double(30, 100),
+//			new Point2D.Double(100, 100),
+//			new Point2D.Double(100, 200)
+//		)));
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(100 + 30, 200),
+//			new Point2D.Double(100 + 30, 100),
+//			new Point2D.Double(100 + 100, 100),
+//			new Point2D.Double(100 + 100, 200)
+//		)));
 		//TODO vertical arrange
 
 		public TestScreen(ConvexMerger context){
@@ -409,7 +409,11 @@ public class ConvexUtil{
 			
 			int lidx = 0;
 			int ridx = 0;
-			int ccw = Line2D.relativeCCW(first.get(0).getX(), first.get(0).getY(), first.get(1).getX(), first.get(1).getY(), second.get(0).getX(), second.get(0).getY());
+			int ccw = Line2D.relativeCCW(
+				first.get(0).getX(), first.get(0).getY(),
+				first.get(0).getX(), first.get(0).getY() - 1.0D,
+				second.get(0).getX(), second.get(0).getY()
+			);
 			int nccw = ccw;
 			
 			Point2D[] lines = new Point2D[4];
