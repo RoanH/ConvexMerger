@@ -318,50 +318,50 @@ public class ConvexUtil{
 	}
 	
 	public static final class TestScreen extends Screen{
-//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(33, 118),
-//			new Point2D.Double(57, 178),
-//			new Point2D.Double(98, 236),
-//			new Point2D.Double(180, 270),
-//			new Point2D.Double(204, 171),
-//			new Point2D.Double(175, 106),
-//			new Point2D.Double(146, 77),
-//			new Point2D.Double(116, 65),
-//			new Point2D.Double(38, 70)
-//		)));
-//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(100 + 116, 177),
-//			new Point2D.Double(100 + 133, 212),
-//			new Point2D.Double(100 + 263, 217),
-//			new Point2D.Double(100 + 286, 150),
-//			new Point2D.Double(100 + 281, 65),
-//			new Point2D.Double(100 + 256, 24),
-//			new Point2D.Double(100 + 219, 42),
-//			new Point2D.Double(100 + 181, 71),
-//			new Point2D.Double(100 + 133, 113)
-//		)));
+		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(33, 118),
+			new Point2D.Double(57, 178),
+			new Point2D.Double(98, 236),
+			new Point2D.Double(180, 270),
+			new Point2D.Double(204, 171),
+			new Point2D.Double(175, 106),
+			new Point2D.Double(146, 77),
+			new Point2D.Double(116, 65),
+			new Point2D.Double(38, 70)
+		)));
+		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(100 + 116, 177),
+			new Point2D.Double(100 + 133, 212),
+			new Point2D.Double(100 + 263, 217),
+			new Point2D.Double(100 + 286, 150),
+			new Point2D.Double(100 + 281, 65),
+			new Point2D.Double(100 + 256, 24),
+			new Point2D.Double(100 + 219, 42),
+			new Point2D.Double(100 + 181, 71),
+			new Point2D.Double(100 + 133, 113)
+		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(30, 100),
 //			new Point2D.Double(100, 100),
 //			new Point2D.Double(100, 200)
 //		)));
-		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(30, 100),
-			new Point2D.Double(100, 130),
-			new Point2D.Double(100, 200)
-		)));
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(30, 100),
+//			new Point2D.Double(100, 130),
+//			new Point2D.Double(100, 200)
+//		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(30, 100),
 //			new Point2D.Double(100, 80),
 //			new Point2D.Double(100, 200)
 //			//,new Point2D.Double(50, 150)
 //		)));
-		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 30, 100),
-			new Point2D.Double(100 + 100, 110),
-			new Point2D.Double(100 + 100, 200)
-			//,new Point2D.Double(100 + 50, 150)
-		)));
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(100 + 30, 100),
+//			new Point2D.Double(100 + 100, 110),
+//			new Point2D.Double(100 + 100, 200)
+//			//,new Point2D.Double(100 + 50, 150)
+//		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			//new Point2D.Double(10, 150),
 //			new Point2D.Double(30, 200),
@@ -375,7 +375,12 @@ public class ConvexUtil{
 //			new Point2D.Double(100 + 100, 100),
 //			new Point2D.Double(100 + 100, 200)
 //		)));
-		//TODO vertical arrange
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(30, 130 + 200),
+//			new Point2D.Double(30, 130 + 100),
+//			new Point2D.Double(100, 130 + 100),
+//			new Point2D.Double(100, 130 + 200)
+//		)));
 
 		public TestScreen(ConvexMerger context){
 			super(context);
@@ -395,17 +400,7 @@ public class ConvexUtil{
 			List<Point2D> first = obj1.getPoints();
 			List<Point2D> second = obj2.getPoints();
 
-			//drawLine(g, new Point2D.Double(0, 0), new Point2D.Double(100, 100));
-			
 			g.setStroke(new BasicStroke(1.0F));
-			g.setColor(Color.RED);
-//			for(int i = 0; i < obj1.getPoints().size(); i++){
-//				drawLine(g, obj1.getPoints().get(i), obj1.getPoints().get((i + 1) % obj1.getPoints().size()));
-//			}
-			
-			Color red = new Color(255, 0, 0, 50);
-			Color green = new Color(0, 255, 0, 50);
-			Color blue = new Color(0, 0, 255, 50);
 			
 			int lidx = 0;
 			int ridx = 0;
@@ -419,21 +414,19 @@ public class ConvexUtil{
 			Point2D[] lines = new Point2D[4];
 			int found = 0;
 
-			
 			int i = 0;//TODO remove
-			double la = 0.0D;
-			double ra = 0.0D;
-			System.out.println("---");
-			while((lidx < first.size() || ridx < second.size()) && i < max){
+			while(i < max){
 				double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
 				double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
 				
 				//our angle needs to increase even if we arrive back at vertical at the end, so wrap 0 degrees to 360 degrees
-				if(nla == 0.0D && la > 0.0D){//TODO replace angles with index indicators
-					nla = 2 * Math.PI;
-				}
-				if(nla == 0.0D && ra > 0.0D){
-					nra = 2 * Math.PI;
+				if(lidx + ridx > 0){
+					if(nla == 0.0D){
+						nla = 2 * Math.PI;
+					}
+					if(nla == 0.0D){
+						nra = 2 * Math.PI;
+					}
 				}
 				
 				if(nla < nra){
@@ -445,7 +438,6 @@ public class ConvexUtil{
 					);
 				}else{
 					//translate the calliper line to the other object
-					g.setColor(Color.ORANGE);
 					Point2D a = second.get(ridx);
 					Point2D b = second.get((ridx + 1) % second.size());
 					Point2D c = first.get(lidx);
@@ -459,7 +451,6 @@ public class ConvexUtil{
 					);
 				}
 				
-				System.out.println(nccw + " /a " + ccw);
 				if(nccw != 0 && nccw != ccw){
 					ccw = nccw;
 					g.setColor(Color.MAGENTA);
@@ -484,87 +475,17 @@ public class ConvexUtil{
 					break;
 				}
 				
-				if(nla < nra){
-					System.out.println("inc nla<nra");
-					la = nla;
-					g.setColor(red);
-					drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
+				if(nla <= nra){
 					lidx++;
-//					while(lidx < first.size() - 1 && angleFromVertical(first.get(lidx), first.get(lidx + 1)) < ra){
-//						lidx++;
-//					}
-					
-//					nccw = Line2D.relativeCCW(
-//						first.get(lidx - 1).getX(), first.get(lidx - 1).getY(),
-//						first.get(lidx).getX(), first.get(lidx).getY(),
-//						second.get(ridx).getX(), second.get(ridx).getY()
-//					);
-//					System.out.println(nccw + " /a " + ccw);
-					
-//					if(nccw != 0 && nccw != ccw){
-//						ccw = nccw;
-//						//isLeft = true;
-//						g.setColor(Color.MAGENTA);
-//						drawLineClosed(g, first.get(lidx), second.get(ridx));
-//					}
-				}else if(nla > nra){
-					System.out.println("inc nla>nra");
-					ra = nra;
-					g.setColor(green);
-					drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
+				}
+				if(nla >= nra){
 					ridx++;
-//					while(ridx < second.size() - 1 && angleFromVertical(second.get(ridx), second.get(ridx + 1)) < la){
-//						ridx++;
-//					}
-					
-////					g.setColor(Color.ORANGE);
-//					Point2D a = second.get(ridx);
-//					Point2D b = second.get((ridx + 1) % second.size());
-//					Point2D c = first.get(lidx);
-//					double dx = c.getX() - a.getX();
-//					double dy = c.getY() - a.getY();
-//					
-////					drawLine(
-////						g,
-////						a.getX() + dx, a.getY() + dy,
-////						b.getX() + dx, b.getY() + dy
-////					);
-//					
-//					nccw = Line2D.relativeCCW(
-////						first.get(lidx).getX(), first.get(lidx).getY(),
-////						first.get(lidx + 1).getX(), first.get(lidx + 1).getY(),
-//						a.getX() + dx, a.getY() + dy,
-//						b.getX() + dx, b.getY() + dy,
-//						second.get(ridx).getX(), second.get(ridx).getY()
-//					);
-//					System.out.println(nccw + " /b " + ccw);
-					
-//					if(nccw != 0 && nccw != ccw){
-//						ccw = nccw;
-//						//isLeft = false;
-//						g.setColor(Color.MAGENTA);
-//						drawLineClosed(g, second.get(ridx), first.get(lidx));
-//					}
-				}else{
-					System.out.println("inc both");
-
-					ra = nra;
-					g.setColor(green);
-					drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
-					ridx++;
-					
-
-					la = nla;
-					g.setColor(red);
-					drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
-					lidx++;
-					
 				}
 				
 				i++;
 			}
 			
-			g.setColor(blue);
+			g.setColor(Color.BLUE);
 			drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
 			drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
 			
@@ -580,7 +501,6 @@ public class ConvexUtil{
 				a.getX() + dx, a.getY() + dy,
 				b.getX() + dx, b.getY() + dy
 			);
-			
 		}
 		
 		private void drawLineClosed(Graphics2D g, double x1, double y1, double x2, double y2){
