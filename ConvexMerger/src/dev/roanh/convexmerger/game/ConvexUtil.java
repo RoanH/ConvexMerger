@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import dev.roanh.convexmerger.Main;
+import dev.roanh.convexmerger.animation.CalliperAnimation;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
 
@@ -71,6 +72,7 @@ public class ConvexUtil{
 	 *         segments and the other two the other.
 	 * @see #computeMergeLines(List, List, List)
 	 */
+	@Deprecated
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
 		List<Point2D> points = new ArrayList<Point2D>();
 		points.addAll(first);
@@ -95,6 +97,7 @@ public class ConvexUtil{
 	 *         segments and the other two the other.
 	 * @see #computeMergeLines(List, List)
 	 */
+	@Deprecated
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second, List<Point2D> hull){
 		if(!first.contains(hull.get(0))){
 			List<Point2D> tmp = first;
@@ -384,6 +387,7 @@ public class ConvexUtil{
 
 		public TestScreen(ConvexMerger context){
 			super(context);
+			obj1.setAnimation(new CalliperAnimation(obj1));
 		}
 		
 		private int max = 0;
@@ -395,6 +399,7 @@ public class ConvexUtil{
 			g.translate(0.0D, 800.0D);
 			g.scale(2.0D, -2.0D);
 			obj1.render(g);
+			obj1.runAnimation(g);
 			obj2.render(g);
 			
 			List<Point2D> first = obj1.getPoints();
