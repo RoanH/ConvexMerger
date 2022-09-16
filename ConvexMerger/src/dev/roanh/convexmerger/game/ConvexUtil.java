@@ -301,7 +301,13 @@ public class ConvexUtil{
 			new Point2D.Double(100 + 181, 71),
 			new Point2D.Double(100 + 133, 113)
 		)));
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(30, 100),
+//			new Point2D.Double(100, 100),
+//			new Point2D.Double(100, 200)
+//		)));
 		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(30, 200),
 			new Point2D.Double(30, 100),
 			new Point2D.Double(100, 100),
 			new Point2D.Double(100, 200)
@@ -404,6 +410,14 @@ public class ConvexUtil{
 			while((lidx < first.size() - 1 || ridx < second.size() - 1) && i < max){//TODO properly handle wrap around for the last point
 				double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
 				double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
+				
+				//our angle needs to increase even if we arrive back at vertical at the end, so wrap 0 degrees to 360 degrees
+				if(nla == 0.0D && la > 0.0D){//TODO replace angles with index indicators
+					nla = 2 * Math.PI;
+				}
+				if(nla == 0.0D && ra > 0.0D){
+					nra = 2 * Math.PI;
+				}
 				
 				if(nla < nra){
 					la = nla;
@@ -606,6 +620,7 @@ public class ConvexUtil{
 		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, 10)));
 		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 10)));
 		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, 0)));
+		System.out.println(Math.toDegrees(angleFromVertical(0, 200, 0, 0)));
 		
 		Main.main(null);
 	}
