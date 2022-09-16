@@ -261,6 +261,45 @@ public class ConvexUtil{
 		return Arrays.asList(first, second);
 	}
 	
+	/**
+	 * Function to check if 3 points are collinear.
+	 * @param x1 The x coordinate of the first point.
+	 * @param y1 The y coordinate of the first point.
+	 * @param x2 The x coordinate of the second point.
+	 * @param y2 The y coordinate of the second point.
+	 * @param x3 The x coordinate of the third point.
+	 * @param y3 The y coordinate of the third point.
+	 * @return True if the given points are (close to) collinear.
+	 */
+	public static boolean checkCollinear(int x1, int y1, int x2, int y2, int x3, int y3){
+		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) == 0;
+	}
+	
+	/**
+	 * Function to check if 3 points are collinear.
+	 * @param p1 The first point.
+	 * @param p2 The second point.
+	 * @param p3 The third point.
+	 * @return True if the given points are (close to) collinear.
+	 */
+	public static boolean checkCollinear(Point2D p1, Point2D p2, Point2D p3){
+		return checkCollinear(p1.getX(), p1.getY(), p2.getX(), p2.getY(), p3.getX(), p3.getY());
+	}
+	
+	/**
+	 * Function to check if 3 points are collinear.
+	 * @param x1 The x coordinate of the first point.
+	 * @param y1 The y coordinate of the first point.
+	 * @param x2 The x coordinate of the second point.
+	 * @param y2 The y coordinate of the second point.
+	 * @param x3 The x coordinate of the third point.
+	 * @param y3 The y coordinate of the third point.
+	 * @return True if the given points are (close to) collinear.
+	 */
+	public static boolean checkCollinear(double x1, double y1, double x2, double y2, double x3, double y3){
+		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
+	}
+	
 	//first points are left most by game invariant
 	public static final List<List<Point2D>> computePocketLids(List<Point2D> first, List<Point2D> second){
 		//TODO for certain cases of co linearity the two calipers can overlap, this needs to be handled
@@ -311,30 +350,31 @@ public class ConvexUtil{
 //			new Point2D.Double(100, 130),
 //			new Point2D.Double(100, 200)
 //		)));
-		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(30, 100),
-			new Point2D.Double(100, 80),
-			new Point2D.Double(100, 200)
-			//,new Point2D.Double(50, 150)
-		)));
-		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 30, 100),
-			new Point2D.Double(100 + 100, 110),
-			new Point2D.Double(100 + 100, 200)
-			//,new Point2D.Double(100 + 50, 150)
-		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(30, 200),
 //			new Point2D.Double(30, 100),
-//			new Point2D.Double(100, 100),
+//			new Point2D.Double(100, 80),
 //			new Point2D.Double(100, 200)
+//			//,new Point2D.Double(50, 150)
 //		)));
 //		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(100 + 30, 200),
 //			new Point2D.Double(100 + 30, 100),
-//			new Point2D.Double(100 + 100, 100),
+//			new Point2D.Double(100 + 100, 110),
 //			new Point2D.Double(100 + 100, 200)
+//			//,new Point2D.Double(100 + 50, 150)
 //		)));
+		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(10, 150),
+			new Point2D.Double(30, 200),
+			new Point2D.Double(30, 100),
+			new Point2D.Double(100, 100),
+			new Point2D.Double(100, 200)
+		)));
+		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(100 + 30, 200),
+			new Point2D.Double(100 + 30, 100),
+			new Point2D.Double(100 + 100, 100),
+			new Point2D.Double(100 + 100, 200)
+		)));
 		//TODO vertical arrange
 
 		public TestScreen(ConvexMerger context){
@@ -363,16 +403,24 @@ public class ConvexUtil{
 //				drawLine(g, obj1.getPoints().get(i), obj1.getPoints().get((i + 1) % obj1.getPoints().size()));
 //			}
 			
+			Color red = new Color(255, 0, 0, 50);
+			Color green = new Color(0, 255, 0, 50);
+			Color blue = new Color(0, 0, 255, 50);
 			
 			int lidx = 0;
 			int ridx = 0;
 			int ccw = Line2D.relativeCCW(first.get(0).getX(), first.get(0).getY(), first.get(1).getX(), first.get(1).getY(), second.get(0).getX(), second.get(0).getY());
 			int nccw = ccw;
 			
+			Point2D[] lines = new Point2D[4];
+			int found = 0;
+
+			
 			int i = 0;//TODO remove
 			double la = 0.0D;
 			double ra = 0.0D;
-			while((lidx < first.size() || ridx < second.size()) && i < max){//TODO properly handle wrap around for the last point
+			System.out.println("---");
+			while((lidx < first.size() || ridx < second.size()) && i < max){
 				double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
 				double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
 				
@@ -385,12 +433,14 @@ public class ConvexUtil{
 				}
 				
 				if(nla < nra){
+					//the first object provides the calliper line, the second only provides a point on its calliper
 					nccw = Line2D.relativeCCW(
 						first.get(lidx).getX(), first.get(lidx).getY(),
 						first.get((lidx + 1) % first.size()).getX(), first.get((lidx + 1) % first.size()).getY(),
 						second.get(ridx).getX(), second.get(ridx).getY()
 					);
 				}else{
+					//translate the calliper line to the other object
 					g.setColor(Color.ORANGE);
 					Point2D a = second.get(ridx);
 					Point2D b = second.get((ridx + 1) % second.size());
@@ -408,9 +458,22 @@ public class ConvexUtil{
 				System.out.println(nccw + " /a " + ccw);
 				if(nccw != 0 && nccw != ccw){
 					ccw = nccw;
-					//isLeft = false;
 					g.setColor(Color.MAGENTA);
-					drawLineClosed(g, second.get(ridx), first.get(lidx));
+					
+					//skip over collinear points if they exist
+					if(found == 0){
+						lines[0] = checkCollinear(first.get(lidx), first.get((lidx + 1) % first.size()), second.get(ridx)) ? first.get((lidx + 1) % first.size()) : first.get(lidx);
+						lines[1] = second.get(ridx);
+						found++;
+						drawLineClosed(g, lines[0], lines[1]);
+					}else if(found == 1){
+						lines[2] = checkCollinear(second.get(ridx), second.get((ridx + 1) % second.size()), first.get(lidx)) ? second.get((ridx + 1) % second.size()) : second.get(ridx);
+						lines[3] = first.get(lidx);
+						found++;
+						drawLineClosed(g, lines[2], lines[3]);
+					}else{
+						throw new IllegalStateException("More than 2 merge lines found.");
+					}
 				}
 				
 				if(lidx == first.size() - 1 && ridx == second.size() - 1){
@@ -418,8 +481,9 @@ public class ConvexUtil{
 				}
 				
 				if(nla < nra){
+					System.out.println("inc nla<nra");
 					la = nla;
-					g.setColor(Color.RED);
+					g.setColor(red);
 					drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
 					lidx++;
 //					while(lidx < first.size() - 1 && angleFromVertical(first.get(lidx), first.get(lidx + 1)) < ra){
@@ -440,8 +504,9 @@ public class ConvexUtil{
 //						drawLineClosed(g, first.get(lidx), second.get(ridx));
 //					}
 				}else if(nla > nra){
+					System.out.println("inc nla>nra");
 					ra = nra;
-					g.setColor(Color.GREEN);
+					g.setColor(green);
 					drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
 					ridx++;
 //					while(ridx < second.size() - 1 && angleFromVertical(second.get(ridx), second.get(ridx + 1)) < la){
@@ -477,15 +542,16 @@ public class ConvexUtil{
 //						drawLineClosed(g, second.get(ridx), first.get(lidx));
 //					}
 				}else{
-					ra = nra;
-					g.setColor(Color.GREEN);
-					drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
 					System.out.println("inc both");
+
+					ra = nra;
+					g.setColor(green);
+					drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
 					ridx++;
 					
 
 					la = nla;
-					g.setColor(Color.RED);
+					g.setColor(red);
 					drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
 					lidx++;
 					
@@ -494,7 +560,7 @@ public class ConvexUtil{
 				i++;
 			}
 			
-			g.setColor(Color.BLUE);
+			g.setColor(blue);
 			drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
 			drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
 			

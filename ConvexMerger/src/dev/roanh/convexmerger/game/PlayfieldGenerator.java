@@ -176,20 +176,6 @@ public class PlayfieldGenerator{
 	}
 
 	/**
-	 * Function to check if 3 points are collinear.
-	 * @param x1 The x coordinate of the first point.
-	 * @param y1 The y coordinate of the first point.
-	 * @param x2 The x coordinate of the second point.
-	 * @param y2 The y coordinate of the second point.
-	 * @param x3 The x coordinate of the third point.
-	 * @param y3 The y coordinate of the third point.
-	 * @return True if the given points are (close to) collinear.
-	 */
-	private boolean collinear(int x1, int y1, int x2, int y2, int x3, int y3){
-		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
-	}
-
-	/**
 	 * Function to determine the approximate minimum area for an object
 	 * @param rMax The maximum range for an object.
 	 * @return The computed minimum area for an object.
@@ -240,13 +226,13 @@ public class PlayfieldGenerator{
 			}
 
 			//ensure no 3 points are collinear
-			if(collinear(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY)){
+			if(ConvexUtil.checkCollinear(topRightX, topRightY, topLeftX, topLeftY, bottomLeftX, bottomLeftY)){
 				continue;
-			}else if(collinear(topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)){
+			}else if(ConvexUtil.checkCollinear(topLeftX, topLeftY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)){
 				continue;
-			}else if(collinear(topRightX, topRightY, topLeftX, topLeftY, bottomRightX, bottomRightY)){
+			}else if(ConvexUtil.checkCollinear(topRightX, topRightY, topLeftX, topLeftY, bottomRightX, bottomRightY)){
 				continue;
-			}else if(collinear(topRightX, topRightY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)){
+			}else if(ConvexUtil.checkCollinear(topRightX, topRightY, bottomLeftX, bottomLeftY, bottomRightX, bottomRightY)){
 				continue;
 			}
 
