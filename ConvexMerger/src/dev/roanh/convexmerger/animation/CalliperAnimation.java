@@ -29,7 +29,7 @@ public class CalliperAnimation implements Animation{
 	@Override
 	public boolean run(Graphics2D g){
 		long elapsed = System.currentTimeMillis() - start;
-		float angle = (float)((float)((Math.PI * 2.0F * elapsed) / DURATION) % (2.0F * Math.PI));
+		float angle = (float)((Math.PI * 2.0F * elapsed) / DURATION);
 		
 		Point2D base = points.get(0);
 		for(int i = 0; i < points.size(); i++){
