@@ -342,67 +342,7 @@ public class ConvexUtil{
 			
 			int lidx = 0;
 			int ridx = 0;
-			//boolean isLeft = true;
-			
 			int ccw = Line2D.relativeCCW(first.get(0).getX(), first.get(0).getY(), first.get(1).getX(), first.get(1).getY(), second.get(0).getX(), second.get(0).getY());
-			
-			
-//			System.out.println(
-//				Math.toDegrees(angleFromVertical(first.get(lidx), first.get(lidx + 1))) 
-//				+ " vs " +
-//				Math.toDegrees(angleFromVertical(second.get(ridx), second.get(ridx + 1)))
-//			);
-
-//			double la = angleFromVertical(first.get(lidx), first.get(lidx + 1));
-//			double ra = angleFromVertical(second.get(ridx), second.get(ridx + 1));
-			
-//			int i = 0;
-//			while(lidx < first.size() - 1 || ridx < second.size() - 1){
-//				if(i >= max){
-//					break;
-//				}
-//				
-//				double la = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
-//				double ra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
-//				
-//				if(la < ra){
-//					g.setColor(Color.RED);
-//					drawLine(g, first.get(lidx), first.get(lidx + 1));
-//					lidx++;
-//					
-//					do{
-//						ridx++;
-//					}while(angleFromVertical(second.get(ridx + 1), second.get((ridx + 2) % second.size())) < angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size())));
-//					
-//					if(angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size())) >= ra){
-//						g.setColor(Color.MAGENTA);
-//						drawLineClosed(g, first.get(lidx), second.get(ridx + 1));
-//					}
-//				}else{
-//					g.setColor(Color.GREEN);
-//					drawLine(g, second.get(ridx), second.get(ridx + 1));
-//					ridx++;
-//					
-//					do{
-//						lidx++;
-//					}while(angleFromVertical(first.get(lidx + 1), first.get((lidx + 2) % first.size())) < angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size())));
-//					
-//					if(angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size())) >= la){
-//						g.setColor(Color.MAGENTA);
-//						drawLineClosed(g, second.get(ridx), first.get(lidx + 1));
-//					}
-//				}
-//				
-//				g.setColor(Color.BLUE);
-//				drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
-//				drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
-//				
-//				i++;
-//			}
-//			
-//			g.scale(1.0D, -1.0D);
-//			g.drawString(angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size())) + " " + angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size())), 0, 0);
-
 			
 			int i = 0;//TODO remove
 			double la = 0.0D;
@@ -479,8 +419,6 @@ public class ConvexUtil{
 						drawLineClosed(g, second.get(ridx), first.get(lidx));
 					}
 				}
-				
-				
 				
 				i++;
 			}
