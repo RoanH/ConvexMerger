@@ -59,26 +59,26 @@ public class ConvexUtil{
 		return hull;
 	}
 	
-	/**
-	 * Computes the two lines that would be required to
-	 * combine the two given convex hulls into a single
-	 * convex hull.
-	 * @param first The first convex hull.
-	 * @param second The second convex hull.
-	 * @return The points for the two line segments that
-	 *         would be required to complete the convex
-	 *         hull of the two given convex hulls. The
-	 *         first two points make up one of the line
-	 *         segments and the other two the other.
-	 * @see #computeMergeLines(List, List, List)
-	 */
-	@Deprecated
-	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
-		List<Point2D> points = new ArrayList<Point2D>();
-		points.addAll(first);
-		points.addAll(second);
-		return computeMergeLines(first, second, computeConvexHull(points));
-	}
+//	/**
+//	 * Computes the two lines that would be required to
+//	 * combine the two given convex hulls into a single
+//	 * convex hull.
+//	 * @param first The first convex hull.
+//	 * @param second The second convex hull.
+//	 * @return The points for the two line segments that
+//	 *         would be required to complete the convex
+//	 *         hull of the two given convex hulls. The
+//	 *         first two points make up one of the line
+//	 *         segments and the other two the other.
+//	 * @see #computeMergeLines(List, List, List)
+//	 */
+//	@Deprecated
+//	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
+//		List<Point2D> points = new ArrayList<Point2D>();
+//		points.addAll(first);
+//		points.addAll(second);
+//		return computeMergeLines(first, second, computeConvexHull(points));
+//	}
 	
 	/**
 	 * Computes the two lines that would be required to
@@ -304,20 +304,85 @@ public class ConvexUtil{
 	}
 	
 	//first points are left most by game invariant
-	public static final List<List<Point2D>> computePocketLids(List<Point2D> first, List<Point2D> second){
-		//TODO for certain cases of co linearity the two calipers can overlap, this needs to be handled
-		
+	//ref: http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Plante/CompGeomProject-EPlante/algorithm.html
+	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second) throws IllegalStateException{
+		Point2D[] lines = new Point2D[4];
+		int found = 0;
 		int lidx = 0;
 		int ridx = 0;
-		boolean isLeft = true;
-		
-		if(angleFromVertical(first.get(lidx), first.get(lidx + 1)) < angleFromVertical(second.get(ridx), second.get(ridx + 1))){
+		int ccw = Line2D.relativeCCW(
+			first.get(0).getX(), first.get(0).getY(),
+			first.get(0).getX(), first.get(0).getY() - 1.0D,
+			second.get(0).getX(), second.get(0).getY()
+		);
+		int nccw = ccw;
+
+		while(true){
+			double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
+			double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
 			
+			//our angle needs to increase even if we arrive back at vertical at the end, so wrap 0 degrees to 360 degrees
+			if(lidx + ridx > 0){
+				if(nla == 0.0D){
+					nla = 2 * Math.PI;
+				}
+				if(nla == 0.0D){
+					nra = 2 * Math.PI;
+				}
+			}
+			
+			if(nla < nra){
+				//the first object provides the calliper line, the second only provides a point on its calliper
+				nccw = Line2D.relativeCCW(
+					first.get(lidx).getX(), first.get(lidx).getY(),
+					first.get((lidx + 1) % first.size()).getX(), first.get((lidx + 1) % first.size()).getY(),
+					second.get(ridx).getX(), second.get(ridx).getY()
+				);
+			}else{
+				//translate the calliper line to the other object
+				Point2D a = second.get(ridx);
+				Point2D b = second.get((ridx + 1) % second.size());
+				Point2D c = first.get(lidx);
+				double dx = c.getX() - a.getX();
+				double dy = c.getY() - a.getY();
+				
+				nccw = Line2D.relativeCCW(
+					a.getX() + dx, a.getY() + dy,
+					b.getX() + dx, b.getY() + dy,
+					second.get(ridx).getX(), second.get(ridx).getY()
+				);
+			}
+			
+			if(nccw != 0 && nccw != ccw){
+				ccw = nccw;
+				
+				//skip over collinear points if they exist
+				if(found == 0){
+					lines[0] = checkCollinear(first.get(lidx), first.get((lidx + 1) % first.size()), second.get(ridx)) ? first.get((lidx + 1) % first.size()) : first.get(lidx);
+					lines[1] = second.get(ridx);
+					found++;
+				}else if(found == 1){
+					lines[2] = checkCollinear(second.get(ridx), second.get((ridx + 1) % second.size()), first.get(lidx)) ? second.get((ridx + 1) % second.size()) : second.get(ridx);
+					lines[3] = first.get(lidx);
+					found++;
+				}else{
+					throw new IllegalStateException("More than 2 merge lines found.");
+				}
+			}
+			
+			if(lidx == first.size() - 1 && ridx == second.size() - 1){
+				break;
+			}
+			
+			if(nla <= nra){
+				lidx++;
+			}
+			if(nla >= nra){
+				ridx++;
+			}
 		}
 		
-		
-		
-		return null;//TODO
+		return lines;
 	}
 	
 	public static final class TestScreen extends Screen{
@@ -390,8 +455,6 @@ public class ConvexUtil{
 			obj1.setAnimation(new CalliperAnimation(obj1));
 		}
 		
-		private int max = 0;
-
 		@Override
 		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 			super.renderMainInterface(g, width, height, null);
@@ -402,167 +465,41 @@ public class ConvexUtil{
 			obj1.runAnimation(g);
 			obj2.render(g);
 			
-			List<Point2D> first = obj1.getPoints();
-			List<Point2D> second = obj2.getPoints();
-
 			g.setStroke(new BasicStroke(1.0F));
-			
-			int lidx = 0;
-			int ridx = 0;
-			int ccw = Line2D.relativeCCW(
-				first.get(0).getX(), first.get(0).getY(),
-				first.get(0).getX(), first.get(0).getY() - 1.0D,
-				second.get(0).getX(), second.get(0).getY()
-			);
-			int nccw = ccw;
-			
-			Point2D[] lines = new Point2D[4];
-			int found = 0;
 
-			int i = 0;//TODO remove
-			while(i < max){
-				double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
-				double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
-				
-				//our angle needs to increase even if we arrive back at vertical at the end, so wrap 0 degrees to 360 degrees
-				if(lidx + ridx > 0){
-					if(nla == 0.0D){
-						nla = 2 * Math.PI;
-					}
-					if(nla == 0.0D){
-						nra = 2 * Math.PI;
-					}
-				}
-				
-				if(nla < nra){
-					//the first object provides the calliper line, the second only provides a point on its calliper
-					nccw = Line2D.relativeCCW(
-						first.get(lidx).getX(), first.get(lidx).getY(),
-						first.get((lidx + 1) % first.size()).getX(), first.get((lidx + 1) % first.size()).getY(),
-						second.get(ridx).getX(), second.get(ridx).getY()
-					);
-				}else{
-					//translate the calliper line to the other object
-					Point2D a = second.get(ridx);
-					Point2D b = second.get((ridx + 1) % second.size());
-					Point2D c = first.get(lidx);
-					double dx = c.getX() - a.getX();
-					double dy = c.getY() - a.getY();
-					
-					nccw = Line2D.relativeCCW(
-						a.getX() + dx, a.getY() + dy,
-						b.getX() + dx, b.getY() + dy,
-						second.get(ridx).getX(), second.get(ridx).getY()
-					);
-				}
-				
-				if(nccw != 0 && nccw != ccw){
-					ccw = nccw;
-					g.setColor(Color.MAGENTA);
-					
-					//skip over collinear points if they exist
-					if(found == 0){
-						lines[0] = checkCollinear(first.get(lidx), first.get((lidx + 1) % first.size()), second.get(ridx)) ? first.get((lidx + 1) % first.size()) : first.get(lidx);
-						lines[1] = second.get(ridx);
-						found++;
-						drawLineClosed(g, lines[0], lines[1]);
-					}else if(found == 1){
-						lines[2] = checkCollinear(second.get(ridx), second.get((ridx + 1) % second.size()), first.get(lidx)) ? second.get((ridx + 1) % second.size()) : second.get(ridx);
-						lines[3] = first.get(lidx);
-						found++;
-						drawLineClosed(g, lines[2], lines[3]);
-					}else{
-						throw new IllegalStateException("More than 2 merge lines found.");
-					}
-				}
-				
-				if(lidx == first.size() - 1 && ridx == second.size() - 1){
-					break;
-				}
-				
-				if(nla <= nra){
-					lidx++;
-				}
-				if(nla >= nra){
-					ridx++;
-				}
-				
-				i++;
-			}
-			
-			g.setColor(Color.BLUE);
-			drawLine(g, first.get(lidx), first.get((lidx + 1) % first.size()));
-			drawLine(g, second.get(ridx), second.get((ridx + 1) % second.size()));
-			
-			g.setColor(Color.ORANGE);
-			Point2D a = second.get(ridx);
-			Point2D b = second.get((ridx + 1) % second.size());
-			Point2D c = first.get(lidx);
-			double dx = c.getX() - a.getX();
-			double dy = c.getY() - a.getY();
-			
-			drawLine(
-				g,
-				a.getX() + dx, a.getY() + dy,
-				b.getX() + dx, b.getY() + dy
-			);
+			Point2D[] lines = computeMergeLines(obj1.getPoints(), obj2.getPoints());
+			g.setColor(Color.MAGENTA);
+			g.draw(new Line2D.Double(lines[0], lines[1]));
+			g.draw(new Line2D.Double(lines[2], lines[3]));
 		}
 		
-		private void drawLineClosed(Graphics2D g, double x1, double y1, double x2, double y2){
-			g.draw(new Line2D.Double(x1, y1, x2, y2));
-		}
-		
-		private void drawLineClosed(Graphics2D g, Point2D a, Point2D b){
-			g.draw(new Line2D.Double(a, b));
-		}
-		
-		private void drawLine(Graphics2D g, Point2D a, Point2D b){
-			drawLine(g, a.getX(), a.getY(), b.getX(), b.getY());
-		}
-		
-		private void drawLine(Graphics2D g, double x1, double y1, double x2, double y2){
-			double coef = (y2 - y1) / (x2 - x1);
-			double base = y1 - x1 * coef;
-			g.draw(new Line2D.Double(0.0D, base, 1600.0D, base + coef * 1600.0D));
-		}
-
 		@Override
 		protected boolean isLeftButtonEnabled(){
-			// TODO Auto-generated method stub
-			return true;
+			return false;
 		}
 
 		@Override
 		protected boolean isRightButtonEnabled(){
-			// TODO Auto-generated method stub
-			return true;
+			return false;
 		}
 
 		@Override
 		protected String getLeftButtonText(){
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		protected String getRightButtonText(){
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		protected void handleLeftButtonClick(){
-			// TODO Auto-generated method stub
-			max++;
 		}
 
 		@Override
 		protected void handleRightButtonClick(){
-			// TODO Auto-generated method stub
-			max--;
-
 		}
-		
 	}
 	
 	public static final double angleFromVertical(Line2D b){
