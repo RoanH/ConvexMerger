@@ -305,11 +305,8 @@ public class ConvexUtil{
 	
 	//first points are left most by game invariant
 	//ref: http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Plante/CompGeomProject-EPlante/algorithm.html
-	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second) throws IllegalStateException{
+	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
 		Point2D[] lines = new Point2D[4];
-		int found = 0;
-		int lidx = 0;
-		int ridx = 0;
 		int ccw = Line2D.relativeCCW(
 			first.get(0).getX(),
 			first.get(0).getY(),
@@ -319,14 +316,15 @@ public class ConvexUtil{
 			second.get(0).getY()
 		);
 		int nccw = ccw;
+		int lidx = 0;
+		int ridx = 0;
 
-		System.out.println("---");
-		while(true){
-			Point2D lp1 = first.get(lidx);
+		do{
+			Point2D lp1 = first.get(lidx % first.size());
 			Point2D lp2 = first.get((lidx + 1) % first.size());
-			Point2D rp1 = second.get(ridx);
+			Point2D rp1 = second.get(ridx % second.size());
 			Point2D rp2 = second.get((ridx + 1) % second.size());
-			
+
 			double nla = angleFromVertical(lp1, lp2);
 			double nra = angleFromVertical(rp1, rp2);
 			
@@ -340,7 +338,13 @@ public class ConvexUtil{
 				}
 			}
 			
-			if(nla < nra){
+			//compute relative calliper positions
+			if(nla <= nra){
+				lidx++;
+				if(nla >= nra){
+					ridx++;
+				}
+				
 				//the first object provides the calliper line, the second only provides a point on its calliper
 				nccw = Line2D.relativeCCW(
 					lp1.getX(),
@@ -351,6 +355,8 @@ public class ConvexUtil{
 					rp1.getY()
 				);
 			}else{
+				ridx++;
+
 				//translate the calliper line to the other object
 				nccw = Line2D.relativeCCW(
 					lp1.getX(),
@@ -362,66 +368,48 @@ public class ConvexUtil{
 				);
 			}
 			
-			System.out.println(lidx + " | " + ridx + " | " + nla + " | " + nra + " | " + ccw + " | " + nccw);
-			
-			if(nccw != 0 && nccw != ccw){
+			//record merge line if the relative calliper order changed
+			if(nccw != ccw){
 				ccw = nccw;
 				
 				//skip over collinear points if they exist
-				if(found == 0){
+				if(lines[0] == null){
 					lines[0] = checkCollinear(lp1, lp2, rp1) ? lp2 : lp1;
 					lines[1] = rp1;
-					found++;
-				}else if(found == 1){
+				}else{
 					lines[2] = checkCollinear(rp1, rp2, lp1) ? rp2 : rp1;
 					lines[3] = lp1;
-					found++;
-				}else{
-					throw new IllegalStateException("More than 2 merge lines found.");
+					break;
 				}
 			}
-			
-			
-			
-			if(lidx == first.size() - 1 && ridx == second.size() - 1){
-				break;
-			}
-			
-			if(nla <= nra){
-				lidx++;
-			}
-			if(nla >= nra){
-				ridx++;
-			}
-			
-		}
+		}while(lidx <= first.size() && ridx <= second.size());
 		
 		return lines;
 	}
 	
 	public static final class TestScreen extends Screen{
-		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(33, 118),
-			new Point2D.Double(57, 178),
-			new Point2D.Double(98, 236),
-			new Point2D.Double(180, 270),
-			new Point2D.Double(204, 171),
-			new Point2D.Double(175, 106),
-			new Point2D.Double(146, 77),
-			new Point2D.Double(116, 65),
-			new Point2D.Double(38, 70)
-		)));
-		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 116, 177),
-			new Point2D.Double(100 + 133, 212),
-			new Point2D.Double(100 + 263, 217),
-			new Point2D.Double(100 + 286, 150),
-			new Point2D.Double(100 + 281, 65),
-			new Point2D.Double(100 + 256, 24),
-			new Point2D.Double(100 + 219, 42),
-			new Point2D.Double(100 + 181, 71),
-			new Point2D.Double(100 + 133, 113)
-		)));
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(33, 118),
+//			new Point2D.Double(57, 178),
+//			new Point2D.Double(98, 236),
+//			new Point2D.Double(180, 270),
+//			new Point2D.Double(204, 171),
+//			new Point2D.Double(175, 106),
+//			new Point2D.Double(146, 77),
+//			new Point2D.Double(116, 65),
+//			new Point2D.Double(38, 70)
+//		)));
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(100 + 116, 177),
+//			new Point2D.Double(100 + 133, 212),
+//			new Point2D.Double(100 + 263, 217),
+//			new Point2D.Double(100 + 286, 150),
+//			new Point2D.Double(100 + 281, 65),
+//			new Point2D.Double(100 + 256, 24),
+//			new Point2D.Double(100 + 219, 42),
+//			new Point2D.Double(100 + 181, 71),
+//			new Point2D.Double(100 + 133, 113)
+//		)));n
 		private ConvexObject obj1n = new ConvexObject(computeConvexHull(Arrays.asList(
 			new Point2D.Double(30, 250),
 			new Point2D.Double(100, 100),
@@ -444,25 +432,25 @@ public class ConvexUtil{
 			new Point2D.Double(100 + 100, 200)
 			//,new Point2D.Double(100 + 50, 150)
 		)));
-//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			//new Point2D.Double(10, 150),
-//			new Point2D.Double(30, 200),
-//			new Point2D.Double(30, 100),
-//			new Point2D.Double(100, 100),
-//			new Point2D.Double(100, 200)
-//		)));
+		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+			//new Point2D.Double(10, 150),
+			new Point2D.Double(30, 200),
+			new Point2D.Double(30, 100),
+			new Point2D.Double(100, 100),
+			new Point2D.Double(100, 200)
+		)));
 //		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(100 + 30, 200),
 //			new Point2D.Double(100 + 30, 100),
 //			new Point2D.Double(100 + 100, 100),
 //			new Point2D.Double(100 + 100, 200)
 //		)));
-//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(30, 130 + 200),
-//			new Point2D.Double(30, 130 + 100),
-//			new Point2D.Double(100, 130 + 100),
-//			new Point2D.Double(100, 130 + 200)
-//		)));
+		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(30, 130 + 200),
+			new Point2D.Double(30, 130 + 100),
+			new Point2D.Double(100, 130 + 100),
+			new Point2D.Double(100, 130 + 200)
+		)));
 
 		public TestScreen(ConvexMerger context){
 			super(context);
