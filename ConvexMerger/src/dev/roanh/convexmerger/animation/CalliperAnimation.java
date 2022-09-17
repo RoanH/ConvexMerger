@@ -31,6 +31,7 @@ public class CalliperAnimation implements Animation{
 		long elapsed = System.currentTimeMillis() - start;
 		float angle = (float)((Math.PI * 2.0F * elapsed) / DURATION);
 		
+		//TODO track state to prevent wrapping on 0 for the last segment
 		Point2D base = points.get(0);
 		for(int i = 0; i < points.size(); i++){
 			if(ConvexUtil.angleFromVertical(points.get(i), points.get((i + 1) % points.size())) >= angle){

@@ -311,15 +311,24 @@ public class ConvexUtil{
 		int lidx = 0;
 		int ridx = 0;
 		int ccw = Line2D.relativeCCW(
-			first.get(0).getX(), first.get(0).getY(),
-			first.get(0).getX(), first.get(0).getY() - 1.0D,
-			second.get(0).getX(), second.get(0).getY()
+			first.get(0).getX(),
+			first.get(0).getY(),
+			first.get(0).getX(),
+			first.get(0).getY() - 1.0D,//initial vertical position
+			second.get(0).getX(),
+			second.get(0).getY()
 		);
 		int nccw = ccw;
 
+		System.out.println("---");
 		while(true){
-			double nla = angleFromVertical(first.get(lidx), first.get((lidx + 1) % first.size()));
-			double nra = angleFromVertical(second.get(ridx), second.get((ridx + 1) % second.size()));
+			Point2D lp1 = first.get(lidx);
+			Point2D lp2 = first.get((lidx + 1) % first.size());
+			Point2D rp1 = second.get(ridx);
+			Point2D rp2 = second.get((ridx + 1) % second.size());
+			
+			double nla = angleFromVertical(lp1, lp2);
+			double nra = angleFromVertical(rp1, rp2);
 			
 			//our angle needs to increase even if we arrive back at vertical at the end, so wrap 0 degrees to 360 degrees
 			if(lidx + ridx > 0){
@@ -334,41 +343,45 @@ public class ConvexUtil{
 			if(nla < nra){
 				//the first object provides the calliper line, the second only provides a point on its calliper
 				nccw = Line2D.relativeCCW(
-					first.get(lidx).getX(), first.get(lidx).getY(),
-					first.get((lidx + 1) % first.size()).getX(), first.get((lidx + 1) % first.size()).getY(),
-					second.get(ridx).getX(), second.get(ridx).getY()
+					lp1.getX(),
+					lp1.getY(),
+					lp2.getX(),
+					lp2.getY(),
+					rp1.getX(),
+					rp1.getY()
 				);
 			}else{
 				//translate the calliper line to the other object
-				Point2D a = second.get(ridx);
-				Point2D b = second.get((ridx + 1) % second.size());
-				Point2D c = first.get(lidx);
-				double dx = c.getX() - a.getX();
-				double dy = c.getY() - a.getY();
-				
 				nccw = Line2D.relativeCCW(
-					a.getX() + dx, a.getY() + dy,
-					b.getX() + dx, b.getY() + dy,
-					second.get(ridx).getX(), second.get(ridx).getY()
+					lp1.getX(),
+					lp1.getY(),
+					rp2.getX() + lp1.getX() - rp1.getX(), 
+					rp2.getY() + lp1.getY() - rp1.getY(),
+					rp1.getX(),
+					rp1.getY()
 				);
 			}
+			
+			System.out.println(lidx + " | " + ridx + " | " + nla + " | " + nra + " | " + ccw + " | " + nccw);
 			
 			if(nccw != 0 && nccw != ccw){
 				ccw = nccw;
 				
 				//skip over collinear points if they exist
 				if(found == 0){
-					lines[0] = checkCollinear(first.get(lidx), first.get((lidx + 1) % first.size()), second.get(ridx)) ? first.get((lidx + 1) % first.size()) : first.get(lidx);
-					lines[1] = second.get(ridx);
+					lines[0] = checkCollinear(lp1, lp2, rp1) ? lp2 : lp1;
+					lines[1] = rp1;
 					found++;
 				}else if(found == 1){
-					lines[2] = checkCollinear(second.get(ridx), second.get((ridx + 1) % second.size()), first.get(lidx)) ? second.get((ridx + 1) % second.size()) : second.get(ridx);
-					lines[3] = first.get(lidx);
+					lines[2] = checkCollinear(rp1, rp2, lp1) ? rp2 : rp1;
+					lines[3] = lp1;
 					found++;
 				}else{
 					throw new IllegalStateException("More than 2 merge lines found.");
 				}
 			}
+			
+			
 			
 			if(lidx == first.size() - 1 && ridx == second.size() - 1){
 				break;
@@ -380,6 +393,7 @@ public class ConvexUtil{
 			if(nla >= nra){
 				ridx++;
 			}
+			
 		}
 		
 		return lines;
@@ -408,11 +422,11 @@ public class ConvexUtil{
 			new Point2D.Double(100 + 181, 71),
 			new Point2D.Double(100 + 133, 113)
 		)));
-//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(30, 100),
-//			new Point2D.Double(100, 100),
-//			new Point2D.Double(100, 200)
-//		)));
+		private ConvexObject obj1n = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(30, 250),
+			new Point2D.Double(100, 100),
+			new Point2D.Double(100, 200)
+		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(30, 100),
 //			new Point2D.Double(100, 130),
@@ -424,12 +438,12 @@ public class ConvexUtil{
 //			new Point2D.Double(100, 200)
 //			//,new Point2D.Double(50, 150)
 //		)));
-//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(100 + 30, 100),
-//			new Point2D.Double(100 + 100, 110),
-//			new Point2D.Double(100 + 100, 200)
-//			//,new Point2D.Double(100 + 50, 150)
-//		)));
+		private ConvexObject obj2n = new ConvexObject(computeConvexHull(Arrays.asList(
+			new Point2D.Double(100 + 30, 100),
+			new Point2D.Double(100 + 100, 110),
+			new Point2D.Double(100 + 100, 200)
+			//,new Point2D.Double(100 + 50, 150)
+		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			//new Point2D.Double(10, 150),
 //			new Point2D.Double(30, 200),
@@ -462,7 +476,9 @@ public class ConvexUtil{
 			g.translate(0.0D, 800.0D);
 			g.scale(2.0D, -2.0D);
 			obj1.render(g);
-			obj1.runAnimation(g);
+			if(obj1.hasAnimation()){
+				obj1.runAnimation(g);
+			}
 			obj2.render(g);
 			
 			g.setStroke(new BasicStroke(1.0F));
@@ -470,7 +486,9 @@ public class ConvexUtil{
 			Point2D[] lines = computeMergeLines(obj1.getPoints(), obj2.getPoints());
 			g.setColor(Color.MAGENTA);
 			g.draw(new Line2D.Double(lines[0], lines[1]));
-			g.draw(new Line2D.Double(lines[2], lines[3]));
+			if(lines[2] != null){
+				g.draw(new Line2D.Double(lines[2], lines[3]));
+			}
 		}
 		
 		@Override
@@ -524,44 +542,44 @@ public class ConvexUtil{
 	}
 	
 	public static void main(String[] args){
-		System.out.println(Math.atan2(1, 0) + " / " + (Math.PI / 2));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, 10, 0)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(5, 5, 10, 10)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, -10, 0)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, -5, 5)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, 0, -10)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, -10, -10)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, 10, -10)
-		)));
-		System.out.println("---");
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, -10)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, -10)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, -10)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 0)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, 10)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 10)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, 0)));
-		System.out.println(Math.toDegrees(angleFromVertical(0, 200, 0, 0)));
+//		System.out.println(Math.atan2(1, 0) + " / " + (Math.PI / 2));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(0, 0, 10, 0)
+//		)));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(5, 5, 10, 10)
+//		)));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(0, 0, -10, 0)
+//		)));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(0, 0, -5, 5)
+//		)));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(0, 0, 0, -10)
+//		)));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(0, 0, -10, -10)
+//		)));
+//		System.out.println(Math.toDegrees(angleBetweenLines(
+//			new Line2D.Double(0, 0, 0, 10),
+//			new Line2D.Double(0, 0, 10, -10)
+//		)));
+//		System.out.println("---");
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, -10)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, -10)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, -10)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 0)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, 10)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 10)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, 0)));
+//		System.out.println(Math.toDegrees(angleFromVertical(0, 200, 0, 0)));
 		
 		Main.main(null);
 	}
