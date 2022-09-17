@@ -20,6 +20,7 @@ public class CalliperAnimation implements Animation{
 	private static final float DURATION = 10000.0F;
 	private long start;
 	private List<Point2D> points;
+	private int index = 0;
 	
 	public CalliperAnimation(ConvexObject obj){
 		points = obj.getPoints();
@@ -31,13 +32,13 @@ public class CalliperAnimation implements Animation{
 		long elapsed = System.currentTimeMillis() - start;
 		float angle = (float)((Math.PI * 2.0F * elapsed) / DURATION);
 		
-		//TODO track state to prevent wrapping on 0 for the last segment
-		Point2D base = points.get(0);
-		for(int i = 0; i < points.size(); i++){
-			if(ConvexUtil.angleFromVertical(points.get(i), points.get((i + 1) % points.size())) >= angle){
-				base = points.get(i);
+		Point2D base = points.get(index);
+		while(index < points.size() - 1){
+			if(ConvexUtil.angleFromVertical(points.get(index), points.get((index + 1) % points.size())) >= angle){
+				base = points.get(index);
 				break;
 			}
+			index++;
 		}
 		
 		//TODO customisation
