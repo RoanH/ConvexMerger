@@ -7,6 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Main;
@@ -306,6 +307,14 @@ public class ConvexUtil{
 	//first points are left most by game invariant
 	//ref: http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Plante/CompGeomProject-EPlante/algorithm.html
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
+		//ensure the first object has the bottom leftmost point
+		int cmp = Double.compare(first.get(0).getX(), second.get(0).getY());
+		if(cmp > 0 || (cmp == 0 && first.get(0).getY() >= second.get(0).getY())){
+			List<Point2D> tmp = first;
+			first = second;
+			second = tmp;
+		}
+		
 		Point2D[] lines = new Point2D[4];
 		int ccw = Line2D.relativeCCW(
 			first.get(0).getX(),
@@ -377,6 +386,7 @@ public class ConvexUtil{
 					lines[0] = checkCollinear(lp1, lp2, rp1) ? lp2 : lp1;
 					lines[1] = rp1;
 				}else{
+					assert lines[2] == null : "More than 2 merge lines found";
 					lines[2] = checkCollinear(rp1, rp2, lp1) ? rp2 : rp1;
 					lines[3] = lp1;
 					break;
@@ -384,7 +394,81 @@ public class ConvexUtil{
 			}
 		}while(lidx <= first.size() && ridx <= second.size());
 		
+		assert lines[0] != null && lines[1] != null && lines[2] != null && lines[3] != null : "Not enough merge lines found";
 		return lines;
+	}
+	
+	//merge line points have to be exact object references to the given hulls
+	//the output will not contain any colinear segments
+	//the first point in the output will be (bottom) leftmost
+	public static List<Point2D> mergeHulls(List<Point2D> first, List<Point2D> second, Point2D[] mergeLines){
+		//ensure the first object has the bottom leftmost point
+		if(second.contains(mergeLines[0])){
+			List<Point2D> tmp = first;
+			first = second;
+			second = tmp;
+		}
+		
+		List<Point2D> hull = new ArrayList<Point2D>();
+		Iterator<Point2D> iter1 = first.iterator();
+		Iterator<Point2D> iter2 = second.iterator();
+		Point2D p;
+		
+		//first object till merge line
+		do{
+			p = iter1.next();
+			if(hull.size() >= 2 && checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
+				hull.remove(hull.size() - 1);
+			}
+			hull.add(p);
+		}while(p != mergeLines[0]);
+		
+		//end of the first merge line
+		if(hull.size() >= 2 && checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[1])){
+			hull.remove(hull.size() - 1);
+		}
+		hull.add(mergeLines[1]);
+		
+		//skip to the end of first merge line on the second object
+		do{
+			p = iter2.next();
+		}while(p != mergeLines[1]);
+		
+		//add second object till second merge line
+		do{
+			p = iter2.next();
+			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[1])){
+				hull.remove(hull.size() - 1);
+			}
+			hull.add(p);
+		}while(p != mergeLines[2]);
+		
+		//end of the second merge line
+		if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[1])){
+			hull.remove(hull.size() - 1);
+		}
+		hull.add(mergeLines[3]);
+		
+		//skip to the end of the second merge line on the first object
+		do{
+			p = iter1.next();
+		}while(p != mergeLines[3]);
+		
+		//add remainder of the first object
+		while(iter1.hasNext()){
+			p = iter1.next();
+			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
+				hull.remove(hull.size() - 1);
+			}
+			hull.add(p);
+		}
+
+		//check for collinearity with respect to the start
+		if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), hull.get(0))){
+			hull.remove(hull.size() - 1);
+		}
+
+		return hull;
 	}
 	
 	public static final class TestScreen extends Screen{

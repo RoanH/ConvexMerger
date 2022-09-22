@@ -214,8 +214,10 @@ public class ConvexObject implements Identity, Serializable{
 		combined.addAll(points);
 		combined.addAll(other.getPoints());
 		
+		//TODO remove hull
 		List<Point2D> hull = ConvexUtil.computeConvexHull(combined);
-		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
+		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
+		//Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
 		
 		if(state != null){
 			//check if the new hull is valid
