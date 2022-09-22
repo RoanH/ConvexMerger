@@ -437,22 +437,22 @@ public class ConvexUtil{
 		//add second object till second merge line
 		do{
 			p = iter2.next();
-			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[1])){
+			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
 				hull.remove(hull.size() - 1);
 			}
 			hull.add(p);
 		}while(p != mergeLines[2]);
 		
 		//end of the second merge line
-		if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[1])){
+		if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[3])){
 			hull.remove(hull.size() - 1);
 		}
 		hull.add(mergeLines[3]);
 		
 		//skip to the end of the second merge line on the first object
-		do{
+		while(iter1.hasNext() && p != mergeLines[3]){
 			p = iter1.next();
-		}while(p != mergeLines[3]);
+		}
 		
 		//add remainder of the first object
 		while(iter1.hasNext()){
@@ -493,12 +493,12 @@ public class ConvexUtil{
 //			new Point2D.Double(100 + 219, 42),
 //			new Point2D.Double(100 + 181, 71),
 //			new Point2D.Double(100 + 133, 113)
-//		)));n
-		private ConvexObject obj1n = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(30, 250),
-			new Point2D.Double(100, 100),
-			new Point2D.Double(100, 200)
-		)));
+//		)));
+//		private ConvexObject obj1n = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(30, 250),
+//			new Point2D.Double(100, 100),
+//			new Point2D.Double(100, 200)
+//		)));
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(30, 100),
 //			new Point2D.Double(100, 130),
@@ -510,12 +510,31 @@ public class ConvexUtil{
 //			new Point2D.Double(100, 200)
 //			//,new Point2D.Double(50, 150)
 //		)));
-		private ConvexObject obj2n = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 30, 100),
-			new Point2D.Double(100 + 100, 110),
-			new Point2D.Double(100 + 100, 200)
-			//,new Point2D.Double(100 + 50, 150)
-		)));
+//		private ConvexObject obj2n = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(100 + 30, 100),
+//			new Point2D.Double(100 + 100, 110),
+//			new Point2D.Double(100 + 100, 200)
+//			//,new Point2D.Double(100 + 50, 150)
+//		)));
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			//new Point2D.Double(10, 150),
+//			new Point2D.Double(30, 200),
+//			new Point2D.Double(30, 100),
+//			new Point2D.Double(100, 100),
+//			new Point2D.Double(100, 200)
+//		)));
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(100 + 30, 200),
+//			new Point2D.Double(100 + 30, 100),
+//			new Point2D.Double(100 + 100, 100),
+//			new Point2D.Double(100 + 100, 200)
+//		)));
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(30, 130 + 200),
+//			new Point2D.Double(30, 130 + 100),
+//			new Point2D.Double(100, 130 + 100),
+//			new Point2D.Double(100, 130 + 200)
+//		)));
 		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 			//new Point2D.Double(10, 150),
 			new Point2D.Double(30, 200),
@@ -523,17 +542,11 @@ public class ConvexUtil{
 			new Point2D.Double(100, 100),
 			new Point2D.Double(100, 200)
 		)));
-//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-//			new Point2D.Double(100 + 30, 200),
-//			new Point2D.Double(100 + 30, 100),
-//			new Point2D.Double(100 + 100, 100),
-//			new Point2D.Double(100 + 100, 200)
-//		)));
 		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(30, 130 + 200),
-			new Point2D.Double(30, 130 + 100),
-			new Point2D.Double(100, 130 + 100),
-			new Point2D.Double(100, 130 + 200)
+			new Point2D.Double(100 + 30, 200),
+			new Point2D.Double(100 + 30, 100),
+			new Point2D.Double(100 + 100, 100),
+			new Point2D.Double(100 + 100, 200)
 		)));
 
 		public TestScreen(ConvexMerger context){
@@ -545,8 +558,8 @@ public class ConvexUtil{
 		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 			super.renderMainInterface(g, width, height, null);
 
-			g.translate(0.0D, 800.0D);
-			g.scale(2.0D, -2.0D);
+			g.translate(0.0D, 400.0D);
+			g.scale(1.0D, -1.0D);
 			obj1.render(g);
 			if(obj1.hasAnimation()){
 				obj1.runAnimation(g);
@@ -561,6 +574,10 @@ public class ConvexUtil{
 			if(lines[2] != null){
 				g.draw(new Line2D.Double(lines[2], lines[3]));
 			}
+			
+			ConvexObject merged = new ConvexObject(mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
+			g.translate(600, 0);
+			merged.render(g);
 		}
 		
 		@Override

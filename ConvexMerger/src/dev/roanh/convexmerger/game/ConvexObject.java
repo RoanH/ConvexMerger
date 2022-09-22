@@ -215,7 +215,7 @@ public class ConvexObject implements Identity, Serializable{
 		combined.addAll(other.getPoints());
 		
 		//TODO remove hull
-		List<Point2D> hull = ConvexUtil.computeConvexHull(combined);
+		//List<Point2D> hull = ConvexUtil.computeConvexHull(combined);
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		//Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
 		
@@ -228,7 +228,7 @@ public class ConvexObject implements Identity, Serializable{
 			}
 		}
 		
-		return new ConvexObject(hull);
+		return new ConvexObject(ConvexUtil.mergeHulls(points, other.getPoints(), lines));
 	}
 	
 	/**
