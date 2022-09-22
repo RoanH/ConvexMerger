@@ -435,13 +435,13 @@ public class ConvexUtil{
 		}while(p != mergeLines[1]);
 		
 		//add second object till second merge line
-		do{
+		while(p != mergeLines[2]){
 			p = iter2.next();
 			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
 				hull.remove(hull.size() - 1);
 			}
 			hull.add(p);
-		}while(p != mergeLines[2]);
+		}
 		
 		//end of the second merge line
 		if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[3])){
@@ -537,16 +537,15 @@ public class ConvexUtil{
 //		)));
 		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 			//new Point2D.Double(10, 150),
-			new Point2D.Double(30, 200),
+			new Point2D.Double(50, -200),
 			new Point2D.Double(30, 100),
 			new Point2D.Double(100, 100),
-			new Point2D.Double(100, 200)
+			new Point2D.Double(100, 300)
 		)));
 		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 30, 200),
+			new Point2D.Double(100 + 50, 140),
 			new Point2D.Double(100 + 30, 100),
-			new Point2D.Double(100 + 100, 100),
-			new Point2D.Double(100 + 100, 200)
+			new Point2D.Double(100 + 300, 150)
 		)));
 
 		public TestScreen(ConvexMerger context){
@@ -575,9 +574,13 @@ public class ConvexUtil{
 				g.draw(new Line2D.Double(lines[2], lines[3]));
 			}
 			
-			ConvexObject merged = new ConvexObject(mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
-			g.translate(600, 0);
-			merged.render(g);
+			try{
+				ConvexObject merged = new ConvexObject(mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
+				g.translate(600, 0);
+				merged.render(g);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 		
 		@Override
