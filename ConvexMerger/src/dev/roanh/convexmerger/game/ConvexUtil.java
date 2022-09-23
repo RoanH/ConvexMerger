@@ -337,14 +337,12 @@ public class ConvexUtil{
 			double nla = angleFromVertical(lp1, lp2);
 			double nra = angleFromVertical(rp1, rp2);
 			
-			//our angle needs to increase even if we arrive back at vertical at the end, so wrap 0 degrees to 360 degrees
-			if(lidx + ridx > 0){
-				if(nla == 0.0D){
-					nla = 2 * Math.PI;
-				}
-				if(nla == 0.0D){
-					nra = 2 * Math.PI;
-				}
+			//our angle needs to increase even if we pass the vertical at the end
+			if(lidx >= first.size() && nla <= Math.PI){
+				nla += 2.0D * Math.PI;
+			}
+			if(ridx >= second.size() && nra <= Math.PI){
+				nra += 2.0D * Math.PI;
 			}
 			
 			//compute relative calliper positions
@@ -563,6 +561,7 @@ public class ConvexUtil{
 		public TestScreen(ConvexMerger context){
 			super(context);
 			obj1.setAnimation(new CalliperAnimation(obj1));
+			obj2.setAnimation(new CalliperAnimation(obj2));
 		}
 		
 		@Override
@@ -576,9 +575,17 @@ public class ConvexUtil{
 				obj1.runAnimation(g);
 			}
 			obj2.render(g);
+			if(obj2.hasAnimation()){
+				obj2.runAnimation(g);
+			}
+			
 			g.setColor(Color.RED);
 			g.fillOval((int)obj1.getPoints().get(0).getX() - 2, (int)obj1.getPoints().get(0).getY() - 2, 4, 4);
 			g.fillOval((int)obj2.getPoints().get(0).getX() - 2, (int)obj2.getPoints().get(0).getY() - 2, 4, 4);
+			
+			g.setColor(Color.BLUE);
+			g.draw(new Line2D.Double(obj1.getPoints().get(0), obj1.getPoints().get(1)));
+			g.draw(new Line2D.Double(obj2.getPoints().get(0), obj2.getPoints().get(1)));
 
 			
 			g.setStroke(new BasicStroke(1.0F));
@@ -601,12 +608,12 @@ public class ConvexUtil{
 		
 		@Override
 		protected boolean isLeftButtonEnabled(){
-			return false;
+			return true;
 		}
 
 		@Override
 		protected boolean isRightButtonEnabled(){
-			return false;
+			return true;
 		}
 
 		@Override
@@ -621,10 +628,12 @@ public class ConvexUtil{
 
 		@Override
 		protected void handleLeftButtonClick(){
+			//CalliperAnimation.elap += 10;
 		}
 
 		@Override
 		protected void handleRightButtonClick(){
+			//CalliperAnimation.elap -= 10;
 		}
 	}
 	
