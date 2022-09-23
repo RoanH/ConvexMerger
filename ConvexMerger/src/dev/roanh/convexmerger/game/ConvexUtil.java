@@ -308,7 +308,7 @@ public class ConvexUtil{
 	//ref: http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Plante/CompGeomProject-EPlante/algorithm.html
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
 		//ensure the first object has the bottom leftmost point
-		int cmp = Double.compare(first.get(0).getX(), second.get(0).getY());
+		int cmp = Double.compare(first.get(0).getX(), second.get(0).getX());
 		if(cmp > 0 || (cmp == 0 && first.get(0).getY() >= second.get(0).getY())){
 			List<Point2D> tmp = first;
 			first = second;
@@ -408,16 +408,19 @@ public class ConvexUtil{
 		}
 		
 		List<Point2D> hull = new ArrayList<Point2D>();
-		Iterator<Point2D> iter1 = first.iterator();
-		Iterator<Point2D> iter2 = second.iterator();
+		int lidx = 0;
+		int ridx = 0;
 		Point2D p;
 		
 		//first object till merge line
 		do{
-			p = iter1.next();
+			p = first.get(lidx);
+			lidx++;
+			
 			if(hull.size() >= 2 && checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
 				hull.remove(hull.size() - 1);
 			}
+			
 			hull.add(p);
 		}while(p != mergeLines[0]);
 		
@@ -429,35 +432,48 @@ public class ConvexUtil{
 		
 		//skip to the end of first merge line on the second object
 		do{
-			p = iter2.next();
+			p = second.get(ridx);
+			ridx++;
 		}while(p != mergeLines[1]);
+		if(ridx == second.size()){
+			ridx = 0;
+		}
 		
 		//add second object till second merge line
 		while(p != mergeLines[2]){
-			p = iter2.next();
+			p = second.get(ridx);
+			ridx = ridx == second.size() - 1 ? 0 : ridx + 1;
+			
 			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
 				hull.remove(hull.size() - 1);
 			}
+			
 			hull.add(p);
 		}
 		
 		//end of the second merge line
-		if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[3])){
-			hull.remove(hull.size() - 1);
+		if(hull.get(0) != mergeLines[3]){
+			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), mergeLines[3])){
+				hull.remove(hull.size() - 1);
+			}
+			hull.add(mergeLines[3]);
 		}
-		hull.add(mergeLines[3]);
 		
 		//skip to the end of the second merge line on the first object
-		while(iter1.hasNext() && p != mergeLines[3]){
-			p = iter1.next();
+		lidx--;
+		while(lidx < first.size() && first.get(lidx) != mergeLines[3]){
+			lidx++;
 		}
 		
 		//add remainder of the first object
-		while(iter1.hasNext()){
-			p = iter1.next();
+		while(lidx < first.size()){
+			p = first.get(lidx);
+			lidx++;
+			
 			if(checkCollinear(hull.get(hull.size() - 2), hull.get(hull.size() - 1), p)){
 				hull.remove(hull.size() - 1);
 			}
+			
 			hull.add(p);
 		}
 
