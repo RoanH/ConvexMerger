@@ -7,13 +7,16 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 import dev.roanh.convexmerger.Main;
 import dev.roanh.convexmerger.animation.CalliperAnimation;
+import dev.roanh.convexmerger.animation.MergeAnimation;
+import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
+import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Class containing various utilities related
@@ -485,6 +488,39 @@ public class ConvexUtil{
 		return hull;
 	}
 	
+	public static boolean checkInvariants(List<Point2D> points){
+		//no collinearity
+		for(int i = 0; i < points.size(); i++){
+			if(checkCollinear(points.get(i), points.get((i + 1) % points.size()), points.get((i + 2) % points.size()))){
+				System.err.println("Points are colinear around indices: " + i + "-" + (i + 2));
+				return false;
+			}
+		}
+		
+		//initial point is bottom left most
+		Point2D min = points.get(0);
+		for(int i = 1; i < points.size(); i++){
+			int cmp = Double.compare(min.getX(), points.get(i).getX());
+			if(cmp > 0 || (cmp == 0 && min.getY() >= points.get(i).getY())){
+				System.err.println("Minimum point not minimal: p=" + points.get(i) + ", min=" + min);
+				return false;
+			}
+		}
+		
+		//the object is convex
+		for(int i = 0; i < points.size(); i++){
+			Point2D a = points.get(i);
+			Point2D b = points.get((i + 1) % points.size());
+			Point2D c = points.get((i + 2) % points.size());
+			if(Line2D.relativeCCW(a.getX(), a.getY(), c.getX(), c.getY(), b.getX(), b.getY()) == -1){
+				System.err.println("Object is not convex around indices: " + i + "-" + (i + 2));
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public static final class TestScreen extends Screen{
 //		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
 //			new Point2D.Double(33, 118),
@@ -573,11 +609,14 @@ public class ConvexUtil{
 			new Point2D.Double(198.81675486507993, 519.4788976533539),
 			new Point2D.Double(148.62067561092954, 612.0279187781937)
 		));
+		private ConvexObject m = null;
 				
 		public TestScreen(ConvexMerger context){
 			super(context);
 			obj1.setAnimation(new CalliperAnimation(obj1));
 			obj2.setAnimation(new CalliperAnimation(obj2));
+			obj1.setOwner(new HumanPlayer("Test"));
+			obj1.getOwner().init(null, PlayerTheme.P1);
 		}
 		
 		@Override
@@ -617,6 +656,18 @@ public class ConvexUtil{
 				ConvexObject merged = new ConvexObject(mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 				g.translate(600, 0);
 				merged.render(g);
+				
+				if(m == null){
+					m = merged;
+					m.setAnimation(new MergeAnimation(obj1, obj2, m, Collections.emptyList()));
+				}
+				
+				g.translate(0, -400);
+				if(m.hasAnimation()){
+					m.runAnimation(g);
+				}else{
+					m.render(g);
+				}
 			}catch(Exception e){
 				e.printStackTrace();
 			}

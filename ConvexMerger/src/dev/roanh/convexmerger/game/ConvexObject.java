@@ -112,6 +112,7 @@ public class ConvexObject implements Identity, Serializable{
 	 */
 	public ConvexObject(List<Point2D> data){
 		points = data;
+		assert ConvexUtil.checkInvariants(data) : "Game invariants violated for convex objects";
 		constructShape(data.size());
 	}
 	

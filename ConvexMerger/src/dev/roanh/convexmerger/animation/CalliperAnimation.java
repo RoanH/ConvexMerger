@@ -27,6 +27,7 @@ public class CalliperAnimation implements Animation{
 		start = System.currentTimeMillis();
 	}
 
+	//TODO not showing the end properly yet
 	@Override
 	public boolean run(Graphics2D g){
 		long elapsed = System.currentTimeMillis() - start;
