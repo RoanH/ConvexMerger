@@ -13,6 +13,7 @@ before_script:
 stages:
   - check
   - compile
+  - test
   - status
   - javadoc
 
