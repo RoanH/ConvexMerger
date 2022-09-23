@@ -4,6 +4,7 @@ plugins{
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'edu.sc.seis.launch4j' version '2.5.1'
+	id 'jacoco'
 }
 
 sourceSets{
