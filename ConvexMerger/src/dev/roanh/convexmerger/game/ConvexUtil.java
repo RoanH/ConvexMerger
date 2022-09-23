@@ -535,19 +535,31 @@ public class ConvexUtil{
 //			new Point2D.Double(100, 130 + 100),
 //			new Point2D.Double(100, 130 + 200)
 //		)));
-		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
-			//new Point2D.Double(10, 150),
-			new Point2D.Double(50, -200),
-			new Point2D.Double(30, 100),
-			new Point2D.Double(100, 100),
-			new Point2D.Double(100, 300)
-		)));
-		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
-			new Point2D.Double(100 + 50, 140),
-			new Point2D.Double(100 + 30, 100),
-			new Point2D.Double(100 + 300, 150)
-		)));
-
+//		private ConvexObject obj1 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			//new Point2D.Double(10, 150),
+//			new Point2D.Double(50, -200),
+//			new Point2D.Double(30, 100),
+//			new Point2D.Double(100, 100),
+//			new Point2D.Double(100, 300)
+//		)));
+//		private ConvexObject obj2 = new ConvexObject(computeConvexHull(Arrays.asList(
+//			new Point2D.Double(100 + 50, 140),
+//			new Point2D.Double(100 + 30, 100),
+//			new Point2D.Double(100 + 300, 150)
+//		)));
+		private ConvexObject obj1 = new ConvexObject(Arrays.asList(
+			new Point2D.Double(68.13547921930717, 823.6810526743893),
+			new Point2D.Double(71.27273417269157, 695.053599585629),
+			new Point2D.Double(209.31195212160515, 690.3477171555523),
+			new Point2D.Double(172.44920641933845, 816.6222290292744)
+		));
+		private ConvexObject obj2 = new ConvexObject(Arrays.asList(
+			new Point2D.Double(48.22851710262876, 607.3220363481171),
+			new Point2D.Double(68.62067429962735, 477.12595578266445),
+			new Point2D.Double(198.81675486507993, 519.4788976533539),
+			new Point2D.Double(148.62067561092954, 612.0279187781937)
+		));
+				
 		public TestScreen(ConvexMerger context){
 			super(context);
 			obj1.setAnimation(new CalliperAnimation(obj1));
@@ -557,24 +569,28 @@ public class ConvexUtil{
 		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 			super.renderMainInterface(g, width, height, null);
 
-			g.translate(0.0D, 400.0D);
-			g.scale(1.0D, -1.0D);
+//			g.translate(0.0D, 400.0D);
+//			g.scale(1.0D, -1.0D);
 			obj1.render(g);
 			if(obj1.hasAnimation()){
 				obj1.runAnimation(g);
 			}
 			obj2.render(g);
+			g.setColor(Color.RED);
+			g.fillOval((int)obj1.getPoints().get(0).getX() - 2, (int)obj1.getPoints().get(0).getY() - 2, 4, 4);
+			g.fillOval((int)obj2.getPoints().get(0).getX() - 2, (int)obj2.getPoints().get(0).getY() - 2, 4, 4);
+
 			
 			g.setStroke(new BasicStroke(1.0F));
 
-			Point2D[] lines = computeMergeLines(obj1.getPoints(), obj2.getPoints());
-			g.setColor(Color.MAGENTA);
-			g.draw(new Line2D.Double(lines[0], lines[1]));
-			if(lines[2] != null){
-				g.draw(new Line2D.Double(lines[2], lines[3]));
-			}
-			
 			try{
+				Point2D[] lines = computeMergeLines(obj1.getPoints(), obj2.getPoints());
+				g.setColor(Color.MAGENTA);
+				g.draw(new Line2D.Double(lines[0], lines[1]));
+				if(lines[2] != null){
+					g.draw(new Line2D.Double(lines[2], lines[3]));
+				}
+				
 				ConvexObject merged = new ConvexObject(mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 				g.translate(600, 0);
 				merged.render(g);
