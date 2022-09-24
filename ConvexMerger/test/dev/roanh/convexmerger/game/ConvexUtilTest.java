@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class ConvexUtilTest{
 
 	@Test
-	public void normalTest(){
+	public void normalMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(33, 118),
@@ -39,7 +39,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void endPointTest(){
+	public void endPointMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(30, 250),
@@ -55,7 +55,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void parallelTest(){
+	public void parallelMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(30, 100),
@@ -72,7 +72,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void horizontalBoxColinTest(){
+	public void horizontalBoxColinMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(30, 200),
@@ -90,7 +90,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void verticalBoxColinTest(){
+	public void verticalBoxColinMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(30, 200),
@@ -108,7 +108,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void mergeLineOverlapTest(){
+	public void mergeLineOverlapMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(50, -200),
@@ -125,7 +125,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void overflowTest(){
+	public void overflowMergeTest(){
 		mergeTest(
 			new ConvexObject(Arrays.asList(
 				new Point2D.Double(68.13547921930717, 823.6810526743893),
@@ -143,7 +143,7 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
-	public void earlyVerticalTest(){
+	public void earlyVerticalMergeTest(){
 		mergeTest(
 			new ConvexObject(Arrays.asList(
 				new Point2D.Double(866.2229972503868, 367.14396161730934),
@@ -156,6 +156,26 @@ public class ConvexUtilTest{
 				new Point2D.Double(1123.8087202568558, 261.91426710229786),
 				new Point2D.Double(1131.6518576403168, 351.32603327375324),
 				new Point2D.Double(1079.1028371711282, 389.75740645271213)
+			))
+		);
+	}
+	
+	@Test
+	public void leftSinglePointMergeTest(){
+		mergeTest(
+			new ConvexObject(Arrays.asList(
+				new Point2D.Double(1020.2946945766233, 336.08131352685535),
+				new Point2D.Double(1145.4590573351688, 147.65612980830525),
+				new Point2D.Double(1259.1845493953533, 109.22475662934636),
+				new Point2D.Double(1282.7139615457363, 223.73456242787694),
+				new Point2D.Double(1096.3731271961951, 378.43425539754475),
+				new Point2D.Double(1041.4711655119681, 376.86562792085255)
+			)),
+			new ConvexObject(Arrays.asList(
+				new Point2D.Double(982.9658142458002, 193.4409184196394),
+				new Point2D.Double(1059.0442468653719, 178.5389573910635),
+				new Point2D.Double(1093.5540513526003, 220.89189926175288),
+				new Point2D.Double(1020.612873686413, 255.40170374898128)
 			))
 		);
 	}

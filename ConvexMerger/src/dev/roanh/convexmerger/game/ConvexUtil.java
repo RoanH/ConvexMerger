@@ -463,7 +463,6 @@ public class ConvexUtil{
 		}
 		
 		//skip to the end of the second merge line on the first object
-		lidx--;
 		while(lidx < first.size() && first.get(lidx) != mergeLines[3]){
 			lidx++;
 		}
@@ -489,6 +488,12 @@ public class ConvexUtil{
 	}
 	
 	public static boolean checkInvariants(List<Point2D> points){
+		//check if it's an actual object
+		if(points.size() < 3){
+			System.err.println("The object has no interior");
+			return false;
+		}
+		
 		//no collinearity
 		for(int i = 0; i < points.size(); i++){
 			if(checkCollinear(points.get(i), points.get((i + 1) % points.size()), points.get((i + 2) % points.size()))){
@@ -523,16 +528,18 @@ public class ConvexUtil{
 	
 	public static final class TestScreen extends Screen{
 		private ConvexObject obj1 = new ConvexObject(Arrays.asList(
-			new Point2D.Double(866.2229972503868, 367.14396161730934),
-			new Point2D.Double(943.8700573466507, 331.84984339173485),
-			new Point2D.Double(972.8896656654564, 436.94788433011223),
-			new Point2D.Double(907.7916253827301, 482.438081154186)
+			new Point2D.Double(1020.2946945766233, 336.08131352685535),
+			new Point2D.Double(1145.4590573351688, 147.65612980830525),
+			new Point2D.Double(1259.1845493953533, 109.22475662934636),
+			new Point2D.Double(1282.7139615457363, 223.73456242787694),
+			new Point2D.Double(1096.3731271961951, 378.43425539754475),
+			new Point2D.Double(1041.4711655119681, 376.86562792085255)
 		));
 		private ConvexObject obj2 = new ConvexObject(Arrays.asList(
-			new Point2D.Double(1079.1028371711282, 322.30642495494754),
-			new Point2D.Double(1123.8087202568558, 261.91426710229786),
-			new Point2D.Double(1131.6518576403168, 351.32603327375324),
-			new Point2D.Double(1079.1028371711282, 389.75740645271213)
+			new Point2D.Double(982.9658142458002, 193.4409184196394),
+			new Point2D.Double(1059.0442468653719, 178.5389573910635),
+			new Point2D.Double(1093.5540513526003, 220.89189926175288),
+			new Point2D.Double(1020.612873686413, 255.40170374898128)
 		));
 		private ConvexObject m = null;
 				
