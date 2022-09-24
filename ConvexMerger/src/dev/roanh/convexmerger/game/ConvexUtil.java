@@ -341,10 +341,10 @@ public class ConvexUtil{
 			double nra = angleFromVertical(rp1, rp2);
 			
 			//our angle needs to increase even if we pass the vertical at the end
-			if(lidx >= first.size() && nla <= Math.PI){
+			if(lidx >= first.size() - 1 && nla <= Math.PI){
 				nla += 2.0D * Math.PI;
 			}
-			if(ridx >= second.size() && nra <= Math.PI){
+			if(ridx >= second.size() - 1 && nra <= Math.PI){
 				nra += 2.0D * Math.PI;
 			}
 			
@@ -522,18 +522,17 @@ public class ConvexUtil{
 	}
 	
 	public static final class TestScreen extends Screen{
-		//already moved to unit tests
 		private ConvexObject obj1 = new ConvexObject(Arrays.asList(
-			new Point2D.Double(68.13547921930717, 823.6810526743893),
-			new Point2D.Double(71.27273417269157, 695.053599585629),
-			new Point2D.Double(209.31195212160515, 690.3477171555523),
-			new Point2D.Double(172.44920641933845, 816.6222290292744)
+			new Point2D.Double(866.2229972503868, 367.14396161730934),
+			new Point2D.Double(943.8700573466507, 331.84984339173485),
+			new Point2D.Double(972.8896656654564, 436.94788433011223),
+			new Point2D.Double(907.7916253827301, 482.438081154186)
 		));
 		private ConvexObject obj2 = new ConvexObject(Arrays.asList(
-			new Point2D.Double(48.22851710262876, 607.3220363481171),
-			new Point2D.Double(68.62067429962735, 477.12595578266445),
-			new Point2D.Double(198.81675486507993, 519.4788976533539),
-			new Point2D.Double(148.62067561092954, 612.0279187781937)
+			new Point2D.Double(1079.1028371711282, 322.30642495494754),
+			new Point2D.Double(1123.8087202568558, 261.91426710229786),
+			new Point2D.Double(1131.6518576403168, 351.32603327375324),
+			new Point2D.Double(1079.1028371711282, 389.75740645271213)
 		));
 		private ConvexObject m = null;
 				
@@ -549,6 +548,7 @@ public class ConvexUtil{
 		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
 			super.renderMainInterface(g, width, height, null);
 
+			g.translate(-600, 400);
 //			g.translate(0.0D, 400.0D);
 //			g.scale(1.0D, -1.0D);
 			obj1.render(g);
@@ -560,14 +560,13 @@ public class ConvexUtil{
 				obj2.runAnimation(g);
 			}
 			
-			g.setColor(Color.RED);
-			g.fillOval((int)obj1.getPoints().get(0).getX() - 2, (int)obj1.getPoints().get(0).getY() - 2, 4, 4);
-			g.fillOval((int)obj2.getPoints().get(0).getX() - 2, (int)obj2.getPoints().get(0).getY() - 2, 4, 4);
-			
 			g.setColor(Color.BLUE);
 			g.draw(new Line2D.Double(obj1.getPoints().get(0), obj1.getPoints().get(1)));
 			g.draw(new Line2D.Double(obj2.getPoints().get(0), obj2.getPoints().get(1)));
 
+			g.setColor(Color.RED);
+			g.fillOval((int)obj1.getPoints().get(0).getX() - 2, (int)obj1.getPoints().get(0).getY() - 2, 4, 4);
+			g.fillOval((int)obj2.getPoints().get(0).getX() - 2, (int)obj2.getPoints().get(0).getY() - 2, 4, 4);
 			
 			g.setStroke(new BasicStroke(1.0F));
 
@@ -594,8 +593,8 @@ public class ConvexUtil{
 				}else{
 					m.render(g);
 				}
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception | AssertionError e){
+				//e.printStackTrace();
 			}
 		}
 		

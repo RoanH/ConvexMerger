@@ -143,6 +143,24 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
+	public void earlyVerticalTest(){
+		mergeTest(
+			new ConvexObject(Arrays.asList(
+				new Point2D.Double(866.2229972503868, 367.14396161730934),
+				new Point2D.Double(943.8700573466507, 331.84984339173485),
+				new Point2D.Double(972.8896656654564, 436.94788433011223),
+				new Point2D.Double(907.7916253827301, 482.438081154186)
+			)),
+			new ConvexObject(Arrays.asList(
+				new Point2D.Double(1079.1028371711282, 322.30642495494754),
+				new Point2D.Double(1123.8087202568558, 261.91426710229786),
+				new Point2D.Double(1131.6518576403168, 351.32603327375324),
+				new Point2D.Double(1079.1028371711282, 389.75740645271213)
+			))
+		);
+	}
+	
+	@Test
 	public void verticalAngleTest(){
 		assertEquals(0.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, 0, -10)));
 		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, -10, -10)));
