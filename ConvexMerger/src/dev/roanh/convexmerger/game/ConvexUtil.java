@@ -268,7 +268,7 @@ public class ConvexUtil{
 	 * @param y3 The y coordinate of the third point.
 	 * @return True if the given points are (close to) collinear.
 	 */
-	public static boolean checkCollinear(int x1, int y1, int x2, int y2, int x3, int y3){
+	public static final boolean checkCollinear(int x1, int y1, int x2, int y2, int x3, int y3){
 		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) == 0;
 	}
 	
@@ -279,7 +279,7 @@ public class ConvexUtil{
 	 * @param p3 The third point.
 	 * @return True if the given points are (close to) collinear.
 	 */
-	public static boolean checkCollinear(Point2D p1, Point2D p2, Point2D p3){
+	public static final boolean checkCollinear(Point2D p1, Point2D p2, Point2D p3){
 		return checkCollinear(p1.getX(), p1.getY(), p2.getX(), p2.getY(), p3.getX(), p3.getY());
 	}
 	
@@ -293,11 +293,9 @@ public class ConvexUtil{
 	 * @param y3 The y coordinate of the third point.
 	 * @return True if the given points are (close to) collinear.
 	 */
-	public static boolean checkCollinear(double x1, double y1, double x2, double y2, double x3, double y3){
+	public static final boolean checkCollinear(double x1, double y1, double x2, double y2, double x3, double y3){
 		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
 	}
-	
-	
 	
 	/**
 	 * Computes the two lines that would be required to
@@ -439,7 +437,7 @@ public class ConvexUtil{
 	 * @see #computeMergeLines(List, List)
 	 * @see #checkInvariants(List)
 	 */
-	public static List<Point2D> mergeHulls(List<Point2D> first, List<Point2D> second, Point2D[] mergeLines){
+	public static final List<Point2D> mergeHulls(List<Point2D> first, List<Point2D> second, Point2D[] mergeLines){
 		//ensure the first object has the bottom leftmost point
 		if(second.contains(mergeLines[0])){
 			List<Point2D> tmp = first;
@@ -541,7 +539,7 @@ public class ConvexUtil{
 	 * @param points The points that make up the convex object to test.
 	 * @return True if all invariants hold, false otherwise.
 	 */
-	public static boolean checkInvariants(List<Point2D> points){
+	public static final boolean checkInvariants(List<Point2D> points){
 		//check if it's an actual object
 		if(points.size() < 3){
 			System.err.println("The object has no interior");
