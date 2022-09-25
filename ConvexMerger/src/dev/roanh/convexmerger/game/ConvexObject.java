@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -211,14 +210,7 @@ public class ConvexObject implements Identity, Serializable{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
-		List<Point2D> combined = new ArrayList<Point2D>();
-		combined.addAll(points);
-		combined.addAll(other.getPoints());
-		
-		//TODO remove hull
-		//List<Point2D> hull = ConvexUtil.computeConvexHull(combined);
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
-		//Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
 		
 		if(state != null){
 			//check if the new hull is valid
