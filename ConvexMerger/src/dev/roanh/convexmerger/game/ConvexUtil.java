@@ -189,7 +189,7 @@ public class ConvexUtil{
 	 *        The points given here <b>must</b> be exact object
 	 *        references corresponding to points in the given objects.
 	 *        The first merge line has to be from the object with the
-	 *        bottom leftmost to the other object and the second line
+	 *        bottom leftmost to the other object and the second line.
 	 *        back from that object to the object with the bottom leftmost point.
 	 * @return The specific segments, index 0 has the part of the
 	 *         first object that would be contained inside the
@@ -427,9 +427,30 @@ public class ConvexUtil{
 		return lines;
 	}
 	
-	//merge line points have to be exact object references to the given hulls
-	//the output will not contain any colinear segments
-	//the first point in the output will be (bottom) leftmost
+	/**
+	 * Merges the two given convex objects into a joint convex hull
+	 * encompassing all points in both original objects. The output
+	 * convex hull will not contain any collinear segments on its
+	 * border, will wind counter-clockwise, and its first point
+	 * will be bottom leftmost.
+	 * @param first The first convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
+	 * @param second The second convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
+	 * @param mergeLines The points describing the merge lines
+	 *        that would be added to merge the two objects as
+	 *        computed by {@link #computeMergeLines(List, List)}.
+	 *        The points given here <b>must</b> be exact object
+	 *        references corresponding to points in the given objects.
+	 *        The first merge line has to be from the object with the
+	 *        bottom leftmost to the other object and the second line
+	 *        back from that object to the object with the bottom leftmost point.
+	 * @return The computed joint convex hull.
+	 * @see #computeMergeLines(List, List)
+	 * @see #checkInvariants(List)
+	 */
 	public static List<Point2D> mergeHulls(List<Point2D> first, List<Point2D> second, Point2D[] mergeLines){
 		//ensure the first object has the bottom leftmost point
 		if(second.contains(mergeLines[0])){
@@ -461,7 +482,7 @@ public class ConvexUtil{
 		}
 		hull.add(mergeLines[1]);
 		
-		//skip to the end of first merge line on the second object
+		//skip to the end of the first merge line on the second object
 		do{
 			p = second.get(ridx);
 			ridx++;
