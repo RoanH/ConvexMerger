@@ -312,28 +312,15 @@ public class GameState{
 	 *         if there is no object selected currently.
 	 */
 	public List<Line2D> getHelperLines(Point2D p){
-		if(selected != null){
-			List<Point2D> points = new ArrayList<Point2D>();
-			points.addAll(selected.getPoints());
-			
-			if(points.contains(p) || selected.contains(p.getX(), p.getY())){
-				return null;
-			}
-			points.add(p);
-			
-			List<Point2D> hull = ConvexUtil.computeConvexHull(points);
-			for(int i = 0; i < hull.size(); i++){
-				if(hull.get(i).equals(p)){
-					Point2D prev = hull.get((i == 0 ? hull.size() : i) - 1);
-					Point2D next = hull.get((i + 1) % hull.size());
-					return Arrays.asList(
-						new Line2D.Double(p.getX(), p.getY(), prev.getX(), prev.getY()),
-						new Line2D.Double(p.getX(), p.getY(), next.getX(), next.getY())
-					);
-				}
-			}
+		if(selected == null || selected.contains(p.getX(), p.getY())){
+			return null;
+		}else{
+			Point2D[] lines = ConvexUtil.computeMergeLines(selected.getPoints(), Arrays.asList(p));
+			return Arrays.asList(
+				new Line2D.Double(lines[0], lines[1]),
+				new Line2D.Double(lines[2], lines[3])
+			);
 		}
-		return null;
 	}
 	
 	/**

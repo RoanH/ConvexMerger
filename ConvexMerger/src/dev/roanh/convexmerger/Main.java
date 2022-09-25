@@ -20,6 +20,6 @@ public class Main{
 		ConvexMerger game = new ConvexMerger();
 		game.showGame();
 		
-		game.switchScene(new TestScreen(game));
+		//game.switchScene(new TestScreen(game));
 	}
 }

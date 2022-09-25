@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -178,6 +179,19 @@ public class ConvexUtilTest{
 				new Point2D.Double(1020.612873686413, 255.40170374898128)
 			))
 		);
+	}
+	
+	@Test
+	public void mergeWithPointTest(){
+		//this is honestly more accidental correct behaviour, but we currently rely on it for helper line computation
+		List<Point2D> obj1 = ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(30, 100),
+			new Point2D.Double(100, 80),
+			new Point2D.Double(100, 200)
+		));
+		List<Point2D> obj2 = Arrays.asList(new Point2D.Double(400.0D, 400.0D));
+		Point2D[] lines = ConvexUtil.computeMergeLines(obj1, obj2);
+		assertTrue(ConvexUtil.checkInvariants(ConvexUtil.mergeHulls(obj1, obj2, lines)));
 	}
 	
 	@Test
