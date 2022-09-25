@@ -209,12 +209,30 @@ public class ConvexUtilTest{
 	
 	@Test
 	public void lineAngleTest(){
-		assertEquals(270.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, 10.0D, 0.0D))));
-		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(5.0D, 5.0D, 10.0D, 10.0D))));
-		assertEquals(90.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, -10.0D, 0.0D))));
-		assertEquals(45.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, -5.0D, 5.0D))));
-		assertEquals(135.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, -10.0D, -10.0D))));
-		assertEquals(225.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, 10.0D, -10.0D))));
+		assertEquals(270.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(
+			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
+			new Line2D.Double(0.0D, 0.0D, 10.0D, 0.0D)
+		)));
+		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(
+			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
+			new Line2D.Double(5.0D, 5.0D, 10.0D, 10.0D)
+		)));
+		assertEquals(90.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(
+			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
+			new Line2D.Double(0.0D, 0.0D, -10.0D, 0.0D)
+		)));
+		assertEquals(45.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(
+			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
+			new Line2D.Double(0.0D, 0.0D, -5.0D, 5.0D)
+		)));
+		assertEquals(135.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(
+			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
+			new Line2D.Double(0.0D, 0.0D, -10.0D, -10.0D)
+		)));
+		assertEquals(225.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(
+			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
+			new Line2D.Double(0.0D, 0.0D, 10.0D, -10.0D)
+		)));
 	}
 	
 	private void mergeTest(ConvexObject obj1, ConvexObject obj2){
