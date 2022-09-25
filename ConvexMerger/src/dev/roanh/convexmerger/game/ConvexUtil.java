@@ -515,6 +515,23 @@ public class ConvexUtil{
 		return hull;
 	}
 	
+	/**
+	 * Checks if the convex object represented by the given set
+	 * of points conforms to all the general invariants assumed
+	 * by most algorithms in this class. More detailed information
+	 * about any possible violations is printed to standard error.
+	 * <p>
+	 * The tested invariants are:
+	 * <ol>
+	 * <li>The object as an interior, meaning its are is non zero.</li>
+	 * <li>No sequence of 3 points on the object's boundary are collinear.</li>
+	 * <li>The first point of the object is the bottom leftmost point.</li>
+	 * <li>The object is convex.</li>
+	 * <li>The object winding order is counter-clockwise.</li>
+	 * </ol>
+	 * @param points The points that make up the convex object to test.
+	 * @return True if all invariants hold, false otherwise.
+	 */
 	public static boolean checkInvariants(List<Point2D> points){
 		//check if it's an actual object
 		if(points.size() < 3){
@@ -546,7 +563,7 @@ public class ConvexUtil{
 			Point2D b = points.get((i + 1) % points.size());
 			Point2D c = points.get((i + 2) % points.size());
 			if(Line2D.relativeCCW(a.getX(), a.getY(), c.getX(), c.getY(), b.getX(), b.getY()) == -1){
-				System.err.println("Object is not convex around indices: " + i + "-" + (i + 2));
+				System.err.println("Object is not convex (or winds clockwise) around indices: " + i + "-" + (i + 2));
 				return false;
 			}
 		}
