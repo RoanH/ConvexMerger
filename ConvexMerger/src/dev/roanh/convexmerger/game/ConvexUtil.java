@@ -20,7 +20,9 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Class containing various utilities related
- * to convex objects and hulls.
+ * to convex objects and hulls. General assumptions
+ * on the convex objects dealt with by this class are
+ * documented at {@link #checkInvariants(List)}.
  * @author Roan
  */
 public class ConvexUtil{
@@ -28,9 +30,11 @@ public class ConvexUtil{
 	/**
 	 * Computes the convex hull of the given point set
 	 * using the gift wrapping algorithm. The returned
-	 * hull has the left most point as the first point.
+	 * hull has the left most point as the first point
+	 * and the winding order is counter-clockwise.
 	 * @param points The points to compute the convex hull of.
 	 * @return The convex hull for the given set of points.
+	 * @see #checkInvariants(List)
 	 */
 	public static final List<Point2D> computeConvexHull(List<Point2D> points){
 		List<Point2D> hull = new ArrayList<Point2D>();
@@ -63,45 +67,32 @@ public class ConvexUtil{
 		return hull;
 	}
 	
-//	/**
-//	 * Computes the two lines that would be required to
-//	 * combine the two given convex hulls into a single
-//	 * convex hull.
-//	 * @param first The first convex hull.
-//	 * @param second The second convex hull.
-//	 * @return The points for the two line segments that
-//	 *         would be required to complete the convex
-//	 *         hull of the two given convex hulls. The
-//	 *         first two points make up one of the line
-//	 *         segments and the other two the other.
-//	 * @see #computeMergeLines(List, List, List)
-//	 */
-//	@Deprecated
-//	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
-//		List<Point2D> points = new ArrayList<Point2D>();
-//		points.addAll(first);
-//		points.addAll(second);
-//		return computeMergeLines(first, second, computeConvexHull(points));
-//	}
-	
 	/**
 	 * Computes the two lines that would be required to
 	 * combine the two given convex hulls into a single
 	 * convex hull using the convex hull of both objects.
 	 * It is required that the left most point of the
 	 * combined hull is the first point in the given hull.
-	 * @param first The first convex hull.
-	 * @param second The second convex hull.
+	 * @param first The first convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
+	 * @param second The second convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
 	 * @param hull The convex hull constructed by merging
-	 *        the other two convex hulls.
+	 *        the other two convex hulls, the first point
+	 *        has to be bottom leftmost and be an exact object
+	 *        reference to the first point of one of the given
+	 *        objects, and the winding order of points has to
+	 *        be counter-clockwise.
 	 * @return The points for the two line segments that
 	 *         would be required to complete the convex
 	 *         hull of the two given convex hulls. The
 	 *         first two points make up one of the line
 	 *         segments and the other two the other.
 	 * @see #computeMergeLines(List, List)
+	 * @see #checkInvariants(List)
 	 */
-	@Deprecated
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second, List<Point2D> hull){
 		if(!first.contains(hull.get(0))){
 			List<Point2D> tmp = first;
@@ -159,9 +150,12 @@ public class ConvexUtil{
 	 * either on the outside or on the inside of the convex
 	 * object that is created when merging them.
 	 * @param first The first convex object, should have the
-	 *        smallest x-coordinate of the two objects. If not
+	 *        bottom leftmost of the two objects. If not
 	 *        the two objects will be swapped automatically.
-	 * @param second The second convex object.
+	 *        The winding order of the object has to be counter-clockwise.
+	 * @param second The second convex object, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
 	 * @return The specific segments, index 0 has the part of the
 	 *         first object that would be contained inside the
 	 *         resulting hull, index 1 has the part of the first
@@ -171,8 +165,8 @@ public class ConvexUtil{
 	 *         hull, index 3 has the part of the second object that
 	 *         would be part of the outside of the resulting hull.
 	 * @see #computeMergeLines(List, List)
-	 * @see #computeMergeLines(List, List, List)
 	 * @see #computeMergeBounds(List, List, Point2D[])
+	 * @see #checkInvariants(List)
 	 */
 	public static final List<List<Point2D>> computeMergeBounds(List<Point2D> first, List<Point2D> second){
 		return computeMergeBounds(first, second, computeMergeLines(first, second));
@@ -185,10 +179,18 @@ public class ConvexUtil{
 	 * @param first The first convex object, should have the
 	 *        smallest x-coordinate of the two objects. If not
 	 *        the two objects will be swapped automatically.
-	 * @param second The second convex object.
+	 *        The winding order of the object has to be counter-clockwise.
+	 * @param second The second convex object, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
 	 * @param mergeLines The points describing the merge lines
 	 *        that would be added to merge the two objects as
 	 *        computed by {@link #computeMergeLines(List, List)}.
+	 *        The points given here <b>must</b> be exact object
+	 *        references corresponding to points in the given objects.
+	 *        The first merge line has to be from the object with the
+	 *        bottom leftmost to the other object and the second line
+	 *        back from that object to the object with the bottom leftmost point.
 	 * @return The specific segments, index 0 has the part of the
 	 *         first object that would be contained inside the
 	 *         resulting hull, index 1 has the part of the first
@@ -198,8 +200,8 @@ public class ConvexUtil{
 	 *         hull, index 3 has the part of the second object that
 	 *         would be part of the outside of the resulting hull.
 	 * @see #computeMergeLines(List, List)
-	 * @see #computeMergeLines(List, List, List)
 	 * @see #computeMergeBounds(List, List)
+	 * @see #checkInvariants(List)
 	 */
 	public static final List<List<Point2D>> computeMergeBounds(List<Point2D> first, List<Point2D> second, Point2D[] mergeLines){
 		if(!first.contains(mergeLines[0])){
@@ -307,8 +309,34 @@ public class ConvexUtil{
 		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
 	}
 	
-	//first points are left most by game invariant
-	//ref: http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Plante/CompGeomProject-EPlante/algorithm.html
+	
+	
+	/**
+	 * Computes the two lines that would be required to
+	 * combine the two given convex hulls into a single
+	 * convex hull in linear time. The approach used for
+	 * the computation is loosely based on an algorithm
+	 * proposed in a paper by Godfried Toussaint.
+	 * @param first The first convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
+	 * @param second The second convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
+	 * @return The points for the two line segments that
+	 *         would be required to complete the convex
+	 *         hull of the two given convex hulls. The
+	 *         first two points make up in order the line
+	 *         going from the object containing the bottom
+	 *         leftmost point to the other object, and the
+	 *         other two points make up in order the line
+	 *         back from the other object to the object containing
+	 *         the bottom leftmost point.
+	 * @see #computeMergeLines(List, List, List)
+	 * @see <a href="http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Plante/CompGeomProject-EPlante/algorithm.html">
+	 *      Toussaint, Godfried T., "A simple linear algorithm for intersecting convex polygons", in The Visual Computer, vol. 1, 1985, pp. 118-123</a>
+	 * @see #checkInvariants(List)
+	 */
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
 		//ensure the first object has the bottom leftmost point
 		int cmp = Double.compare(first.get(0).getX(), second.get(0).getX());
@@ -658,7 +686,6 @@ public class ConvexUtil{
 	}
 	
 	public static void main(String[] args){
-//		System.out.println(Math.atan2(1, 0) + " / " + (Math.PI / 2));
 //		System.out.println(Math.toDegrees(angleBetweenLines(
 //			new Line2D.Double(0, 0, 0, 10),
 //			new Line2D.Double(0, 0, 10, 0)
@@ -687,15 +714,6 @@ public class ConvexUtil{
 //			new Line2D.Double(0, 0, 0, 10),
 //			new Line2D.Double(0, 0, 10, -10)
 //		)));
-//		System.out.println("---");
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, -10)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, -10)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, -10)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 0)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 0, 10)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, 10, 10)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 0, -10, 0)));
-//		System.out.println(Math.toDegrees(angleFromVertical(0, 200, 0, 0)));
 		
 		Main.main(null);
 	}
