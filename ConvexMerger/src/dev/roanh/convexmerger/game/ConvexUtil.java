@@ -1,22 +1,10 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import dev.roanh.convexmerger.Main;
-import dev.roanh.convexmerger.animation.CalliperAnimation;
-import dev.roanh.convexmerger.animation.MergeAnimation;
-import dev.roanh.convexmerger.player.HumanPlayer;
-import dev.roanh.convexmerger.ui.ConvexMerger;
-import dev.roanh.convexmerger.ui.Screen;
-import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Class containing various utilities related
@@ -592,116 +580,6 @@ public class ConvexUtil{
 		return true;
 	}
 	
-	public static final class TestScreen extends Screen{
-		private ConvexObject obj1 = new ConvexObject(Arrays.asList(
-			new Point2D.Double(1020.2946945766233, 336.08131352685535),
-			new Point2D.Double(1145.4590573351688, 147.65612980830525),
-			new Point2D.Double(1259.1845493953533, 109.22475662934636),
-			new Point2D.Double(1282.7139615457363, 223.73456242787694),
-			new Point2D.Double(1096.3731271961951, 378.43425539754475),
-			new Point2D.Double(1041.4711655119681, 376.86562792085255)
-		));
-		private ConvexObject obj2 = new ConvexObject(Arrays.asList(
-			new Point2D.Double(982.9658142458002, 193.4409184196394),
-			new Point2D.Double(1059.0442468653719, 178.5389573910635),
-			new Point2D.Double(1093.5540513526003, 220.89189926175288),
-			new Point2D.Double(1020.612873686413, 255.40170374898128)
-		));
-		private ConvexObject m = null;
-				
-		public TestScreen(ConvexMerger context){
-			super(context);
-//			obj1.setAnimation(new CalliperAnimation(obj1));
-//			obj2.setAnimation(new CalliperAnimation(obj2));
-			obj1.setOwner(new HumanPlayer("Test"));
-			obj1.getOwner().init(null, PlayerTheme.P1);
-		}
-		
-		@Override
-		protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
-			super.renderMainInterface(g, width, height, null);
-
-			g.translate(-600, 400);
-//			g.translate(0.0D, 400.0D);
-//			g.scale(1.0D, -1.0D);
-			obj1.render(g);
-			if(obj1.hasAnimation()){
-				obj1.runAnimation(g);
-			}
-			obj2.render(g);
-			if(obj2.hasAnimation()){
-				obj2.runAnimation(g);
-			}
-			
-			g.setColor(Color.BLUE);
-			g.draw(new Line2D.Double(obj1.getPoints().get(0), obj1.getPoints().get(1)));
-			g.draw(new Line2D.Double(obj2.getPoints().get(0), obj2.getPoints().get(1)));
-
-			g.setColor(Color.RED);
-			g.fillOval((int)obj1.getPoints().get(0).getX() - 2, (int)obj1.getPoints().get(0).getY() - 2, 4, 4);
-			g.fillOval((int)obj2.getPoints().get(0).getX() - 2, (int)obj2.getPoints().get(0).getY() - 2, 4, 4);
-			
-			g.setStroke(new BasicStroke(1.0F));
-
-			try{
-				Point2D[] lines = computeMergeLines(obj1.getPoints(), obj2.getPoints());
-				g.setColor(Color.MAGENTA);
-				g.draw(new Line2D.Double(lines[0], lines[1]));
-				if(lines[2] != null){
-					g.draw(new Line2D.Double(lines[2], lines[3]));
-				}
-				
-				ConvexObject merged = new ConvexObject(mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
-				g.translate(600, 0);
-				merged.render(g);
-				
-				if(m == null){
-					m = merged;
-					m.setAnimation(new MergeAnimation(obj1, obj2, m, Collections.emptyList()));
-				}
-				
-				g.translate(0, -400);
-				if(m.hasAnimation()){
-					m.runAnimation(g);
-				}else{
-					m.render(g);
-				}
-			}catch(Exception | AssertionError e){
-				//e.printStackTrace();
-			}
-		}
-		
-		@Override
-		protected boolean isLeftButtonEnabled(){
-			return true;
-		}
-
-		@Override
-		protected boolean isRightButtonEnabled(){
-			return true;
-		}
-
-		@Override
-		protected String getLeftButtonText(){
-			return null;
-		}
-
-		@Override
-		protected String getRightButtonText(){
-			return null;
-		}
-
-		@Override
-		protected void handleLeftButtonClick(){
-			obj1.setAnimation(new CalliperAnimation(obj1));
-			obj2.setAnimation(new CalliperAnimation(obj2));
-		}
-
-		@Override
-		protected void handleRightButtonClick(){
-		}
-	}
-	
 	/**
 	 * Computes the angle the given line makes with the 
 	 * negative y-axis (going down along the y-axis). The
@@ -769,9 +647,5 @@ public class ConvexUtil{
 	public static final double angleBetweenLines(Line2D a, Line2D b){
 		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
-	}
-	
-	public static void main(String[] args){
-		Main.main(null);
 	}
 }
