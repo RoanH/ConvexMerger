@@ -709,8 +709,8 @@ public class ConvexUtil{
 	 * when rotating from the negative y-axis in counter
 	 * -clockwise direction until the given line is found
 	 * with the correct direction. For example the angle
-	 * for the line (0, 0) - (10, 0) is 90 degrees, but the
-	 * angle for the line (0,0) - (-10,0) is 270 degrees.
+	 * for the line <code>(0,0)-(10,0)</code> is 90 degrees, but the
+	 * angle for the line <code>(0,0)-(-10,0)</code> is 270 degrees.
 	 * @param line The line whose angle to the vertical compute.
 	 * @return The angle of the vertical to the given line in radians.
 	 */
@@ -725,8 +725,8 @@ public class ConvexUtil{
 	 * when rotating from the negative y-axis in counter
 	 * -clockwise direction until the given line is found
 	 * with the correct direction. For example the angle
-	 * for the line (0, 0) - (10, 0) is 90 degrees, but the
-	 * angle for the line (0,0) - (-10,0) is 270 degrees.
+	 * for the line <code>(0,0)-(10,0)</code> is 90 degrees, but the
+	 * angle for the line <code>(0,0)-(-10,0)</code> is 270 degrees.
 	 * @param p1 The start point of the given line.
 	 * @param p2 The end point of the given line.
 	 * @return The angle of the vertical to the given line in radians.
@@ -742,8 +742,8 @@ public class ConvexUtil{
 	 * when rotating from the negative y-axis in counter
 	 * -clockwise direction until the given line is found
 	 * with the correct direction. For example the angle
-	 * for the line (0, 0) - (10, 0) is 90 degrees, but the
-	 * angle for the line (0,0) - (-10,0) is 270 degrees.
+	 * for the line <code>(0,0)-(10,0)</code> is 90 degrees, but the
+	 * angle for the line <code>(0,0)-(-10,0)</code> is 270 degrees.
 	 * @param x1 The x-coordinate of the start point of the given line.
 	 * @param y1 The y-coordinate of the start point of the given line.
 	 * @param x2 The x-coordinate of the end point of the given line.
@@ -763,34 +763,34 @@ public class ConvexUtil{
 	}
 	
 	public static void main(String[] args){
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(0, 0, 10, 0)
-//		)));
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(5, 5, 10, 10)
-//		)));
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(0, 0, -10, 0)
-//		)));
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(0, 0, -5, 5)
-//		)));
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(0, 0, 0, -10)
-//		)));
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(0, 0, -10, -10)
-//		)));
-//		System.out.println(Math.toDegrees(angleBetweenLines(
-//			new Line2D.Double(0, 0, 0, 10),
-//			new Line2D.Double(0, 0, 10, -10)
-//		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, 10, 0)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(5, 5, 10, 10)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, -10, 0)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, -5, 5)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, 0, -10)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, -10, -10)
+		)));
+		System.out.println(Math.toDegrees(angleBetweenLines(
+			new Line2D.Double(0, 0, 0, 10),
+			new Line2D.Double(0, 0, 10, -10)
+		)));
 		
 		Main.main(null);
 	}
