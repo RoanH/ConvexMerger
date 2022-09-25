@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
@@ -15,26 +16,26 @@ public class ConvexUtilTest{
 	public void normalMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(33, 118),
-				new Point2D.Double(57, 178),
-				new Point2D.Double(98, 236),
-				new Point2D.Double(180, 270),
-				new Point2D.Double(204, 171),
-				new Point2D.Double(175, 106),
-				new Point2D.Double(146, 77),
-				new Point2D.Double(116, 65),
-				new Point2D.Double(38, 70)
+				new Point2D.Double(33.0D, 118.0D),
+				new Point2D.Double(57.0D, 178.0D),
+				new Point2D.Double(98.0D, 236.0D),
+				new Point2D.Double(180.0D, 270.0D),
+				new Point2D.Double(204.0D, 171.0D),
+				new Point2D.Double(175.0D, 106.0D),
+				new Point2D.Double(146.0D, 77.0D),
+				new Point2D.Double(116.0D, 65.0D),
+				new Point2D.Double(38.0D, 70.0D)
 			))),
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(100 + 116, 177),
-				new Point2D.Double(100 + 133, 212),
-				new Point2D.Double(100 + 263, 217),
-				new Point2D.Double(100 + 286, 150),
-				new Point2D.Double(100 + 281, 65),
-				new Point2D.Double(100 + 256, 24),
-				new Point2D.Double(100 + 219, 42),
-				new Point2D.Double(100 + 181, 71),
-				new Point2D.Double(100 + 133, 113)
+				new Point2D.Double(100.0D + 116.0D, 177.0D),
+				new Point2D.Double(100.0D + 133.0D, 212.0D),
+				new Point2D.Double(100.0D + 263.0D, 217.0D),
+				new Point2D.Double(100.0D + 286.0D, 150.0D),
+				new Point2D.Double(100.0D + 281.0D, 65.0D),
+				new Point2D.Double(100.0D + 256.0D, 24.0D),
+				new Point2D.Double(100.0D + 219.0D, 42.0D),
+				new Point2D.Double(100.0D + 181.0D, 71.0D),
+				new Point2D.Double(100.0D + 133.0D, 113.0D)
 			)))
 		);
 	}
@@ -43,14 +44,14 @@ public class ConvexUtilTest{
 	public void endPointMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(30, 250),
-				new Point2D.Double(100, 100),
-				new Point2D.Double(100, 200)
+				new Point2D.Double(30.0D, 250.0D),
+				new Point2D.Double(100.0D, 100.0D),
+				new Point2D.Double(100.0D, 200.0D)
 			))),
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(100 + 30, 100),
-				new Point2D.Double(100 + 100, 110),
-				new Point2D.Double(100 + 100, 200)
+				new Point2D.Double(100.0D + 30.0D, 100.0D),
+				new Point2D.Double(100.0D + 100.0D, 110.0D),
+				new Point2D.Double(100.0D + 100.0D, 200.0D)
 			)))
 		);
 	}
@@ -59,15 +60,15 @@ public class ConvexUtilTest{
 	public void parallelMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(30, 100),
-				new Point2D.Double(100, 80),
-				new Point2D.Double(100, 200)
+				new Point2D.Double(30.0D, 100.0D),
+				new Point2D.Double(100.0D, 80.0D),
+				new Point2D.Double(100.0D, 200.0D)
 			))),
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(100 + 30, 100),
-				new Point2D.Double(100 + 100, 110),
-				new Point2D.Double(100 + 100, 200),
-				new Point2D.Double(100 + 50, 150)
+				new Point2D.Double(100.0D + 30.0D, 100.0D),
+				new Point2D.Double(100.0D + 100.0D, 110.0D),
+				new Point2D.Double(100.0D + 100.0D, 200.0D),
+				new Point2D.Double(100.0D + 50.0D, 150.0D)
 			)))
 		);
 	}
@@ -76,16 +77,16 @@ public class ConvexUtilTest{
 	public void horizontalBoxColinMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(30, 200),
-				new Point2D.Double(30, 100),
-				new Point2D.Double(100, 100),
-				new Point2D.Double(100, 200)
+				new Point2D.Double(30.0D, 200.0D),
+				new Point2D.Double(30.0D, 100.0D),
+				new Point2D.Double(100.0D, 100.0D),
+				new Point2D.Double(100.0D, 200.0D)
 			))),
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(100 + 30, 200),
-				new Point2D.Double(100 + 30, 100),
-				new Point2D.Double(100 + 100, 100),
-				new Point2D.Double(100 + 100, 200)
+				new Point2D.Double(100.0D + 30.0D, 200.0D),
+				new Point2D.Double(100.0D + 30.0D, 100.0D),
+				new Point2D.Double(100.0D + 100.0D, 100.0D),
+				new Point2D.Double(100.0D + 100.0D, 200.0D)
 			)))
 		);
 	}
@@ -94,16 +95,16 @@ public class ConvexUtilTest{
 	public void verticalBoxColinMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(30, 200),
-				new Point2D.Double(30, 100),
-				new Point2D.Double(100, 100),
-				new Point2D.Double(100, 200)
+				new Point2D.Double(30.0D, 200.0D),
+				new Point2D.Double(30.0D, 100.0D),
+				new Point2D.Double(100.0D, 100.0D),
+				new Point2D.Double(100.0D, 200.0D)
 			))),
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(30, 130 + 200),
-				new Point2D.Double(30, 130 + 100),
-				new Point2D.Double(100, 130 + 100),
-				new Point2D.Double(100, 130 + 200)
+				new Point2D.Double(30.0D, 130.0D + 200.0D),
+				new Point2D.Double(30.0D, 130.0D + 100.0D),
+				new Point2D.Double(100.0D, 130.0D + 100.0D),
+				new Point2D.Double(100.0D, 130.0D + 200.0D)
 			)))
 		);
 	}
@@ -112,15 +113,15 @@ public class ConvexUtilTest{
 	public void mergeLineOverlapMergeTest(){
 		mergeTest(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(50, -200),
-				new Point2D.Double(30, 100),
-				new Point2D.Double(100, 100),
-				new Point2D.Double(100, 300)
+				new Point2D.Double(50.0D, -200.0D),
+				new Point2D.Double(30.0D, 100.0D),
+				new Point2D.Double(100.0D, 100.0D),
+				new Point2D.Double(100.0D, 300.0D)
 			))),
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(100 + 50, 140),
-				new Point2D.Double(100 + 30, 100),
-				new Point2D.Double(100 + 300, 150)
+				new Point2D.Double(100.0D + 50.0D, 140.0D),
+				new Point2D.Double(100.0D + 30.0D, 100.0D),
+				new Point2D.Double(100.0D + 300.0D, 150.0D)
 			)))
 		);
 	}
@@ -129,16 +130,16 @@ public class ConvexUtilTest{
 	public void overflowMergeTest(){
 		mergeTest(
 			new ConvexObject(Arrays.asList(
-				new Point2D.Double(68.13547921930717, 823.6810526743893),
-				new Point2D.Double(71.27273417269157, 695.053599585629),
-				new Point2D.Double(209.31195212160515, 690.3477171555523),
-				new Point2D.Double(172.44920641933845, 816.6222290292744)
+				new Point2D.Double(68.13547921930717D, 823.6810526743893D),
+				new Point2D.Double(71.27273417269157D, 695.053599585629D),
+				new Point2D.Double(209.31195212160515D, 690.3477171555523D),
+				new Point2D.Double(172.44920641933845D, 816.6222290292744D)
 			)),
 			new ConvexObject(Arrays.asList(
-				new Point2D.Double(48.22851710262876, 607.3220363481171),
-				new Point2D.Double(68.62067429962735, 477.12595578266445),
-				new Point2D.Double(198.81675486507993, 519.4788976533539),
-				new Point2D.Double(148.62067561092954, 612.0279187781937)
+				new Point2D.Double(48.22851710262876, 607.3220363481171D),
+				new Point2D.Double(68.62067429962735, 477.12595578266445D),
+				new Point2D.Double(198.81675486507993, 519.4788976533539D),
+				new Point2D.Double(148.62067561092954, 612.0279187781937D)
 			))
 		);
 	}
@@ -147,16 +148,16 @@ public class ConvexUtilTest{
 	public void earlyVerticalMergeTest(){
 		mergeTest(
 			new ConvexObject(Arrays.asList(
-				new Point2D.Double(866.2229972503868, 367.14396161730934),
-				new Point2D.Double(943.8700573466507, 331.84984339173485),
-				new Point2D.Double(972.8896656654564, 436.94788433011223),
-				new Point2D.Double(907.7916253827301, 482.438081154186)
+				new Point2D.Double(866.2229972503868D, 367.14396161730934D),
+				new Point2D.Double(943.8700573466507D, 331.84984339173485D),
+				new Point2D.Double(972.8896656654564D, 436.94788433011223D),
+				new Point2D.Double(907.7916253827301D, 482.438081154186D)
 			)),
 			new ConvexObject(Arrays.asList(
-				new Point2D.Double(1079.1028371711282, 322.30642495494754),
-				new Point2D.Double(1123.8087202568558, 261.91426710229786),
-				new Point2D.Double(1131.6518576403168, 351.32603327375324),
-				new Point2D.Double(1079.1028371711282, 389.75740645271213)
+				new Point2D.Double(1079.1028371711282D, 322.30642495494754D),
+				new Point2D.Double(1123.8087202568558D, 261.91426710229786D),
+				new Point2D.Double(1131.6518576403168D, 351.32603327375324D),
+				new Point2D.Double(1079.1028371711282D, 389.75740645271213D)
 			))
 		);
 	}
@@ -165,18 +166,18 @@ public class ConvexUtilTest{
 	public void leftSinglePointMergeTest(){
 		mergeTest(
 			new ConvexObject(Arrays.asList(
-				new Point2D.Double(1020.2946945766233, 336.08131352685535),
-				new Point2D.Double(1145.4590573351688, 147.65612980830525),
-				new Point2D.Double(1259.1845493953533, 109.22475662934636),
-				new Point2D.Double(1282.7139615457363, 223.73456242787694),
-				new Point2D.Double(1096.3731271961951, 378.43425539754475),
-				new Point2D.Double(1041.4711655119681, 376.86562792085255)
+				new Point2D.Double(1020.2946945766233D, 336.08131352685535D),
+				new Point2D.Double(1145.4590573351688D, 147.65612980830525D),
+				new Point2D.Double(1259.1845493953533D, 109.22475662934636D),
+				new Point2D.Double(1282.7139615457363D, 223.73456242787694D),
+				new Point2D.Double(1096.3731271961951D, 378.43425539754475D),
+				new Point2D.Double(1041.4711655119681D, 376.86562792085255D)
 			)),
 			new ConvexObject(Arrays.asList(
-				new Point2D.Double(982.9658142458002, 193.4409184196394),
-				new Point2D.Double(1059.0442468653719, 178.5389573910635),
-				new Point2D.Double(1093.5540513526003, 220.89189926175288),
-				new Point2D.Double(1020.612873686413, 255.40170374898128)
+				new Point2D.Double(982.9658142458002D, 193.4409184196394D),
+				new Point2D.Double(1059.0442468653719D, 178.5389573910635D),
+				new Point2D.Double(1093.5540513526003D, 220.89189926175288D),
+				new Point2D.Double(1020.612873686413D, 255.40170374898128D)
 			))
 		);
 	}
@@ -185,9 +186,9 @@ public class ConvexUtilTest{
 	public void mergeWithPointTest(){
 		//this is honestly more accidental correct behaviour, but we currently rely on it for helper line computation
 		List<Point2D> obj1 = ConvexUtil.computeConvexHull(Arrays.asList(
-			new Point2D.Double(30, 100),
-			new Point2D.Double(100, 80),
-			new Point2D.Double(100, 200)
+			new Point2D.Double(30.0D, 100.0D),
+			new Point2D.Double(100.0D, 80.0D),
+			new Point2D.Double(100.0D, 200.0D)
 		));
 		List<Point2D> obj2 = Arrays.asList(new Point2D.Double(400.0D, 400.0D));
 		Point2D[] lines = ConvexUtil.computeMergeLines(obj1, obj2);
@@ -196,14 +197,24 @@ public class ConvexUtilTest{
 	
 	@Test
 	public void verticalAngleTest(){
-		assertEquals(0.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, 0, -10)));
-		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, -10, -10)));
-		assertEquals(45.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, 10, -10)));
-		assertEquals(90.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, 10, 0)));
-		assertEquals(180.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, 0, 10)));
-		assertEquals(135.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, 10, 10)));
-		assertEquals(270.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 0, -10, 0)));
-		assertEquals(0.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0, 200, 0, 0)));
+		assertEquals(0.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, 0.0D, -10.0D)));
+		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, -10.0D, -10.0D)));
+		assertEquals(45.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, 10.0D, -10.0D)));
+		assertEquals(90.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, 10.0D, 0.0D)));
+		assertEquals(180.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, 0.0D, 10.0D)));
+		assertEquals(135.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, 10.0D, 10.0D)));
+		assertEquals(270.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, -10.0D, 0.0D)));
+		assertEquals(0.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 200.0D, 0.0D, 0.0D)));
+	}
+	
+	@Test
+	public void lineAngleTest(){
+		assertEquals(270.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, 10.0D, 0.0D))));
+		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(5.0D, 5.0D, 10.0D, 10.0D))));
+		assertEquals(90.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, -10.0D, 0.0D))));
+		assertEquals(45.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, -5.0D, 5.0D))));
+		assertEquals(135.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, -10.0D, -10.0D))));
+		assertEquals(225.0D, Math.toDegrees(ConvexUtil.angleBetweenLines(new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D), new Line2D.Double(0.0D, 0.0D, 10.0D, -10.0D))));
 	}
 	
 	private void mergeTest(ConvexObject obj1, ConvexObject obj2){

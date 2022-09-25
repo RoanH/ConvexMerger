@@ -712,7 +712,8 @@ public class ConvexUtil{
 	 * for the line <code>(0,0)-(10,0)</code> is 90 degrees, but the
 	 * angle for the line <code>(0,0)-(-10,0)</code> is 270 degrees.
 	 * @param line The line whose angle to the vertical compute.
-	 * @return The angle of the vertical to the given line in radians.
+	 * @return The angle of the vertical to the given line in radians,
+	 *         the returned angle is always a positive number.
 	 */
 	public static final double angleFromVertical(Line2D line){
 		return angleFromVertical(line.getX1(), line.getY1(), line.getX2(), line.getY2());
@@ -729,7 +730,8 @@ public class ConvexUtil{
 	 * angle for the line <code>(0,0)-(-10,0)</code> is 270 degrees.
 	 * @param p1 The start point of the given line.
 	 * @param p2 The end point of the given line.
-	 * @return The angle of the vertical to the given line in radians.
+	 * @return The angle of the vertical to the given line in radians,
+	 *         the returned angle is always a positive number.
 	 */
 	public static final double angleFromVertical(Point2D p1, Point2D p2){
 		return angleFromVertical(p1.getX(), p1.getY(), p2.getX(), p2.getY());
@@ -748,50 +750,28 @@ public class ConvexUtil{
 	 * @param y1 The y-coordinate of the start point of the given line.
 	 * @param x2 The x-coordinate of the end point of the given line.
 	 * @param y2 The y-coordinate of the end point of the given line.
-	 * @return The angle of the vertical to the given line in radians.
+	 * @return The angle of the vertical to the given line in radians,
+	 *         the returned angle is always a positive number.
 	 */
 	public static final double angleFromVertical(double x1, double y1, double x2, double y2){
 		double relative = Math.atan2(y2 - y1, x2 - x1) + 0.5D * Math.PI;
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
 	}
 	
-	//angle from line a to line b in radians in clockwise direction and as a positive number
+	/**
+	 * Computes the relative angle in counter-clockwise direction between
+	 * the two given directed line segments.
+	 * @param a The first line segment (start).
+	 * @param b The second line segment (end).
+	 * @return The relative angle between the two line segments in radians,
+	 *         the returned angle is always a positive number.
+	 */
 	public static final double angleBetweenLines(Line2D a, Line2D b){
-		//System.out.println("a: " + Math.toDegrees(Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1())) + " / " + b.getP1() + " / " + b.getP2());
 		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
 	}
 	
 	public static void main(String[] args){
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, 10, 0)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(5, 5, 10, 10)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, -10, 0)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, -5, 5)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, 0, -10)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, -10, -10)
-		)));
-		System.out.println(Math.toDegrees(angleBetweenLines(
-			new Line2D.Double(0, 0, 0, 10),
-			new Line2D.Double(0, 0, 10, -10)
-		)));
-		
 		Main.main(null);
 	}
 }
