@@ -702,15 +702,54 @@ public class ConvexUtil{
 		}
 	}
 	
-	public static final double angleFromVertical(Line2D b){
-		return angleFromVertical(b.getX1(), b.getY1(), b.getX2(), b.getY2());
+	/**
+	 * Computes the angle the given line makes with the 
+	 * negative y-axis (going down along the y-axis). The
+	 * angle is given as the number of radians traversed
+	 * when rotating from the negative y-axis in counter
+	 * -clockwise direction until the given line is found
+	 * with the correct direction. For example the angle
+	 * for the line (0, 0) - (10, 0) is 90 degrees, but the
+	 * angle for the line (0,0) - (-10,0) is 270 degrees.
+	 * @param line The line whose angle to the vertical compute.
+	 * @return The angle of the vertical to the given line in radians.
+	 */
+	public static final double angleFromVertical(Line2D line){
+		return angleFromVertical(line.getX1(), line.getY1(), line.getX2(), line.getY2());
 	}
 	
+	/**
+	 * Computes the angle the given line makes with the 
+	 * negative y-axis (going down along the y-axis). The
+	 * angle is given as the number of radians traversed
+	 * when rotating from the negative y-axis in counter
+	 * -clockwise direction until the given line is found
+	 * with the correct direction. For example the angle
+	 * for the line (0, 0) - (10, 0) is 90 degrees, but the
+	 * angle for the line (0,0) - (-10,0) is 270 degrees.
+	 * @param p1 The start point of the given line.
+	 * @param p2 The end point of the given line.
+	 * @return The angle of the vertical to the given line in radians.
+	 */
 	public static final double angleFromVertical(Point2D p1, Point2D p2){
 		return angleFromVertical(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-		//return 2.0D * Math.PI - angleBetweenLines(new Line2D.Double(0.0D, 0.0, 0.0D, -1.0D), new Line2D.Double(p1, p2));
 	}
 	
+	/**
+	 * Computes the angle the given line makes with the 
+	 * negative y-axis (going down along the y-axis). The
+	 * angle is given as the number of radians traversed
+	 * when rotating from the negative y-axis in counter
+	 * -clockwise direction until the given line is found
+	 * with the correct direction. For example the angle
+	 * for the line (0, 0) - (10, 0) is 90 degrees, but the
+	 * angle for the line (0,0) - (-10,0) is 270 degrees.
+	 * @param x1 The x-coordinate of the start point of the given line.
+	 * @param y1 The y-coordinate of the start point of the given line.
+	 * @param x2 The x-coordinate of the end point of the given line.
+	 * @param y2 The y-coordinate of the end point of the given line.
+	 * @return The angle of the vertical to the given line in radians.
+	 */
 	public static final double angleFromVertical(double x1, double y1, double x2, double y2){
 		double relative = Math.atan2(y2 - y1, x2 - x1) + 0.5D * Math.PI;
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
