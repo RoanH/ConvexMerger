@@ -27,22 +27,20 @@ public class CalliperAnimation implements Animation{
 		start = System.currentTimeMillis();
 	}
 
-	//TODO not showing the end properly yet
 	@Override
 	public boolean run(Graphics2D g){
 		long elapsed = System.currentTimeMillis() - start;
 		float angle = (float)((Math.PI * 2.0F * elapsed) / DURATION);
 		
-		Point2D base = points.get(index);
-		while(index < points.size() - 1){
-			if(ConvexUtil.angleFromVertical(points.get(index), points.get((index + 1) % points.size())) >= angle){
-				base = points.get(index);
+		Point2D base = points.get(index % points.size());
+		while(index < points.size()){
+			if(ConvexUtil.angleFromVertical(points.get(index % points.size()), points.get((index + 1) % points.size())) >= angle){
+				base = points.get(index % points.size());
 				break;
 			}
 			index++;
 		}
 		
-		//TODO customisation
 		g.setStroke(new BasicStroke(1.0F));
 		g.setColor(Color.RED);
 		angle += Math.PI * 0.5F;

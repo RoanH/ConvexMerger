@@ -590,8 +590,8 @@ public class ConvexUtil{
 				
 		public TestScreen(ConvexMerger context){
 			super(context);
-			obj1.setAnimation(new CalliperAnimation(obj1));
-			obj2.setAnimation(new CalliperAnimation(obj2));
+//			obj1.setAnimation(new CalliperAnimation(obj1));
+//			obj2.setAnimation(new CalliperAnimation(obj2));
 			obj1.setOwner(new HumanPlayer("Test"));
 			obj1.getOwner().init(null, PlayerTheme.P1);
 		}
@@ -672,12 +672,12 @@ public class ConvexUtil{
 
 		@Override
 		protected void handleLeftButtonClick(){
-			//CalliperAnimation.elap += 10;
+			obj1.setAnimation(new CalliperAnimation(obj1));
+			obj2.setAnimation(new CalliperAnimation(obj2));
 		}
 
 		@Override
 		protected void handleRightButtonClick(){
-			//CalliperAnimation.elap -= 10;
 		}
 	}
 	
