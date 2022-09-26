@@ -177,7 +177,7 @@ public class ConvexUtil{
 	 *        The points given here <b>must</b> be exact object
 	 *        references corresponding to points in the given objects.
 	 *        The first merge line has to be from the object with the
-	 *        bottom leftmost to the other object and the second line.
+	 *        bottom leftmost to the other object and the second line
 	 *        back from that object to the object with the bottom leftmost point.
 	 * @return The specific segments, index 0 has the part of the
 	 *         first object that would be contained inside the
@@ -530,7 +530,7 @@ public class ConvexUtil{
 	 * <p>
 	 * The tested invariants are:
 	 * <ol>
-	 * <li>The object as an interior, meaning its are is non zero.</li>
+	 * <li>The object has an interior, meaning its area is non zero.</li>
 	 * <li>No sequence of 3 points on the object's boundary are collinear.</li>
 	 * <li>The first point of the object is the bottom leftmost point.</li>
 	 * <li>The object is convex.</li>
