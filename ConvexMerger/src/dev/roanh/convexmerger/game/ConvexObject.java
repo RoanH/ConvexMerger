@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -112,6 +111,7 @@ public class ConvexObject implements Identity, Serializable{
 	 */
 	public ConvexObject(List<Point2D> data){
 		points = data;
+		assert ConvexUtil.checkInvariants(data) : "Game invariants violated for convex objects";
 		constructShape(data.size());
 	}
 	
@@ -210,12 +210,7 @@ public class ConvexObject implements Identity, Serializable{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
-		List<Point2D> combined = new ArrayList<Point2D>();
-		combined.addAll(points);
-		combined.addAll(other.getPoints());
-		
-		List<Point2D> hull = ConvexUtil.computeConvexHull(combined);
-		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), hull);
+		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		
 		if(state != null){
 			//check if the new hull is valid
@@ -226,7 +221,7 @@ public class ConvexObject implements Identity, Serializable{
 			}
 		}
 		
-		return new ConvexObject(hull);
+		return new ConvexObject(ConvexUtil.mergeHulls(points, other.getPoints(), lines));
 	}
 	
 	/**

@@ -20,7 +20,6 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
-import dev.roanh.convexmerger.game.VerticalDecomposition.Trapezoid;
 import dev.roanh.convexmerger.player.Player;
 
 /**
@@ -237,8 +236,6 @@ public final class GamePanel extends Screen implements GameStateListener{
 		
 		if(showDecomp){
 			VerticalDecomposition decomp = state.getVerticalDecomposition();
-
-			//TODO cleanup
 			synchronized(decomp){
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
@@ -249,27 +246,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 					g.draw(last);
 				}
 				
-				//TODO Remove
-				for(Trapezoid trap : decomp.trapezoids){
-					g.setColor(new Color(0, 255, 255, 50));
-					Path2D.Double p = new Path2D.Double();
-					List<Line2D> lines =  trap.getDecompLines();
-					Line2D l = lines.get(0);
-					p.moveTo(l.getX1(), l.getY1());
-					p.lineTo(l.getX2(), l.getY2());
-					if(lines.size() > 1){
-						l = lines.get(1);
-						p.lineTo(l.getX2(), l.getY2());
-						p.lineTo(l.getX1(), l.getY1());
-					}else{
-						g.setColor(Color.RED);
-						g.setStroke(Theme.POLY_STROKE);
-						g.draw(p);
-					}
-					p.closePath();
-					g.fill(p);
-				}
-				//End Remove
+				g.setColor(new Color(0, 255, 255, 50));
+				g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 				
 				g.setColor(Color.WHITE);
 				g.setStroke(Theme.BORDER_STROKE);

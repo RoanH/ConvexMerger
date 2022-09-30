@@ -212,6 +212,7 @@ public class InternalServer implements GameStateListener{
 				if(packet == null || packet.getRegisteryType() != PacketRegistry.PLAYER_JOIN){
 					//bad client
 					con.close();
+					return;
 				}
 				
 				PacketPlayerJoin data = (PacketPlayerJoin)packet;

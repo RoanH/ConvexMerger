@@ -1,10 +1,10 @@
-# <img src="ConvexMerger/assets/assets/logo/64.png" width="40"/> Convex Merger [![](https://img.shields.io/github/release/RoanH/ConvexMerger.svg)](https://github.com/RoanH/ConvexMerger/releases)
+# <img src="ConvexMerger/assets/assets/logo/64.png" width="40"/> Convex Merger [![](https://img.shields.io/github/release/RoanH/ConvexMerger.svg)](https://github.com/RoanH/ConvexMerger/releases) [![](https://img.shields.io/github/downloads/RoanH/ConvexMerger/total.svg)](#downloads)
 Convex Merger is an area maximisation game based on the idea of merging convex shapes. The goal of the game is to claim as large an area as possible while competing against your opponents that try to do the same. To do this you can either claim new objects for your own or merge already claimed objects with other objects to also claim the area between them. It is possible to play the game with up to 4 players of which some can be AIs and it is also possible to play online multiplayer. The game ends when the active player has no moves left.
 
 [Jump directly to downloads](#downloads)
 
 ## Example Game
-A short example game between two AIs is shown below.
+A short example game between two AIs is shown below.    
 ![example game](https://i.imgur.com/48W3hwE.gif)
 
 ## Rules
@@ -23,8 +23,8 @@ When generating the playfield you can control the object size, density and spaci
 
 ## Downloads
 _Requires Java 8 or higher_    
-- [Windows executable](https://github.com/RoanH/ConvexMerger/releases/download/v1.0/ConvexMerger-v1.0.exe)    
-- [Runnable Java Archive](https://github.com/RoanH/ConvexMerger/releases/download/v1.0/ConvexMerger-v1.0.jar)
+- [Windows executable](https://github.com/RoanH/ConvexMerger/releases/download/v1.1/ConvexMerger-v1.1.exe)    
+- [Runnable Java Archive](https://github.com/RoanH/ConvexMerger/releases/download/v1.1/ConvexMerger-v1.1.jar)
 
 All releases: [releases](https://github.com/RoanH/ConvexMerger/releases)    
 GitHub repository: [here](https://github.com/RoanH/ConvexMerger)

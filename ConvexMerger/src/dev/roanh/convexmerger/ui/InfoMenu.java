@@ -111,14 +111,14 @@ public class InfoMenu extends Screen{
 		double offset = (width - size) / 2.0D;
 		double boxWidth = (size - BOX_SPACING) / 2.0D;
 		Paint gradient = Theme.constructBorderGradient(game, width);
-		double rulesHeight = height - TOP_SPACE - TOP_SIDE_TRIANGLE - VERSION_HEIGHT - BOX_SPACING * 2.0D - BOTTOM_OFFSET - TOP_OFFSET - KEYS_HEIGHT;
-		double exampleBoxHeight = height - TOP_SPACE - TOP_SIDE_TRIANGLE - CREDITS_HEIGHT - BOX_SPACING - BOTTOM_OFFSET - TOP_OFFSET;
+		double rulesHeight = height - TOP_SPACE - TOP_MIDDLE_OFFSET - BOX_SPACING * 3.0D - BOTTOM_OFFSET - KEYS_HEIGHT;
+		double exampleBoxHeight = height - TOP_SPACE - TOP_MIDDLE_OFFSET - CREDITS_HEIGHT - BOX_SPACING * 4.0D - BOTTOM_OFFSET - VERSION_HEIGHT;
 		
-		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, exampleBoxHeight);
-		renderRules(g, gradient, offset, TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, rulesHeight);
-		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + BOX_SPACING + TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, CREDITS_HEIGHT);
-		renderVersion(g, gradient, offset, rulesHeight + BOX_SPACING * 2.0D + KEYS_HEIGHT + TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, VERSION_HEIGHT, mouseLoc);
-		renderKeys(g, gradient, offset, rulesHeight + BOX_SPACING + TOP_SPACE + TOP_SIDE_TRIANGLE, boxWidth, KEYS_HEIGHT);
+		renderExample(g, gradient, offset + boxWidth + BOX_SPACING, TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING, boxWidth, exampleBoxHeight);
+		renderRules(g, gradient, offset, TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING, boxWidth, rulesHeight);
+		renderCredits(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 2.0D, boxWidth, CREDITS_HEIGHT);
+		renderVersion(g, gradient, offset + boxWidth + BOX_SPACING, exampleBoxHeight + TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING * 3.0D + CREDITS_HEIGHT, boxWidth, VERSION_HEIGHT, mouseLoc);
+		renderKeys(g, gradient, offset, rulesHeight + BOX_SPACING + TOP_SPACE + TOP_MIDDLE_OFFSET + BOX_SPACING, boxWidth, KEYS_HEIGHT);
 	}
 	
 	/**
@@ -392,8 +392,7 @@ public class InfoMenu extends Screen{
 	}
 	
 	static{
-		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt")));
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt")))){
 			String line;
 			while((line = reader.readLine()) != null){
 				rules.add(Arrays.asList(line.split(" ")));
@@ -408,7 +407,7 @@ public class InfoMenu extends Screen{
 		credits.add(new SimpleEntry<String, String>("RockRoller: ", "UI Design & Logo"));
 		credits.add(new SimpleEntry<String, String>("Thiam-Wai: ", "Playfield Generation"));
 		credits.add(new SimpleEntry<String, String>("Emiliyan: ", "Vertical Decomposition"));
-		credits.add(new SimpleEntry<String, String>("phosphoricons.com: ", "UI Icons"));
+		credits.add(new SimpleEntry<String, String>("Phosphor Icons: ", "UI Icons"));
 		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
 		
 		Util.checkVersion("RoanH", "ConvexMerger", ver->version = ver.orElse("Unknown"));

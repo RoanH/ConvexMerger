@@ -4,6 +4,7 @@ plugins{
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'edu.sc.seis.launch4j' version '2.5.1'
+	id 'jacoco'
 }
 
 sourceSets{
@@ -15,12 +16,20 @@ sourceSets{
 			srcDirs = ['assets']
 		}
 	}
+	test{
+		java{
+			srcDir 'test'
+		}
+		resources{
+			srcDir 'test'
+		}
+	}
 }
 
 eclipse.classpath.downloadJavadoc = true
 compileJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
-version = 'v1.0'
+version = 'v1.1'//don't forget Constants.java
 shadowJar.archiveName = 'ConvexMerger-' + version + '.jar'
 
 repositories{
@@ -36,6 +45,17 @@ repositories{
 
 dependencies{
 	implementation 'dev.roanh.util:util:2.1'
+	testImplementation(platform('org.junit:junit-bom:5.8.1'))
+	testImplementation('org.junit.jupiter:junit-jupiter')
+}
+
+test{
+	useJUnitPlatform()
+	dependsOn 'cleanTest'
+	
+	testLogging{
+		events "passed", "skipped", "failed"
+	}
 }
 
 javadoc{
