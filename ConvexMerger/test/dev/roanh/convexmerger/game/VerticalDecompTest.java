@@ -15,6 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.player.GreedyPlayer;
 
 public class VerticalDecompTest{
 	
@@ -69,11 +70,22 @@ public class VerticalDecompTest{
 	}
 	
 	@Test
-	public void edgeCaseSeed(){
+	public void edgeCaseSeed() throws InterruptedException{
 		testSeed("3Y64YQ01S7B35T82PK9G");
 	}
 	
-	private void testSeed(String seed){
+	@Test
+	public void testRandom() throws InterruptedException{
+		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
+		System.out.println("seed: " + game.getSeed());
+		
+		while(!game.isFinished()){
+			game.executePlayerTurn();
+			testPlayfield(game.getObjects(), game.getVerticalDecomposition());
+		}
+	}
+	
+	private void testSeed(String seed) throws InterruptedException{
 		List<ConvexObject> objects = new PlayfieldGenerator(seed).generatePlayfield();
 		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 		
@@ -82,11 +94,7 @@ public class VerticalDecompTest{
 			obj.setID(id++);
 			decomp.addObject(obj);
 		}
-		try{
-			decomp.rebuild();
-		} catch (InterruptedException e){
-			e.printStackTrace();
-		}
+		decomp.rebuild();
 		
 		testPlayfield(objects, decomp);
 	}
