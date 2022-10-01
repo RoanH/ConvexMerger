@@ -14,7 +14,7 @@ import dev.roanh.convexmerger.Constants;
 
 public class VerticalDecompTest{
 	@Test
-	public void someTest() throws InterruptedException{
+	public void mergeEdgeCase1() throws InterruptedException{
 			VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 			ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(438.02112433303597D, 472.340820332763D),
@@ -34,20 +34,24 @@ public class VerticalDecompTest{
 					new Point2D.Double(602.6370158471645D, 790.6826760440791D),
 					new Point2D.Double(568.9115250982823D, 880.8787559538806D)
 			)));
-			obj1.setID(0); obj2.setID(1); obj3.setID(2);
-			decomp.addObject(obj1); decomp.addObject(obj2); decomp.addObject(obj3);
-			decomp.rebuild();
-			List<ConvexObject> contained = new ArrayList<ConvexObject>();
+			
 			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
 			ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
-			merged.setID(3);
-			decomp.addObject(merged);
-			decomp.merge(null, obj1, obj2, merged, contained);
 			
 			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
 			ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
-			merged2.setID(4);
+			
+			obj1.setID(0); obj2.setID(1); obj3.setID(2); merged.setID(3); merged2.setID(4);
+			decomp.addObject(obj1); decomp.addObject(obj2); decomp.addObject(obj3); 
+			decomp.rebuild();
+			List<ConvexObject> contained = new ArrayList<ConvexObject>();
+			
+			decomp.addObject(merged);
+			decomp.merge(null, obj1, obj2, merged, contained);
+			
+			decomp.addObject(merged2);
 			decomp.merge(null, merged, obj3, merged2, contained);
+			
 			for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
 				assert decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()) == merged2;
 			}
