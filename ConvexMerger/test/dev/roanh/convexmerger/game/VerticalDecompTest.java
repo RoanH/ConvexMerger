@@ -82,6 +82,11 @@ public class VerticalDecompTest{
 			obj.setID(id++);
 			decomp.addObject(obj);
 		}
+		try{
+			decomp.rebuild();
+		} catch (InterruptedException e){
+			e.printStackTrace();
+		}
 		
 		testPlayfield(objects, decomp);
 	}
@@ -100,7 +105,7 @@ public class VerticalDecompTest{
 		Rectangle2D bounds = obj.getShape().getBounds2D();
 		OfDouble xs = random.doubles(bounds.getMinX() - 1.0D, bounds.getMaxX() + 1.0D).iterator();
 		OfDouble ys = random.doubles(bounds.getMinY() - 1.0D, bounds.getMaxY() + 1.0D).iterator();
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 1000; i++){
 			double x = xs.nextDouble();
 			double y = ys.nextDouble();
 			if(obj.contains(x, y)){
