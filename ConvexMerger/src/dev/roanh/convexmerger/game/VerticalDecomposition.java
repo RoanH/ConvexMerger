@@ -841,36 +841,27 @@ public class VerticalDecomposition implements GameStateListener {
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
 		if(segToObj.get(start.botSegment) == obj  || // The segment is already part of the desired object.
-		   segToObj.get(start.botSegment) == null //||
-		   ){  // The segment is underneath{
+		   segToObj.get(start.botSegment) == null ){  
 			q.add(start);
-//			System.out.println("BotSegment: " + start.botSegment.getP1() + " " + start.botSegment.getP2() + "\nObject: " + segToObj.get(start.botSegment));
-//			System.out.println();
 		} else {
-//			System.out.println("Other side");
-			for(Trapezoid onOtherSide : start.botSegment.trapsBelow){
-				if(onOtherSide.leftPoints.get(0).getX() == seg.getP1().getX()){
-					q.add(onOtherSide);
-					break;
-				}
-				for(Trapezoid neib : onOtherSide.getNeighbours()){
-					if(neib.leftPoints.contains(seg.getP1())){
-						q.add(neib);
-						break;
-					}
-				}
-			}
-			if(q.isEmpty()){
-				for(Trapezoid onOtherSide : start.botSegment.trapsBelow){
-					if(onOtherSide.rightPoints.get(0).getX() == seg.getP1().getX()){
+			Trapezoid last = start;
+			while(q.isEmpty()){
+				for(Trapezoid onOtherSide : last.botSegment.trapsBelow){
+					if(onOtherSide.leftPoints.get(0).getX() == seg.getP1().getX()){
 						q.add(onOtherSide);
 						break;
 					}
+					for(Trapezoid neib : onOtherSide.getNeighbours()){
+						if(neib.leftPoints.contains(seg.getP1())){
+							q.add(neib);
+							break;
+						}
+					}
+					last = onOtherSide;
 				}
 			}
 		}
 		assert !q.isEmpty();
-		System.out.println("bot: " + q.peek().botSegment.getP1() + " " + q.peek().botSegment.getP2() + "\ntop: " + q.peek().topSegment.getP1() + " " + q.peek().topSegment.getP2() + "\n");
 		while(!q.isEmpty()){
 			Trapezoid current = q.remove();
 			if(current.intersectsSegment(seg)){
@@ -925,101 +916,112 @@ public class VerticalDecomposition implements GameStateListener {
 			Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
 			int idx = orientedSegments.indexOf(tmp);
 			Line line = orientedSegments.get(idx);
-			if(tmp.getX1() > tmp.getX2()){
+			if(tmp.getX1() < tmp.getX2()){
+				for(Trapezoid trap : line.getTrapsAbove()){
+					if(!visited.contains(trap)){
+						q.add(trap);
+						visited.add(trap);
+					}
+				}
+			} else if(tmp.getX1() > tmp.getX2()){
 				for(Trapezoid trap : line.getTrapsBelow()){
-					q.add(trap);
-					visited.add(trap);
+					if(!visited.contains(trap)){
+						q.add(trap);
+						visited.add(trap);
+					}
 				}
 			}
 		}
 		
-//		points = source.getPoints();
-//		for(int i = 0; i < points.size(); i ++){
-//			Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
-//			int idx = orientedSegments.indexOf(tmp);
-//			Line line = orientedSegments.get(idx);
-//			if(tmp.getX1() > tmp.getX2()){
-//				for(Trapezoid trap : line.getTrapsBelow()){
-//					q.add(trap);
-//					visited.add(trap);
-//				}
-//			}
-//		}
+		points = source.getPoints();
+		for(int i = 0; i < points.size(); i ++){
+			Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
+			int idx = orientedSegments.indexOf(tmp);
+			Line line = orientedSegments.get(idx);
+			if(tmp.getX1() < tmp.getX2()){
+				for(Trapezoid trap : line.getTrapsAbove()){
+					if(!visited.contains(trap)){
+						q.add(trap);
+						visited.add(trap);
+					}
+				}
+			} else if(tmp.getX1() > tmp.getX2()){
+				for(Trapezoid trap : line.getTrapsBelow()){
+					if(!visited.contains(trap)){
+						q.add(trap);
+						visited.add(trap);
+					}
+				}
+			}
+
+		}
 		
-//		points = target.getPoints();
-//		for(int i = 0; i < points.size(); i ++){
-//			Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
-//			int idx = orientedSegments.indexOf(tmp);
-//			Line line = orientedSegments.get(idx);
-//			if(tmp.getX1() > tmp.getX2()){
-//				for(Trapezoid trap : line.getTrapsBelow()){
-//					q.add(trap);
-//					visited.add(trap);
-//				}
-//			}
-//		}
-//		for(ConvexObject merged : absorbed){
-//			points = merged.getPoints();
-//			for(int i = 0; i < points.size(); i ++){
-//				Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
-//				int idx = orientedSegments.indexOf(tmp);
-//				Line line = orientedSegments.get(idx);
-//				if(tmp.getX1() > tmp.getX2()){
-//					for(Trapezoid trap : line.getTrapsBelow()){
-//						q.add(trap);
-//						visited.add(trap);
-//					}
-//				}
-//			}
-//		}
-		
+		points = target.getPoints();
+		for(int i = 0; i < points.size(); i ++){
+			Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
+			int idx = orientedSegments.indexOf(tmp);
+			Line line = orientedSegments.get(idx);
+			if(tmp.getX1() < tmp.getX2()){
+				for(Trapezoid trap : line.getTrapsAbove()){
+					if(!visited.contains(trap)){
+						q.add(trap);
+						visited.add(trap);
+					}
+				}
+			} else if(tmp.getX1() > tmp.getX2()){
+				for(Trapezoid trap : line.getTrapsBelow()){
+					if(!visited.contains(trap)){
+						q.add(trap);
+						visited.add(trap);
+					}
+				}
+			}
+		}
+		for(ConvexObject merged : absorbed){
+			points = merged.getPoints();
+			for(int i = 0; i < points.size(); i ++){
+				Line tmp = new Line(points.get(i), points.get((i+1)% points.size()));
+				int idx = orientedSegments.indexOf(tmp);
+				Line line = orientedSegments.get(idx);
+				if(tmp.getX1() < tmp.getX2()){
+					for(Trapezoid trap : line.getTrapsAbove()){
+						if(!visited.contains(trap)){
+							q.add(trap);
+							visited.add(trap);
+						}
+					}
+				} else if(tmp.getX1() > tmp.getX2()){
+					for(Trapezoid trap : line.getTrapsBelow()){
+						if(!visited.contains(trap)){
+							q.add(trap);
+							visited.add(trap);
+						}
+					}
+				}
+			}
+		}
+		System.out.println("Queue size: " + q.size());
+		for(int i = 0 ; i < q.size(); i++){
+			Trapezoid front = q.remove();
+			System.out.println(front.botSegment.getP1() + " " + front.botSegment.getP2());
+			q.add(front);
+		}
 		while(!q.isEmpty()){
 			Trapezoid curr = q.remove();
 //			ConvexObject container = segToObj.get(curr.botSegment);
-			segToObj.put(curr.botSegment, result);
+			if(segToObj.replace(curr.botSegment, result) == null){
+				segToObj.put(curr.botSegment, result);
+			}
+			System.out.println("anotha one");
 			curr.sanitizeNeighbours();
 			//Add unvisited neighbours to the queue
 			for(Trapezoid neib : curr.getNeighbours()){
+				System.out.println(visited.contains(neib));
 				if(!visited.contains(neib)){
 					q.add(neib);
 					visited.add(neib);
 				}
 			}
-//			//Add unvisited trapezoids adjacent to the bottom segment, if still inside result.
-//			if(curr.botSegment.getX1() != curr.botSegment.getX2()){
-//				if(!result.getPoints().contains(curr.botSegment.getP1()) || !result.getPoints().contains(curr.botSegment.getP2())){
-//					for(Trapezoid neib : curr.botSegment.getTrapsBelow()){
-//						if(!visited.contains(neib)){
-//							q.add(neib);
-//							visited.add(neib);
-//						}
-//					}
-//				}
-////				for(Trapezoid neib : curr.botSegment.getTrapsAbove()){
-////					if(!visited.contains(neib)){
-////						q.add(neib);
-////						visited.add(neib);
-////					}
-////				}
-//			}
-//			
-//			//Add unvisited trapezoids adjacent to the top segment, if still inside result.
-//			if(curr.topSegment.getX1() != curr.topSegment.getX2()){
-//				if(!result.getPoints().contains(curr.topSegment.getP1()) || !result.getPoints().contains(curr.topSegment.getP2())){
-//					for(Trapezoid neib : curr.topSegment.getTrapsAbove()){
-//						if(!visited.contains(neib)){
-//							q.add(neib);
-//							visited.add(neib);
-//						}
-//					}
-//				}
-//				for(Trapezoid neib : curr.topSegment.getTrapsBelow()){
-//					if(!visited.contains(neib)){
-//						q.add(neib);
-//						visited.add(neib);
-//					}
-//				}
-//			}
 		}
 	}
 	
@@ -1384,11 +1386,12 @@ public class VerticalDecomposition implements GameStateListener {
 				if(	topSegment.getP1() == botSegment.getP1() && neib.rightPoints.contains(botSegment.getP1()) ||
 					topSegment.getP2() == botSegment.getP2() && neib.leftPoints.contains(botSegment.getP2()) ||
 					neib.topSegment == botSegment ||
-					topSegment == neib.botSegment ||
-					topSegment.getP1() == neib.botSegment.getP2() ||
-					topSegment.getP2() == neib.botSegment.getP1() ||
-					botSegment.getP1() == neib.topSegment.getP2() ||
-					botSegment.getP2() == neib.topSegment.getP1()) {
+					topSegment == neib.botSegment 
+//					topSegment.getP1() == neib.botSegment.getP2() ||
+//					topSegment.getP2() == neib.botSegment.getP1() ||
+//					botSegment.getP1() == neib.topSegment.getP2() ||
+//					botSegment.getP2() == neib.topSegment.getP1()
+					) {
 					removeNeighbours.add(neib);
 				}
 			}

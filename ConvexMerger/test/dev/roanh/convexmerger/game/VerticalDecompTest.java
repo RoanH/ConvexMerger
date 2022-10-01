@@ -53,7 +53,7 @@ public class VerticalDecompTest{
 			decomp.merge(null, merged, obj3, merged2, contained);
 			
 			for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
-				assert decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()) == merged2;
+				assert decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()) == merged2 : obj.getID();
 			}
 	}
 }
