@@ -1,18 +1,23 @@
 package dev.roanh.convexmerger.game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PrimitiveIterator.OfDouble;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.Constants;
 
 public class VerticalDecompTest{
-
+	
 	@Test
 	public void mergeEdgeCase1() throws InterruptedException{
 		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
@@ -60,6 +65,49 @@ public class VerticalDecompTest{
 
 		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
 			assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
+		}
+	}
+	
+	@Test
+	public void edgeCaseSeed(){
+		testSeed("3Y64YQ01S7B35T82PK9G");
+	}
+	
+	private void testSeed(String seed){
+		List<ConvexObject> objects = new PlayfieldGenerator(seed).generatePlayfield();
+		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+		
+		int id = 1;
+		for(ConvexObject obj : objects){
+			obj.setID(id++);
+			decomp.addObject(obj);
+		}
+		
+		testPlayfield(objects, decomp);
+	}
+	
+	private void testPlayfield(List<ConvexObject> objects, VerticalDecomposition decomp){
+		long seed = ThreadLocalRandom.current().nextLong();
+		System.out.println("seed: " + seed);
+		Random random = new Random(seed);
+		
+		for(ConvexObject obj : objects){
+			testObject(obj, decomp, random);
+		}
+	}
+	
+	private void testObject(ConvexObject obj, VerticalDecomposition decomp, Random random){
+		Rectangle2D bounds = obj.getShape().getBounds2D();
+		OfDouble xs = random.doubles(bounds.getMinX() - 1.0D, bounds.getMaxX() + 1.0D).iterator();
+		OfDouble ys = random.doubles(bounds.getMinY() - 1.0D, bounds.getMaxY() + 1.0D).iterator();
+		for(int i = 0; i < 10; i++){
+			double x = xs.nextDouble();
+			double y = ys.nextDouble();
+			if(obj.contains(x, y)){
+				assertEquals(obj, decomp.queryObject(x, y));
+			}else{
+				assertNotEquals(obj, decomp.queryObject(x, y));
+			}
 		}
 	}
 }
