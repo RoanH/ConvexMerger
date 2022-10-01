@@ -20,7 +20,11 @@ public class HumanPlayer extends Player{
 	public boolean executeMove() throws InterruptedException{
 		synchronized(state){
 			if(state.stream().filter(ConvexObject::canClaim).findAny().isPresent() || stream().filter(this::hasMergeFrom).findAny().isPresent()){
-				state.wait();
+				synchronized(state){
+					while(state.getActivePlayer() == this){
+						state.wait();
+					}
+				}
 				return true;
 			}else{
 				return false;
