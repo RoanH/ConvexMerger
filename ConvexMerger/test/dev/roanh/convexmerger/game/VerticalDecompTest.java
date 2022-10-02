@@ -202,6 +202,10 @@ public class VerticalDecompTest{
 	@Test
 	public void edgeCaseSeed() throws InterruptedException{
 		testSeed("3Y64YQ01S7B35T82PK9G");
+	}
+	
+	@Test
+	public void edgeCaseSeed2() throws InterruptedException{
 		testSeed("3Y657GF10E9XRWYN64ZU");
 	}
 	
