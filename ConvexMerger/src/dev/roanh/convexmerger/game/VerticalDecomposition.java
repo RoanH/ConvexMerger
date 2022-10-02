@@ -219,7 +219,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @param x The x-coordinate of the query point.
 	 * @param y The y-coordinate of the query point.
 	 * @return The convex object at the given position or
-	 *         <code>null</code> is there is no convex object at
+	 *         <code>null</code> if there is no convex object at
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
@@ -1529,6 +1529,14 @@ public class VerticalDecomposition implements GameStateListener {
 				area -= points.get(i).getY() * points.get(j).getX();
 			}
 			return area / 2.0D;
+		}
+		
+		/**
+		 * Returns the convex object that contains this trapezoid. Returns <code>null</code> if no convex object contains it.
+		 * @return The convex object that contains this trapezoid, or <code>null</code> if it is not part of any convex object.
+		 */
+		public ConvexObject getObject(){
+			return segToObj.get(botSegment);
 		}
 	}
 	
