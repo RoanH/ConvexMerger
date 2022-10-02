@@ -209,7 +209,6 @@ public class VerticalDecompTest{
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		System.out.println("seed: " + game.getSeed());
-		game.getVerticalDecomposition().rebuild();
 		
 		while(!game.isFinished()){
 			game.executePlayerTurn();
