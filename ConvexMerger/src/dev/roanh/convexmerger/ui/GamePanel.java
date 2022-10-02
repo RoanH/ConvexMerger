@@ -13,12 +13,14 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Optional;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
+import dev.roanh.convexmerger.game.VerticalDecomposition.Trapezoid;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.Player;
 
@@ -252,6 +254,28 @@ public final class GamePanel extends Screen implements GameStateListener{
 				g.setColor(Color.WHITE);
 				g.setStroke(Theme.BORDER_STROKE);
 				decomp.getDecompLines().forEach(g::draw);
+				
+				for(ConvexObject obj : state.getObjects()){
+					g.setColor(Theme.getPlayerOutline(obj));
+					Point2D center = obj.getCentroid();
+					String str = String.valueOf(obj.getID());
+					g.drawString(
+						str,
+						(float)(center.getX() - 0.5F * g.getFontMetrics().stringWidth(str)),
+						(float)(center.getY() + 0.5F * g.getFontMetrics().getAscent())
+					);
+				}
+				
+				for(Trapezoid trap : state.getVerticalDecomposition().getTrapezoids()){
+					String str = Optional.ofNullable(trap.getObject()).map(ConvexObject::getID).map(String::valueOf).orElse("-");
+					g.setColor(Color.GREEN);
+					Point2D center = trap.getCentroid();
+					g.drawString(
+						str,
+						(float)(center.getX() - 0.5F * g.getFontMetrics().stringWidth(str)),
+						(float)(center.getY() + 0.5F * g.getFontMetrics().getAscent())
+					);
+				}
 			}
 		}
 		
