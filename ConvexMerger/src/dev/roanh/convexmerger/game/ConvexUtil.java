@@ -646,4 +646,42 @@ public class ConvexUtil{
 		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
 	}
+	
+	/**
+	 * Computes the centroid of the given convex object.
+	 * @param points The points that make up the convex object
+	 *        in (counter) clockwise order.
+	 * @return The centroid of the convex object.
+	 */
+	public static final Point2D computeCentroid(List<Point2D> points){
+		double cx = 0.0D;
+		double cy = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			Point2D p1 = points.get(i);
+			Point2D p2 = points.get((i + 1) % points.size());
+			double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
+			cx += (p1.getX() + p2.getX()) * factor;
+			cy += (p1.getY() + p2.getY()) * factor;
+		}
+
+		double area = 6.0D * computeArea(points);
+		return new Point2D.Double(cx / area, cy / area);
+	}
+	
+	/**
+	 * Computes the area of the given convex object.
+	 * @param points The points that make up the convex object
+	 *        in (counter) clockwise order.
+	 * @return The area for the convex object.
+	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
+	 */
+	public static final double computeArea(List<Point2D> points){
+		double area = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			int j = (i + 1) % points.size();
+			area += points.get(i).getX() * points.get(j).getY();
+			area -= points.get(i).getY() * points.get(j).getX();
+		}
+		return area / 2.0D;
+	}
 }

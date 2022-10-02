@@ -1,7 +1,5 @@
 package dev.roanh.convexmerger.game;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -138,6 +136,14 @@ public class VerticalDecomposition implements GameStateListener {
 		trapezoids.add(initialTrapezoid);
 		initialTrapezoid.computeDecompLines();
 		searchStructure.add(initialVertex);
+	}
+	
+	/**
+	 * Gets all the trapezoids that make up the vertical decomposition
+	 * @return All decomposition trapezoids.
+	 */
+	public List<Trapezoid> getTrapezoids(){
+		return trapezoids;
 	}
 	
 	/**
@@ -1491,19 +1497,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * @return the centroid of the trapezoid.
 		 */
 		public Point2D getCentroid(){
-			double cx = 0.0D;
-			double cy = 0.0D;
-			List<Point2D> points = getEndPoints();
-			for(int i = 0; i < points.size(); i++){
-				Point2D p1 = points.get(i);
-				Point2D p2 = points.get((i + 1) % points.size());
-				double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
-				cx += (p1.getX() + p2.getX()) * factor;
-				cy += (p1.getY() + p2.getY()) * factor;
-			}
-
-			double area = 6.0D * getArea();
-			return new Point2D.Double(cx / area, cy / area);
+			return ConvexUtil.computeCentroid(getEndPoints());
 		}
 		
 		/**
@@ -1515,22 +1509,6 @@ public class VerticalDecomposition implements GameStateListener {
 				computeDecompLines();
 			}
 			return Arrays.asList(decompLines.get(0).getP1(), decompLines.get(1).getP1(), decompLines.get(1).getP2(), decompLines.get(0).getP2());
-		}
-		
-		/**
-		 * Computes the area of this trapezoid.
-		 * @return The area for this trapezoid.
-		 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
-		 */
-		public double getArea(){
-			List<Point2D> points = getEndPoints();
-			double area = 0.0D;
-			for(int i = 0; i < points.size(); i++){
-				int j = (i + 1) % points.size();
-				area += points.get(i).getX() * points.get(j).getY();
-				area -= points.get(i).getY() * points.get(j).getX();
-			}
-			return area / 2.0D;
 		}
 		
 		/**
