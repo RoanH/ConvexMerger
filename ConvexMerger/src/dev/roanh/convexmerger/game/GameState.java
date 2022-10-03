@@ -232,7 +232,7 @@ public class GameState{
 			player.removeArea(second.getArea());
 			
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
-			int maxID = 0;
+			int maxID = Math.max(first.getID(), second.getID());
 			for(ConvexObject obj : objects){
 				maxID = Math.max(maxID, obj.getID());
 				if(merged.contains(obj)){

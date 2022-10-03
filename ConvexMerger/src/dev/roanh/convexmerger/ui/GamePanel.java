@@ -374,11 +374,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
 				if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
-					ClaimResult result = state.claimObject(obj, loc);
-					activeDialog = result.getMessage();
-					helperLines = null;
-					if(result.hasResult()){
-						synchronized(state){
+					synchronized(state){
+						ClaimResult result = state.claimObject(obj, loc);
+						activeDialog = result.getMessage();
+						helperLines = null;
+						if(result.hasResult()){
 							state.notify();
 						}
 					}
