@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,41 +18,87 @@ import dev.roanh.convexmerger.ui.Theme;
  * @author Roan
  */
 public class KDTree{
+	private KDTree parent = null;
 	private KDTree low = null;
 	private KDTree high = null;
 	private Point2D point = null;
 	private boolean xAxis;
+	private Rectangle2D bounds = null;
 	
 	public KDTree(List<Point2D> points){
-		this(points, true);
+		this(null, points, true);
 	}
 	
-	private KDTree(List<Point2D> points, boolean xAxis){
+	private KDTree(KDTree parent, List<Point2D> points, boolean xAxis){
 		if(points.isEmpty()){
 			throw new IllegalArgumentException("The kd-tree point set cannot be empty.");
 		}
 		
+		this.parent = parent;
 		this.xAxis = xAxis;
 		this.point = points.get(points.size() / 2);
 		
+		//TODO remove
+		if(parent != null){
+			return;
+		}
+		
 		if(points.size() > 1){
 			points.sort(Comparator.comparing(xAxis ? Point2D::getX : Point2D::getY));
-			high = new KDTree(new ArrayList<Point2D>(points.subList(points.size() / 2 + 1, points.size())), !xAxis);
+			low = new KDTree(this, new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
 		}
 		
 		if(points.size() > 2){
-			low = new KDTree(new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
+			high = new KDTree(this, new ArrayList<Point2D>(points.subList(points.size() / 2 + 1, points.size())), !xAxis);
 		}
+	}
+	
+	public Rectangle2D getBounds(){
+		if(bounds == null){
+			if(parent == null){
+				bounds = new Rectangle2D.Double(0.0D, 0.0D, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+			}else if(this == parent.low){
+				Rectangle2D parentBounds = parent.getBounds();
+				bounds = new Rectangle2D.Double(
+					parentBounds.getMinX(),
+					parentBounds.getMinY(),
+					parentBounds.getWidth() / 2.0D,
+					parentBounds.getHeight() / 2.0D
+				);
+			}else if(this == parent.high){
+				Rectangle2D parentBounds = parent.getBounds();
+				bounds = new Rectangle2D.Double(
+					!xAxis ? parent.point.getX() : parentBounds.getMinX(),
+					!xAxis ? parentBounds.getMinY() : parent.point.getY(),
+					parentBounds.getWidth() / 2.0D,
+					parentBounds.getHeight() / 2.0D
+				);
+			}
+		}
+		
+		return bounds;
 	}
 	
 	public void render(Graphics2D g){
 		g.setColor(Color.WHITE);
 		g.setStroke(Theme.BORDER_STROKE);
 		
+		Rectangle2D bounds = getBounds();
 		if(xAxis){
-			g.draw(new Line2D.Double(point.getX(), 0.0D, point.getX(), Constants.PLAYFIELD_HEIGHT));
+			g.draw(new Line2D.Double(point.getX(), bounds.getMinY(), point.getX(), bounds.getMaxY()));
 		}else{
-			g.draw(new Line2D.Double(0.0D, point.getY(), Constants.PLAYFIELD_WIDTH, point.getY()));
+			g.draw(new Line2D.Double(bounds.getMinX(), point.getY(), bounds.getMaxX(), point.getY()));
+		}
+		
+		g.setColor(new Color(0, 255, 255, 100));
+		g.fill(bounds);
+		
+		if(low != null){
+			low.render(g);
+		}
+		
+		if(high != null){
+			high.render(g);
 		}
 		
 		g.setColor(Color.RED);

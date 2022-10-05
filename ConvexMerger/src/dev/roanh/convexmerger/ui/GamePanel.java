@@ -255,6 +255,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
+		state.kdtree.render(g);
+		
 		if(helperLines != null){
 			g.setStroke(Theme.HELPER_STROKE);
 			g.setColor(state.getActivePlayer().getTheme().getOutline());
