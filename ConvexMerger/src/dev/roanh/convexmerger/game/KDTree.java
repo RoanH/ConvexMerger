@@ -1,9 +1,16 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.ui.Theme;
 
 /**
  * Implementation of a kd-tree for k = 2.
@@ -35,5 +42,19 @@ public class KDTree{
 		if(points.size() > 2){
 			low = new KDTree(new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
 		}
+	}
+	
+	public void render(Graphics2D g){
+		g.setColor(Color.WHITE);
+		g.setStroke(Theme.BORDER_STROKE);
+		
+		if(xAxis){
+			g.draw(new Line2D.Double(point.getX(), 0.0D, point.getX(), Constants.PLAYFIELD_HEIGHT));
+		}else{
+			g.draw(new Line2D.Double(0.0D, point.getY(), Constants.PLAYFIELD_WIDTH, point.getY()));
+		}
+		
+		g.setColor(Color.RED);
+		g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
 	}
 }
