@@ -26,7 +26,8 @@ public class KDTree{
 	private Rectangle2D bounds = null;
 	
 	public KDTree(List<Point2D> points){
-		this(null, points, false);
+		this(null, points, true);
+		System.out.println("---");
 	}
 	
 	private KDTree(KDTree parent, List<Point2D> points, boolean xAxis){
@@ -36,10 +37,10 @@ public class KDTree{
 		
 		this.parent = parent;
 		this.xAxis = xAxis;
+		points.sort(Comparator.comparing(xAxis ? Point2D::getX : Point2D::getY));
 		this.point = points.get(points.size() / 2);
 		
 		if(points.size() > 1){
-			points.sort(Comparator.comparing(xAxis ? Point2D::getX : Point2D::getY));
 			low = new KDTree(this, new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
 		}
 		
@@ -117,7 +118,7 @@ public class KDTree{
 			high.render(g);
 		}
 		
-		g.setColor(parent == null ? Color.RED : Color.GREEN);
+		g.setColor(parent == null ? Color.RED : (parent.parent == null ? Color.GREEN : Color.BLUE));
 		g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
 	}
 }
