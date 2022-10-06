@@ -3,11 +3,14 @@ package dev.roanh.convexmerger;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Line2D.Double;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
 import dev.roanh.convexmerger.game.KDTree;
+import dev.roanh.convexmerger.game.SegmentPartitionTree;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
 import dev.roanh.util.Util;
@@ -26,8 +29,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-		game.switchScene(new Screen(game){
-			private KDTree tree;
+		Screen test = new Screen(game){
 			
 			@Override
 			protected void render(Graphics2D g, int width, int height, Point2D mouseLoc){
@@ -40,14 +42,19 @@ public class Main{
 					new Point2D.Double(1000.0D, 800.0D),
 					new Point2D.Double(900.0D, 700.0D)
 				);
-				tree = new KDTree(points);
+//				KDTree kd = new KDTree(points);
+				SegmentPartitionTree tree = SegmentPartitionTree.fromPoints(points);
+				Line2D line = new Line2D.Double(points.get(0), points.get(1));
+				tree.addSegment(line);
 				
 				g.setColor(Color.GRAY);
 				for(Point2D point : points){
 					g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
 				}
+				g.draw(line);
 				
 				tree.render(g);
+//				kd.render(g);
 			}
 			
 			@Override
@@ -85,7 +92,8 @@ public class Main{
 				// TODO Auto-generated method stub
 				return null;
 			}
-		});
+		};
+		game.switchScene(test);
 		game.showGame();
 	}
 }

@@ -24,6 +24,7 @@ public class KDTree{
 	private Point2D point = null;
 	private boolean xAxis;
 	private Rectangle2D bounds = null;
+	private List<Line2D> data = null;
 	
 	public KDTree(List<Point2D> points){
 		this(null, points, true);
@@ -31,22 +32,46 @@ public class KDTree{
 	}
 	
 	private KDTree(KDTree parent, List<Point2D> points, boolean xAxis){
-		if(points.isEmpty()){
-			throw new IllegalArgumentException("The kd-tree point set cannot be empty.");
-		}
-		
 		this.parent = parent;
 		this.xAxis = xAxis;
-		points.sort(Comparator.comparing(xAxis ? Point2D::getX : Point2D::getY));
-		this.point = points.get(points.size() / 2);
-		
-		if(points.size() > 1){
-			low = new KDTree(this, new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
+		if(points != null){
+			points.sort(Comparator.comparing(xAxis ? Point2D::getX : Point2D::getY));
+			this.point = points.get(points.size() / 2);
+			
+			if(points.size() > 1){
+				low = new KDTree(this, new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
+			}else{
+				low = new KDTree(this, null, !xAxis);
+			}
+			
+			if(points.size() > 2){
+				high = new KDTree(this, new ArrayList<Point2D>(points.subList(points.size() / 2 + 1, points.size())), !xAxis);
+			}else{
+				high = new KDTree(this, null, !xAxis);
+			}
+		}else{
+			data = new ArrayList<Line2D>();
 		}
-		
-		if(points.size() > 2){
-			high = new KDTree(this, new ArrayList<Point2D>(points.subList(points.size() / 2 + 1, points.size())), !xAxis);
-		}
+	}
+	
+	public void addData(Line2D line){
+		data.add(line);
+	}
+	
+	public boolean isLeafCell(){
+		return point == null;
+	}
+	
+	public KDTree getLowNode(){
+		return low;
+	}
+	
+	public KDTree getHighNode(){
+		return high;
+	}
+	
+	public boolean contains(Line2D line){
+		return getBounds().intersectsLine(line);
 	}
 	
 	public Rectangle2D getBounds(){
@@ -101,14 +126,16 @@ public class KDTree{
 		g.setStroke(Theme.BORDER_STROKE);
 		
 		Rectangle2D bounds = getBounds();
-		if(xAxis){
-			g.draw(new Line2D.Double(point.getX(), bounds.getMinY(), point.getX(), bounds.getMaxY()));
+		if(isLeafCell()){
+			g.setColor(data.isEmpty() ? new Color(0, 255, 255, 50) : new Color(255, 0, 0, 50));
+			g.fill(bounds);
 		}else{
-			g.draw(new Line2D.Double(bounds.getMinX(), point.getY(), bounds.getMaxX(), point.getY()));
+			if(xAxis){
+				g.draw(new Line2D.Double(point.getX(), bounds.getMinY(), point.getX(), bounds.getMaxY()));
+			}else{
+				g.draw(new Line2D.Double(bounds.getMinX(), point.getY(), bounds.getMaxX(), point.getY()));
+			}
 		}
-		
-		g.setColor(new Color(0, 255, 255, 50));
-		g.fill(bounds);
 		
 		if(low != null){
 			low.render(g);
@@ -118,7 +145,9 @@ public class KDTree{
 			high.render(g);
 		}
 		
-		g.setColor(parent == null ? Color.RED : (parent.parent == null ? Color.GREEN : Color.BLUE));
-		g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
+		if(!isLeafCell()){
+			g.setColor(parent == null ? Color.RED : (parent.parent == null ? Color.GREEN : Color.BLUE));
+			g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
+		}
 	}
 }
