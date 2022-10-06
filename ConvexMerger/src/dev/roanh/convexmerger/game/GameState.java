@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
@@ -68,8 +67,7 @@ public class GameState{
 	 * The seed of the generator that generated this game's playfield.
 	 */
 	private String seed;
-	@Deprecated
-	public KDTree kdtree;
+	private SegmentPartitionTree segmentTree;
 
 	/**
 	 * Constructs a new game state with the given playfield generator and
@@ -102,8 +100,12 @@ public class GameState{
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 		}
-		kdtree = new KDTree(objects.stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
+		segmentTree = SegmentPartitionTree.fromObjects(objects);
 		gameStart = System.currentTimeMillis();
+	}
+	
+	public SegmentPartitionTree getSegmentTree(){
+		return segmentTree;
 	}
 	
 	/**

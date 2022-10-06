@@ -70,6 +70,7 @@ public class KDTree{
 	}
 	
 	public boolean contains(Line2D line){
+		//TODO, being on the edge should not count as containment
 		return getBounds().intersectsLine(line);
 	}
 	
@@ -122,32 +123,32 @@ public class KDTree{
 	}
 	
 	public void render(Graphics2D g){
-		g.setColor(Color.WHITE);
-		g.setStroke(Theme.BORDER_STROKE);
-		
 		Rectangle2D bounds = getBounds();
 		if(isLeafCell()){
 			g.setColor(data.isEmpty() ? new Color(0, 255, 255, 50) : new Color(255, 0, 0, 50));
 			g.fill(bounds);
+			
+			g.setColor(Color.WHITE);
+			String num = String.valueOf(data.size());
+			g.drawString(
+				num,
+				(float)(bounds.getMinX() + (bounds.getWidth() - g.getFontMetrics().stringWidth(num)) / 2.0F),
+				(float)(bounds.getMinY() + (bounds.getHeight() + g.getFontMetrics().getAscent()) / 2.0F)
+			);
 		}else{
+			g.setColor(Color.WHITE);
+			g.setStroke(Theme.BORDER_STROKE);
 			if(xAxis){
 				g.draw(new Line2D.Double(point.getX(), bounds.getMinY(), point.getX(), bounds.getMaxY()));
 			}else{
 				g.draw(new Line2D.Double(bounds.getMinX(), point.getY(), bounds.getMaxX(), point.getY()));
 			}
-		}
-		
-		if(low != null){
+			
 			low.render(g);
-		}
-		
-		if(high != null){
 			high.render(g);
-		}
-		
-		if(!isLeafCell()){
-			g.setColor(parent == null ? Color.RED : (parent.parent == null ? Color.GREEN : Color.BLUE));
-			g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
+			
+			g.setColor(Color.BLUE);
+			g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));
 		}
 	}
 }
