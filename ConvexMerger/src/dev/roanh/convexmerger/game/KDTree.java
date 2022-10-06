@@ -26,7 +26,7 @@ public class KDTree{
 	private Rectangle2D bounds = null;
 	
 	public KDTree(List<Point2D> points){
-		this(null, points, true);
+		this(null, points, false);
 	}
 	
 	private KDTree(KDTree parent, List<Point2D> points, boolean xAxis){
@@ -37,11 +37,6 @@ public class KDTree{
 		this.parent = parent;
 		this.xAxis = xAxis;
 		this.point = points.get(points.size() / 2);
-		
-		//TODO remove
-		if(parent != null){
-			return;
-		}
 		
 		if(points.size() > 1){
 			points.sort(Comparator.comparing(xAxis ? Point2D::getX : Point2D::getY));
@@ -63,8 +58,8 @@ public class KDTree{
 					bounds = new Rectangle2D.Double(
 						parentBounds.getMinX(),
 						parentBounds.getMinY(),
-						parentBounds.getWidth() / 2.0D,
-						parentBounds.getHeight() / 2.0D
+						parentBounds.getWidth(),
+						parent.point.getY() - parentBounds.getMinY()
 					);
 				}else{
 					//validated
@@ -78,11 +73,12 @@ public class KDTree{
 			}else if(this == parent.high){
 				Rectangle2D parentBounds = parent.getBounds();
 				if(xAxis){
+					//validated
 					bounds = new Rectangle2D.Double(
-						xAxis ? parentBounds.getMinX() : parent.point.getX(),
-						xAxis ? parent.point.getY() : parentBounds.getMinY(),
-						parentBounds.getWidth() - parent.point.getX(),
-						parentBounds.getHeight() - parent.point.getY()
+						parentBounds.getMinX(),
+						parent.point.getY(),
+						parentBounds.getWidth(),
+						parentBounds.getMaxY() - parent.point.getY()
 					);
 				}else{
 					//validated
