@@ -3,6 +3,7 @@ package dev.roanh.convexmerger.game;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,24 +25,46 @@ public class SegmentPartitionTree{
 	
 	private void addSegment(KDTree node, Line2D line){
 		if(node.contains(line)){
-			KDTree low = node.getLowNode();
-			if(low == null){
+			if(node.isLeafCell()){
 				node.addData(line);
 			}else{
-				addSegment(low, line);
+				addSegment(node.getLowNode(), line);
+				addSegment(node.getHighNode(), line);
 			}
-			
-			KDTree high = node.getHighNode();
-			if(high == null){
-				node.addData(line);
+		}
+	}
+	
+	public boolean intersects(Point2D from, Point2D to){
+		return intersects(new Line2D.Double(from, to));
+	}
+	
+	public boolean intersects(Line2D line){
+		return intersects(kdTree, line);
+	}
+	
+	private boolean intersects(KDTree node, Line2D line){
+		if(node.contains(line)){
+			if(node.isLeafCell()){
+				return intersectsAny(node.getData(), line);
 			}else{
-				addSegment(high, line);
+				return intersects(node.getLowNode(), line) || intersects(node.getHighNode(), line);
 			}
+		}else{
+			return false;
 		}
 	}
 	
 	public void render(Graphics2D g){
 		kdTree.render(g);
+	}
+	
+	private static final boolean intersectsAny(List<Line2D> lines, Line2D line){
+		for(Line2D test : lines){
+			if(test.intersectsLine(line)){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	//no overlap

@@ -73,6 +73,10 @@ public class KDTree{
 		return getBounds().intersectsLine(line);
 	}
 	
+	public List<Line2D> getData(){
+		return data;
+	}
+	
 	public Rectangle2D getBounds(){
 		if(bounds == null){
 			if(parent == null){

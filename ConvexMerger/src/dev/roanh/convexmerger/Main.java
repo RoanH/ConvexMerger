@@ -41,14 +41,20 @@ public class Main{
 					new Point2D.Double(900.0D, 700.0D)
 				);
 				SegmentPartitionTree tree = SegmentPartitionTree.fromPoints(points);
-				Line2D line = new Line2D.Double(points.get(0), points.get(3));
+				Line2D line = new Line2D.Double(points.get(0), points.get(5));
 				tree.addSegment(line);
+				
+				Line2D query = new Line2D.Double(points.get(2), points.get(4));
 				
 				g.setColor(Color.GRAY);
 				for(Point2D point : points){
 					g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
 				}
 				g.draw(line);
+				g.setColor(Color.MAGENTA);
+				g.draw(query);
+				
+				System.out.println(tree.intersects(query));
 				
 				tree.render(g);
 			}
