@@ -59,20 +59,40 @@ public class KDTree{
 				bounds = new Rectangle2D.Double(0.0D, 0.0D, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 			}else if(this == parent.low){
 				Rectangle2D parentBounds = parent.getBounds();
-				bounds = new Rectangle2D.Double(
-					parentBounds.getMinX(),
-					parentBounds.getMinY(),
-					parentBounds.getWidth() / 2.0D,
-					parentBounds.getHeight() / 2.0D
-				);
+				if(xAxis){
+					bounds = new Rectangle2D.Double(
+						parentBounds.getMinX(),
+						parentBounds.getMinY(),
+						parentBounds.getWidth() / 2.0D,
+						parentBounds.getHeight() / 2.0D
+					);
+				}else{
+					//validated
+					bounds = new Rectangle2D.Double(
+						parentBounds.getMinX(),
+						parentBounds.getMinY(),
+						parent.point.getX() - parentBounds.getMinX(),
+						parentBounds.getHeight()
+					);
+				}
 			}else if(this == parent.high){
 				Rectangle2D parentBounds = parent.getBounds();
-				bounds = new Rectangle2D.Double(
-					!xAxis ? parent.point.getX() : parentBounds.getMinX(),
-					!xAxis ? parentBounds.getMinY() : parent.point.getY(),
-					parentBounds.getWidth() / 2.0D,
-					parentBounds.getHeight() / 2.0D
-				);
+				if(xAxis){
+					bounds = new Rectangle2D.Double(
+						xAxis ? parentBounds.getMinX() : parent.point.getX(),
+						xAxis ? parent.point.getY() : parentBounds.getMinY(),
+						parentBounds.getWidth() - parent.point.getX(),
+						parentBounds.getHeight() - parent.point.getY()
+					);
+				}else{
+					//validated
+					bounds = new Rectangle2D.Double(
+						parent.point.getX(),
+						parentBounds.getMinY(),
+						parentBounds.getMaxX() - parent.point.getX(),
+						parentBounds.getHeight()
+					);
+				}
 			}
 		}
 		
@@ -90,7 +110,7 @@ public class KDTree{
 			g.draw(new Line2D.Double(bounds.getMinX(), point.getY(), bounds.getMaxX(), point.getY()));
 		}
 		
-		g.setColor(new Color(0, 255, 255, 100));
+		g.setColor(new Color(0, 255, 255, 50));
 		g.fill(bounds);
 		
 		if(low != null){
@@ -101,7 +121,7 @@ public class KDTree{
 			high.render(g);
 		}
 		
-		g.setColor(Color.RED);
+		g.setColor(parent == null ? Color.RED : Color.GREEN);
 		g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
 	}
 }
