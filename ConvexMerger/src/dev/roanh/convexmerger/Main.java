@@ -4,12 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.awt.geom.Line2D.Double;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
-import dev.roanh.convexmerger.game.KDTree;
 import dev.roanh.convexmerger.game.SegmentPartitionTree;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
@@ -42,9 +40,8 @@ public class Main{
 					new Point2D.Double(1000.0D, 800.0D),
 					new Point2D.Double(900.0D, 700.0D)
 				);
-//				KDTree kd = new KDTree(points);
 				SegmentPartitionTree tree = SegmentPartitionTree.fromPoints(points);
-				Line2D line = new Line2D.Double(points.get(0), points.get(1));
+				Line2D line = new Line2D.Double(points.get(0), points.get(3));
 				tree.addSegment(line);
 				
 				g.setColor(Color.GRAY);
@@ -54,42 +51,33 @@ public class Main{
 				g.draw(line);
 				
 				tree.render(g);
-//				kd.render(g);
 			}
 			
 			@Override
 			protected boolean isRightButtonEnabled(){
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
 			@Override
 			protected boolean isLeftButtonEnabled(){
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
 			@Override
 			protected void handleRightButtonClick(){
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			protected void handleLeftButtonClick(){
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			protected String getRightButtonText(){
-				// TODO Auto-generated method stub
 				return null;
 			}
 			
 			@Override
 			protected String getLeftButtonText(){
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};

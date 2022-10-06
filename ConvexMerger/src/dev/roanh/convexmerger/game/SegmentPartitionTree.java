@@ -40,14 +40,9 @@ public class SegmentPartitionTree{
 		}
 	}
 	
-	
-	
-	
 	public void render(Graphics2D g){
 		kdTree.render(g);
 	}
-	
-	
 	
 	//no overlap
 	public static final SegmentPartitionTree fromObjects(List<ConvexObject> objects){
@@ -73,17 +68,5 @@ public class SegmentPartitionTree{
 	//TODO probably remove
 	public static final SegmentPartitionTree fromPoints(List<Point2D> points){
 		return new SegmentPartitionTree(points);
-	}
-	
-	
-	
-	
-	
-	
-	
-	public class LineSegment{
-		
-		
-		
 	}
 }
