@@ -45,6 +45,7 @@ public class Main{
 				tree.addSegment(line);
 				
 				LineSegment query = new LineSegment(points.get(2), points.get(4));
+				tree.addSegment(query);
 				
 				g.setColor(Color.GRAY);
 				for(Point2D point : points){
@@ -54,7 +55,7 @@ public class Main{
 				g.setColor(Color.MAGENTA);
 				g.draw(query);
 				
-				System.out.println(tree.intersects(query));
+//				System.out.println(tree.intersects(query));
 				
 				tree.render(g);
 			}
