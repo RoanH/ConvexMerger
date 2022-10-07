@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.ui.Theme;
@@ -28,7 +29,7 @@ public class KDTree<T>{
 	private List<T> data = null;
 	
 	public KDTree(List<Point2D> points){
-		this(null, points, false);
+		this(null, points, true);
 	}
 	
 	private KDTree(KDTree<T> parent, List<Point2D> points, boolean xAxis){
@@ -52,6 +53,10 @@ public class KDTree<T>{
 		}else{
 			data = new ArrayList<T>();
 		}
+	}
+	
+	public Stream<KDTree<T>> streamCells(){
+		return isLeafCell() ? Stream.of(this) : Stream.concat(low.streamCells(), high.streamCells());
 	}
 	
 	public void addData(T line){

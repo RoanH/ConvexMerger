@@ -41,11 +41,11 @@ public class Main{
 					new Point2D.Double(900.0D, 700.0D)
 				);
 				SegmentPartitionTree tree = SegmentPartitionTree.fromPoints(points);
-				LineSegment line = new LineSegment(points.get(0), points.get(5));
+				LineSegment line = new LineSegment(points.get(4), points.get(5));
 				tree.addSegment(line);
 				
 				LineSegment query = new LineSegment(points.get(2), points.get(4));
-				tree.addSegment(query);
+//				tree.addSegment(query);
 				
 				g.setColor(Color.GRAY);
 				for(Point2D point : points){
@@ -55,7 +55,7 @@ public class Main{
 				g.setColor(Color.MAGENTA);
 				g.draw(query);
 				
-//				System.out.println(tree.intersects(query));
+				System.out.println(tree.intersects(query));
 				
 				tree.render(g);
 			}

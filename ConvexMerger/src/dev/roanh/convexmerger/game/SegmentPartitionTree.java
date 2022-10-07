@@ -59,6 +59,10 @@ public class SegmentPartitionTree{
 		}
 	}
 	
+	public Stream<KDTree<LineSegment>> streamCells(){
+		return kdTree.streamCells();
+	}
+	
 	public void render(Graphics2D g){
 		kdTree.render(g);
 	}
@@ -67,10 +71,9 @@ public class SegmentPartitionTree{
 		for(LineSegment test : lines){
 			//ensure exact endpoint matches are not intersections
 			if(test.getP1() == line.getP1() || test.getP1() == line.getP2() || test.getP2() == line.getP1() || test.getP2() == line.getP2()){
-				System.out.println(" exact");
 				//the only way line segments that share an end point can still intersect is if they overlap
 				return ConvexUtil.checkCollinear(
-					test.getP1() == line.getP1() ? test.getP2() : test.getP1(),
+					(test.getP1() == line.getP1() || test.getP1() == line.getP2()) ? test.getP2() : test.getP1(),
 					line.getP1(),
 					line.getP2()
 				);
@@ -175,6 +178,11 @@ public class SegmentPartitionTree{
 		public void setLine(double x1, double y1, double x2, double y2){
 			p1 = new Point2D.Double(x1, y1);
 			p2 = new Point2D.Double(x2, y2);
+		}
+		
+		@Override
+		public String toString(){
+			return "Segment[p1=(" + p1.getX() + "," + p1.getY() + "),p2=(" + p2.getX() + "," + p2.getY() + ")]";
 		}
 	}
 }
