@@ -3,12 +3,12 @@ package dev.roanh.convexmerger;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
 import dev.roanh.convexmerger.game.SegmentPartitionTree;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
 import dev.roanh.util.Util;
@@ -41,14 +41,14 @@ public class Main{
 					new Point2D.Double(900.0D, 700.0D)
 				);
 				SegmentPartitionTree tree = SegmentPartitionTree.fromPoints(points);
-				Line2D line = new Line2D.Double(points.get(0), points.get(5));
+				LineSegment line = new LineSegment(points.get(0), points.get(5));
 				tree.addSegment(line);
 				
-				Line2D query = new Line2D.Double(points.get(2), points.get(4));
+				LineSegment query = new LineSegment(points.get(2), points.get(4));
 				
 				g.setColor(Color.GRAY);
 				for(Point2D point : points){
-					g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));	
+					g.fill(new Ellipse2D.Double(point.getX() - 2.5D, point.getY() - 2.5D, 5.0D, 5.0D));	
 				}
 				g.draw(line);
 				g.setColor(Color.MAGENTA);

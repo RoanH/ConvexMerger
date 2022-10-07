@@ -1,13 +1,7 @@
 package dev.roanh.convexmerger.game;
 
-import static java.awt.geom.Rectangle2D.OUT_BOTTOM;
-import static java.awt.geom.Rectangle2D.OUT_LEFT;
-import static java.awt.geom.Rectangle2D.OUT_RIGHT;
-import static java.awt.geom.Rectangle2D.OUT_TOP;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -22,21 +16,22 @@ import dev.roanh.convexmerger.ui.Theme;
 /**
  * Implementation of a kd-tree for k = 2.
  * @author Roan
+ * @param <T> The per cell item data type.
  */
-public class KDTree{
-	private KDTree parent = null;
-	private KDTree low = null;
-	private KDTree high = null;
+public class KDTree<T>{
+	private KDTree<T> parent = null;
+	private KDTree<T> low = null;
+	private KDTree<T> high = null;
 	private Point2D point = null;
 	private boolean xAxis;
 	private Rectangle2D bounds = null;
-	private List<Line2D> data = null;
+	private List<T> data = null;
 	
 	public KDTree(List<Point2D> points){
 		this(null, points, false);
 	}
 	
-	private KDTree(KDTree parent, List<Point2D> points, boolean xAxis){
+	private KDTree(KDTree<T> parent, List<Point2D> points, boolean xAxis){
 		this.parent = parent;
 		this.xAxis = xAxis;
 		if(points != null && !points.isEmpty()){
@@ -44,22 +39,22 @@ public class KDTree{
 			this.point = points.get(points.size() / 2);
 			
 			if(points.size() > 1){
-				low = new KDTree(this, new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
+				low = new KDTree<T>(this, new ArrayList<Point2D>(points.subList(0, points.size() / 2)), !xAxis);
 			}else{
-				low = new KDTree(this, null, !xAxis);
+				low = new KDTree<T>(this, null, !xAxis);
 			}
 			
 			if(points.size() > 2){
-				high = new KDTree(this, new ArrayList<Point2D>(points.subList(points.size() / 2 + 1, points.size())), !xAxis);
+				high = new KDTree<T>(this, new ArrayList<Point2D>(points.subList(points.size() / 2 + 1, points.size())), !xAxis);
 			}else{
-				high = new KDTree(this, null, !xAxis);
+				high = new KDTree<T>(this, null, !xAxis);
 			}
 		}else{
-			data = new ArrayList<Line2D>();
+			data = new ArrayList<T>();
 		}
 	}
 	
-	public void addData(Line2D line){
+	public void addData(T line){
 		data.add(line);
 	}
 	
@@ -67,11 +62,11 @@ public class KDTree{
 		return point == null;
 	}
 	
-	public KDTree getLowNode(){
+	public KDTree<T> getLowNode(){
 		return low;
 	}
 	
-	public KDTree getHighNode(){
+	public KDTree<T> getHighNode(){
 		return high;
 	}
 	
@@ -106,7 +101,7 @@ public class KDTree{
 		    && (bounds.getMaxY() - p1.getY() > 0.0000006D || (pos2 & Rectangle2D.OUT_BOTTOM) == 0);
 	}
 	
-	public List<Line2D> getData(){
+	public List<T> getData(){
 		return data;
 	}
 	
@@ -180,7 +175,7 @@ public class KDTree{
 			high.render(g);
 			
 			g.setColor(Color.BLUE);
-			g.fill(new Ellipse2D.Double(point.getX() - 5.0D, point.getY() - 5.0D, 10.0D, 10.0D));
+			g.fill(new Ellipse2D.Double(point.getX() - 2.5D, point.getY() - 2.5D, 5.0D, 5.0D));
 		}
 	}
 }
