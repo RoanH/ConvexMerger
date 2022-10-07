@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
+import dev.roanh.convexmerger.game.KDTree;
 import dev.roanh.convexmerger.game.SegmentPartitionTree;
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.ui.ConvexMerger;
@@ -40,6 +41,7 @@ public class Main{
 					new Point2D.Double(1000.0D, 800.0D),
 					new Point2D.Double(900.0D, 700.0D)
 				);
+				KDTree<Void> kd = new KDTree<>(points.subList(0, 3));
 				SegmentPartitionTree tree = SegmentPartitionTree.fromPoints(points);
 				LineSegment line = new LineSegment(points.get(4), points.get(5));
 				tree.addSegment(line);
@@ -55,9 +57,10 @@ public class Main{
 				g.setColor(Color.MAGENTA);
 				g.draw(query);
 				
-				System.out.println(tree.intersects(query));
+//				System.out.println(tree.intersects(query));
 				
-				tree.render(g);
+//				tree.render(g);
+				kd.render(g);
 			}
 			
 			@Override

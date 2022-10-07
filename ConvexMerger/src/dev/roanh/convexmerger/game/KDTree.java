@@ -55,6 +55,10 @@ public class KDTree<T>{
 		}
 	}
 	
+	public Point2D getPoint(){
+		return point;
+	}
+	
 	public Stream<KDTree<T>> streamCells(){
 		return isLeafCell() ? Stream.of(this) : Stream.concat(low.streamCells(), high.streamCells());
 	}
