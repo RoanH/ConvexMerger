@@ -1,7 +1,13 @@
 package dev.roanh.convexmerger.game;
 
+import static java.awt.geom.Rectangle2D.OUT_BOTTOM;
+import static java.awt.geom.Rectangle2D.OUT_LEFT;
+import static java.awt.geom.Rectangle2D.OUT_RIGHT;
+import static java.awt.geom.Rectangle2D.OUT_TOP;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -27,7 +33,7 @@ public class KDTree{
 	private List<Line2D> data = null;
 	
 	public KDTree(List<Point2D> points){
-		this(null, points, true);
+		this(null, points, false);
 	}
 	
 	private KDTree(KDTree parent, List<Point2D> points, boolean xAxis){
@@ -70,8 +76,34 @@ public class KDTree{
 	}
 	
 	public boolean contains(Line2D line){
-		//TODO, being on the edge should not count as containment
-		return getBounds().intersectsLine(line);
+		Rectangle2D bounds = getBounds();
+		int pos1 = bounds.outcode(line.getP1());
+		int pos2 = bounds.outcode(line.getP2());
+		
+		//delegate when no boundary points are involved
+		if(pos1 != 0 && pos2 != 0){
+			return bounds.intersectsLine(line);
+		}
+		
+		//for a non degenerate line an intersection exists if both points are internal
+		if(pos1 == 0 && pos2 == 0){
+			return true;
+		}
+		
+		//make p1 internal
+		Point2D p1 = line.getP1();
+		if(pos1 != 0){
+			pos2 = pos1;
+			pos1 = 0;
+			p1 = line.getP2();
+		}
+		
+		//check for lines moving away from each boundary
+		//note: lower bounds are inherited and thus more accurate, exact even unless collinearity is involved
+		return (p1.getX() - bounds.getMinX() > 0.0000001D || (pos2 & Rectangle2D.OUT_LEFT) == 0) 
+		    && (bounds.getMaxX() - p1.getX() > 0.0000006D || (pos2 & Rectangle2D.OUT_RIGHT) == 0)
+		    && (p1.getY() - bounds.getMinY() > 0.0000001D || (pos2 & Rectangle2D.OUT_TOP) == 0)
+		    && (bounds.getMaxY() - p1.getY() > 0.0000006D || (pos2 & Rectangle2D.OUT_BOTTOM) == 0);
 	}
 	
 	public List<Line2D> getData(){
