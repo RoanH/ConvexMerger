@@ -20,14 +20,50 @@ import dev.roanh.convexmerger.ui.Theme;
  * @param <T> The per cell item data type.
  */
 public class KDTree<T>{
+	/**
+	 * The parent kd-tree this kd-tree is a cell in. Will
+	 * be <code>null</code> if this is the root node of the tree.
+	 */
 	private KDTree<T> parent = null;
+	/**
+	 * The low child of this kd-tree. This is the cell
+	 * containing the points lower than the point for this
+	 * KD tree. Will be <code>null</code> if this is a leaf cell.
+	 */
 	private KDTree<T> low = null;
+	/**
+	 * The high child of this kd-tree. This is the cell
+	 * containing the points higher than the point for this
+	 * kd-tree. Will be <code>null</code> if this is a leaf cell.
+	 */
 	private KDTree<T> high = null;
+	/**
+	 * The point defining the line splitting this kd-tree
+	 * cell into a low and high cell. Will be <code>null</code>
+	 * if this is a leaf cell.
+	 */
 	private Point2D point = null;
+	/**
+	 * The way this kd-tree node is split into a low and
+	 * high cell. If true the splitting line is vertical
+	 * and otherwise the splitting line is horizontal.
+	 */
 	private boolean xAxis;
+	/**
+	 * The axis aligned bounding rectangle defining the
+	 * bounds of this kd-tree cell.
+	 */
 	private Rectangle2D bounds = null;
+	/**
+	 * The data stored in this cell. Will be <code>null</code>
+	 * if this is not a leaf cell.
+	 */
 	private List<T> data = null;
 	
+	/**
+	 * Constructs a new kd-tree for the given point set.
+	 * @param points The points to build a kd-tree from.
+	 */
 	public KDTree(List<Point2D> points){
 		this(null, points, true);
 	}
