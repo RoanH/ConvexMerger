@@ -1,12 +1,16 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import dev.roanh.convexmerger.ui.Theme;
 
 /**
  * Segment partition tree for efficient detection
@@ -15,6 +19,7 @@ import java.util.stream.Stream;
  */
 public class SegmentPartitionTree{
 	private final KDTree<LineSegment> kdTree;
+	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	
 	private SegmentPartitionTree(List<Point2D> points){
 		kdTree = new KDTree<LineSegment>(points);
@@ -26,6 +31,7 @@ public class SegmentPartitionTree{
 	
 	public void addSegment(LineSegment line){
 		addSegment(kdTree, line);
+		segments.add(line);
 	}
 	
 	private void addSegment(KDTree<LineSegment> node, LineSegment line){
@@ -64,6 +70,11 @@ public class SegmentPartitionTree{
 	}
 	
 	public void render(Graphics2D g){
+		g.setColor(Color.BLUE);
+		g.setStroke(Theme.BORDER_STROKE);
+		for(LineSegment line : segments){
+			g.draw(line);
+		}
 		kdTree.render(g);
 	}
 	
