@@ -210,14 +210,34 @@ public class ConvexObject implements Identity, Serializable{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
+		return merge(state, other, false);
+	}
+	
+	/**
+	 * Attempts to merge this object with the given
+	 * object while checking that the boundary of the
+	 * resulting merged object does not intersect any
+	 * other objects in the given game state.
+	 * @param state The game state to check with if the
+	 *        resulting object has any intersections. Can
+	 *        be <code>null</code> to skip this check.
+	 * @param other The object to merge with.
+	 * @param saveSegments True if the merge lines for the
+	 *        merge should be added to the game state.
+	 * @return The resulting merged convex object.
+	 * @see #merge(ConvexObject)
+	 */
+	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments){
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		
+		//check if the new hull is valid
 		if(state != null){
-			//check if the new hull is valid
-			for(ConvexObject obj : state.getObjects()){
-				if(!obj.equals(this) && !obj.equals(other) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
-					return null;
-				}
+			SegmentPartitionTree tree = state.getSegmentTree();
+			if(tree.intersects(lines[0], lines[1]) || tree.intersects(lines[2], lines[3])){
+				return null;
+			}else if(saveSegments){
+				tree.addSegment(lines[0], lines[1]);
+				tree.addSegment(lines[2], lines[3]);
 			}
 		}
 		

@@ -225,7 +225,7 @@ public class GameState{
 	 *         was not possible.
 	 */
 	private ConvexObject mergeObjects(ConvexObject first, ConvexObject second){
-		ConvexObject merged = first.merge(this, second);
+		ConvexObject merged = first.merge(this, second, true);
 		if(merged != null){
 			Player player = first.getOwner();
 			merged.setOwner(player);
