@@ -169,7 +169,7 @@ public class KDTree<T>{
 			g.drawString(
 				num,
 				(float)(bounds.getMinX() + (bounds.getWidth() - g.getFontMetrics().stringWidth(num)) / 2.0F),
-				(float)(bounds.getMinY() + (bounds.getHeight() + g.getFontMetrics().getAscent()) / 2.0F)
+				(float)(bounds.getMinY() + (bounds.getHeight() + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2.0F)
 			);
 		}else{
 			g.setColor(Color.WHITE);
