@@ -91,7 +91,7 @@ public class Main{
 				return null;
 			}
 		};
-		game.switchScene(test);
+		//game.switchScene(test);
 		game.showGame();
 	}
 }

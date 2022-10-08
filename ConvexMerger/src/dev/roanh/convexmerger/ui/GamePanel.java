@@ -21,6 +21,7 @@ import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.util.Dialog;
 
 /**
  * Main panel responsible for rendering the current game state.
@@ -56,9 +57,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private boolean showCentroids = false;
 	/**
-	 * True if the vertical decomposition objects should be rendered/
+	 * True if the vertical decomposition objects should be rendered.
 	 */
 	private boolean showDecomp = false;
+	/**
+	 * True if the segment tree should be rendered.
+	 */
+	private boolean showSegmentTree = false;
 	/**
 	 * Currently showing feedback dialog.
 	 */
@@ -255,7 +260,9 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
-		state.getSegmentTree().render(g);
+		if(showSegmentTree){
+			state.getSegmentTree().render(g);
+		}
 		
 		if(helperLines != null){
 			g.setStroke(Theme.HELPER_STROKE);
@@ -397,6 +404,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
 				showDecomp = !showDecomp;
 				state.getVerticalDecomposition().setAnimated(showDecomp);
+			}else if(e.getKeyCode() == KeyEvent.VK_S){
+				showSegmentTree = !showSegmentTree;
+			}else if(e.getKeyCode() == KeyEvent.VK_M){
+				//TODO to be completed
+				Dialog.showMessageDialog("TODO");
 			}
 		}
 	}
