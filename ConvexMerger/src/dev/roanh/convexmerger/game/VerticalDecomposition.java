@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -85,11 +84,36 @@ public class VerticalDecomposition implements GameStateListener {
 		initializeDecomposition();
 	}
 	
+	//TODO: Check if this is how the method should be written
+	/**
+	 * Constructs a new vertical decomposition with
+	 * the given bounding box and objects. The decomposition
+	 * is initialised and all objects get decomposed, i.e.
+	 * their segments are added to the decomposition.
+	 * @param bounds A bounding box that all objects that will
+	 *        ever be added will be contained in (strictly inside,
+	 *        there will be no overlap with the edges).
+	 * @param objects The objects that the vertical decomposition
+	 * 		  will contain at the beginning.
+	 * @return An initialized vertical decomposition with the given
+	 * 		   bounds and containing the objects with their
+	 *         decomposition into trapezoids.
+	 * @throws InterruptedException
+	 */
+	public VerticalDecomposition fromObjects(Rectangle2D bounds, List<ConvexObject> objects) throws InterruptedException{
+		VerticalDecomposition decomp = new VerticalDecomposition(bounds);
+		decomp.initializeDecomposition();
+		for(ConvexObject obj : objects){
+			decomp.addAndDecomposeObject(obj);
+		}
+		return decomp;
+	}
+	
 	/**
 	 * Gets all lines that were ever added to the vertical decomposition.
 	 * @return All line segments ever added.
 	 */
-	public Set<? extends Line2D> getLines(){
+	public Set<Line> getLines(){
 		return lines;
 	}
 	
@@ -147,6 +171,27 @@ public class VerticalDecomposition implements GameStateListener {
 	}
 	
 	/**
+	 * Adds a trapezoid to the trapezoids of the field.
+	 * @param trap
+	 */
+	public void addTrapezoid(Trapezoid trap){
+		trap.sanitizeNeighbours();
+		trapezoids.add(trap);
+	}
+	
+	/**
+	 * Removes a trapezoid from the structure, freeing its neighbours
+	 * and disassociating it from its decomposition vertex.
+	 * @param trap The trapezoid to be removed.
+	 */
+	public void removeTrapezoid(Trapezoid trap){
+		trap.freeNeighbours();
+		trap.getDecompVertex().setTrapezoid(null);
+		trap.setDecompVertex(null);
+		trapezoids.remove(trap);
+	}
+	
+	/**
 	 * Adds a new convex object to this vertical decomposition.
 	 * @param obj The convex object to add.
 	 */
@@ -167,13 +212,24 @@ public class VerticalDecomposition implements GameStateListener {
 			return;
 		}
 		List<Point2D> points = obj.getPoints();
+		Point2D p1 = points.get(points.size() - 1), p2;
 		for(int i = 0; i < points.size(); i++){
-			Point2D p1 = points.get(i), p2 = points.get((i + 1) % points.size());
+			p2 = points.get(i);
 
 			Line2D segment = new Line(p1, p2);
-
 			addSegment(segment, obj);
+			p1 = p2;
 		}
+	}
+	
+	/**
+	 * Adds an object and all of its segments to the decomposition;
+	 * @param obj
+	 * @throws InterruptedException
+	 */
+	public void addAndDecomposeObject(ConvexObject obj) throws InterruptedException{
+		addObject(obj);
+		decomposeObject(obj);
 	}
 	
 	/**
@@ -242,7 +298,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 *         the given position.
 	 */
 	public Trapezoid queryTrapezoid(double x, double y){
-		return searchStructure.get(0).queryPoint(new Point2D.Double(x, y));
+		return queryTrapezoid(new Point2D.Double(x, y));
 	}
 	
 	/**
@@ -304,110 +360,123 @@ public class VerticalDecomposition implements GameStateListener {
 			segToObj.put(orientedSegment, toPut);
 
 			if(p1.getX() == p2.getX()){
-				handleVerticalSegment(orientedSegment);
+				addedVerticalSegment(orientedSegment);
 			} else if(start.equals(end)){
-				handleSingleIntersectedTrapezoid(orientedSegment);
+				addedIntersectsSingleTrapezoid(orientedSegment);
 			}else{
-				handleMultipleIntersectedTrapezoids(orientedSegment, obj);
+				addedIntersectsMultipleTrapezoids(orientedSegment, obj);
 			}
 		}
 	}
 	
-	public void addTrapezoid(Trapezoid trap){
-		trap.sanitizeNeighbours();
-		trapezoids.add(trap);
-	}
-	
-	private void handleVerticalSegment(Line orientedSegment){
-		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
+	/**
+	 * Updates the search structure for the case of an added vertical segment.
+	 * @param segment The added segment. Its first point is always the lower leftmost point.
+	 */
+	private void addedVerticalSegment(Line segment){
+		Point2D leftp = segment.getP1(), rightp = segment.getP2();
 		Trapezoid trap = queryTrapezoid(leftp);
 		boolean rightExists = rightp.getX() != trap.rightPoints.get(0).getX();
-		System.out.println("ELP");
-		System.out.println("points: " + leftp + " " + rightp);
+//		System.out.println("ELP");
+//		System.out.println("points: " + leftp + " " + rightp);
 		if(rightExists){
-			//Inside the trapezoid.
-			//Create left and right trapezoids.
-			Trapezoid left = new Trapezoid(trap.leftPoints, leftp, trap.botSegment, trap.topSegment);
-			Trapezoid right = new Trapezoid(rightp, trap.rightPoints, trap.botSegment, trap.topSegment);
-
-			left.addRightPoint(rightp);
-			right.addLeftPoint(leftp);
-
-			//Assign neighbours.
-			left.addNeighbour(right);
-			right.addNeighbour(left);
-			for(Trapezoid neib : trap.getNeighbours()){
-				if(trap.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
-					left.addNeighbour(neib);
-					neib.addNeighbour(left);
-				}
-				if(trap.rightPoints.get(0).getX() == neib.leftPoints.get(0).getX()){
-					right.addNeighbour(neib);
-					neib.addNeighbour(right);
-				}
-			}
-
-			//Update trapezoid structure and update the search structure.
-			trapezoids.remove(trap);
-			trap.freeNeighbours();
-			addTrapezoid(left);
-			addTrapezoid(right);
-
-			DecompVertex vertex = trap.getDecompVertex();
-			DecompVertex leftVertex = new DecompVertex(left);
-			DecompVertex rightVertex = new DecompVertex(right);
-
-			vertex.setType(2);
-			vertex.setTrapezoid(null);
-			vertex.setSegment(orientedSegment);
-			vertex.setLeftChild(leftVertex);
-			vertex.setRightChild(rightVertex);
-
-			return;
+			addedInternalVerticalSegment(segment, trap);
 		}else{
-			//On the right border.
-			//Add leftp and rightp to the right bounding points, and to the left bounding points of eligible neighbours.
-			trap.addRightPoint(leftp);
-			trap.addRightPoint(rightp);
-			for(Trapezoid neib : trap.getNeighbours()){
-				if(!neib.leftPoints.contains(leftp)){
-					for(Line2D decompLine : neib.getDecompLines()){
-						if(decompLine.relativeCCW(leftp) == 0 || decompLine.getP1() == leftp || decompLine.getP2() == leftp){
-							neib.leftPoints.add(leftp);
-						}
-					}
-				}
-				if(!neib.leftPoints.contains(rightp)){
-					for(Line2D decompLine : neib.getDecompLines()){
-						if(decompLine.relativeCCW(rightp) == 0 || decompLine.getP1().equals(rightp) || decompLine.getP2().equals(rightp)){
-							neib.leftPoints.add(rightp);
-						}
-					}
-				}
-			}
-
-			//Remove neighbours to the right that might not share a side anymore
-			List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
-			for(Trapezoid neib : trap.getNeighbours()){
-				if(neib.leftPoints.get(0).getX() == trap.rightPoints.get(0).getX() && leftp.equals(trap.botSegment.getP2()) && rightp.equals(trap.topSegment.getP2())){
-					removeNeighbours.add(neib);
-					continue;
-				}
-			}
-			for(Trapezoid neib : removeNeighbours){
-				trap.removeNeighbour(neib);
-				neib.removeNeighbour(trap);
-			}
-			
-			//No need to update search structure, no new trapezoids should be created.
-			return;
+			addedBorderVerticalSegment(segment, trap);
 		}
 	}
+	
+	/**
+	 * Handles the case where the added vertical segment is on the inside of a single trapezoid.
+	 * @param orientedSegment The added vertical segment
+	 */
+	private void addedInternalVerticalSegment(Line segment, Trapezoid trap){
+		Point2D leftp = segment.getP1(), rightp = segment.getP2();
+		//Inside the trapezoid.
+		//Create left and right trapezoids.
+		Trapezoid left = new Trapezoid(trap.leftPoints, leftp, trap.botSegment, trap.topSegment);
+		Trapezoid right = new Trapezoid(rightp, trap.rightPoints, trap.botSegment, trap.topSegment);
+
+		left.addRightPoint(rightp);
+		right.addLeftPoint(leftp);
+
+		//Assign neighbours.
+		left.addNeighbour(right);
+		right.addNeighbour(left);
+		for(Trapezoid neib : trap.getNeighbours()){
+			if(trap.leftPoints.get(0).getX() == neib.rightPoints.get(0).getX()){
+				left.addNeighbour(neib);
+				neib.addNeighbour(left);
+			}
+			if(trap.rightPoints.get(0).getX() == neib.leftPoints.get(0).getX()){
+				right.addNeighbour(neib);
+				neib.addNeighbour(right);
+			}
+		}
+
+		//Update trapezoid structure and update the search structure.
+		DecompVertex vertex = trap.getDecompVertex();
+		removeTrapezoid(trap);
+		
+		addTrapezoid(left);
+		addTrapezoid(right);
+		
+		DecompVertex leftVertex = new DecompVertex(left);//TODO: ask roan if refered objects will change in the decomp vertex (if I put them just below the place where the vertex gets added).
+		DecompVertex rightVertex = new DecompVertex(right);
+
+		vertex.setType(2);
+		vertex.setSegment(segment);
+		vertex.setLeftChild(leftVertex);
+		vertex.setRightChild(rightVertex);
+	}
+	
+	private void addedBorderVerticalSegment(Line segment, Trapezoid trap){
+		Point2D leftp = segment.getP1(), rightp = segment.getP2();
+		//Add leftp and rightp to the right bounding points, and to the left bounding points of eligible neighbours.
+		trap.addRightPoint(leftp);
+		trap.addRightPoint(rightp);
+		for(Trapezoid neib : trap.getNeighbours()){
+			if(!neib.leftPoints.contains(leftp) && neib.leftPoints.get(0).getX() == leftp.getX()){
+				for(Line2D decompLine : neib.getDecompLines()){
+					if(decompLine.relativeCCW(leftp) == 0 || decompLine.getP1() == leftp || decompLine.getP2() == leftp){
+						neib.leftPoints.add(leftp);
+					}
+				}
+			}
+			if(!neib.leftPoints.contains(rightp) ){
+				for(Line2D decompLine : neib.getDecompLines()){
+					if(decompLine.relativeCCW(rightp) == 0 || decompLine.getP1().equals(rightp) || decompLine.getP2().equals(rightp)){
+						neib.leftPoints.add(rightp);
+					}
+				}
+			}
+		}
+
+		//Remove neighbours to the right that might not share a side anymore
+		List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
+		for(Trapezoid neib : trap.getNeighbours()){
+			if(neib.leftPoints.get(0).getX() == leftp.getX() &&(
+					leftp.equals(trap.botSegment.getP2()) && rightp.equals(trap.topSegment.getP2()) ||
+					rightp.equals(trap.botSegment.getP2()) && leftp.equals(trap.topSegment.getP2())
+				)){
+				removeNeighbours.add(neib);
+				continue;
+			}
+		}
+		System.out.println(removeNeighbours.size());
+		for(Trapezoid neib : removeNeighbours){
+			trap.removeNeighbour(neib);
+			neib.removeNeighbour(trap);
+		}
+		//No need to update search structure, no new trapezoids should be created.
+	}
+	
+	
 	/**
 	 * Adds a segment that only crosses one trapezoid inside the decomposition.
 	 * @param orientedSegment The segment to add to the decomposition.
 	 */
-	private void handleSingleIntersectedTrapezoid(Line orientedSegment){
+	private void addedIntersectsSingleTrapezoid(Line orientedSegment){
 		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
 
 		Trapezoid start = queryTrapezoid(leftp);
@@ -547,7 +616,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @param orientedSegment The segment to add to the decomposition.
 	 */
 
-	public void handleMultipleIntersectedTrapezoids(Line orientedSegment, ConvexObject obj){
+	public void addedIntersectsMultipleTrapezoids(Line orientedSegment, ConvexObject obj){
 		Point2D leftp = orientedSegment.getP1(), rightp = orientedSegment.getP2();
 		Trapezoid start = queryTrapezoid(leftp);
 		Trapezoid end = queryTrapezoid(rightp);
@@ -860,14 +929,9 @@ public class VerticalDecomposition implements GameStateListener {
 		Trapezoid start = queryTrapezoid(seg.getP1());
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
-		if(segToObj.get(start.botSegment) == obj  || // The segment is already part of the desired object.
+		if(segToObj.get(start.botSegment) == obj  ||
 		   segToObj.get(start.botSegment) == null ){  
 			q.add(start);
-			if(seg.getP1().getX() == 267.0 && seg.getP2().getX() == 396.0){
-				System.out.println("bruhh");
-				System.out.println(start.botSegment.getP1() + " " + start.botSegment.getP2() + " " + start.topSegment.getP1() + " " + start.topSegment.getP2());
-				System.out.println(start.getDecompLines().get(1).intersectsLine(seg));
-			}
 		} else {
 			Trapezoid last = start;
 			while(q.isEmpty()){
@@ -901,13 +965,7 @@ public class VerticalDecomposition implements GameStateListener {
 						intersectedTraps.add(current);
 					}
 				}
-//				if(seg.getP1().getX() == 267.0 && seg.getP2().getX() == 396.0){
-//					System.out.println(current.leftPoints.get(0).getX() + " " + current.rightPoints.get(0).getX() + " " + current.getNeighbours().size());
-//				}
 				for(Trapezoid neib : current.getNeighbours()){
-					if(seg.getP1().getX() == 267.0 && seg.getP2().getX() == 396.0){
-						System.out.println("Current: " + current.leftPoints.get(0).getX()+ " " + current.rightPoints.get(0).getX() + ";\nNeib: " + neib.leftPoints.get(0).getX() + " " + neib.rightPoints.get(0).getX());
-					}
 					if(!intersectedTraps.contains(neib) && neib.intersectsSegment(seg)){
 						if(!visited.contains(neib) && neib.leftPoints.get(0).getX() == current.rightPoints.get(0).getX()){
 							q.add(neib);
@@ -930,10 +988,10 @@ public class VerticalDecomposition implements GameStateListener {
 	// Spread through adjacencies and walls so long as they are not part of the result.
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
-		System.out.println("NEW MERGE ------------\nSource: ");
-		source.getPoints().forEach(point -> System.out.println("g.fill(new Ellipse2D.Double(" + (point.getX()-5.0D) + ", "  + (point.getY()-5.0D) + ", 10, 10));"));
-		System.out.println("Target: ");
-		target.getPoints().forEach(point -> System.out.println("g.fill(new Ellipse2D.Double(" + (point.getX()-5.0D) + ", "  + (point.getY()-5.0D) + ", 10, 10));"));
+//		System.out.println("NEW MERGE ------------\nSource: ");
+//		source.getPoints().forEach(point -> System.out.println("g.fill(new Ellipse2D.Double(" + (point.getX()-5.0D) + ", "  + (point.getY()-5.0D) + ", 10, 10));"));
+//		System.out.println("Target: ");
+//		target.getPoints().forEach(point -> System.out.println("g.fill(new Ellipse2D.Double(" + (point.getX()-5.0D) + ", "  + (point.getY()-5.0D) + ", 10, 10));"));
 		Point2D[] mergePoints = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
 		System.out.println(mergePoints[0] + " " + mergePoints[1] + " " + mergePoints[2] + " " +mergePoints[3]);
 		Line firstLine =  new Line(mergePoints[0], mergePoints[1]);
@@ -942,7 +1000,6 @@ public class VerticalDecomposition implements GameStateListener {
 			addSegment(firstLine, result);
 			addSegment(secondLine, result);
 		} catch (InterruptedException e){
-			// TODO Roan help
 			e.printStackTrace();
 		}
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
@@ -976,7 +1033,6 @@ public class VerticalDecomposition implements GameStateListener {
 			if(segToObj.replace(curr.botSegment, result) == null){
 				segToObj.put(curr.botSegment, result);
 			}
-			curr.sanitizeNeighbours();
 			//Add unvisited neighbours to the queue
 			for(Trapezoid neib : curr.getNeighbours()){
 				if(!visited.contains(neib)){
@@ -1365,21 +1421,15 @@ public class VerticalDecomposition implements GameStateListener {
 		public void sanitizeNeighbours(){
 			List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
 			for(Trapezoid neib: getNeighbours()){
-				if(	//(topSegment.getY1() != 900 && botSegment.getX1() != 900) && 
-					topSegment.getP1() == botSegment.getP1() && topSegment.getP1().getX() == leftPoints.get(0).getX() &&(
-						neib.rightPoints.contains(botSegment.getP1())
+				if((neib.rightPoints.contains(topSegment.getP1()) || neib.rightPoints.contains(botSegment.getP1())) &&(
+						orientedSegments.indexOf(new Line(botSegment.getP1(), topSegment.getP1())) != -1
 					)||
-//					topSegment.getP1().getX() == botSegment.getP1().getX() && topSegment.getP1().getY() != botSegment.getP1().getY() &&(
-//						leftPoints.contains(topSegment.getP1()) && leftPoints.contains(botSegment.getP1()) && (
-//							neib.rightPoints.contains(topSegment.getP1()) && neib.rightPoints.contains(botSegment.getP1())
-//						)
-//					)||
-					topSegment.getP2().getX() == botSegment.getP2().getX() && (
-						rightPoints.contains(topSegment.getP2()) && rightPoints.contains(botSegment.getP2()) &&(neib.leftPoints.contains(botSegment.getP2()) && neib.leftPoints.contains(topSegment.getP2()))
+					(neib.leftPoints.contains(botSegment.getP2()) || neib.leftPoints.contains(topSegment.getP2())) &&(
+						orientedSegments.indexOf(new Line(botSegment.getP2(), topSegment.getP2())) != -1
 					)||
 					neib.topSegment == botSegment ||
-					topSegment == neib.botSegment
-					) {
+					topSegment == neib.botSegment){
+					System.out.println("neighbour removed");
 					removeNeighbours.add(neib);
 				}
 			}
