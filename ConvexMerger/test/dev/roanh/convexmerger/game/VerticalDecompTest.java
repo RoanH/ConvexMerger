@@ -190,8 +190,23 @@ public class VerticalDecompTest{
 	}
 	
 	@Test
+	public void edgeCaseSeed4() throws InterruptedException{
+		testSpecific("3Y657GF2ENJVQR6KVR2I");
+	}
+	
+	@Test
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
+		System.out.println("Game seed: " + game.getSeed());
+
+		while(!game.isFinished()){
+			game.executePlayerTurn();
+			testPlayfield(game.getObjects(), game.getVerticalDecomposition());
+		}
+	}
+	
+	public void testSpecific(String seed) throws InterruptedException{
+		GameState game = new GameState(new PlayfieldGenerator("3Y657GF2ENJVQR6KVR2I"), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		System.out.println("Game seed: " + game.getSeed());
 
 		while(!game.isFinished()){
