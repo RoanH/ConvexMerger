@@ -189,7 +189,7 @@ public class VerticalDecompTest{
 		testSeed("3Y657GF3SVVAK592WVM5");
 	}
 	
-	@Test
+	@Test//Fails due to a convex object merging error
 	public void edgeCaseSeed4() throws InterruptedException{
 		testSpecific("3Y657GF2ENJVQR6KVR2I");
 	}

@@ -121,7 +121,8 @@ public class GameState{
 	 * @return True if the game state is ready for the next turn.
 	 */
 	public boolean ready(){
-		return !decomp.needsRebuild();
+//		return !decomp.needsRebuild();
+		return true;//TODO: @Roan perhaps remove this method?
 	}
 	
 	/**

@@ -190,43 +190,6 @@ public class VerticalDecomposition implements GameStateListener {
 		}
 	}
 	
-//	/**
-//	 * Adds all segments of a given object to the vertical decomposition, if the object is part of the decomposition.
-//	 * @param obj The object whose segments to add to the vertical decomposition.
-//	 * @throws InterruptedException When the game is aborted.
-//	 */
-//	private void decomposeObject(ConvexObject obj) throws InterruptedException{
-//		if(!objects.contains(obj)){
-//			return;
-//		}
-//		List<Point2D> points = obj.getPoints();	
-//		for(int i = 0; i < points.size(); i++){
-//			Point2D p1 = points.get(i), p2 = points.get((i+1)%points.size());
-//	
-//			Line2D segment = new Line(p1, p2);
-//			addSegment(segment, obj);
-//		}
-//	}
-//	
-//	/**
-//	 * Adds an object and all of its segments to the decomposition;
-//	 * @param obj
-//	 * @throws InterruptedException
-//	 */
-//	public void addAndDecomposeObject(ConvexObject obj) throws InterruptedException{
-//		addObject(obj);
-//		decomposeObject(obj);
-//	}
-	
-	/**
-	 * Checks if the vertical decomposition data has changed
-	 * such that a rebuild is required.
-	 * @return True if a rebuild is required.
-	 */
-	public boolean needsRebuild(){
-		return false;
-	}
-	
 	/**
 	 * Checks if the vertical decomposition is animated,
 	 * meaning it is showing individual segment updates.
@@ -234,15 +197,6 @@ public class VerticalDecomposition implements GameStateListener {
 	 */
 	public boolean isAnimated(){
 		return animate;
-	}
-	
-	/**
-	 * Rebuilds the vertical composition to match the
-	 * current set of stored convex objects.
-	 * @deprecated
-	 * @throws InterruptedException When the game is aborted.
-	 */
-	public void rebuild() throws InterruptedException{
 	}
 	
 	/**
@@ -303,7 +257,8 @@ public class VerticalDecomposition implements GameStateListener {
 	}
 	
 	/**
-	 * Adds a line segment belonging to an object to the vertical decomposition and updates the structures.
+	 * Adds a line segment belonging to an object to
+	 * the vertical decomposition and updates the structures.
 	 * @param seg The line segment to add to the decomposition.
 	 * @param obj The object that the segment belongs to.
 	 * @throws InterruptedException When the game is aborted.
@@ -315,12 +270,8 @@ public class VerticalDecomposition implements GameStateListener {
 
 		synchronized(this){
 			Point2D p1 = seg.getP1(), p2 = seg.getP2();
-			Point2D leftp = Double.compare(p1.getX(), p2.getX()) == 0 ? 
-				(Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2)
-				: (Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2);
-			Point2D rightp = leftp.equals(p1) ? p2 : p1;
 
-			Line orientedSegment = new Line(leftp, rightp);
+			Line orientedSegment = Line.orientedLine(p1, p2);
 			Trapezoid start = queryTrapezoid(orientedSegment.getP1());
 			Trapezoid end = queryTrapezoid(orientedSegment.getP2());
 
@@ -340,8 +291,10 @@ public class VerticalDecomposition implements GameStateListener {
 	}
 	
 	/**
-	 * Updates the search structure for the case of an added vertical segment.
-	 * @param segment The added segment. Its first point is always the lower leftmost point.
+	 * Updates the search structure for the case
+	 * of an added vertical segment.
+	 * @param segment The added segment. Its first point
+	 * 				  is always the lower leftmost point.
 	 */
 	private void addedVerticalSegment(Line segment){
 		Point2D leftp = segment.getP1(), rightp = segment.getP2();
@@ -392,9 +345,16 @@ public class VerticalDecomposition implements GameStateListener {
 		DecompVertex leftVertex = new DecompVertex(left);
 		DecompVertex rightVertex = new DecompVertex(right);
 		
-		vertex.setToSegment(segment, leftVertex, rightVertex);//TODO: Check out if this potentially fixes vertical segment wall clipping.
+		vertex.setToSegment(segment, leftVertex, rightVertex);
 	}
 	
+	/**
+	 * Handles the case where the added vertical
+	 * segment is on the inside of a single trapezoid.
+	 * @param segment The added vertical segment
+	 * @param trap The trapezoid whose border
+	 * 		  	   the segment lies on.
+	 */
 	private void addedBorderVerticalSegment(Line segment, Trapezoid trap){
 		Point2D leftp = segment.getP1(), rightp = segment.getP2();
 		//Add leftp and rightp to the right bounding points, and to the left bounding points of eligible neighbours.
@@ -875,7 +835,6 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @param seg The line segment.
 	 * @return A list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
 	 */
-
 	public Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg, ConvexObject obj){
 		Queue<Trapezoid>intersectedTraps = new LinkedList<Trapezoid>();
 		Trapezoid start = queryTrapezoid(seg.getP1());
@@ -934,17 +893,12 @@ public class VerticalDecomposition implements GameStateListener {
 	public void claim(Player player, ConvexObject obj){
 	}
 
-	// Get merge lines and insert them.
-	// get traps on the inside border of the result
-	// Spread through adjacencies and walls so long as they are not part of the result.
+
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
-//		System.out.println("NEW MERGE ------------\nSource: ");
-//		source.getPoints().forEach(point -> System.out.println("g.fill(new Ellipse2D.Double(" + (point.getX()-5.0D) + ", "  + (point.getY()-5.0D) + ", 10, 10));"));
-//		System.out.println("Target: ");
-//		target.getPoints().forEach(point -> System.out.println("g.fill(new Ellipse2D.Double(" + (point.getX()-5.0D) + ", "  + (point.getY()-5.0D) + ", 10, 10));"));
 		Point2D[] mergePoints = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
-		System.out.println(mergePoints[0] + " " + mergePoints[1] + " " + mergePoints[2] + " " +mergePoints[3]);
+//		System.out.println(mergePoints[0] + " " + mergePoints[1] + " " + mergePoints[2] + " " +mergePoints[3]);
+		System.out.println(source.getID() + " " + target.getID() + " -> " + result.getID());
 		Line firstLine =  new Line(mergePoints[0], mergePoints[1]);
 		Line secondLine = new Line(mergePoints[2], mergePoints[3]);
 		try{
@@ -975,16 +929,7 @@ public class VerticalDecomposition implements GameStateListener {
 
 		while(!q.isEmpty()){
 			Trapezoid curr = q.remove();
-//			if(segToObj.get(curr.botSegment) == source){
-//				System.out.println("Src: " + curr.getNeighbours().size());
-//				continue;
-//			}else if(segToObj.get(curr.botSegment) == target){
-//				System.out.println("Target: " + curr.getNeighbours().size());
-//				continue;
-//			}else if(segToObj.get(curr.botSegment) == result){
-//				System.out.println("Result: " + curr.getNeighbours().size());
-//				continue;
-//			} else 
+
 			if(segToObj.replace(curr.botSegment, result) == null){
 				segToObj.put(curr.botSegment, result);
 			}
@@ -1405,8 +1350,9 @@ public class VerticalDecomposition implements GameStateListener {
 		}
 		
 		/**
-		 * Removes this trapezoid from the neighbour lists of all neighbours and clears the neighbour list.
-		 * Useful for when we want to delete a Trapezoid.
+		 * Removes this trapezoid from the neighbour lists
+		 * of all neighbours and clears the neighbour list
+		 * of this trapezoid.
 		 */
 		public void freeNeighbours(){
 			for(Trapezoid t : neighbours){
@@ -1417,10 +1363,23 @@ public class VerticalDecomposition implements GameStateListener {
 			botSegment.removeTrapAbove(this);
 		}
 		
+		/**
+		 * Removes undesired neighbourhoods of trapezoids.
+		 * This includes:
+		 *   - Neigbhours on the left (right) in case the 
+		 *     top and bottom segment meet at the corresponding
+		 *     left or right bounding point of this trapezoid
+		 *   - Neighbours on the left (right) in case the
+		 *     top and bottom segment share the same X coordinate
+		 *     and there is a segment between the left (right)
+		 *     endpoints of the top and bottom segments.
+		 *   - Neighbours who are somehow connected through the
+		 *     top(bottom) bounding segment.
+		 */
 		public void sanitizeNeighbours(){
 			List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
 			if(leftPoints.get(0).getX() == rightPoints.get(0).getX()){
-				freeNeighbours();//TODO: make a separate method to connect left neighbours to right neighbours.
+				freeNeighbours();
 				return;
 			}
 			for(Trapezoid neib: getNeighbours()){
@@ -1456,6 +1415,11 @@ public class VerticalDecomposition implements GameStateListener {
 
 		/**
 		 * Computes and sets the decomposition lines related to this trapezoid.
+		 * The decomposition lines have x coordinates equal to the left and right
+		 * bounding points, and they end at the bottomsegment and topsegment
+		 * of the trapezoid.
+		 * The endpoints of the decomposition lines can be used as points for the
+		 * construction of a convex object that covers the trapezoid.
 		 */
 		public void computeDecompLines(){
 			Point2D botLeft = botSegment.getP1(), botRight = botSegment.getP2();
@@ -1519,7 +1483,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
 		 */
 		public boolean pointInside(Point2D p){
-			if(botSegment.relativeCCW(p) < 0 && topSegment.relativeCCW(p) > 0 && p.getX() > leftPoints.get(0).getX() && p.getX() < rightPoints.get(0).getX()){//TODO: change up relatives?
+			if(botSegment.relativeCCW(p) < 0 && topSegment.relativeCCW(p) > 0 && p.getX() > leftPoints.get(0).getX() && p.getX() < rightPoints.get(0).getX()){
 				return true;
 			}
 			return false;
@@ -1582,7 +1546,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * on its end points.
 	 * @author Roan
 	 */
-	public class Line extends Line2D{
+	public static class Line extends Line2D{
 		/**
 		 * First end point of the line.
 		 */
@@ -1676,6 +1640,22 @@ public class VerticalDecomposition implements GameStateListener {
 		}
 		
 		/**
+		 * Create an oriented line segment given two points.
+		 * The orientation is from left-bottom to right-top.
+		 * @param p1 The first point
+		 * @param p2 The second point
+		 * @return An oriented line segment where the first point
+		 * 		   is the leftmost-lower point, and the second
+		 * 		   point is the rightmost-upper point.
+		 */
+		public static Line orientedLine(Point2D p1, Point2D p2){
+			Point2D leftp = java.lang.Double.compare(p1.getX(), p2.getX()) == 0 ? 
+					(java.lang.Double.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2)
+					: (java.lang.Double.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2);
+			Point2D rightp = leftp.equals(p1) ? p2 : p1;
+			return new Line(leftp, rightp);
+		}
+		/**
 		 * Retrieves the list of trapezoids above this line.
 		 * @return The list of trapezoids above this line.
 		 */
@@ -1714,6 +1694,7 @@ public class VerticalDecomposition implements GameStateListener {
 		public void removeTrapAbove(Trapezoid trap){
 			trapsAbove.remove(trap);
 		}
+		
 		/**
 		 * Removes a given trapezoid from the list of trapezoids below this line.
 		 * @param trap The trapezoid to remove.
