@@ -897,8 +897,7 @@ public class VerticalDecomposition implements GameStateListener {
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 		Point2D[] mergePoints = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
-//		System.out.println(mergePoints[0] + " " + mergePoints[1] + " " + mergePoints[2] + " " +mergePoints[3]);
-		System.out.println(source.getID() + " " + target.getID() + " -> " + result.getID());
+		
 		Line firstLine =  new Line(mergePoints[0], mergePoints[1]);
 		Line secondLine = new Line(mergePoints[2], mergePoints[3]);
 		try{
