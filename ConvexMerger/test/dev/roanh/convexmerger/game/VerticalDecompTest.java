@@ -21,7 +21,6 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void mergeEdgeCase1() throws InterruptedException{
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 			new Point2D.Double(438.02112433303597D, 472.340820332763D),
 			new Point2D.Double(489.78583106387856D, 506.06631108164527D),
@@ -52,16 +51,11 @@ public class VerticalDecompTest{
 		obj3.setID(2);
 		merged.setID(3);
 		merged2.setID(4);
-		decomp.addObject(obj1);
-		decomp.addObject(obj2);
-		decomp.addObject(obj3);
-		decomp.rebuild();
+		
+		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
 
-		decomp.addObject(merged);
 		decomp.merge(null, obj1, obj2, merged, contained);
-
-		decomp.addObject(merged2);
 		decomp.merge(null, merged, obj3, merged2, contained);
 
 		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
@@ -71,7 +65,6 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void mergeInternalEdgeCase() throws InterruptedException{
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
 		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 			new Point2D.Double(438.02112433303597D, 472.340820332763D),
 			new Point2D.Double(489.78583106387856D, 506.06631108164527D),
@@ -121,24 +114,12 @@ public class VerticalDecompTest{
 		obj5.setID(4);
 		merged.setID(5);
 		merged2.setID(6);
-		decomp.addObject(obj1);
-		decomp.addObject(obj2);
-		decomp.addObject(obj3);
-		decomp.addObject(obj4);
-		decomp.addObject(obj5);
-		decomp.rebuild();
+		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3, obj4, obj5));
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
 
-		decomp.addObject(merged);
 		decomp.merge(null, obj1, obj2, merged, contained);
-
-		decomp.addObject(merged2);
 		decomp.merge(null, merged, obj3, merged2, contained);
-		
-		decomp.addObject(merged3);
 		decomp.merge(null, obj4, obj5, merged3, contained);
-		
-		decomp.addObject(merged4);
 		decomp.merge(null, merged2, merged3, merged4, contained);
 
 		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, obj4, obj5, merged, merged2, merged3, merged4)){
@@ -148,8 +129,7 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void verticalMergeCase() throws InterruptedException{
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
-		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
 				new Point2D.Double(346.3156037808325D, 186.69795126235783D),
 				new Point2D.Double(463.96266453274745D, 137.28618574655354D),
 				new Point2D.Double(494.55090032824535D, 221.20775574958623D),
@@ -178,25 +158,20 @@ public class VerticalDecompTest{
 			obj3.setID(2);
 			merged.setID(3);
 			merged2.setID(4);
-			decomp.addObject(obj1);
-			decomp.addObject(obj2);
-			decomp.addObject(obj3);
-			decomp.rebuild();
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
-			
+			VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS,  Arrays.asList(obj1, obj2, obj3));
+
 			testPlayfield(Arrays.asList(obj1,obj2,obj3), decomp);
 			
-			decomp.addObject(merged);
 			decomp.merge(null, obj1, obj2, merged, contained);
-			testPlayfield(Arrays.asList(merged, obj3), decomp);
+			testPlayfield(Arrays.asList(merged), decomp);
 			
-			decomp.addObject(merged2);
 			decomp.merge(null, merged, obj3, merged2, contained);
+			testPlayfield(Arrays.asList(merged2), decomp);
 			
 			for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
 				assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
 			}
-			testPlayfield(Arrays.asList(merged2), decomp);
 	}
 	
 	@Test
@@ -210,10 +185,15 @@ public class VerticalDecompTest{
 	}
 	
 	@Test
+	public void edgeCaseSeed3() throws InterruptedException{
+		testSeed("3Y657GF3SVVAK592WVM5");
+	}
+	
+	@Test
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
-		System.out.println("seed: " + game.getSeed());
-		
+		System.out.println("Game seed: " + game.getSeed());
+
 		while(!game.isFinished()){
 			game.executePlayerTurn();
 			testPlayfield(game.getObjects(), game.getVerticalDecomposition());
@@ -229,7 +209,6 @@ public class VerticalDecompTest{
 			obj.setID(id++);
 			decomp.addObject(obj);
 		}
-		decomp.rebuild();
 		
 		testPlayfield(objects, decomp);
 	}

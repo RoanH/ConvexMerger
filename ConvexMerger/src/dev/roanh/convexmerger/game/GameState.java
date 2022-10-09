@@ -92,7 +92,12 @@ public class GameState{
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
 			obj.setID(i + 1);
-			decomp.addObject(obj);
+			try{
+				decomp.addObject(obj);
+			} catch (InterruptedException e){
+				// TODO @Roan help
+				e.printStackTrace();
+			}
 		}
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
@@ -106,10 +111,9 @@ public class GameState{
 	/**
 	 * Initialises the game state running tasks that
 	 * need to run on the main game thread.
-	 * @throws InterruptedException When the game was aborted.
 	 */
-	public void init() throws InterruptedException{
-		decomp.rebuild();
+	public void init(){
+	//TODO: perhaps delete the method?
 	}
 	
 	/**
@@ -226,8 +230,6 @@ public class GameState{
 			merged.setOwner(player);
 			objects.remove(first);
 			objects.remove(second);
-			decomp.removeObject(first);
-			decomp.removeObject(second);
 			player.removeArea(first.getArea());
 			player.removeArea(second.getArea());
 			
@@ -236,7 +238,6 @@ public class GameState{
 			for(ConvexObject obj : objects){
 				maxID = Math.max(maxID, obj.getID());
 				if(merged.contains(obj)){
-					decomp.removeObject(obj);
 					contained.add(obj);
 					if(obj.isOwned()){
 						obj.getOwner().removeArea(obj.getArea());
@@ -246,7 +247,6 @@ public class GameState{
 			objects.removeAll(contained);
 			
 			objects.add(merged);
-			decomp.addObject(merged);
 			player.addArea(merged.getArea());
 			player.getStats().addMerge();
 			player.getStats().addAbsorbed(contained.size());
@@ -374,9 +374,6 @@ public class GameState{
 			listeners.forEach(GameStateListener::end);
 		}
 		turns++;
-		if(decomp.needsRebuild()){
-			decomp.rebuild();
-		}
 	}
 	
 	/**

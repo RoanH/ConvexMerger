@@ -27,10 +27,6 @@ import dev.roanh.convexmerger.player.Player;
  */
 public class VerticalDecomposition implements GameStateListener {
 	/**
-	 * The objects that are decomposed.
-	 */
-	private List<ConvexObject> objects;
-	/**
 	 * The trapezoids of the decomposition.
 	 */
 	private List<Trapezoid> trapezoids;
@@ -52,11 +48,6 @@ public class VerticalDecomposition implements GameStateListener {
 	 */
 	private Map<Line, ConvexObject> segToObj;
 	/**
-	 * True if the vertical decomposition data has changed
-	 * such that a rebuild is required.
-	 */
-	private boolean needsRebuild;
-	/**
 	 * All line segments ever added into the vertical decomposition.
 	 */
 	private Set<Line> lines = new HashSet<Line>();
@@ -74,17 +65,10 @@ public class VerticalDecomposition implements GameStateListener {
 	 *        there will be no overlap with the edges).
 	 */
 	public VerticalDecomposition(Rectangle2D bounds){
-		trapezoids = new ArrayList<Trapezoid>();
-		searchStructure = new ArrayList<DecompVertex>();
-		objects = new ArrayList<ConvexObject>();
-		orientedSegments = new ArrayList<Line>();
-		segToObj = new HashMap<Line, ConvexObject>();
-
 		this.bounds = bounds;
 		initializeDecomposition();
 	}
 	
-	//TODO: Check if this is how the method should be written
 	/**
 	 * Constructs a new vertical decomposition with
 	 * the given bounding box and objects. The decomposition
@@ -100,13 +84,12 @@ public class VerticalDecomposition implements GameStateListener {
 	 *         decomposition into trapezoids.
 	 * @throws InterruptedException
 	 */
-	public VerticalDecomposition fromObjects(Rectangle2D bounds, List<ConvexObject> objects) throws InterruptedException{
-		VerticalDecomposition decomp = new VerticalDecomposition(bounds);
-		decomp.initializeDecomposition();
+	public VerticalDecomposition(Rectangle2D bounds, List<ConvexObject> objects) throws InterruptedException{
+		this.bounds = bounds;
+		initializeDecomposition();
 		for(ConvexObject obj : objects){
-			decomp.addAndDecomposeObject(obj);
+			addObject(obj);
 		}
-		return decomp;
 	}
 	
 	/**
@@ -140,10 +123,10 @@ public class VerticalDecomposition implements GameStateListener {
 	 * with a bounding box trapezoid and a corresponding search structure vertex.
 	 */
 	private void initializeDecomposition(){
-		trapezoids.clear();
-		searchStructure.clear();
-		orientedSegments.clear();
-		segToObj.clear();
+		trapezoids = new ArrayList<Trapezoid>();
+		searchStructure = new ArrayList<DecompVertex>();
+		orientedSegments = new ArrayList<Line>();
+		segToObj = new HashMap<Line, ConvexObject>();
 		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
 		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
 		Point2D topLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
@@ -194,23 +177,9 @@ public class VerticalDecomposition implements GameStateListener {
 	/**
 	 * Adds a new convex object to this vertical decomposition.
 	 * @param obj The convex object to add.
+	 * @throws InterruptedException 
 	 */
-	public void addObject(ConvexObject obj){
-		if(!objects.contains(obj)){
-			objects.add(obj);
-			needsRebuild = true;
-		}
-	}
-	
-	/**
-	 * Adds all segments of a given object to the vertical decomposition, if the object is part of the decomposition.
-	 * @param obj The object whose segments to add to the vertical decomposition.
-	 * @throws InterruptedException When the game is aborted.
-	 */
-	private void decomposeObject(ConvexObject obj) throws InterruptedException{
-		if(!objects.contains(obj)){
-			return;
-		}
+	public void addObject(ConvexObject obj) throws InterruptedException{
 		List<Point2D> points = obj.getPoints();
 		
 		for(int i = 0; i < points.size(); i++){
@@ -221,24 +190,33 @@ public class VerticalDecomposition implements GameStateListener {
 		}
 	}
 	
-	/**
-	 * Adds an object and all of its segments to the decomposition;
-	 * @param obj
-	 * @throws InterruptedException
-	 */
-	public void addAndDecomposeObject(ConvexObject obj) throws InterruptedException{
-		addObject(obj);
-		decomposeObject(obj);
-	}
-	
-	/**
-	 * Removes a convex object from this vertical decomposition.
-	 * @param obj The convex object to remove.
-	 */
-	public void removeObject(ConvexObject obj){
-		objects.remove(obj);
-		needsRebuild = true;
-	}
+//	/**
+//	 * Adds all segments of a given object to the vertical decomposition, if the object is part of the decomposition.
+//	 * @param obj The object whose segments to add to the vertical decomposition.
+//	 * @throws InterruptedException When the game is aborted.
+//	 */
+//	private void decomposeObject(ConvexObject obj) throws InterruptedException{
+//		if(!objects.contains(obj)){
+//			return;
+//		}
+//		List<Point2D> points = obj.getPoints();	
+//		for(int i = 0; i < points.size(); i++){
+//			Point2D p1 = points.get(i), p2 = points.get((i+1)%points.size());
+//	
+//			Line2D segment = new Line(p1, p2);
+//			addSegment(segment, obj);
+//		}
+//	}
+//	
+//	/**
+//	 * Adds an object and all of its segments to the decomposition;
+//	 * @param obj
+//	 * @throws InterruptedException
+//	 */
+//	public void addAndDecomposeObject(ConvexObject obj) throws InterruptedException{
+//		addObject(obj);
+//		decomposeObject(obj);
+//	}
 	
 	/**
 	 * Checks if the vertical decomposition data has changed
@@ -246,7 +224,6 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @return True if a rebuild is required.
 	 */
 	public boolean needsRebuild(){
-//		return needsRebuild;
 		return false;
 	}
 	
@@ -262,16 +239,10 @@ public class VerticalDecomposition implements GameStateListener {
 	/**
 	 * Rebuilds the vertical composition to match the
 	 * current set of stored convex objects.
+	 * @deprecated
 	 * @throws InterruptedException When the game is aborted.
 	 */
 	public void rebuild() throws InterruptedException{
-		trapezoids.clear();
-		searchStructure.clear();
-		initializeDecomposition();
-		for(ConvexObject obj : objects){
-			decomposeObject(obj);
-		}
-		needsRebuild = false;
 	}
 	
 	/**
@@ -980,6 +951,7 @@ public class VerticalDecomposition implements GameStateListener {
 			addSegment(firstLine, result);
 			addSegment(secondLine, result);
 		} catch (InterruptedException e){
+			// TODO @Roan help
 			e.printStackTrace();
 		}
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
