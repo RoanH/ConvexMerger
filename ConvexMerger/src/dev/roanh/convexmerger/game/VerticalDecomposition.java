@@ -724,7 +724,7 @@ public class VerticalDecomposition implements GameStateListener {
 				//Assign left neighbours to top.
 				for(Trapezoid neib : current.getNeighbours()){
 					assert neib.getDecompLines() != null;
-					for(Line2D decompLine : neib.getDecompLines()){
+					for(Line2D decompLine : neib.getDecompLines()){//TODO: better way of doing this?
 						if(decompLine.getP1().getX() != current.leftPoints.get(0).getX())
 							continue;
 						if(orientedSegment.relativeCCW(decompLine.getP2()) < 0){//P2 is the top point
@@ -788,7 +788,7 @@ public class VerticalDecomposition implements GameStateListener {
 			//Assign right neighbours to top if it is bound on the right.
 			if(top.rightPoints.size() > 0){
 				for(Trapezoid neib : current.getNeighbours()){
-					for(Line2D decompLine : neib.getDecompLines()){
+					for(Line2D decompLine : neib.getDecompLines()){//TODO: better way of doing this?
 						if(decompLine.getP1().getX() != current.rightPoints.get(0).getX())
 							continue;
 						if(orientedSegment.relativeCCW(decompLine.getP2()) < 0){//P2 is the top point
@@ -840,8 +840,8 @@ public class VerticalDecomposition implements GameStateListener {
 		Trapezoid start = queryTrapezoid(seg.getP1());
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
-		if(segToObj.get(start.botSegment) == obj  ||
-		   segToObj.get(start.botSegment) == null ){  
+		if(segToObj.get(start.botSegment) == obj && start.botSegment.getP2() != seg.getP1() ||
+		   segToObj.get(start.botSegment) == null){
 			q.add(start);
 		} else {
 			Trapezoid last = start;
@@ -861,7 +861,7 @@ public class VerticalDecomposition implements GameStateListener {
 				}
 			}
 		}
-		assert !q.isEmpty();
+		assert q.size() == 1;
 		while(!q.isEmpty()){
 			Trapezoid current = q.remove();
 			if(current.intersectsSegment(seg)){

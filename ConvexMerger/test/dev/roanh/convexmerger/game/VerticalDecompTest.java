@@ -194,6 +194,11 @@ public class VerticalDecompTest{
 		testSpecific("3Y657GF2ENJVQR6KVR2I");
 	}
 	
+	@Test//T
+	public void edgeCaseSeed5() throws InterruptedException{
+		testSpecific("3Y64YQO2OCQZUAWQT6OQ");//Merge 9->18->25->15->31
+	}
+	
 	@Test
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
@@ -230,7 +235,7 @@ public class VerticalDecompTest{
 	
 	private void testPlayfield(List<ConvexObject> objects, VerticalDecomposition decomp){
 		long seed = ThreadLocalRandom.current().nextLong();
-		System.out.println("seed: " + seed);
+//		System.out.println("seed: " + seed);
 		Random random = new Random(seed);
 		
 		for(ConvexObject obj : objects){
