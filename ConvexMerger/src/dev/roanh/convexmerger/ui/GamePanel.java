@@ -325,7 +325,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		super.handleMouseRelease(point, width, height);
 		
 		if(resultOverlay.isEnabled()){
-			if(resultOverlay.intersectsMenuButton(point)){
+			if(resultOverlay.handleMouseClick(point)){
 				this.switchScene(new MainMenu(getContext()));
 			}
 			return;
