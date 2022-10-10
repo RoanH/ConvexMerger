@@ -2,6 +2,8 @@ package dev.roanh.convexmerger.ui;
 
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
@@ -87,6 +89,10 @@ public class ResultOverlay{
 	 * The bounds of the main menu button if present.
 	 */
 	private Rectangle2D menuBounds = null;
+	/**
+	 * The bounds of the seed display field.
+	 */
+	private Rectangle2D seedBounds;
 
 	/**
 	 * Constructs a new result overlay for the given game.
@@ -99,14 +105,18 @@ public class ResultOverlay{
 	}
 	
 	/**
-	 * Checks if the given point is inside the area
-	 * occupied by the main menu button if visible.
+	 * Handles a mouse click on the result screen.
 	 * @param loc The point to check.
 	 * @return True if the given point is inside the
-	 *         main menu button.
+	 *         main menu button, meaning the game
+	 *         should switch to the main menu screen.
 	 */
-	protected boolean intersectsMenuButton(Point2D loc){
-		return (menuBounds != null && state.isFinished()) ? menuBounds.contains(loc) : false;
+	protected boolean handleMouseClick(Point2D loc){
+		if(seedBounds != null && seedBounds.contains(loc)){
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(state.getSeed()), null);
+		}
+
+		return menuBounds != null && state.isFinished() && menuBounds.contains(loc);
 	}
 	
 	/**
@@ -176,6 +186,12 @@ public class ResultOverlay{
 		offset += GAP + BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP;
 		g.translate(0, BAR_HEIGHT + Theme.CROWN_ICON_LARGE_SIZE + GAP + BORDER_GAP);
 		renderStats(g, size);
+		seedBounds = new Rectangle2D.Double(
+			(width - size) / 2.0D + (size * 2 - BORDER_GAP * 4) / 3.0F + BORDER_GAP * 2.0F,
+			(height - total) / 2.0D + offset,
+			(size - BORDER_GAP * 2) / 3.0F,
+			TEXT_OFFSET * 2.0F + g.getFontMetrics(Theme.PRIDI_MEDIUM_16).getAscent()
+		);
 		
 		//graph
 		offset += statsHeight + GAP + BORDER_GAP;

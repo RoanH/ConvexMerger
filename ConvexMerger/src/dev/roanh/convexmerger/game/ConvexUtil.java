@@ -393,17 +393,17 @@ public class ConvexUtil{
 			}
 			
 			//record merge line if the relative calliper order changed
-			if(nccw != ccw){
+			if(nccw != ccw && nccw != 0){
 				ccw = nccw;
 				
 				//skip over collinear points if they exist
 				if(lines[0] == null){
 					lines[0] = checkCollinear(lp1, lp2, rp1) ? lp2 : lp1;
-					lines[1] = rp1;
+					lines[1] = checkCollinear(lp2, rp1, rp2) ? rp2 : rp1;
 				}else{
 					assert lines[2] == null : "More than 2 merge lines found";
 					lines[2] = checkCollinear(rp1, rp2, lp1) ? rp2 : rp1;
-					lines[3] = lp1;
+					lines[3] = checkCollinear(rp2, lp1, lp2) ? lp2 : lp1;
 					break;
 				}
 			}

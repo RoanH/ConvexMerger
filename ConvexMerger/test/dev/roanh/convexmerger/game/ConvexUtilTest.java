@@ -183,6 +183,23 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
+	public void horizontalColinearTest(){
+		mergeTest(
+			new ConvexObject(Arrays.asList(
+				new Point2D.Double(568.0D, 686.0D),
+				new Point2D.Double(703.0D, 669.0D),
+				new Point2D.Double(748.0D, 692.0D),
+				new Point2D.Double(578.0D, 745.0D)
+			)),
+			new ConvexObject(Arrays.asList(
+				new Point2D.Double(760.0D, 714.0D),
+				new Point2D.Double(771.0D, 669.0D),
+				new Point2D.Double(871.0D, 669.0D)
+			))
+		);
+	}
+	
+	@Test
 	public void mergeWithPointTest(){
 		//this is honestly more accidental correct behaviour, but we currently rely on it for helper line computation
 		List<Point2D> obj1 = ConvexUtil.computeConvexHull(Arrays.asList(
