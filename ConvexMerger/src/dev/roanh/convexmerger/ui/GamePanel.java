@@ -353,16 +353,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 					synchronized(state){
 						ClaimResult result = state.claimObject(obj, loc);
 						activeDialog = result.getMessage();
-						helperLines = null;
-						if(result.hasResult()){
-							state.notify();
-						}
 					}
 				}else if(!obj.isOwnedBy(state.getActivePlayer())){
 					state.clearSelection();
-					helperLines = null;
 					activeDialog = MessageDialog.ALREADY_OWNED;
 				}
+				helperLines = null;
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);

@@ -98,6 +98,9 @@ public class GameState{
 			Player player = players.get(i);
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
+			if(player instanceof GameStateListener){
+				listeners.add((GameStateListener)player);
+			}
 		}
 		gameStart = System.currentTimeMillis();
 	}
