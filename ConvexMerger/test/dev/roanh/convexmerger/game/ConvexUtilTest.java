@@ -235,6 +235,38 @@ public class ConvexUtilTest{
 	}
 	
 	@Test
+	public void mergeWithPointTestColin1(){
+		List<Point2D> obj = Arrays.asList(
+			new Point2D.Double(10.0D, 10.0D),
+			new Point2D.Double(20.0D, 10.0D),
+			new Point2D.Double(20.0D, 20.0D),
+			new Point2D.Double(10.0D, 20.0D)
+		);
+		Point2D point = new Point2D.Double(30.0D, 10.0D);
+		List<Line2D> lines = ConvexUtil.computeSinglePointMergeLines(obj, point);
+		assertEquals(point, lines.get(0).getP2());
+		assertEquals(point, lines.get(1).getP2());
+		assertEquals(obj.get(0), lines.get(0).getP1());
+		assertEquals(obj.get(2), lines.get(1).getP1());
+	}
+	
+	@Test
+	public void mergeWithPointTestColin2(){
+		List<Point2D> obj = Arrays.asList(
+			new Point2D.Double(10.0D, 10.0D),
+			new Point2D.Double(20.0D, 10.0D),
+			new Point2D.Double(20.0D, 20.0D),
+			new Point2D.Double(10.0D, 20.0D)
+		);
+		Point2D point = new Point2D.Double(10.0D, 0.0D);
+		List<Line2D> lines = ConvexUtil.computeSinglePointMergeLines(obj, point);
+		assertEquals(point, lines.get(0).getP2());
+		assertEquals(point, lines.get(1).getP2());
+		assertEquals(obj.get(1), lines.get(0).getP1());
+		assertEquals(obj.get(3), lines.get(1).getP1());
+	}
+	
+	@Test
 	public void verticalAngleTest(){
 		assertEquals(0.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, 0.0D, -10.0D)));
 		assertEquals(315.0D, Math.toDegrees(ConvexUtil.angleFromVertical(0.0D, 0.0D, -10.0D, -10.0D)));
