@@ -882,15 +882,15 @@ public class VerticalDecomposition implements GameStateListener {
 		} else {
 			Trapezoid last = start;
 			while(q.isEmpty()){
-				for(Trapezoid onOtherSide : last.botSegment.trapsBelow){
-					if(onOtherSide.getXLeft() == seg.getP1().getX()){
+				outer_for: for(Trapezoid onOtherSide : last.botSegment.trapsBelow){
+					if(onOtherSide.leftPoints.contains(seg.getP1())){
 						q.add(onOtherSide);
 						break;
 					}
 					for(Trapezoid neib : onOtherSide.getNeighbours()){
 						if(neib.leftPoints.contains(seg.getP1())){
 							q.add(neib);
-							break;
+							break outer_for;
 						}
 					}
 					last = onOtherSide;
