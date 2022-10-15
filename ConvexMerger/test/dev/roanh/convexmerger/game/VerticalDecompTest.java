@@ -12,6 +12,7 @@ import java.util.PrimitiveIterator.OfDouble;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.Constants;
@@ -194,12 +195,17 @@ public class VerticalDecompTest{
 		testSpecific("3Y657GF2ENJVQR6KVR2I");
 	}
 	
-	@Test//T
+	@Test//The start trapezoid of the merge is the one on the left of the line that was newly added to the object
 	public void edgeCaseSeed5() throws InterruptedException{
 		testSpecific("3Y64YQO2OCQZUAWQT6OQ");//Merge 9->18->25->15->31
 	}
 	
 	@Test
+	public void edgeCaseUnderInvestigation() throws InterruptedException{
+		testSpecific("3Y657GF0UKKHHRZ2NZD1");
+	}
+	
+	@RepeatedTest(100)
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		System.out.println("Game seed: " + game.getSeed());
@@ -212,7 +218,7 @@ public class VerticalDecompTest{
 	
 	public void testSpecific(String seed) throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(seed), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
-		System.out.println("Game seed: " + game.getSeed());
+		System.out.println("Specific Game seed: " + game.getSeed());
 
 		while(!game.isFinished()){
 			game.executePlayerTurn();
@@ -251,7 +257,7 @@ public class VerticalDecompTest{
 			double x = xs.nextDouble();
 			double y = ys.nextDouble();
 			if(obj.contains(x, y)){
-				assertEquals(obj, decomp.queryObject(x, y));
+				assertEquals(obj, decomp.queryObject(x, y), obj.getID() + " " + decomp.queryObject(x, y).getID());
 			}else{
 				assertNotEquals(obj, decomp.queryObject(x, y));
 			}
