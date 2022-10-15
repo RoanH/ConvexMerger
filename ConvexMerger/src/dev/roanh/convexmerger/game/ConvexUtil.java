@@ -434,7 +434,7 @@ public class ConvexUtil{
 		);
 		
 		Point2D p1 = null;
-		for(int i = 0; i <= points.size() + 1; i++){
+		for(int i = 0; i <= points.size(); i++){
 			int nccw = Line2D.relativeCCW(
 				points.get(i % points.size()).getX(),
 				points.get(i % points.size()).getY(),
