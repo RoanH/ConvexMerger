@@ -423,7 +423,7 @@ public class ConvexUtil{
 	 * @return The two resultant merge lines, both starting
 	 *         from the convex object and ending at the point.
 	 */
-	public static List<Line2D> computeSinglePointMergeLines(List<Point2D> points, Point2D point){
+	public static final List<Line2D> computeSinglePointMergeLines(List<Point2D> points, Point2D point){
 		int ccw = Line2D.relativeCCW(
 			points.get(0).getX(),
 			points.get(0).getY(),
@@ -457,8 +457,7 @@ public class ConvexUtil{
 			}
 		}
 		
-		assert false : "Not enough merge lines found: " + (p1 == null ? 0 : 1);
-		return null;
+		throw new IllegalStateException("Not enough merge lines found");
 	}
 	
 	/**
