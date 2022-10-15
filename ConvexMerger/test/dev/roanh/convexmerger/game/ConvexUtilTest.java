@@ -201,15 +201,69 @@ public class ConvexUtilTest{
 	
 	@Test
 	public void mergeWithPointTest(){
-		//this is honestly more accidental correct behaviour, but we currently rely on it for helper line computation
-		List<Point2D> obj1 = ConvexUtil.computeConvexHull(Arrays.asList(
+		List<Point2D> obj = Arrays.asList(
 			new Point2D.Double(30.0D, 100.0D),
 			new Point2D.Double(100.0D, 80.0D),
 			new Point2D.Double(100.0D, 200.0D)
-		));
-		List<Point2D> obj2 = Arrays.asList(new Point2D.Double(400.0D, 400.0D));
-		Point2D[] lines = ConvexUtil.computeMergeLines(obj1, obj2);
-		assertTrue(ConvexUtil.checkInvariants(ConvexUtil.mergeHulls(obj1, obj2, lines)));
+		);
+		Point2D point = new Point2D.Double(400.0D, 400.0D);
+		List<Line2D> lines = ConvexUtil.computeSinglePointMergeLines(obj, point);
+		assertEquals(point, lines.get(0).getP2());
+		assertEquals(point, lines.get(1).getP2());
+		assertEquals(obj.get(1), lines.get(0).getP1());
+		assertEquals(obj.get(2), lines.get(1).getP1());
+	}
+	
+	@Test
+	public void mergeWithPointTestEdgeCase(){
+		List<Point2D> obj = Arrays.asList(
+			new Point2D.Double(234.0D, 601.0D),
+			new Point2D.Double(289.0D, 613.0D),
+			new Point2D.Double(356.0D, 689.0D),
+			new Point2D.Double(367.0D, 707.0D),
+			new Point2D.Double(420.0D, 802.0D),
+			new Point2D.Double(311.0D, 813.0D),
+			new Point2D.Double(281.0D, 790.0D),
+			new Point2D.Double(254.0D, 706.0D)
+		);
+		Point2D point = new Point2D.Double(273.75D, 815.0D);
+		List<Line2D> lines = ConvexUtil.computeSinglePointMergeLines(obj, point);
+		assertEquals(point, lines.get(0).getP2());
+		assertEquals(point, lines.get(1).getP2());
+		assertEquals(obj.get(5), lines.get(0).getP1());
+		assertEquals(obj.get(0), lines.get(1).getP1());
+	}
+	
+	@Test
+	public void mergeWithPointTestColin1(){
+		List<Point2D> obj = Arrays.asList(
+			new Point2D.Double(10.0D, 10.0D),
+			new Point2D.Double(20.0D, 10.0D),
+			new Point2D.Double(20.0D, 20.0D),
+			new Point2D.Double(10.0D, 20.0D)
+		);
+		Point2D point = new Point2D.Double(30.0D, 10.0D);
+		List<Line2D> lines = ConvexUtil.computeSinglePointMergeLines(obj, point);
+		assertEquals(point, lines.get(0).getP2());
+		assertEquals(point, lines.get(1).getP2());
+		assertEquals(obj.get(0), lines.get(0).getP1());
+		assertEquals(obj.get(2), lines.get(1).getP1());
+	}
+	
+	@Test
+	public void mergeWithPointTestColin2(){
+		List<Point2D> obj = Arrays.asList(
+			new Point2D.Double(10.0D, 10.0D),
+			new Point2D.Double(20.0D, 10.0D),
+			new Point2D.Double(20.0D, 20.0D),
+			new Point2D.Double(10.0D, 20.0D)
+		);
+		Point2D point = new Point2D.Double(10.0D, 0.0D);
+		List<Line2D> lines = ConvexUtil.computeSinglePointMergeLines(obj, point);
+		assertEquals(point, lines.get(0).getP2());
+		assertEquals(point, lines.get(1).getP2());
+		assertEquals(obj.get(1), lines.get(0).getP1());
+		assertEquals(obj.get(3), lines.get(1).getP1());
 	}
 	
 	@Test
