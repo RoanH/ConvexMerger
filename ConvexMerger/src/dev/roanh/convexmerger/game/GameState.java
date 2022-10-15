@@ -3,7 +3,6 @@ package dev.roanh.convexmerger.game;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -99,6 +98,9 @@ public class GameState{
 			Player player = players.get(i);
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
+			if(player instanceof GameStateListener){
+				listeners.add((GameStateListener)player);
+			}
 		}
 		segmentTree = SegmentPartitionTree.fromObjects(objects);
 		gameStart = System.currentTimeMillis();
@@ -237,7 +239,7 @@ public class GameState{
 			player.removeArea(second.getArea());
 			
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
-			int maxID = 0;
+			int maxID = Math.max(first.getID(), second.getID());
 			for(ConvexObject obj : objects){
 				maxID = Math.max(maxID, obj.getID());
 				if(merged.contains(obj)){
@@ -321,11 +323,7 @@ public class GameState{
 		if(selected == null || selected.contains(p.getX(), p.getY())){
 			return null;
 		}else{
-			Point2D[] lines = ConvexUtil.computeMergeLines(selected.getPoints(), Arrays.asList(p));
-			return Arrays.asList(
-				new Line2D.Double(lines[0], lines[1]),
-				new Line2D.Double(lines[2], lines[3])
-			);
+			return ConvexUtil.computeSinglePointMergeLines(selected.getPoints(), p);
 		}
 	}
 	

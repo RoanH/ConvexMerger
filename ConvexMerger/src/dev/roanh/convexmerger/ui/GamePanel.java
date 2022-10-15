@@ -334,7 +334,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		super.handleMouseRelease(point, width, height);
 		
 		if(resultOverlay.isEnabled()){
-			if(resultOverlay.intersectsMenuButton(point)){
+			if(resultOverlay.handleMouseClick(point)){
 				this.switchScene(new MainMenu(getContext()));
 			}
 			return;
@@ -359,19 +359,15 @@ public final class GamePanel extends Screen implements GameStateListener{
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
 				if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
-					ClaimResult result = state.claimObject(obj, loc);
-					activeDialog = result.getMessage();
-					helperLines = null;
-					if(result.hasResult()){
-						synchronized(state){
-							state.notify();
-						}
+					synchronized(state){
+						ClaimResult result = state.claimObject(obj, loc);
+						activeDialog = result.getMessage();
 					}
 				}else if(!obj.isOwnedBy(state.getActivePlayer())){
 					state.clearSelection();
-					helperLines = null;
 					activeDialog = MessageDialog.ALREADY_OWNED;
 				}
+				helperLines = null;
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);

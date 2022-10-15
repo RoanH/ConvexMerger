@@ -393,17 +393,17 @@ public class ConvexUtil{
 			}
 			
 			//record merge line if the relative calliper order changed
-			if(nccw != ccw){
+			if(nccw != ccw && nccw != 0){
 				ccw = nccw;
 				
 				//skip over collinear points if they exist
 				if(lines[0] == null){
 					lines[0] = checkCollinear(lp1, lp2, rp1) ? lp2 : lp1;
-					lines[1] = rp1;
+					lines[1] = checkCollinear(lp2, rp1, rp2) ? rp2 : rp1;
 				}else{
 					assert lines[2] == null : "More than 2 merge lines found";
 					lines[2] = checkCollinear(rp1, rp2, lp1) ? rp2 : rp1;
-					lines[3] = lp1;
+					lines[3] = checkCollinear(rp2, lp1, lp2) ? lp2 : lp1;
 					break;
 				}
 			}
@@ -411,6 +411,54 @@ public class ConvexUtil{
 		
 		assert lines[0] != null && lines[1] != null && lines[2] != null && lines[3] != null : "Not enough merge lines found";
 		return lines;
+	}
+	
+	/**
+	 * Computes the two lines that would be required to extend the
+	 * given convex hull with the given point.
+	 * @param points The first convex hull, the first point
+	 *        has to be bottom leftmost and the winding
+	 *        order counter-clockwise.
+	 * @param point The point to extend the hull with.
+	 * @return The two resultant merge lines, both starting
+	 *         from the convex object and ending at the point.
+	 */
+	public static List<Line2D> computeSinglePointMergeLines(List<Point2D> points, Point2D point){
+		int ccw = Line2D.relativeCCW(
+			points.get(0).getX(),
+			points.get(0).getY(),
+			points.get(0).getX(),
+			points.get(0).getY() - 1.0D,
+			point.getX(),
+			point.getY()
+		);
+		
+		Point2D p1 = null;
+		for(int i = 0; i <= points.size(); i++){
+			int nccw = Line2D.relativeCCW(
+				points.get(i % points.size()).getX(),
+				points.get(i % points.size()).getY(),
+				points.get((i + 1) % points.size()).getX(),
+				points.get((i + 1) % points.size()).getY(),
+				point.getX(),
+				point.getY()
+			);
+			
+			if(ccw != nccw){
+				ccw = nccw;
+				if(p1 == null){
+					p1 = points.get(i % points.size());
+				}else{
+					return Arrays.asList(
+						new Line2D.Double(p1, point),
+						new Line2D.Double(points.get(i % points.size()), point)
+					);
+				}
+			}
+		}
+		
+		assert false : "Not enough merge lines found: " + (p1 == null ? 0 : 1);
+		return null;
 	}
 	
 	/**
