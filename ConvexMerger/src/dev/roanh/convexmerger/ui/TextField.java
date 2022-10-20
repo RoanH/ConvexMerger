@@ -11,6 +11,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.event.ChangeListener;
+
 /**
  * Text field UI component.
  * @author Roan
@@ -32,9 +34,21 @@ public class TextField{
 	 * Whether this text field has focus.
 	 */
 	private boolean focus = false;
+	/**
+	 * True if text in this text field is centred.
+	 */
 	private boolean center = false;
+	/**
+	 * Listener called when the text field text changes.
+	 */
 	private TextChangeListener changeListener = s->{};
+	/**
+	 * Listener called when this text field loses focus.
+	 */
 	private FocusLossListener focusListener = ()->{};
+	/**
+	 * The foreground (text) colour.
+	 */
 	private Color foreground = Theme.BOX_TEXT_COLOR;
 	
 	/**
@@ -45,18 +59,36 @@ public class TextField{
 		this.color = color;
 	}
 	
+	/**
+	 * Sets whether the text in this text field should be centred.
+	 * @param center True to center the text in this text field.
+	 */
 	public void setCentred(boolean center){
 		this.center = center;
 	}
 	
+	/**
+	 * Sets the change listener for this text field.
+	 * @param listener The new change listener.
+	 * @see ChangeListener
+	 */
 	public void setChangeListener(TextChangeListener listener){
 		changeListener = listener;
 	}
 	
+	/**
+	 * Sets the focus loss listener for this text field.
+	 * @param listener The new focus listener.
+	 * @see FocusLossListener
+	 */
 	public void setFocusListener(FocusLossListener listener){
 		focusListener = listener;
 	}
 	
+	/**
+	 * Sets the foreground (text) colour for this text field.
+	 * @param color The new foreground colour.
+	 */
 	public void setForegroundColor(Color color){
 		foreground = color;
 	}
@@ -181,15 +213,30 @@ public class TextField{
 		g.setClip(null);
 	}
 	
+	/**
+	 * Listener called when the text field context changes.
+	 * @author Roan
+	 */
 	@FunctionalInterface
 	public static abstract interface TextChangeListener{
 		
+		/**
+		 * Called when the text field content changes.
+		 * @param text The next text field content.
+		 */
 		public abstract void onTextChange(String text);
 	}
 	
+	/**
+	 * Listener called when the user stops editing a text field.
+	 * @author Roan
+	 */
 	@FunctionalInterface
 	public static abstract interface FocusLossListener{
 		
+		/**
+		 * Called when the text field loses user focus.
+		 */
 		public abstract void onFocusLost();
 	}
 }
