@@ -3,10 +3,15 @@ package dev.roanh.convexmerger.ui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
 
 /**
  * Text field UI component.
@@ -83,11 +88,17 @@ public class TextField{
 	 */
 	public void handleKeyEvent(KeyEvent event){
 		if(hasFocus()){
+			System.out.println(event.isControlDown());
 			if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
 				if(!text.isEmpty()){
 					text = text.substring(0, text.length() - 1);
 				}
-			}else if(event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
+			}else if(event.isControlDown() && event.getKeyCode() == KeyEvent.VK_V){
+				try{
+					text += Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+				}catch(Exception ignore){
+				}
+			}else if(!event.isControlDown() && !event.isAltDown() && event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
 				text += event.getKeyChar();
 			}
 		}
