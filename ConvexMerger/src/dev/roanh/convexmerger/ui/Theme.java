@@ -126,6 +126,7 @@ public final class Theme{
 	 * Hyper link color.
 	 */
 	public static final Color LINK_COLOR = BUTTON_SELECT;
+	public static final Color ERROR_COLOR = new Color(255, 60, 60);
 	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */

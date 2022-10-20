@@ -9,7 +9,9 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.function.IntConsumer;
 
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
@@ -17,13 +19,15 @@ import dev.roanh.convexmerger.game.PlayfieldGenerator.GeneratorProgressListener;
 import dev.roanh.convexmerger.player.AIRegistry;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.ui.TextField.FocusLossListener;
+import dev.roanh.convexmerger.ui.TextField.TextChangeListener;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
 
 /**
  * Menu used to configure and start a new game.
  * @author Roan
  */
-public class NewGameMenu extends Screen implements GeneratorProgressListener{
+public class NewGameMenu extends Screen implements GeneratorProgressListener, TextChangeListener, FocusLossListener{
 	/**
 	 * Maximum width used by the boxes.
 	 */
@@ -32,6 +36,10 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * Height of the start button.
 	 */
 	private static final double START_HEIGHT = 100.0D;
+	private static final int[] RANGE_VALUES_MIN = new int[]{10, 0, 50};
+	private static final int[] RANGE_VALUES_MAX = new int[]{20, 100, 100};
+	private static final int[] COVERAGE_VALUES = new int[]{30, 70, 114};
+	private static final int[] SCALING_VALUES = new int[]{240, 200, 100};
 	/**
 	 * Configuration for player 1.
 	 */
@@ -77,7 +85,8 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * from the start of the game.
 	 */
 	protected boolean showDecomp = false;
-	private TextField seed = new TextField(PlayerTheme.P1.getBaseOutline(), true);
+	private TextField seed = new TextField(PlayerTheme.P1.getBaseOutline());
+	private PlayfieldGenerator gen = new PlayfieldGenerator();
 	
 	/**
 	 * Constructs a new new game menu with the given game context.
@@ -85,6 +94,26 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 */
 	public NewGameMenu(ConvexMerger context){
 		super(context);
+		
+		seed.setText(gen.getSeed());
+		seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
+		seed.setChangeListener(this);
+		seed.setFocusListener(this);
+		seed.setCentred(true);
+		
+		gen.setProgressListener(this);
+		size.setChangeListener(i->{
+			gen.setRange(RANGE_VALUES_MIN[i], RANGE_VALUES_MAX[i]);
+			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
+		});
+		density.setChangeListener(i->{
+			gen.setCoverage(COVERAGE_VALUES[i]);
+			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
+		});
+		spacing.setChangeListener(i->{
+			gen.setScaling(SCALING_VALUES[i]);
+			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
+		});
 	}
 	
 	/**
@@ -187,6 +216,49 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		});
 	}
 	
+	private int findClosest(int[] values, int value){
+		int dist = Integer.MAX_VALUE;
+		for(int i = 0; i < values.length; i++){
+			int diff = Math.abs(values[i] - value);
+			if(dist > diff){
+				dist = diff;
+			}else{
+				return i - 1;
+			}
+		}
+		return values.length - 1;
+	}
+
+	@Override
+	public void onFocusLost(){
+		if(!PlayfieldGenerator.isValidSeed(seed.getText().trim().toUpperCase(Locale.ROOT))){
+			seed.setText(gen.getSeed());
+			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
+		}
+	}
+
+	@Override
+	public void onTextChange(String text){
+		text = text.trim().toUpperCase(Locale.ROOT);
+		seed.setText(text);
+		
+		if(PlayfieldGenerator.isValidSeed(text)){
+			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
+			gen.setSeed(text);
+			
+			density.setSelected(findClosest(COVERAGE_VALUES, gen.getCoverage()));
+			spacing.setSelected(findClosest(SCALING_VALUES, gen.getScaling()));
+			
+			int[] rdiff = new int[RANGE_VALUES_MAX.length];
+			for(int i = 0; i < rdiff.length; i++){
+				rdiff[i] = Math.abs(RANGE_VALUES_MIN[i] - gen.getRangeMin()) + Math.abs(RANGE_VALUES_MAX[i] - gen.getRangeMax());
+			}
+			size.setSelected(findClosest(rdiff, 0));
+		}else{
+			seed.setForegroundColor(Theme.ERROR_COLOR);
+		}
+	}
+	
 	@Override
 	public void handleKeyReleased(KeyEvent e){
 		if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_D){
@@ -215,12 +287,6 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 				p3.getPlayer().ifPresent(players::add);
 				p4.getPlayer().ifPresent(players::add);
 
-				PlayfieldGenerator gen = new PlayfieldGenerator();
-				gen.setProgressListener(this);
-				gen.setRange(new int[]{10, 0, 50}[size.getSelectedIndex()], new int[]{20, 100, 100}[size.getSelectedIndex()]);
-				gen.setCoverage(new int[]{30, 70, 114}[density.getSelectedIndex()]);
-				gen.setScaling(new int[]{240, 200, 100}[spacing.getSelectedIndex()]);
-				
 				handleStart(players, gen);
 				started = true;
 			}
@@ -314,6 +380,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		 * The index of the currently selected button (0~2).
 		 */
 		private int selected;
+		private IntConsumer listener = i->{};
 		
 		/**
 		 * Constructs a new button assembly with the given initially
@@ -328,6 +395,10 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			this.values = values;
 		}
 		
+		public void setChangeListener(IntConsumer listener){
+			this.listener = listener;
+		}
+		
 		public double getHeight(Graphics2D g){
 			FontMetrics fm = g.getFontMetrics(Theme.PRIDI_REGULAR_16);
 			return fm.getAscent() - fm.getDescent() + BOX_SPACING + BUTTON_HEIGHT;
@@ -337,12 +408,8 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			return BUTTON_WIDTH * 3.0D - BOX_INSETS * 4.0D;
 		}
 		
-		/**
-		 * Gets the index of the selected button.
-		 * @return The selected button index (0~2).
-		 */
-		private int getSelectedIndex(){
-			return selected;
+		public void setSelected(int selected){
+			this.selected = selected;
 		}
 		
 		/**
@@ -451,12 +518,18 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		 * @param loc The clicked location.
 		 */
 		private void handleMouseClick(Point2D loc){
+			int old = selected;
 			if(intersectsLeft(loc)){
 				selected = 0;
 			}else if(intersectsMiddle(loc)){
 				selected = 1;
 			}else if(intersectsRight(loc)){
 				selected = 2;
+			}
+			
+			if(old != selected){
+				listener.accept(selected);
+				seed.setText(gen.getSeed());
 			}
 		}
 	}

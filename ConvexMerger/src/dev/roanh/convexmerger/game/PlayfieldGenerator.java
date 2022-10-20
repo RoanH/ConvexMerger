@@ -90,14 +90,7 @@ public class PlayfieldGenerator{
 	 * @throws IllegalArgumentException When the given seed is invalid
 	 */
 	public PlayfieldGenerator(String seed) throws IllegalArgumentException{
-		long lower = Long.parseUnsignedLong(seed.substring(seed.length() - 13), 36);
-		long upper = Long.parseUnsignedLong(seed.substring(0, seed.length() - 13), 36);
-		
-		if((0xFFFFFFFF00000000L & upper) != 0x200000000L){
-			throw new IllegalArgumentException("Invalid seed");
-		}
-		
-		init(lower, (int)((upper & 0xFF000000L) >> 24), (int)((upper & 0xFF0000) >> 16), (int)((upper & 0xFF00) >> 8), (int)(upper & 0xFF));
+		setSeed(seed);
 	}
 	
 	/**
@@ -117,6 +110,33 @@ public class PlayfieldGenerator{
 		this.scaleNum = scaleNum;
 		this.coverage = coverageNum / 255.0F;
 		this.scale = scaleNum / 255.0F;
+	}
+	
+	public void setSeed(String seed) throws IllegalArgumentException{
+		long lower = Long.parseUnsignedLong(seed.substring(seed.length() - 13), 36);
+		long upper = Long.parseUnsignedLong(seed.substring(0, seed.length() - 13), 36);
+		
+		if(!hasSeedMarker(upper)){
+			throw new IllegalArgumentException("Invalid seed");
+		}
+		
+		init(lower, (int)((upper & 0xFF000000L) >> 24), (int)((upper & 0xFF0000) >> 16), (int)((upper & 0xFF00) >> 8), (int)(upper & 0xFF));
+	}
+	
+	public int getRangeMin(){
+		return rangeMin;
+	}
+	
+	public int getRangeMax(){
+		return rangeMax;
+	}
+	
+	public int getCoverage(){
+		return coverageNum;
+	}
+	
+	public int getScaling(){
+		return scaleNum;
 	}
 	
 	/**
@@ -264,6 +284,18 @@ public class PlayfieldGenerator{
 		objects.forEach(obj->obj.scale(scale));
 
 		return objects;
+	}
+	
+	public static boolean isValidSeed(String seed){
+		try{
+			return seed.length() >= 13 && hasSeedMarker(Long.parseUnsignedLong(seed.substring(0, seed.length() - 13), 36));
+		}catch(NumberFormatException e){
+			return false;
+		}
+	}
+	
+	private static boolean hasSeedMarker(long high){
+		return (0xFFFFFFFF00000000L & high) == 0x200000000L;
 	}
 	
 	/**

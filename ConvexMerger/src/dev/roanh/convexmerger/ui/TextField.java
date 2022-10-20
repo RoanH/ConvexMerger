@@ -5,6 +5,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -31,24 +32,33 @@ public class TextField{
 	 * Whether this text field has focus.
 	 */
 	private boolean focus = false;
-	private boolean center;
+	private boolean center = false;
+	private TextChangeListener changeListener = s->{};
+	private FocusLossListener focusListener = ()->{};
+	private Color foreground = Theme.BOX_TEXT_COLOR;
 	
 	/**
 	 * Constructs a new text field with the given accent color.
 	 * @param color The accent color.
 	 */
 	public TextField(Color color){
-		this(color, false);
+		this.color = color;
 	}
 	
-	/**
-	 * Constructs a new text field with the given accent color.
-	 * @param color The accent color.
-	 * @param center Whether the field text should be centred.
-	 */
-	public TextField(Color color, boolean center){
-		this.color = color;
+	public void setCentred(boolean center){
 		this.center = center;
+	}
+	
+	public void setChangeListener(TextChangeListener listener){
+		changeListener = listener;
+	}
+	
+	public void setFocusListener(FocusLossListener listener){
+		focusListener = listener;
+	}
+	
+	public void setForegroundColor(Color color){
+		foreground = color;
 	}
 	
 	/**
@@ -80,7 +90,11 @@ public class TextField{
 	 * Removes the focus from this text field.
 	 */
 	public void removeFocus(){
+		boolean old = focus;
 		focus = false;
+		if(old){
+			focusListener.onFocusLost();
+		}
 	}
 	
 	/**
@@ -99,14 +113,24 @@ public class TextField{
 			if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
 				if(!text.isEmpty()){
 					text = text.substring(0, text.length() - 1);
+					changeListener.onTextChange(text);
 				}
 			}else if(event.isControlDown() && event.getKeyCode() == KeyEvent.VK_V){
 				try{
 					text += Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+					changeListener.onTextChange(text);
 				}catch(Exception ignore){
+					//copy paste just fails
+				}
+			}else if(event.isControlDown() && event.getKeyCode() == KeyEvent.VK_C){
+				try{
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+				}catch(Exception ignore){
+					//copy paste just fails
 				}
 			}else if(!event.isControlDown() && !event.isAltDown() && event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
 				text += event.getKeyChar();
+				changeListener.onTextChange(text);
 			}
 		}
 	}
@@ -116,7 +140,11 @@ public class TextField{
 	 * @param loc The location that was clicked.
 	 */
 	public void handleMouseClick(Point2D loc){
+		boolean old = focus;
 		focus = bounds.contains(loc);
+		if(old){
+			focusListener.onFocusLost();
+		}
 	}
 	
 	/**
@@ -134,7 +162,7 @@ public class TextField{
 		g.setClip(bounds);
 		
 		g.setStroke(Theme.BORDER_STROKE);
-		g.setColor(Theme.BOX_TEXT_COLOR);
+		g.setColor(foreground);
 		g.setFont(Theme.PRIDI_MEDIUM_14);
 		FontMetrics fm = g.getFontMetrics();
 		if(center){
@@ -151,5 +179,17 @@ public class TextField{
 		g.setColor(color);
 		g.draw(new Line2D.Double(x, y + height - 1, x + width - 1, y + height - 1));
 		g.setClip(null);
+	}
+	
+	@FunctionalInterface
+	public static abstract interface TextChangeListener{
+		
+		public abstract void onTextChange(String text);
+	}
+	
+	@FunctionalInterface
+	public static abstract interface FocusLossListener{
+		
+		public abstract void onFocusLost();
 	}
 }
