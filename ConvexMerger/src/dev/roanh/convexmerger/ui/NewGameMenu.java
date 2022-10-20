@@ -36,9 +36,21 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 	 * Height of the start button.
 	 */
 	private static final double START_HEIGHT = 100.0D;
+	/**
+	 * Raw minimum range values associated with the object size buttons.
+	 */
 	private static final int[] RANGE_VALUES_MIN = new int[]{10, 0, 50};
+	/**
+	 * Raw maximum range values associated with the object size buttons.
+	 */
 	private static final int[] RANGE_VALUES_MAX = new int[]{20, 100, 100};
+	/**
+	 * Raw coverage values associated with the density buttons.
+	 */
 	private static final int[] COVERAGE_VALUES = new int[]{30, 70, 114};
+	/**
+	 * Raw scaling values associated with the spacing buttons.
+	 */
 	private static final int[] SCALING_VALUES = new int[]{240, 200, 100};
 	/**
 	 * Configuration for player 1.
@@ -85,7 +97,13 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 	 * from the start of the game.
 	 */
 	protected boolean showDecomp = false;
+	/**
+	 * Text field showing the game seed.
+	 */
 	private TextField seed = new TextField(PlayerTheme.P1.getBaseOutline());
+	/**
+	 * The playfield generator being configured.
+	 */
 	private PlayfieldGenerator gen = new PlayfieldGenerator();
 	
 	/**
@@ -216,17 +234,17 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 		});
 	}
 	
+	/**
+	 * Finds the index of the element in the array
+	 * closest to the given value.
+	 * @param values The list of elements to compare to.
+	 * @param value The target value.
+	 * @return The index of the element in the given values
+	 *         array closest to the given value.
+	 */
 	private int findClosest(int[] values, int value){
-		int dist = Integer.MAX_VALUE;
-		for(int i = 0; i < values.length; i++){
-			int diff = Math.abs(values[i] - value);
-			if(dist > diff){
-				dist = diff;
-			}else{
-				return i - 1;
-			}
-		}
-		return values.length - 1;
+		int idx = Math.abs(values[0] - value) > Math.abs(values[1] - value) ? 1 : 0;
+		return Math.abs(values[idx] - value) > Math.abs(values[2] - value) ? 2 : idx;
 	}
 
 	@Override
@@ -380,6 +398,9 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 		 * The index of the currently selected button (0~2).
 		 */
 		private int selected;
+		/**
+		 * Listener called when the selected button changes.
+		 */
 		private IntConsumer listener = i->{};
 		
 		/**
@@ -395,19 +416,36 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 			this.values = values;
 		}
 		
+		/**
+		 * Sets the listener called when the selected button changes.
+		 * @param listener The new change listener.
+		 */
 		public void setChangeListener(IntConsumer listener){
 			this.listener = listener;
 		}
 		
+		/**
+		 * Gets the height of this button assembly.
+		 * @param g The graphics context to use.
+		 * @return The height of this button assembly.
+		 */
 		public double getHeight(Graphics2D g){
 			FontMetrics fm = g.getFontMetrics(Theme.PRIDI_REGULAR_16);
 			return fm.getAscent() - fm.getDescent() + BOX_SPACING + BUTTON_HEIGHT;
 		}
 		
+		/**
+		 * Gets the width of this button assembly.
+		 * @return The width of this button assembly.
+		 */
 		public double getWidth(){
 			return BUTTON_WIDTH * 3.0D - BOX_INSETS * 4.0D;
 		}
 		
+		/**
+		 * Sets the selected button for this assembly.
+		 * @param selected The selected button (0~2).
+		 */
 		public void setSelected(int selected){
 			this.selected = selected;
 		}
