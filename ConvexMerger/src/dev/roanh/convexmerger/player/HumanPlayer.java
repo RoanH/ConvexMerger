@@ -32,7 +32,7 @@ public class HumanPlayer extends Player implements GameStateListener{
 		}
 		
 		turnEnd = false;
-		while(turnEnd){
+		while(!turnEnd){
 			wait();
 		}
 		
