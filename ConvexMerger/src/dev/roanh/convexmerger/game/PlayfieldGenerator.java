@@ -112,6 +112,12 @@ public class PlayfieldGenerator{
 		this.scale = scaleNum / 255.0F;
 	}
 	
+	/**
+	 * Sets the seed of this generator to the given seed.
+	 * @param seed The new seed.
+	 * @throws IllegalArgumentException When the seed is invalid.
+	 * @see #isValidSeed(String)
+	 */
 	public void setSeed(String seed) throws IllegalArgumentException{
 		long lower = Long.parseUnsignedLong(seed.substring(seed.length() - 13), 36);
 		long upper = Long.parseUnsignedLong(seed.substring(0, seed.length() - 13), 36);
@@ -123,18 +129,38 @@ public class PlayfieldGenerator{
 		init(lower, (int)((upper & 0xFF000000L) >> 24), (int)((upper & 0xFF0000) >> 16), (int)((upper & 0xFF00) >> 8), (int)(upper & 0xFF));
 	}
 	
+	/**
+	 * Gets the maximum size range for this generator.
+	 * @return The maximum object size range.
+	 * @see #setRange(int, int)
+	 */
 	public int getRangeMin(){
 		return rangeMin;
 	}
 	
+	/**
+	 * Gets the minimum size range for this generator.
+	 * @return The minimum object size range.
+	 * @see #setRange(int, int)
+	 */
 	public int getRangeMax(){
 		return rangeMax;
 	}
 	
+	/**
+	 * Gets the coverage number for this generator.
+	 * @return The coverage number for this generator.
+	 * @see #setCoverage(int)
+	 */
 	public int getCoverage(){
 		return coverageNum;
 	}
 	
+	/**
+	 * Gets the scaling number for this generator.
+	 * @return The scaling number.
+	 * @see #setScaling(int)
+	 */
 	public int getScaling(){
 		return scaleNum;
 	}
@@ -286,6 +312,11 @@ public class PlayfieldGenerator{
 		return objects;
 	}
 	
+	/**
+	 * Tests if the given seed is a valid game seed.
+	 * @param seed The seed to test.
+	 * @return True if the seed is a valid game seed.
+	 */
 	public static boolean isValidSeed(String seed){
 		try{
 			return seed.length() >= 13 && hasSeedMarker(Long.parseUnsignedLong(seed.substring(0, seed.length() - 13), 36));
@@ -294,6 +325,12 @@ public class PlayfieldGenerator{
 		}
 	}
 	
+	/**
+	 * Checks if the given high order bits of a seed
+	 * represent a valid game seed.
+	 * @param high The high order seed bits.
+	 * @return True if the high order bits represent a valid seed.
+	 */
 	private static boolean hasSeedMarker(long high){
 		return (0xFFFFFFFF00000000L & high) == 0x200000000L;
 	}
