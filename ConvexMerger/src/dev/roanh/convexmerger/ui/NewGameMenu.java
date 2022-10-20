@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.ui;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -77,6 +78,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * from the start of the game.
 	 */
 	protected boolean showDecomp = false;
+	private TextField seed = new TextField(Color.MAGENTA);
 	
 	/**
 	 * Constructs a new new game menu with the given game context.
@@ -130,7 +132,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		
 		double playersHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS * 2.0D + PlayerPanel.HEIGHT;
 		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_REGULAR_16);
-		double optionsHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS + fm.getAscent() - fm.getDescent() + BOX_SPACING + ButtonAssembly.BUTTON_HEIGHT + g.getFontMetrics(Theme.PRIDI_REGULAR_14).getAscent();
+		double optionsHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS + fm.getAscent() - fm.getDescent() + BOX_SPACING * 2.0D + ButtonAssembly.BUTTON_HEIGHT * 2.0D + g.getFontMetrics(Theme.PRIDI_REGULAR_14).getAscent();
 		
 		drawTitledBox(g, gradient, tx, ty, size, playersHeight, "Players");
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
@@ -146,14 +148,27 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		}
 		
 		double dx = (size - BOX_SPACING * 3.0D - PlayerPanel.WIDTH * 4.0D) / 2.0D;
-		p1.render(g, tx + dx, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
-		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
-		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
-		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, mouseLoc);
+		ty += Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS;
+		p1.render(g, tx + dx, ty, mouseLoc);
+		p2.render(g, tx + dx + PlayerPanel.WIDTH + BOX_SPACING, ty, mouseLoc);
+		p3.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 2.0D, ty, mouseLoc);
+		p4.render(g, tx + dx + (PlayerPanel.WIDTH + BOX_SPACING) * 3.0D, ty, mouseLoc);
 		
-		this.size.render(g, tx, ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
-		density.render(g, tx + (size / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
-		spacing.render(g, tx + ((size * 2.0D) / 3.0D), ty + playersHeight + BOX_SPACING + Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS, size / 3.0D, optionsHeight - Screen.BOX_HEADER_HEIGHT - Screen.BOX_INSETS, mouseLoc);
+		ty += playersHeight + BOX_SPACING;
+		this.size.render(g, tx, ty, size / 3.0D, mouseLoc);
+		density.render(g, tx + (size / 3.0D), ty, size / 3.0D, mouseLoc);
+		spacing.render(g, tx + ((size * 2.0D) / 3.0D), ty, size / 3.0D, mouseLoc);
+	
+		g.setFont(Theme.PRIDI_REGULAR_16);
+		ty += spacing.getHeight(g) + BOX_SPACING + fm.getAscent() - fm.getDescent();
+		g.drawString("Seed", (float)(tx + (size - fm.stringWidth("Seed")) / 2.0D), (float)ty);
+		
+		
+		seed.render(g, tx + (size - spacing.getWidth()) / 2.0D, ty, spacing.getWidth(), 30.0D);
+		
+		g.setColor(Color.RED);
+		int yy = (int)(ty);
+		g.drawLine((int)tx, yy, (int)(tx + size), yy);
 	}
 	
 	/**
@@ -197,6 +212,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			size.handleMouseClick(loc);
 			density.handleMouseClick(loc);
 			spacing.handleMouseClick(loc);
+			seed.handleMouseClick(loc);
 			
 			if(canStart() && start.contains(loc)){
 				List<Player> players = new ArrayList<Player>();
@@ -229,6 +245,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			}else if(p4.name != null){
 				p4.name.handleKeyEvent(event);
 			}
+			seed.handleKeyEvent(event);
 		}
 	}
 
@@ -317,6 +334,15 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 			this.values = values;
 		}
 		
+		public double getHeight(Graphics2D g){
+			FontMetrics fm = g.getFontMetrics(Theme.PRIDI_REGULAR_16);
+			return fm.getAscent() - fm.getDescent() + BOX_SPACING + BUTTON_HEIGHT;
+		}
+		
+		public double getWidth(){
+			return BUTTON_WIDTH * 3.0D - BOX_INSETS * 4.0D;
+		}
+		
 		/**
 		 * Gets the index of the selected button.
 		 * @return The selected button index (0~2).
@@ -369,17 +395,16 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		 * @param x The x coordinate of the top left corner.
 		 * @param y The y coordinate of the top left corner.
 		 * @param w The width of the assembly.
-		 * @param h The height of the assembly.
 		 * @param mouseLoc The current cursor location.
 		 */
-		private void render(Graphics2D g, double x, double y, double w, double h, Point2D mouseLoc){
+		private void render(Graphics2D g, double x, double y, double w, Point2D mouseLoc){
 			g.setFont(Theme.PRIDI_REGULAR_16);
 			g.setColor(Theme.ADD_COLOR_HIGHLIGHT);
 			FontMetrics fm = g.getFontMetrics();
 			y += fm.getAscent() - fm.getDescent();
 			g.drawString(title, (float)(x + (w - fm.stringWidth(title)) / 2.0D), (float)y);
 			
-			x += (w - BUTTON_WIDTH * 3.0D + BOX_INSETS * 4.0D) / 2.0D;
+			x += (w - getWidth()) / 2.0D;
 			y += BOX_SPACING;
 			
 			left = computeBox(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, BOX_INSETS);
