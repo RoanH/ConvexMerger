@@ -132,7 +132,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		
 		double playersHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS * 2.0D + PlayerPanel.HEIGHT;
 		FontMetrics fm = g.getFontMetrics(Theme.PRIDI_REGULAR_16);
-		double optionsHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS + fm.getAscent() - fm.getDescent() + BOX_SPACING * 2.0D + ButtonAssembly.BUTTON_HEIGHT * 2.0D + g.getFontMetrics(Theme.PRIDI_REGULAR_14).getAscent();
+		double optionsHeight = Screen.BOX_HEADER_HEIGHT + Screen.BOX_INSETS + fm.getAscent() * 2.0D - fm.getDescent() * 2.0D + BOX_SPACING * 3.0D + PlayerPanel.CONTENT_HEIGHT + ButtonAssembly.BUTTON_HEIGHT + g.getFontMetrics(Theme.PRIDI_REGULAR_14).getAscent();
 		
 		drawTitledBox(g, gradient, tx, ty, size, playersHeight, "Players");
 		drawTitledBox(g, gradient, tx, ty + playersHeight + BOX_SPACING, size, optionsHeight, "Options");
@@ -160,15 +160,10 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 		spacing.render(g, tx + ((size * 2.0D) / 3.0D), ty, size / 3.0D, mouseLoc);
 	
 		g.setFont(Theme.PRIDI_REGULAR_16);
+		fm = g.getFontMetrics();
 		ty += spacing.getHeight(g) + BOX_SPACING + fm.getAscent() - fm.getDescent();
 		g.drawString("Seed", (float)(tx + (size - fm.stringWidth("Seed")) / 2.0D), (float)ty);
-		
-		
-		seed.render(g, tx + (size - spacing.getWidth()) / 2.0D, ty, spacing.getWidth(), 30.0D);
-		
-		g.setColor(Color.RED);
-		int yy = (int)(ty);
-		g.drawLine((int)tx, yy, (int)(tx + size), yy);
+		seed.render(g, tx + (size - spacing.getWidth()) / 2.0D, ty + BOX_SPACING, spacing.getWidth(), PlayerPanel.CONTENT_HEIGHT);
 	}
 	
 	/**
