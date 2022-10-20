@@ -3,15 +3,12 @@ package dev.roanh.convexmerger.ui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 
 /**
  * Text field UI component.
@@ -34,13 +31,24 @@ public class TextField{
 	 * Whether this text field has focus.
 	 */
 	private boolean focus = false;
+	private boolean center;
 	
 	/**
 	 * Constructs a new text field with the given accent color.
 	 * @param color The accent color.
 	 */
 	public TextField(Color color){
+		this(color, false);
+	}
+	
+	/**
+	 * Constructs a new text field with the given accent color.
+	 * @param color The accent color.
+	 * @param center Whether the field text should be centred.
+	 */
+	public TextField(Color color, boolean center){
 		this.color = color;
+		this.center = center;
 	}
 	
 	/**
@@ -88,7 +96,6 @@ public class TextField{
 	 */
 	public void handleKeyEvent(KeyEvent event){
 		if(hasFocus()){
-			System.out.println(event.isControlDown());
 			if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
 				if(!text.isEmpty()){
 					text = text.substring(0, text.length() - 1);
@@ -130,9 +137,13 @@ public class TextField{
 		g.setColor(Theme.BOX_TEXT_COLOR);
 		g.setFont(Theme.PRIDI_MEDIUM_14);
 		FontMetrics fm = g.getFontMetrics();
-		g.drawString(text, (float)(x + 4.0F), (float)(y + height - fm.getMaxDescent()));
+		if(center){
+			g.drawString(text, (float)(x + (width - fm.stringWidth(text)) / 2.0D), (float)(y + height - fm.getMaxDescent()));
+		}else{
+			g.drawString(text, (float)(x + 4.0F), (float)(y + height - fm.getMaxDescent()));
+		}
 		if(focus && ((System.currentTimeMillis() / 600) % 2 == 0)){
-			int lx = (int)Math.ceil(x + 4.0F + fm.stringWidth(text));
+			int lx = (int)Math.ceil(x + (center ? (width + fm.stringWidth(text)) / 2.0D : 4.0F + fm.stringWidth(text)));
 			g.setColor(color);
 			g.drawLine(lx, (int)(y + 2.0F), lx, (int)(y + height - 4.0F));
 		}

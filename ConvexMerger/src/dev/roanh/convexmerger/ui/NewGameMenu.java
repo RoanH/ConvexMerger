@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.ui;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -78,7 +77,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener{
 	 * from the start of the game.
 	 */
 	protected boolean showDecomp = false;
-	private TextField seed = new TextField(Color.MAGENTA);
+	private TextField seed = new TextField(PlayerTheme.P1.getBaseOutline(), true);
 	
 	/**
 	 * Constructs a new new game menu with the given game context.
