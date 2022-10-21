@@ -127,6 +127,10 @@ public final class Theme{
 	 */
 	public static final Color LINK_COLOR = BUTTON_SELECT;
 	/**
+	 * Colour used for showing invalid input or warnings.
+	 */
+	public static final Color ERROR_COLOR = new Color(255, 60, 60);
+	/**
 	 * Stroke used to draw the outline of playfield convex objects.
 	 */
 	public static final Stroke POLY_STROKE = new BasicStroke(4.0F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
