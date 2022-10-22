@@ -44,6 +44,10 @@ public class VerticalDecomposition implements GameStateListener {
 	 */
 	private List<Line> orientedSegments;
 	/**
+	 * The list of vertical segments
+	 */
+	private List<Line> verticalSegments;
+	/**
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line, ConvexObject> segToObj;
@@ -123,6 +127,7 @@ public class VerticalDecomposition implements GameStateListener {
 		trapezoids = new ArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
 		orientedSegments = new ArrayList<Line>();
+		verticalSegments = new ArrayList<Line>();
 		segToObj = new HashMap<Line, ConvexObject>();
 		Point2D botLeft  = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
 		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
@@ -206,6 +211,10 @@ public class VerticalDecomposition implements GameStateListener {
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
+//		Trapezoid trap = queryTrapezoid(x, y);
+//		Line2D decomp1 = trap.getDecompLines().get(0);
+//		Line2D decomp2 = trap.getDecompLines().get(1);
+//		System.out.println(trap.getNeighbours().size() + " " + decomp1.getP1() + " " + decomp1.getP2() + " " + decomp2.getP1() + " " + decomp2.getP2() + " ");
 		return segToObj.get(queryTrapezoid(x, y).botSegment);
 	}
 	
@@ -286,6 +295,7 @@ public class VerticalDecomposition implements GameStateListener {
 			segToObj.put(orientedSegment, toPut);
 
 			if(p1.getX() == p2.getX()){
+				verticalSegments.add(orientedSegment);
 				addedVerticalSegment(orientedSegment);
 			} else if(start.equals(end)){
 				addedIntersectsSingleTrapezoid(orientedSegment);
@@ -362,8 +372,12 @@ public class VerticalDecomposition implements GameStateListener {
 	private void addedBorderVerticalSegment(Line segment, Trapezoid trap){
 		Point2D leftp = segment.getP1(), rightp = segment.getP2();
 		//Add leftp and rightp to the right bounding points, and to the left bounding points of eligible neighbours.
-		trap.addRightPoint(leftp);
-		trap.addRightPoint(rightp);
+		if(!trap.rightPoints.contains(leftp)){
+			trap.addRightPoint(leftp);
+		}
+		if(!trap.rightPoints.contains(rightp)){
+			trap.addRightPoint(rightp);
+		}
 		for(Trapezoid neib : trap.getNeighbours()){
 			if(!neib.leftPoints.contains(leftp) && neib.getXLeft() == leftp.getX()){
 				for(Line2D decompLine : neib.getDecompLines()){
@@ -384,6 +398,9 @@ public class VerticalDecomposition implements GameStateListener {
 		//Remove neighbours to the right that might not share a side anymore
 		List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
 		for(Trapezoid neib : trap.getNeighbours()){
+			if(verticalSegments.contains(new Line(neib.botSegment.getP1(), neib.topSegment.getP1())) && neib.getXLeft() == trap.getXRight()){
+				removeNeighbours.add(neib);
+			}
 			if(neib.getXLeft() == leftp.getX() &&(
 					leftp.equals(trap.botSegment.getP2()) && rightp.equals(trap.topSegment.getP2()) ||
 					rightp.equals(trap.botSegment.getP2()) && leftp.equals(trap.topSegment.getP2())
@@ -505,11 +522,11 @@ public class VerticalDecomposition implements GameStateListener {
 				left.addNeighbour(neib);
 				neib.addNeighbour(left);
 			} else {
-				if(segment.getP2() != neib.topSegment.getP1()){//TODO: Propagate this approach to other decompline places if possible
+				if(segment.getP2() != neib.topSegment.getP1() && top.botSegment.getP2() != top.topSegment.getP2()){//TODO: Propagate this approach to other decompline places if possible
 					top.addNeighbour(neib);
 					neib.addNeighbour(top);
 				}
-				if(segment.getP2() != neib.botSegment.getP1()){
+				if(segment.getP2() != neib.botSegment.getP1() && bottom.botSegment.getP2() != bottom.topSegment.getP2()){
 					bottom.addNeighbour(neib);
 					neib.addNeighbour(bottom);
 				}
@@ -564,6 +581,7 @@ public class VerticalDecomposition implements GameStateListener {
 		DecompVertex botVertex = null, topVertex = null;
 		while(!intersected.isEmpty()){
 			Trapezoid current = intersected.remove();
+			assert current.getXLeft() != orientedSegment.getX2();
 			if(current == first && leftp.getX() != current.getXLeft() && leftp.getX() != current.getXRight()){
 				//Split the first trapezoid into left and right of leftp. The right part can be handled as a fully-sliced trapezoid.
 				right = handleFirstTrapezoid(current, leftp);
@@ -754,6 +772,8 @@ public class VerticalDecomposition implements GameStateListener {
 		assert top.leftPoints.size() > 0;
 		
 		for(Trapezoid neib : trap.getNeighbours()){
+			if(top.topSegment.getP1() == top.botSegment.getP1() && top.getXLeft() == top.botSegment.getX1())
+				break;
 			assert neib.getDecompLines() != null;
 			for(Line2D decompLine : neib.getDecompLines()){//TODO: better way of doing this?
 				if(decompLine.getP1().getX() != trap.getXLeft())
@@ -784,8 +804,11 @@ public class VerticalDecomposition implements GameStateListener {
 			}
 		}
 		assert bot.leftPoints.size() > 0 : bot.leftPoints.size() + " " + trap.leftPoints.get(0) + " " + segment.relativeCCW(trap.leftPoints.get(0)) + " " + segment.getP1() + " " + segment.getP2();
+		assert trap.getNeighbours().size() > 0;
 		
 		for(Trapezoid neib : trap.getNeighbours()){
+			if(bot.topSegment.getP1() == bot.botSegment.getP1() && bot.getXLeft() == bot.botSegment.getX1())
+				break;
 			for(Line2D decompLine : neib.getDecompLines()){
 				if(decompLine.getP1().getX() != trap.getXLeft())
 					continue;
@@ -800,7 +823,7 @@ public class VerticalDecomposition implements GameStateListener {
 	
 	private void distributeRightPoints(Trapezoid trap, Trapezoid top, Trapezoid bot, Line segment, Trapezoid nextIntersected){
 		for(Point2D p : trap.rightPoints){
-			if(nextIntersected != null){
+			if(nextIntersected != null && segment.getX1() != segment.getX2()){
 				if(trap.rightPoints.stream().anyMatch(po -> segment.relativeCCW(po) <= 0)){
 					if(!trap.getNeighbours().contains(nextIntersected)){
 						assert trap.rightPoints.size() >= 2;
@@ -827,6 +850,8 @@ public class VerticalDecomposition implements GameStateListener {
 	
 	private void finishTopTrapezoid(Trapezoid trap, Line segment, Trapezoid top){
 		for(Trapezoid neib : trap.getNeighbours()){
+			if(top.botSegment.getP2() == top.topSegment.getP2() && top.getXRight() == top.topSegment.getX2())
+				break;
 			for(Line2D decompLine : neib.getDecompLines()){//TODO: better way of doing this?
 				if(decompLine.getP1().getX() != trap.getXRight())
 					continue;
@@ -841,6 +866,8 @@ public class VerticalDecomposition implements GameStateListener {
 	
 	private void finishBotTrapezoid(Trapezoid trap, Line segment, Trapezoid bot){
 		for(Trapezoid neib : trap.getNeighbours()){
+			if(bot.botSegment.getP2() == bot.topSegment.getP2() && bot.getXRight() == bot.botSegment.getX2())
+				break;
 			for(Line2D decompLine : neib.getDecompLines()){
 				if(decompLine.getP1().getX() != trap.getXRight())
 					continue;
@@ -921,9 +948,12 @@ public class VerticalDecomposition implements GameStateListener {
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 		Point2D[] mergePoints = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
-		
+//		System.out.println(source.getPoints());
+//		System.out.println(target.getPoints());
 		Line firstLine =  new Line(mergePoints[0], mergePoints[1]);
 		Line secondLine = new Line(mergePoints[2], mergePoints[3]);
+//		System.out.println(firstLine.getP1() + "  " + firstLine.getP2());
+//		System.out.println(secondLine.getP1() + "  " + secondLine.getP2());
 		try{
 			addSegment(firstLine, result);
 			addSegment(secondLine, result);
@@ -940,12 +970,14 @@ public class VerticalDecomposition implements GameStateListener {
 			Point2D p1 = borderPoints.get(i), p2 = borderPoints.get((i + 1) % borderPoints.size());
 			Line segment = orientedSegments.get(orientedSegments.indexOf(new Line(p1, p2)));
 			borderSegments.add(segment);
-			if(p1.getX() != p2.getX()){
-				if(segment.getP1() == p1){
-					q.addAll(segment.getTrapsAbove());
-				} else {
-					q.addAll(segment.getTrapsBelow());
-				}
+			if(p1.getX() == p2.getX()){
+				continue;
+			}
+			
+			if(segment.getP1() == p1){
+				q.addAll(segment.getTrapsAbove());
+			} else {
+				q.addAll(segment.getTrapsBelow());
 			}
 			
 		}
@@ -957,7 +989,7 @@ public class VerticalDecomposition implements GameStateListener {
 				segToObj.put(curr.botSegment, result);
 			}
 			//Add unvisited neighbours to the queue
-			curr.sanitizeNeighbours();
+//			curr.sanitizeNeighbours();
 			for(Trapezoid neib : curr.getNeighbours()){
 				if(!visited.contains(neib)){
 					q.add(neib);
@@ -1419,21 +1451,29 @@ public class VerticalDecomposition implements GameStateListener {
 			List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
 			if(getXLeft() == getXRight()){
 				freeNeighbours();
-				return;
 			}
 			for(Trapezoid neib: getNeighbours()){
-				if(topSegment.getP1() == botSegment.getP1() && topSegment.getX1() == getXLeft() &&(
-						neib.getXRight() == botSegment.getX1()
+				if(
+//					topSegment.getP1() == botSegment.getP1() && topSegment.getX1() == getXLeft() &&(
+//						neib.getXRight() == botSegment.getX1()
+//					)||
+//					topSegment.getP2() == botSegment.getP2() && topSegment.getX2() == getXRight() &&(
+//						neib.getXLeft() == botSegment.getX2()
+//					)||
+					topSegment.getX1() == botSegment.getX1() && topSegment.getX1() == getXLeft() &&(
+						neib.getXRight() == getXLeft() &&
+						verticalSegments.contains(new Line(botSegment.getP1(), topSegment.getP1()))
 					)||
-					topSegment.getP2() == botSegment.getP2() && topSegment.getX2() == getXRight() &&(
-						neib.getXLeft() == botSegment.getX2()
+					topSegment.getX2() == botSegment.getX2() && topSegment.getX2() == getXRight() &&(
+						neib.getXLeft() == getXRight() && 
+						verticalSegments.contains(new Line(botSegment.getP2(), topSegment.getP2()))
 					)||
-					(neib.rightPoints.contains(topSegment.getP1()) || neib.rightPoints.contains(botSegment.getP1())) &&(
-						orientedSegments.indexOf(new Line(botSegment.getP1(), topSegment.getP1())) != -1
-					)||
-					(neib.leftPoints.contains(botSegment.getP2()) || neib.leftPoints.contains(topSegment.getP2())) &&(
-						orientedSegments.indexOf(new Line(botSegment.getP2(), topSegment.getP2())) != -1
-					)||
+//					(neib.rightPoints.contains(topSegment.getP1()) || neib.rightPoints.contains(botSegment.getP1())) &&(
+//						orientedSegments.indexOf(new Line(botSegment.getP1(), topSegment.getP1())) != -1
+//					)||
+//					(neib.leftPoints.contains(botSegment.getP2()) || neib.leftPoints.contains(topSegment.getP2())) &&(
+//						orientedSegments.indexOf(new Line(botSegment.getP2(), topSegment.getP2())) != -1
+//					)||
 					neib.topSegment == botSegment || topSegment == neib.botSegment){
 					removeNeighbours.add(neib);
 				}
