@@ -14,7 +14,7 @@ public final class Constants{
 	/**
 	 * Game and window title.
 	 */
-	public static final String TITLE = "Convex Merger";
+	public static final String TITLE = "ConvexMerger";
 	/**
 	 * The playfield height (from 0 to {@value #PLAYFIELD_WIDTH}).
 	 */

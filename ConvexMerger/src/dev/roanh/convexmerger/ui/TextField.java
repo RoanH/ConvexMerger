@@ -3,10 +3,15 @@ package dev.roanh.convexmerger.ui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+
+import javax.swing.event.ChangeListener;
 
 /**
  * Text field UI component.
@@ -29,6 +34,22 @@ public class TextField{
 	 * Whether this text field has focus.
 	 */
 	private boolean focus = false;
+	/**
+	 * True if text in this text field is centred.
+	 */
+	private boolean center = false;
+	/**
+	 * Listener called when the text field text changes.
+	 */
+	private TextChangeListener changeListener = s->{};
+	/**
+	 * Listener called when this text field loses focus.
+	 */
+	private FocusLossListener focusListener = ()->{};
+	/**
+	 * The foreground (text) colour.
+	 */
+	private Color foreground = Theme.BOX_TEXT_COLOR;
 	
 	/**
 	 * Constructs a new text field with the given accent color.
@@ -36,6 +57,40 @@ public class TextField{
 	 */
 	public TextField(Color color){
 		this.color = color;
+	}
+	
+	/**
+	 * Sets whether the text in this text field should be centred.
+	 * @param center True to center the text in this text field.
+	 */
+	public void setCentred(boolean center){
+		this.center = center;
+	}
+	
+	/**
+	 * Sets the change listener for this text field.
+	 * @param listener The new change listener.
+	 * @see ChangeListener
+	 */
+	public void setChangeListener(TextChangeListener listener){
+		changeListener = listener;
+	}
+	
+	/**
+	 * Sets the focus loss listener for this text field.
+	 * @param listener The new focus listener.
+	 * @see FocusLossListener
+	 */
+	public void setFocusListener(FocusLossListener listener){
+		focusListener = listener;
+	}
+	
+	/**
+	 * Sets the foreground (text) colour for this text field.
+	 * @param color The new foreground colour.
+	 */
+	public void setForegroundColor(Color color){
+		foreground = color;
 	}
 	
 	/**
@@ -67,7 +122,11 @@ public class TextField{
 	 * Removes the focus from this text field.
 	 */
 	public void removeFocus(){
+		boolean old = focus;
 		focus = false;
+		if(old){
+			focusListener.onFocusLost();
+		}
 	}
 	
 	/**
@@ -86,9 +145,24 @@ public class TextField{
 			if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE){
 				if(!text.isEmpty()){
 					text = text.substring(0, text.length() - 1);
+					changeListener.onTextChange(text);
 				}
-			}else if(event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
+			}else if(event.isControlDown() && event.getKeyCode() == KeyEvent.VK_V){
+				try{
+					text += Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+					changeListener.onTextChange(text);
+				}catch(Exception ignore){
+					//copy paste just fails
+				}
+			}else if(event.isControlDown() && event.getKeyCode() == KeyEvent.VK_C){
+				try{
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+				}catch(Exception ignore){
+					//copy paste just fails
+				}
+			}else if(!event.isControlDown() && !event.isAltDown() && event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){
 				text += event.getKeyChar();
+				changeListener.onTextChange(text);
 			}
 		}
 	}
@@ -98,7 +172,11 @@ public class TextField{
 	 * @param loc The location that was clicked.
 	 */
 	public void handleMouseClick(Point2D loc){
+		boolean old = focus;
 		focus = bounds.contains(loc);
+		if(old){
+			focusListener.onFocusLost();
+		}
 	}
 	
 	/**
@@ -116,12 +194,16 @@ public class TextField{
 		g.setClip(bounds);
 		
 		g.setStroke(Theme.BORDER_STROKE);
-		g.setColor(Theme.BOX_TEXT_COLOR);
+		g.setColor(foreground);
 		g.setFont(Theme.PRIDI_MEDIUM_14);
 		FontMetrics fm = g.getFontMetrics();
-		g.drawString(text, (float)(x + 4.0F), (float)(y + height - fm.getMaxDescent()));
+		if(center){
+			g.drawString(text, (float)(x + (width - fm.stringWidth(text)) / 2.0D), (float)(y + height - fm.getMaxDescent()));
+		}else{
+			g.drawString(text, (float)(x + 4.0F), (float)(y + height - fm.getMaxDescent()));
+		}
 		if(focus && ((System.currentTimeMillis() / 600) % 2 == 0)){
-			int lx = (int)Math.ceil(x + 4.0F + fm.stringWidth(text));
+			int lx = (int)Math.ceil(x + (center ? (width + fm.stringWidth(text)) / 2.0D : 4.0F + fm.stringWidth(text)));
 			g.setColor(color);
 			g.drawLine(lx, (int)(y + 2.0F), lx, (int)(y + height - 4.0F));
 		}
@@ -129,5 +211,32 @@ public class TextField{
 		g.setColor(color);
 		g.draw(new Line2D.Double(x, y + height - 1, x + width - 1, y + height - 1));
 		g.setClip(null);
+	}
+	
+	/**
+	 * Listener called when the text field context changes.
+	 * @author Roan
+	 */
+	@FunctionalInterface
+	public static abstract interface TextChangeListener{
+		
+		/**
+		 * Called when the text field content changes.
+		 * @param text The next text field content.
+		 */
+		public abstract void onTextChange(String text);
+	}
+	
+	/**
+	 * Listener called when the user stops editing a text field.
+	 * @author Roan
+	 */
+	@FunctionalInterface
+	public static abstract interface FocusLossListener{
+		
+		/**
+		 * Called when the text field loses user focus.
+		 */
+		public abstract void onFocusLost();
 	}
 }
