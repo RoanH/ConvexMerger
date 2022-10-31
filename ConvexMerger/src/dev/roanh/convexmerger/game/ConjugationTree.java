@@ -98,7 +98,7 @@ public class ConjugationTree{
 			new Color(0, 150, 150),
 			Color.BLUE,
 		}[depth()]);
-		g.draw(clipLine(extendLine(bisector)));
+		g.draw(clipLine(extendLine(bisector), on.get(0)));
 		
 		g.setColor(Color.RED);
 		for(Point2D p : on){
@@ -115,16 +115,24 @@ public class ConjugationTree{
 		}
 	}
 	
-	private Line2D clipLine(Line2D line){
-		//TODO
-		if(parent == null){
-			
-			
+	private Line2D clipLine(Line2D line, Point2D on){
+		if(parent == null || parent.parent == null){
 			return line;
 		}else{
-			
-			
-			
+			ConjugationTree node = parent.parent;
+			while(node != null){
+				Point2D intercept = intercept(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
+				if(intercept != null){
+					int onCCW = node.bisector.relativeCCW(on);
+					if(onCCW == node.bisector.relativeCCW(line.getP1())){
+						line = new Line2D.Double(line.getP1(), intercept);
+					}else{//p2
+						line = new Line2D.Double(intercept, line.getP2());
+					}
+				}
+				
+				node = node.parent;
+			}
 			return line;
 		}
 	}
@@ -147,7 +155,7 @@ public class ConjugationTree{
 			
 			//y = base + coef * x
 			
-			System.out.println(min + " / " + max);
+//			System.out.println(min + " / " + max);
 			
 			return new Line2D.Double(min, base + coef * min, max, base + coef * max);
 		}
