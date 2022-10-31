@@ -235,7 +235,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 			if(showCentroids){
 				g.setColor(Color.BLACK);
 				Point2D c = obj.getCentroid();
-				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));	
+				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));
 			}
 		}
 		
