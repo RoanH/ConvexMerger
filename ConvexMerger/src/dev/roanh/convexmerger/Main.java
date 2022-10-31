@@ -42,14 +42,29 @@ public class Main{
 					point(400, 200),
 					point(500, 500),
 					point(600, 600),
-					point(150, 700)
+					point(150, 700),
+					point(800, 200),
+					point(750, 450),
+					point(300, 800),
+					point(1000, 300),
+					point(550, 550),
+					point(990, 440),
+					point(1100, 480)
 				);
 				
 				
 				
 				ConjugationTree tree = new ConjugationTree(points);
 
+				
+				g.translate(200, 50);
 				tree.render(g);
+				
+				g.setColor(Color.MAGENTA);
+				g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
+				g.drawLine(0, 0, Constants.PLAYFIELD_WIDTH, 0);
+				g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+				g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 				
 				g.setColor(Color.CYAN);
 				for(Point2D p : points){
