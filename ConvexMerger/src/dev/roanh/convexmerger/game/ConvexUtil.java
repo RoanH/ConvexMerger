@@ -693,4 +693,47 @@ public class ConvexUtil{
 		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
 	}
+	
+	/**
+	 * Checks if the given point <code>p</code> is on the closed line
+	 * segment between <code>a</code> and <code>b</code>. The given point
+	 * is assumed to be on the infinite line segment between <code>a</code>
+	 * and <code>b</code>.
+	 * @param p The point to check.
+	 * @param a The first point of the line segment.
+	 * @param b The second point of the line segment.
+	 * @return True if the given point is on the given line segment.
+	 */
+	public static final boolean onLine(Point2D p, Point2D a, Point2D b){
+		return Math.min(a.getX(), b.getX()) - 0.00005D <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) + 0.00005D && Math.min(a.getY(), b.getY()) - 0.00005D <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()) + 0.00005D; 
+	}
+	
+	/**
+	 * Clamps the given value to be between the given bounds.
+	 * @param a The first bound value.
+	 * @param b The second bound value.
+	 * @param val The value to clamp.
+	 * @return The clamped value.
+	 */
+	public static final double clamp(double a, double b, double val){
+		return Math.max(Math.min(a, b), Math.min(Math.max(a, b), val));
+	}
+	
+	/**
+	 * Computes the intersection point of the two given closed line segments.
+	 * @param a The first point of the first line segment.
+	 * @param b The second point of the first line segment.
+	 * @param c The first point of the second line segment.
+	 * @param d The second point of the second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect.
+	 */
+	public static final Point2D intercept(Point2D a, Point2D b, Point2D c, Point2D d){
+		double det = (a.getX() - b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() - d.getX());
+		Point2D p = new Point2D.Double(
+			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getX() - d.getX()) - (a.getX() - b.getX()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det,
+			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det
+		);
+		return (onLine(p, a, b) && onLine(p, c, d)) ? p : null;
+	}
 }
