@@ -7,6 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -154,14 +155,23 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		}
 	}
 	
+	//on points
+	public List<Point2D> getPoints(){
+		return on;
+	}
+	
+	public Line2D getBisector(){
+		return bisector;
+	}
+	
 	//node depth, root = 0
 	public int depth(){
 		return parent == null ? 0 : 1 + parent.depth();
 	}
-
+	
 	@Override
-	public Stream<ConjugationTree<T>> streamLeafCells(){
-		return isLeafCell() ? Stream.of(this) : Stream.concat(left.streamLeafCells(), right.streamLeafCells());
+	public ConjugationTree<T> getParent(){
+		return parent;
 	}
 
 	@Override
@@ -171,7 +181,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	
 	@Override
 	public List<ConjugationTree<T>> getChildren(){
-		return Arrays.asList(left, right);
+		return isLeafCell() ? Collections.emptyList() : Arrays.asList(left, right);
 	}
 	
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){

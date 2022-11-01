@@ -721,6 +721,17 @@ public class ConvexUtil{
 	
 	/**
 	 * Computes the intersection point of the two given closed line segments.
+	 * @param a The first line segment.
+	 * @param b The second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect.
+	 */
+	public static final Point2D intercept(Line2D a, Line2D b){
+		return intercept(a.getP1(), a.getP2(), b.getP1(), b.getP2());
+	}
+	
+	/**
+	 * Computes the intersection point of the two given closed line segments.
 	 * @param a The first point of the first line segment.
 	 * @param b The second point of the first line segment.
 	 * @param c The first point of the second line segment.

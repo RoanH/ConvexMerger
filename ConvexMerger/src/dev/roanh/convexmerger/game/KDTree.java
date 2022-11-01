@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -90,18 +91,13 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 	}
 	
 	@Override
-	public Stream<KDTree<T>> streamLeafCells(){
-		return isLeafCell() ? Stream.of(this) : Stream.concat(low.streamLeafCells(), high.streamLeafCells());
-	}
-	
-	@Override
 	public boolean isLeafCell(){
 		return point == null;
 	}
 	
 	@Override
 	public List<KDTree<T>> getChildren(){
-		return Arrays.asList(low, high);
+		return isLeafCell() ? Collections.emptyList() : Arrays.asList(low, high);
 	}
 	
 	public KDTree<T> getLowNode(){
@@ -185,6 +181,11 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		}
 		
 		return bounds;
+	}
+	
+	@Override
+	public KDTree<T> getParent(){
+		return parent;
 	}
 	
 	@Override

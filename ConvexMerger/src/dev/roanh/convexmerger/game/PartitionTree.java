@@ -21,9 +21,31 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	
 	public abstract void render(Graphics2D g);
 	
-	public abstract Stream<S> streamLeafCells();
-	
 	public abstract boolean isLeafCell();
 	
 	public abstract List<S> getChildren();
+	
+	public abstract S getParent();
+	
+	@SuppressWarnings("unchecked")
+	public Stream<S> streamLeafCells(){
+		if(isLeafCell()){
+			return Stream.of((S)this);
+		}else{
+			Stream<S> stream = Stream.empty();
+			for(S child : getChildren()){
+				stream = (Stream<S>)Stream.concat(stream, child.streamLeafCells());
+			}
+			return stream;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Stream<S> streamCells(){
+		Stream<S> stream = (Stream<S>)Stream.of(this);
+		for(S child : getChildren()){
+			stream = (Stream<S>)Stream.concat(stream, child.streamCells());
+		}
+		return stream;
+	}
 }
