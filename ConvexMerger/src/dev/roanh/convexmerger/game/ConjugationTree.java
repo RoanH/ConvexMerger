@@ -57,15 +57,17 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
 	}
 	
-	private ConjugationTree(ConjugationTree<T> parent, List<Point2D> points, List<Point2D> on, Line2D bisector){
+	private ConjugationTree(ConjugationTree<T> parent, List<Point2D> points, Point2D on, Line2D bisector){
 		this.parent = parent;
 		this.bisector = bisector;
-		this.on = on;
+		if(on != null){
+			this.on.add(on);
+		}
 		
 		List<Point2D> leftPoints = new ArrayList<Point2D>(points.size() / 2);
 		List<Point2D> rightPoints = new ArrayList<Point2D>(points.size() / 2);
 		for(Point2D p : points){
-			if(!on.contains(p)){
+			if(on != p){
 				int rel = bisector.relativeCCW(p);
 				switch(rel){
 				case -1:
@@ -75,6 +77,8 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 					rightPoints.add(p);
 					break;
 				case 0:
+					this.on.add(p);
+					break;
 				default:
 					assert false : "Impossible CCW";
 				}
@@ -84,7 +88,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		//construct children
 		if(!leftPoints.isEmpty() || !rightPoints.isEmpty()){
 			ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
-			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn.isEmpty() ? data.rightOn.get(0) : data.leftOn.get(0));
+			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn == null ? data.rightOn : data.leftOn);
 			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate);
 			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
 		}
@@ -92,12 +96,8 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	
 	@Override
 	public void render(Graphics2D g){
-		g.setColor(new Color[]{
-			Color.WHITE,
-			Color.CYAN,
-			new Color(0, 150, 150),
-			Color.BLUE,
-		}[depth()]);
+		int c = Math.max(0, 255 - depth() * 25);
+		g.setColor(new Color(0, c, c));
 		g.draw(bisector);
 		
 		g.setColor(Color.RED);
@@ -150,7 +150,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			double base = line.getY1() - line.getX1() * coef;
 			double max = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, (Constants.PLAYFIELD_HEIGHT - base) / coef);
 			double min = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, -base / coef);
-			
 			return new Line2D.Double(min, base + coef * min, max, base + coef * max);
 		}
 	}
@@ -190,55 +189,42 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		ConjugateData data = new ConjugateData();
 		for(Point2D p1 : left){
 			for(Point2D p2 : right){
-				assert data.leftOn.isEmpty() && data.rightOn.isEmpty() : "Start not empty";
 				Line2D conj = new Line2D.Double(p1, p2);
 				
 				int val = 0;
 				for(Point2D lp : left){
 					if(lp != p1){
-						int rel = conj.relativeCCW(lp);
-						val += rel;
-						if(rel == 0){
-							data.leftOn.add(lp);
-						}
+						val += conj.relativeCCW(lp);
 					}
 				}
 				
 				if(Math.abs(val) > 1){
-					data.leftOn.clear();
 					continue;
 				}
 				
 				val = 0;
 				for(Point2D rp : right){
 					if(p2 != rp){
-						int rel = conj.relativeCCW(rp);
-						val += rel;
-						if(rel == 0){
-							data.rightOn.add(rp);
-						}
+						val += conj.relativeCCW(rp);
 					}
 				}
 				
 				if(Math.abs(val) <= 1){
 					data.conjugate = conj;
-					data.leftOn.add(p1);
-					data.rightOn.add(p2);
+					data.leftOn = p1;
+					data.rightOn = p2;
 					return data;
-				}else{
-					data.leftOn.clear();
-					data.rightOn.clear();
 				}
 			}
 		}
 		
 		//handle empty leaf cells
 		if(left.isEmpty()){
-			data.rightOn.add(right.get(0));
-			data.conjugate = new Line2D.Double(parent.on.get(parent.on.size() - 1), right.get(0));
+			data.rightOn = right.get(0);
+			data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
 		}else{
-			data.leftOn.add(left.get(0));
-			data.conjugate = new Line2D.Double(parent.on.get(parent.on.size() - 1), left.get(0));
+			data.leftOn = left.get(0);
+			data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
 		}
 
 		return data;
@@ -261,7 +247,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	
 	private static class ConjugateData{
 		private Line2D conjugate;
-		private List<Point2D> leftOn = new ArrayList<Point2D>(2);
-		private List<Point2D> rightOn = new ArrayList<Point2D>(2);
+		private Point2D leftOn;
+		private Point2D rightOn;
 	}
 }
