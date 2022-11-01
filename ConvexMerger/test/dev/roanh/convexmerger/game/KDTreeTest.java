@@ -24,8 +24,8 @@ public class KDTreeTest{
 		assertEquals(testPoints.get(1), tree.getPoint());
 		assertEquals(testPoints.get(2), tree.getLowNode().getPoint());
 		assertEquals(testPoints.get(0), tree.getHighNode().getPoint());
-
-		tree.streamCells().forEach(cell->{
+		
+		tree.streamLeafCells().forEach(cell->{
 			assertTrue(cell.getData().isEmpty());
 		});
 	}

@@ -6,17 +6,19 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 
-public class ConjugationTree{
-	private ConjugationTree parent;
+public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
+	private ConjugationTree<T> parent;
 	private Line2D bisector;
 	private List<Point2D> on = new ArrayList<Point2D>(2);
-	private ConjugationTree left;
-	private ConjugationTree right;
+	private ConjugationTree<T> left;
+	private ConjugationTree<T> right;
 	
 	public ConjugationTree(List<Point2D> points){
 		//only root bisector finding requires O(n log n) time
@@ -163,6 +165,21 @@ public class ConjugationTree{
 	//node depth, root = 0
 	public int depth(){
 		return parent == null ? 0 : 1 + parent.depth();
+	}
+
+	@Override
+	public Stream<ConjugationTree<T>> streamLeafCells(){
+		return isLeafCell() ? Stream.of(this) : Stream.concat(left.streamLeafCells(), right.streamLeafCells());
+	}
+
+	@Override
+	public boolean isLeafCell(){
+		return left == null && right == null;
+	}
+	
+	@Override
+	public List<ConjugationTree<T>> getChildren(){
+		return Arrays.asList(left, right);
 	}
 	
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, Line2D bisector){

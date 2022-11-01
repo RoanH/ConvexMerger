@@ -66,7 +66,7 @@ public class SegmentPartitionTree{
 	}
 	
 	public Stream<KDTree<LineSegment>> streamCells(){
-		return kdTree.streamCells();
+		return kdTree.streamLeafCells();
 	}
 	
 	public void render(Graphics2D g){

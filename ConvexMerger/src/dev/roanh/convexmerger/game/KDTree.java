@@ -7,6 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,7 +20,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * @author Roan
  * @param <T> The per cell item data type.
  */
-public class KDTree<T>{
+public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 	/**
 	 * The parent kd-tree this kd-tree is a cell in. Will
 	 * be <code>null</code> if this is the root node of the tree.
@@ -54,11 +55,6 @@ public class KDTree<T>{
 	 * bounds of this kd-tree cell.
 	 */
 	private Rectangle2D bounds = null;
-	/**
-	 * The data stored in this cell. Will be <code>null</code>
-	 * if this is not a leaf cell.
-	 */
-	private List<T> data = null;
 	
 	/**
 	 * Constructs a new kd-tree for the given point set.
@@ -86,8 +82,6 @@ public class KDTree<T>{
 			}else{
 				high = new KDTree<T>(this, null, !xAxis);
 			}
-		}else{
-			data = new ArrayList<T>();
 		}
 	}
 	
@@ -95,16 +89,19 @@ public class KDTree<T>{
 		return point;
 	}
 	
-	public Stream<KDTree<T>> streamCells(){
-		return isLeafCell() ? Stream.of(this) : Stream.concat(low.streamCells(), high.streamCells());
+	@Override
+	public Stream<KDTree<T>> streamLeafCells(){
+		return isLeafCell() ? Stream.of(this) : Stream.concat(low.streamLeafCells(), high.streamLeafCells());
 	}
 	
-	public void addData(T line){
-		data.add(line);
-	}
-	
+	@Override
 	public boolean isLeafCell(){
 		return point == null;
+	}
+	
+	@Override
+	public List<KDTree<T>> getChildren(){
+		return Arrays.asList(low, high);
 	}
 	
 	public KDTree<T> getLowNode(){
@@ -144,10 +141,6 @@ public class KDTree<T>{
 		    && (bounds.getMaxX() - p1.getX() > 0.0000006D || (pos2 & Rectangle2D.OUT_RIGHT) == 0)
 		    && (p1.getY() - bounds.getMinY() > 0.0000001D || (pos2 & Rectangle2D.OUT_TOP) == 0)
 		    && (bounds.getMaxY() - p1.getY() > 0.0000006D || (pos2 & Rectangle2D.OUT_BOTTOM) == 0);
-	}
-	
-	public List<T> getData(){
-		return data;
 	}
 	
 	public Rectangle2D getBounds(){
@@ -194,19 +187,21 @@ public class KDTree<T>{
 		return bounds;
 	}
 	
+	@Override
 	public void render(Graphics2D g){
 		Rectangle2D bounds = getBounds();
 		if(isLeafCell()){
-			g.setColor(data.isEmpty() ? new Color(0, 255, 255, 50) : new Color(255, 0, 0, 50));
-			g.fill(bounds);
-			
-			g.setColor(Color.WHITE);
-			String num = String.valueOf(data.size());
-			g.drawString(
-				num,
-				(float)(bounds.getMinX() + (bounds.getWidth() - g.getFontMetrics().stringWidth(num)) / 2.0F),
-				(float)(bounds.getMinY() + (bounds.getHeight() + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2.0F)
-			);
+			//TODO won't work for inner node storage
+//			g.setColor(data.isEmpty() ? new Color(0, 255, 255, 50) : new Color(255, 0, 0, 50));
+//			g.fill(bounds);
+//			
+//			g.setColor(Color.WHITE);
+//			String num = String.valueOf(data.size());
+//			g.drawString(
+//				num,
+//				(float)(bounds.getMinX() + (bounds.getWidth() - g.getFontMetrics().stringWidth(num)) / 2.0F),
+//				(float)(bounds.getMinY() + (bounds.getHeight() + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2.0F)
+//			);
 		}else{
 			g.setColor(Color.WHITE);
 			g.setStroke(Theme.BORDER_STROKE);
