@@ -6,8 +6,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import dev.roanh.convexmerger.game.ConjugationTree;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
 import dev.roanh.util.Util;
@@ -55,6 +57,9 @@ public class Main{
 				
 				
 				ConjugationTree tree = new ConjugationTree(points);
+				
+				PlayfieldGenerator gen = new PlayfieldGenerator();
+				tree = new ConjugationTree<Void>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 
 				
 				g.translate(200, 50);
@@ -66,10 +71,10 @@ public class Main{
 				g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 				g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 				
-				g.setColor(Color.CYAN);
-				for(Point2D p : points){
-					g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
-				}
+//				g.setColor(Color.CYAN);
+//				for(Point2D p : points){
+//					g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
+//				}
 				
 			}
 			
