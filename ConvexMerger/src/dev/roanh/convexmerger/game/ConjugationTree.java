@@ -49,16 +49,14 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 		}
 		
-		System.out.println("pconj: " + leftPoints + " / " + rightPoints);
-		
 		//construct children
-		ConjugateData data = computeConjugate(leftPoints, rightPoints, bisector);
-		System.out.println("pdata: " + data.conjugate + " / " + data.leftOn.size() + " / " + data.rightOn.size());
-		left = new ConjugationTree(this, leftPoints, data.leftOn, data.conjugate);
-		right = new ConjugationTree(this, rightPoints, data.rightOn, data.conjugate);
+		ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
+		data.conjugate = extendLine(data.conjugate);
+		left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate);
+		right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
 	}
 	
-	private ConjugationTree(ConjugationTree parent, List<Point2D> points, List<Point2D> on, Line2D bisector){
+	private ConjugationTree(ConjugationTree<T> parent, List<Point2D> points, List<Point2D> on, Line2D bisector){
 		this.parent = parent;
 		this.bisector = bisector;
 		this.on = on;
@@ -82,16 +80,16 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 		}
 		
-		System.out.println("conj: " + leftPoints.size() + " / " + rightPoints.size());
-
 		//construct children
-		if(!(leftPoints.isEmpty() || rightPoints.isEmpty())){//TODO this is wrong
-			ConjugateData data = computeConjugate(leftPoints, rightPoints, bisector);
-			left = new ConjugationTree(this, leftPoints, data.leftOn, data.conjugate);
-			right = new ConjugationTree(this, rightPoints, data.rightOn, data.conjugate);
+		if(!leftPoints.isEmpty() || !rightPoints.isEmpty()){
+			ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
+			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn.isEmpty() ? data.rightOn.get(0) : data.leftOn.get(0));
+			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate);
+			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
 		}
 	}
 	
+	@Override
 	public void render(Graphics2D g){
 		g.setColor(new Color[]{
 			Color.WHITE,
@@ -99,14 +97,14 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			new Color(0, 150, 150),
 			Color.BLUE,
 		}[depth()]);
-		g.draw(clipLine(extendLine(bisector), on.get(0)));
+		g.draw(bisector);
 		
 		g.setColor(Color.RED);
 		for(Point2D p : on){
 			g.fill(new Ellipse2D.Double(p.getX() - 5, p.getY() - 5, 10, 10));
 		}
 		
-		if(parent == null || parent.parent == null || true){
+		if(parent == null || parent.parent == null || true){//TODO remove
 			if(left != null){
 				left.render(g);
 			}
@@ -120,43 +118,37 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		if(parent == null || parent.parent == null){
 			return line;
 		}else{
-			ConjugationTree node = parent.parent;
-			while(node != null){
-				Point2D intercept = ConvexUtil.intercept(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
-				if(intercept != null){
-					int onCCW = node.bisector.relativeCCW(on);
-					if(onCCW == node.bisector.relativeCCW(line.getP1())){
-						line = new Line2D.Double(line.getP1(), intercept);
-					}else{//p2
-						line = new Line2D.Double(intercept, line.getP2());
-					}
-				}
-				
-				node = node.parent;
-			}
-			return line;
+			return clipLine(parent.parent, line, on);
 		}
 	}
 	
+	//given node + ancestors
+	private static Line2D clipLine(ConjugationTree<?> node, Line2D line, Point2D on){
+		while(node != null){
+			Point2D intercept = ConvexUtil.intercept(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
+			if(intercept != null){
+				int onCCW = node.bisector.relativeCCW(on);
+				if(onCCW == node.bisector.relativeCCW(line.getP1())){
+					line = new Line2D.Double(line.getP1(), intercept);
+				}else{//p2
+					line = new Line2D.Double(intercept, line.getP2());
+				}
+			}
+			
+			node = node.parent;
+		}
+		return line;
+	}
+	
 	//extend to structure bounds
-	private Line2D extendLine(Line2D line){
+	private static Line2D extendLine(Line2D line){
 		if(line.getX1() == line.getX2()){
 			return new Line2D.Double(line.getX1(), 0.0D, line.getX2(), Constants.PLAYFIELD_HEIGHT);
 		}else{
 			double coef = (line.getY2() - line.getY1()) / (line.getX2() - line.getX1());
 			double base = line.getY1() - line.getX1() * coef;
-			
-			//w = base + coef * x
-			//w - base = coef * x
-			//(w - base) / coef = x
 			double max = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, (Constants.PLAYFIELD_HEIGHT - base) / coef);
 			double min = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, -base / coef);
-//			exit = Constants.PLAYFIELD_WIDTH;
-//			System.out.println(exit);
-			
-			//y = base + coef * x
-			
-//			System.out.println(min + " / " + max);
 			
 			return new Line2D.Double(min, base + coef * min, max, base + coef * max);
 		}
@@ -182,7 +174,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return Arrays.asList(left, right);
 	}
 	
-	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, Line2D bisector){
+	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
 		//TODO this is a naive temporary solution
 		
 		ConjugateData data = new ConjugateData();
@@ -230,10 +222,15 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 		}
 		
-		//TODO handle empty left/right cases
-//		assert false : "Not implemented : " + left.size() + " / " + right.size();
-		System.out.println("end");
-		data.conjugate = new Line2D.Double(10, 10, 20, 20);
+		//handle empty leaf cells
+		if(left.isEmpty()){
+			data.rightOn.add(right.get(0));
+			data.conjugate = new Line2D.Double(parent.on.get(parent.on.size() - 1), right.get(0));
+		}else{
+			data.leftOn.add(left.get(0));
+			data.conjugate = new Line2D.Double(parent.on.get(parent.on.size() - 1), left.get(0));
+		}
+
 		return data;
 	}
 	
