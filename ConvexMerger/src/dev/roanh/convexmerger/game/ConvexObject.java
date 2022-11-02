@@ -112,15 +112,13 @@ public class ConvexObject implements Identity, Serializable{
 	public ConvexObject(List<Point2D> data){
 		points = data;
 		assert ConvexUtil.checkInvariants(data) : "Game invariants violated for convex objects";
-		constructShape(data.size());
 	}
 	
 	/**
 	 * Constructs the shape object for the bounds of this object.
-	 * @param size The number of points that define the bounds.
 	 */
-	private void constructShape(int size){
-		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, size);
+	private void constructShape(){
+		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, points.size());
 		shape.moveTo(points.get(0).getX(), points.get(0).getY());
 		for(int i = 1; i < points.size(); i++){
 			shape.lineTo(points.get(i).getX(), points.get(i).getY());
@@ -409,7 +407,7 @@ public class ConvexObject implements Identity, Serializable{
 			p.setLocation(p.getX() * factor - origin.getX() + centroid.getX(), p.getY() * factor - origin.getY() + centroid.getY());
 		}
 		
-		constructShape(points.size());
+		constructShape();
 	}
 	
 	@Override
