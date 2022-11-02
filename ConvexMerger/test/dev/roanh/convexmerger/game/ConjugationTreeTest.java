@@ -34,19 +34,15 @@ public class ConjugationTreeTest{
 		ConjugationTree<Void> tree = new ConjugationTree<>(testPoints);
 		
 		List<ConjugationTree<Void>> leaves = tree.streamLeafCells().collect(Collectors.toList());
-		assertEquals(8, leaves.size());
+		assertEquals(16, leaves.size());
 		
-		boolean empty = false;
 		for(ConjugationTree<Void> leaf : leaves){
-			//all leaves have one point except one that has none
-			assertTrue(leaf.getPoints().size() <= 1);
-			if(empty){
-				assertEquals(1, leaf.getPoints().size());
-			}
-			empty |= leaf.getPoints().isEmpty();
+			//all leaves have no bisector and thus no points
+			assertEquals(0, leaf.getPoints().size());
+			assertNull(leaf.getBisector());
 			
-			//all leaves are at depth 3
-			assertEquals(3, leaf.depth());
+			//all leaves are at depth 4
+			assertEquals(4, leaf.depth());
 		}
 		
 		//all internal nodes have exactly one point
@@ -66,12 +62,11 @@ public class ConjugationTreeTest{
 	public void constructionConjugates(){
 		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
 
-		assertEquals(15L, tree.streamCells().count());
+		assertEquals(31L, tree.streamCells().count());
 		
 		//assert that all bisectors are also conjugates
 		tree.streamCells().forEach(cell->{
-			if(cell.depth() > 0){
-				System.out.println(cell.depth());
+			if(cell.depth() > 0 && !cell.isLeafCell()){
 				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
 			}
 		});
