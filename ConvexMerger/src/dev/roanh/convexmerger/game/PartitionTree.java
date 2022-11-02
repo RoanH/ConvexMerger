@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
@@ -28,7 +29,7 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	
 	public abstract S getParent();
 	
-	public abstract boolean containsFully(Line2D line);
+	//public abstract boolean queryLine(Line2D line, Consumer<S> callback);
 	
 	@SuppressWarnings("unchecked")
 	public Stream<S> streamLeafCells(){

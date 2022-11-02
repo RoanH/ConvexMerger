@@ -3,6 +3,7 @@ package dev.roanh.convexmerger;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.stream.Collectors;
 
 import dev.roanh.convexmerger.game.ConjugationTree;
 import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.game.SegmentPartitionTree;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.ui.ConvexMerger;
 import dev.roanh.convexmerger.ui.Screen;
 import dev.roanh.util.Util;
@@ -56,11 +59,13 @@ public class Main{
 				
 				
 				
-				ConjugationTree tree = new ConjugationTree(points);
+				ConjugationTree<LineSegment> tree = new ConjugationTree<LineSegment>(points);
 				
-				PlayfieldGenerator gen = new PlayfieldGenerator();
-				tree = new ConjugationTree<Void>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
+//				PlayfieldGenerator gen = new PlayfieldGenerator();
+//				tree = new ConjugationTree<Void>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 
+				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(800, 100));
+				
 				
 				g.translate(200, 50);
 				tree.render(g);
@@ -76,6 +81,16 @@ public class Main{
 //					g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
 //				}
 				
+				g.setColor(Color.RED);
+				g.draw(query);
+				
+				System.out.println("====");
+				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
+				
+				g.setColor(Color.CYAN);
+				for(Point2D p : new Point2D[]{point(1100, 480), point(800, 200)}){
+					g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
+				}
 			}
 			
 			@Override

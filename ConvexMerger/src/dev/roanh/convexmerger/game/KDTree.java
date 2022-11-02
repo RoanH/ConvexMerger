@@ -107,7 +107,7 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		return high;
 	}
 	
-	@Override
+	@Deprecated
 	public boolean containsFully(Line2D line){
 		Rectangle2D bounds = getBounds();
 		int pos1 = bounds.outcode(line.getP1());

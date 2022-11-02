@@ -50,15 +50,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		//TODO general procedure
 		//if full intersection -> clip -> store
 		//else -> clip -> recurse on children
-		if(node.containsFully(line)){
-			if(node.isLeafCell()){//TODO also store at internal nodes
-				node.addData(line);
-			}else{
-//				addSegment(node.getLowNode(), line);
-//				addSegment(node.getHighNode(), line);
-				//TODO loop children
-			}
-		}
+//		if(node.containsFully(line)){
+//			if(node.isLeafCell()){//TODO also store at internal nodes
+//				node.addData(line);
+//			}else{
+////				addSegment(node.getLowNode(), line);
+////				addSegment(node.getHighNode(), line);
+//				//TODO loop children
+//			}
+//		}
 	}
 	
 	public boolean intersects(Point2D p1, Point2D p2){
@@ -113,6 +113,34 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return false;
 	}
 	
+	//TODO
+	public static final void conjugationTreeVisitor(ConjugationTree<LineSegment> tree, LineSegment line){
+		if(!tree.isLeafCell()){
+			Line2D bisector = tree.getBisector();
+			assert bisector != null;
+			assert line != null;
+			assert line.p1 != null;
+			assert line.p2 != null;
+			Point2D intercept = ConvexUtil.intercept(bisector, line);
+			
+			if(intercept == null){
+				if(bisector.relativeCCW(line.getP1()) == -1){
+					System.out.println("left store");
+					conjugationTreeVisitor(tree.getLeftChild(), line);
+				}else{
+					System.out.println("right store");
+					conjugationTreeVisitor(tree.getRightChild(), line);
+				}
+			}else{
+				System.out.println("both store");
+				conjugationTreeVisitor(tree.getLeftChild(), line.derriveLine(-1, bisector, intercept));
+				conjugationTreeVisitor(tree.getRightChild(), line.derriveLine(1, bisector, intercept));
+			}
+		}else{
+			System.out.println("leaf store: " + tree.getPoints() + " / " + line);
+		}
+	}
+	
 	public static final class SegmentPartitionTreeConstructor<T extends PartitionTree<LineSegment, T>>{
 		private Function<List<Point2D>, T> ctor;
 		
@@ -160,6 +188,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 * Second end point of the line.
 		 */
 		private Point2D p2;
+		private boolean p1Clipped = false;
+		private boolean p2Clipped = false;
 
 		/**
 		 * Constructs a new line segment with the given end points. 
@@ -167,8 +197,24 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 * @param p2 The second end point of the line.
 		 */
 		public LineSegment(Point2D p1, Point2D p2){
+			assert p1 != null;
+			assert p2 != null;
 			this.p1 = p1;
 			this.p2 = p2;
+		}
+		
+		private LineSegment derriveLine(int ccw, Line2D intersected, Point2D intersection){
+			if(intersected.relativeCCW(p1) == ccw){
+				LineSegment line = new LineSegment(p1, intersection);
+				line.p2Clipped = true;
+				line.p1Clipped = p1Clipped;
+				return line;
+			}else{
+				LineSegment line = new LineSegment(intersection, p2);
+				line.p1Clipped = true;
+				line.p2Clipped = p2Clipped;
+				return line;
+			}
 		}
 
 		@Override

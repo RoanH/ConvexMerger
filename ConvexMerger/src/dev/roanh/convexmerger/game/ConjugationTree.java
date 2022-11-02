@@ -91,11 +91,18 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn == null ? data.rightOn : data.leftOn);
 			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate);
 			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
+		}else if(bisector != null){
+			left = new ConjugationTree<T>(this, leftPoints, null, null);
+			right = new ConjugationTree<T>(this, rightPoints, null, null);
 		}
 	}
 	
 	@Override
 	public void render(Graphics2D g){
+		if(isLeafCell()){
+			return;
+		}
+		
 		int c = Math.max(0, 255 - depth() * 25);
 		g.setColor(new Color(0, c, c));
 		g.draw(bisector);
@@ -167,8 +174,16 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	public int depth(){
 		return parent == null ? 0 : 1 + parent.depth();
 	}
+	
+	public ConjugationTree<T> getLeftChild(){
+		return left;
+	}
+	
+	public ConjugationTree<T> getRightChild(){
+		return right;
+	}
 
-	@Override
+	@Deprecated
 	public boolean containsFully(Line2D line){
 		// TODO Auto-generated method stub
 		return false;
@@ -181,7 +196,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 
 	@Override
 	public boolean isLeafCell(){
-		return left == null && right == null;
+		return bisector == null;
 	}
 	
 	@Override
