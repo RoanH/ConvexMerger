@@ -8,10 +8,12 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 
+@Disabled
 public class SegmentPartitionTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(
 		new Point2D.Double(100.0D, 300.0D),
