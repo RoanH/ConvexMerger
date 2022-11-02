@@ -1,6 +1,7 @@
 package dev.roanh.convexmerger.game;
 
 import java.awt.Graphics2D;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -26,6 +27,8 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	public abstract List<S> getChildren();
 	
 	public abstract S getParent();
+	
+	public abstract boolean containsFully(Line2D line);
 	
 	@SuppressWarnings("unchecked")
 	public Stream<S> streamLeafCells(){

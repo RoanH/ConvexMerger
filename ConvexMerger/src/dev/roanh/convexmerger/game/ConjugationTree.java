@@ -167,6 +167,12 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	public int depth(){
 		return parent == null ? 0 : 1 + parent.depth();
 	}
+
+	@Override
+	public boolean containsFully(Line2D line){
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 	@Override
 	public ConjugationTree<T> getParent(){

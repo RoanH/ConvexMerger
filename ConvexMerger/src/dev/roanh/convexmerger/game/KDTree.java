@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.ui.Theme;
@@ -108,7 +107,8 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		return high;
 	}
 	
-	public boolean contains(Line2D line){
+	@Override
+	public boolean containsFully(Line2D line){
 		Rectangle2D bounds = getBounds();
 		int pos1 = bounds.outcode(line.getP1());
 		int pos2 = bounds.outcode(line.getP2());

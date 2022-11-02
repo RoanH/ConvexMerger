@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,13 +17,24 @@ import dev.roanh.convexmerger.ui.Theme;
  * Segment partition tree for efficient detection
  * of line intersections with the stored line set.
  * @author Roan
+ * @param <T> The partition tree type
  */
-public class SegmentPartitionTree{
-	private final KDTree<LineSegment> kdTree;
+public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, ?>>{
+	public static final SegmentPartitionTreeConstructor<KDTree<LineSegment>> TYPE_KD_TREE = new SegmentPartitionTreeConstructor<KDTree<LineSegment>>(KDTree::new);
+	public static final SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>> TYPE_CONJUGATION_TREE = new SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>>(ConjugationTree::new);
+
+	private final PartitionTree<LineSegment, T> partitions;
 	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	
-	private SegmentPartitionTree(List<Point2D> points){
-		kdTree = new KDTree<LineSegment>(points);
+	/**
+	 * Constructs a new segment partition tree with the given
+	 * partitioning tree data structure.
+	 * @param partitions The partitioning data structure.
+	 * @see SegmentPartitionTree#TYPE_CONJUGATION_TREE
+	 * @see SegmentPartitionTree#TYPE_KD_TREE
+	 */
+	private SegmentPartitionTree(PartitionTree<LineSegment, T> partitions){
+		this.partitions = partitions;
 	}
 	
 	public void addSegment(Point2D p1, Point2D p2){
@@ -30,17 +42,21 @@ public class SegmentPartitionTree{
 	}
 	
 	public void addSegment(LineSegment line){
-		addSegment(kdTree, line);
+		addSegment(partitions, line);
 		segments.add(line);
 	}
 	
-	private void addSegment(KDTree<LineSegment> node, LineSegment line){
-		if(node.contains(line)){
-			if(node.isLeafCell()){
+	private void addSegment(PartitionTree<LineSegment, T> node, LineSegment line){
+		//TODO general procedure
+		//if full intersection -> clip -> store
+		//else -> clip -> recurse on children
+		if(node.containsFully(line)){
+			if(node.isLeafCell()){//TODO also store at internal nodes
 				node.addData(line);
 			}else{
-				addSegment(node.getLowNode(), line);
-				addSegment(node.getHighNode(), line);
+//				addSegment(node.getLowNode(), line);
+//				addSegment(node.getHighNode(), line);
+				//TODO loop children
 			}
 		}
 	}
@@ -50,23 +66,25 @@ public class SegmentPartitionTree{
 	}
 	
 	public boolean intersects(LineSegment line){
-		return intersects(kdTree, line);
+		return intersects(partitions, line);
 	}
 	
-	private boolean intersects(KDTree<LineSegment> node, LineSegment line){
-		if(node.contains(line)){
-			if(node.isLeafCell()){
-				return intersectsAny(node.getData(), line);
-			}else{
-				return intersects(node.getLowNode(), line) || intersects(node.getHighNode(), line);
-			}
-		}else{
-			return false;
-		}
+	private boolean intersects(PartitionTree<LineSegment, T> node, LineSegment line){
+		//TODO see #addSegment
+		return false;
+//		if(node.contains(line)){
+//			if(node.isLeafCell()){
+//				return intersectsAny(node.getData(), line);
+//			}else{
+//				return intersects(node.getLowNode(), line) || intersects(node.getHighNode(), line);
+//			}
+//		}else{
+//			return false;
+//		}
 	}
 	
-	public Stream<KDTree<LineSegment>> streamCells(){
-		return kdTree.streamLeafCells();
+	public Stream<T> streamCells(){
+		return partitions.streamCells();
 	}
 	
 	public void render(Graphics2D g){
@@ -75,7 +93,7 @@ public class SegmentPartitionTree{
 		for(LineSegment line : segments){
 			g.draw(line);
 		}
-		kdTree.render(g);
+		partitions.render(g);
 	}
 	
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
@@ -95,30 +113,38 @@ public class SegmentPartitionTree{
 		return false;
 	}
 	
-	//no overlap
-	public static final SegmentPartitionTree fromObjects(List<ConvexObject> objects){
-		SegmentPartitionTree tree = new SegmentPartitionTree(objects.stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
+	public static final class SegmentPartitionTreeConstructor<T extends PartitionTree<LineSegment, T>>{
+		private Function<List<Point2D>, T> ctor;
 		
-		for(ConvexObject obj : objects){
-			List<Point2D> points = obj.getPoints();
-			for(int i = 0; i < points.size(); i++){
-				tree.addSegment(points.get(i), points.get((i + 1) % points.size()));
-			}
+		private SegmentPartitionTreeConstructor(Function<List<Point2D>, T> ctor){
+			this.ctor = ctor;
 		}
 		
-		return tree;
-	}
-	
-	//no overlap
-	public static final SegmentPartitionTree fromLines(List<Line2D> lines){
-		SegmentPartitionTree tree = new SegmentPartitionTree(lines.stream().flatMap(line->Stream.of(line.getP1(), line.getP2())).collect(Collectors.toList()));
-		lines.forEach(line->tree.addSegment(line.getP1(), line.getP2()));
-		return tree;
-	}
-	
-	//TODO probably remove
-	public static final SegmentPartitionTree fromPoints(List<Point2D> points){
-		return new SegmentPartitionTree(points);
+		//no overlap
+		public final SegmentPartitionTree<T> fromObjects(List<ConvexObject> objects){
+			SegmentPartitionTree<T> tree = fromPoints(objects.stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
+			
+			for(ConvexObject obj : objects){
+				List<Point2D> points = obj.getPoints();
+				for(int i = 0; i < points.size(); i++){
+					tree.addSegment(points.get(i), points.get((i + 1) % points.size()));
+				}
+			}
+			
+			return tree;
+		}
+		
+		//no overlap
+		public final SegmentPartitionTree<T> fromLines(List<Line2D> lines){
+			SegmentPartitionTree<T> tree = fromPoints(lines.stream().flatMap(line->Stream.of(line.getP1(), line.getP2())).collect(Collectors.toList()));
+			lines.forEach(line->tree.addSegment(line.getP1(), line.getP2()));
+			return tree;
+		}
+		
+		//TODO probably remove
+		public final SegmentPartitionTree<T> fromPoints(List<Point2D> points){
+			return new SegmentPartitionTree<T>(ctor.apply(points));
+		}
 	}
 	
 	/**

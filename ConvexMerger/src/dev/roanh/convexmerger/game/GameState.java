@@ -102,7 +102,7 @@ public class GameState{
 				listeners.add((GameStateListener)player);
 			}
 		}
-		segmentTree = SegmentPartitionTree.fromObjects(objects);
+		segmentTree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(objects);
 		gameStart = System.currentTimeMillis();
 	}
 	
