@@ -726,8 +726,19 @@ public class ConvexUtil{
 	 * @return The intersection point, or <code>null</code>
 	 *         if the given line segments do not intersect.
 	 */
-	public static final Point2D intercept(Line2D a, Line2D b){
-		return intercept(a.getP1(), a.getP2(), b.getP1(), b.getP2());
+	public static final Point2D interceptClosed(Line2D a, Line2D b){
+		return interceptClosed(a.getP1(), a.getP2(), b.getP1(), b.getP2());
+	}
+	
+	/**
+	 * Computes the intersection point of the two given infinite line segments.
+	 * @param a The first line segment.
+	 * @param b The second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect.
+	 */
+	public static final Point2D interceptOpen(Line2D a, Line2D b){
+		return interceptOpen(a.getP1(), a.getP2(), b.getP1(), b.getP2());
 	}
 	
 	/**
@@ -739,12 +750,63 @@ public class ConvexUtil{
 	 * @return The intersection point, or <code>null</code>
 	 *         if the given line segments do not intersect.
 	 */
-	public static final Point2D intercept(Point2D a, Point2D b, Point2D c, Point2D d){
+	public static final Point2D interceptClosed(Point2D a, Point2D b, Point2D c, Point2D d){
+		Point2D p = interceptOpen(a, b, c, d);
+		return (p == null || !onLine(p, a, b) || !onLine(p, c, d)) ? null : p;
+	}
+	
+	/**
+	 * Computes the intersection point of the two given infinite line segments.
+	 * @param a The first point of the first line segment.
+	 * @param b The second point of the first line segment.
+	 * @param c The first point of the second line segment.
+	 * @param d The second point of the second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect
+	 *         (meaning they run parallel).
+	 */
+	public static final Point2D interceptOpen(Point2D a, Point2D b, Point2D c, Point2D d){
 		double det = (a.getX() - b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() - d.getX());
-		Point2D p = new Point2D.Double(
+		return det == 0.0D ? null : new Point2D.Double(
 			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getX() - d.getX()) - (a.getX() - b.getX()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det,
 			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det
 		);
-		return (onLine(p, a, b) && onLine(p, c, d)) ? p : null;
+	}
+	
+	//left then right
+	public static final List<List<Point2D>> splitHull(List<Point2D> hull, Line2D line){
+		List<Point2D> left = new ArrayList<Point2D>();
+		List<Point2D> right = new ArrayList<Point2D>();
+		
+		//first left part
+		int idx = 0;
+		while(line.relativeCCW(hull.get(idx)) == -1){
+			left.add(hull.get(idx));
+			idx++;
+		}
+		
+		//first intersection
+		Point2D p = interceptOpen(hull.get(idx), hull.get((idx == 0 ? hull.size() : idx) - 1), line.getP1(), line.getP2());
+		left.add(p);
+		right.add(p);
+		
+		//right part
+		while(line.relativeCCW(hull.get(idx)) >= 0){
+			right.add(hull.get(idx));
+			idx = (idx + 1) % hull.size();
+		}
+		
+		//second intersection
+		p = interceptOpen(hull.get(idx), hull.get((idx == 0 ? hull.size() : idx) - 1), line.getP1(), line.getP2());
+		right.add(p);
+		left.add(p);
+		
+		//remaining left part
+		while(idx < hull.size() && idx != 0){
+			left.add(hull.get(idx));
+			idx++;
+		}
+		
+		return Arrays.asList(left, right);
 	}
 }

@@ -2,14 +2,17 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
@@ -20,6 +23,9 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private List<Point2D> on = new ArrayList<Point2D>(2);
 	private ConjugationTree<T> left;
 	private ConjugationTree<T> right;
+	@Deprecated
+	private List<Point2D> hull;
+	private Path2D shape;
 	
 	public ConjugationTree(List<Point2D> points){
 		//only root bisector finding requires O(n log n) time
@@ -28,6 +34,12 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		
 		double mid = points.get(idx).getX();
 		bisector = new Line2D.Double(mid, 0.0D, mid, Constants.PLAYFIELD_HEIGHT);
+		hull = Arrays.asList(
+			new Point2D.Double(0.0D, 0.0D),
+			new Point2D.Double(Constants.PLAYFIELD_WIDTH, 0.0D),
+			new Point2D.Double(Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT),
+			new Point2D.Double(0.0D, Constants.PLAYFIELD_HEIGHT)
+		);
 		
 		//by assumption we have few points on the bisector, but for other applications this could be false
 		List<Point2D> leftPoints = new ArrayList<Point2D>(idx);
@@ -53,16 +65,20 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		//construct children
 		ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
 		data.conjugate = extendLine(data.conjugate);
-		left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate);
-		right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
+		List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
+		left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate, hulls.get(0));
+		right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate, hulls.get(1));
+		
+		constructShape();
 	}
 	
-	private ConjugationTree(ConjugationTree<T> parent, List<Point2D> points, Point2D on, Line2D bisector){
+	private ConjugationTree(ConjugationTree<T> parent, List<Point2D> points, Point2D on, Line2D bisector, List<Point2D> hull){
 		this.parent = parent;
 		this.bisector = bisector;
 		if(on != null){
 			this.on.add(on);
 		}
+		this.hull = hull;
 		
 		List<Point2D> leftPoints = new ArrayList<Point2D>(points.size() / 2);
 		List<Point2D> rightPoints = new ArrayList<Point2D>(points.size() / 2);
@@ -89,16 +105,37 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		if(!leftPoints.isEmpty() || !rightPoints.isEmpty()){
 			ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
 			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn == null ? data.rightOn : data.leftOn);
-			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate);
-			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate);
+			List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
+			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate, hulls.get(0));
+			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate, hulls.get(1));
 		}else if(bisector != null){
-			left = new ConjugationTree<T>(this, leftPoints, null, null);
-			right = new ConjugationTree<T>(this, rightPoints, null, null);
+			List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
+			left = new ConjugationTree<T>(this, leftPoints, null, null, hulls.get(0));
+			right = new ConjugationTree<T>(this, rightPoints, null, null, hulls.get(1));
 		}
+		
+		constructShape();
+	}
+	
+	/**
+	 * Constructs the shape object for the bounds of this object.
+	 */
+	private void constructShape(){
+		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, hull.size());
+		shape.moveTo(hull.get(0).getX(), hull.get(0).getY());
+		for(int i = 1; i < hull.size(); i++){
+			shape.lineTo(hull.get(i).getX(), hull.get(i).getY());
+		}
+		shape.closePath();
 	}
 	
 	@Override
 	public void render(Graphics2D g){
+		if(depth() == 4){
+			g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
+			g.fill(shape);
+		}
+		
 		if(isLeafCell()){
 			return;
 		}
@@ -133,7 +170,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	//given node + ancestors
 	private static Line2D clipLine(ConjugationTree<?> node, Line2D line, Point2D on){
 		while(node != null){
-			Point2D intercept = ConvexUtil.intercept(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
+			Point2D intercept = ConvexUtil.interceptClosed(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
 			if(intercept != null){
 				int onCCW = node.bisector.relativeCCW(on);
 				if(onCCW == node.bisector.relativeCCW(line.getP1())){

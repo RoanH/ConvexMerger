@@ -72,7 +72,7 @@ public class ConjugationTreeTest{
 		tree.streamCells().forEach(cell->{
 			if(cell.depth() > 0){
 				System.out.println(cell.depth());
-				assertNotNull(ConvexUtil.intercept(cell.getBisector(), cell.getParent().getBisector()));
+				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
 			}
 		});
 	}

@@ -240,13 +240,13 @@ public class MergeAnimation extends ClaimAnimation{
 	private void clipAdd(Path2D path, Point2D p, Point2D slope, Point2D a, Point2D b, Point2D firstBase, Point2D firstSlope, Point2D secondBase, Point2D secondSlope){
 		Point2D target = new Point2D.Double(p.getX() + slope.getX(), p.getY() + slope.getY());
 		
-		Point2D inter = ConvexUtil.intercept(p, target, a, b);
+		Point2D inter = ConvexUtil.interceptClosed(p, target, a, b);
 		if(inter != null){
 			path.lineTo(inter.getX(), inter.getY());
 			return;
 		}
 		
-		inter = ConvexUtil.intercept(p, target, mergeLines[0], mergeLines[1]);
+		inter = ConvexUtil.interceptClosed(p, target, mergeLines[0], mergeLines[1]);
 		if(inter != null){
 			if(Math.abs(inter.getX() - firstBase.getX()) > Math.abs(firstSlope.getX()) || Math.abs(inter.getY() - firstBase.getY()) > Math.abs(firstSlope.getY())){
 				path.lineTo(inter.getX(), inter.getY());
@@ -254,7 +254,7 @@ public class MergeAnimation extends ClaimAnimation{
 			return;
 		}
 			
-		inter = ConvexUtil.intercept(p, target, mergeLines[2], mergeLines[3]);
+		inter = ConvexUtil.interceptClosed(p, target, mergeLines[2], mergeLines[3]);
 		if(inter != null){
 			if(Math.abs(inter.getX() - secondBase.getX()) > Math.abs(secondSlope.getX()) || Math.abs(inter.getY() - secondBase.getY()) > Math.abs(secondSlope.getY())){
 				path.lineTo(inter.getX(), inter.getY());
