@@ -61,13 +61,13 @@ public class Main{
 				
 				ConjugationTree<LineSegment> tree = new ConjugationTree<LineSegment>(points);
 				
-//				PlayfieldGenerator gen = new PlayfieldGenerator();
-//				tree = new ConjugationTree<Void>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
+				PlayfieldGenerator gen = new PlayfieldGenerator("3Y64YQ01S7B35T82PK9G");
+				tree = new ConjugationTree<LineSegment>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 
-				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(1100, 100));
+				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(300, 100));
 				
-				System.out.println("====");
-				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
+//				System.out.println("====");
+//				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
 				
 				g.translate(200, 50);
 				tree.render(g);

@@ -26,6 +26,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	private final PartitionTree<LineSegment, T> partitions;
 	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	
+	private boolean animated = true;//TODO false
+	
 	/**
 	 * Constructs a new segment partition tree with the given
 	 * partitioning tree data structure.
@@ -35,6 +37,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 */
 	private SegmentPartitionTree(PartitionTree<LineSegment, T> partitions){
 		this.partitions = partitions;
+	}
+	
+	public boolean isAnimated(){
+		return animated;
 	}
 	
 	public void addSegment(Point2D p1, Point2D p2){
@@ -94,6 +100,13 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			g.draw(line);
 		}
 		partitions.render(g);
+	}
+	
+	public void renderQuery(Point2D a, Point2D b){
+		
+		
+		
+		
 	}
 	
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){

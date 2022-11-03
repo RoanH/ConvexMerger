@@ -131,9 +131,9 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	
 	@Override
 	public void render(Graphics2D g){
-		if(depth() == 3){
-			//g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
-			g.setColor(new Color(getData().size() * 255, (1 - getData().size()) * 255, 0, 50));
+		if(depth() == 8){
+			g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
+			//g.setColor(new Color(getData().size() * 255, (1 - getData().size()) * 255, 0, 50));
 			g.fill(shape);
 		}
 		
