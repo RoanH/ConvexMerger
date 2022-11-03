@@ -55,7 +55,7 @@ public class VerticalDecomposition implements GameStateListener {
 	/**
 	 * The set of points added to the decomposition.
 	 */
-	private Set<DecompositionPoint> points;
+	private List<DecompositionPoint> points;
 	
 	/**
 	 * All line segments ever added into the vertical decomposition.
@@ -111,7 +111,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * Gets the last line segment added into the vertical decomposition.
 	 * @return The last line segment added to the vertical decomposition.
 	 */
-	public Line getLastLine(){
+	public Line2D getLastLine(){
 		return orientedSegments.isEmpty() ? null : orientedSegments.get(orientedSegments.size() - 1);
 	}
 	
@@ -132,6 +132,7 @@ public class VerticalDecomposition implements GameStateListener {
 	private void initializeDecomposition(){
 		trapezoids = new ArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
+		points = new ArrayList<DecompositionPoint>();
 		orientedSegments = new ArrayList<Line>();
 		verticalSegments = new ArrayList<Line>();
 		segToObj = new HashMap<Line, ConvexObject>();
@@ -193,7 +194,7 @@ public class VerticalDecomposition implements GameStateListener {
 		for(int i = 0; i < points.size(); i++){
 			Point2D p1 = points.get(i), p2 = points.get((i+1)%points.size());
 
-			Line segment = new Line(p1, p2);
+			Line2D segment = new Line(p1, p2);
 			addSegment(segment, obj);
 		}
 	}
@@ -272,8 +273,44 @@ public class VerticalDecomposition implements GameStateListener {
 		for(Trapezoid trap : trapezoids){
 			lines.addAll(trap.getDecompLines());
 		}
-
+ 
 		return lines;
+	}
+	
+	/**
+	 * Gets the decomposition point at the given point or adds a new point if it doesn't exist and returns it.
+	 * @param point The point at which to add a new decomposition point.
+	 * @return The added decomposition point or the existing decomposition point at this point.
+	 */
+	private DecompositionPoint addAndGetPoint(Point2D point){
+		int idx = points.indexOf(point);
+		if(idx != -1){
+			return points.get(idx);
+		}
+		DecompositionPoint dp = new DecompositionPoint(point);
+		addPoint(dp);
+		return dp;
+	}
+	
+	/**
+	 * Adds a decomposition point to the list of decomposition points.
+	 * @param point The decomposition point to add to the list.
+	 */
+	private void addPoint(DecompositionPoint point){
+		points.add(point);
+	}
+	
+	/**
+	 * Gets a decomposition point for a given query point.
+	 * @param point The query point to look for in the list.
+	 * @return The query point if it is in the list, or <code>null</code> otherwise.
+	 */
+	private DecompositionPoint getPoint(Point2D point){
+		int idx = points.indexOf(point);
+		if(idx == -1){
+			return null;
+		}
+		return points.get(idx);
 	}
 	
 	/**
@@ -290,15 +327,19 @@ public class VerticalDecomposition implements GameStateListener {
 
 		synchronized(this){
 			Point2D p1 = seg.getP1(), p2 = seg.getP2();
-
+			
 			Line orientedSegment = Line.orientedLine(p1, p2);
-			Trapezoid start = queryTrapezoid(orientedSegment.getP1());
-			Trapezoid end = queryTrapezoid(orientedSegment.getP2());
-
+			
+			addAndGetPoint(p1).addSegment(orientedSegment);
+			addAndGetPoint(p2).addSegment(orientedSegment);
+			
 			orientedSegments.add(orientedSegment);
 			lines.add(orientedSegment);
 			ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
 			segToObj.put(orientedSegment, toPut);
+			
+			Trapezoid start = queryTrapezoid(p1);
+			Trapezoid end = queryTrapezoid(p2);
 
 			if(p1.getX() == p2.getX()){
 				verticalSegments.add(orientedSegment);
@@ -894,7 +935,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @param obj The object that the segment is added for.
 	 * @return A list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
 	 */
-	public Queue<Trapezoid> findIntersectedTrapezoids(Line seg, ConvexObject obj){
+	public Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg, ConvexObject obj){
 		Queue<Trapezoid>intersectedTraps = new LinkedList<Trapezoid>();
 		Trapezoid start = queryTrapezoid(seg.getP1());
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
@@ -971,9 +1012,9 @@ public class VerticalDecomposition implements GameStateListener {
 		}
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
-		Set<Line> visitedSeg = new HashSet<Line>();
+		Set<Line2D> visitedSeg = new HashSet<Line2D>();
 		List<Point2D> borderPoints = result.getPoints();
-		Set<Line> borderSegments = new HashSet<Line>();
+		Set<Line2D> borderSegments = new HashSet<Line2D>();
 		for(int i = 0; i < borderPoints.size(); i++){
 			Point2D p1 = borderPoints.get(i), p2 = borderPoints.get((i + 1) % borderPoints.size());
 			Line segment = orientedSegments.get(orientedSegments.indexOf(new Line(p1, p2)));
@@ -1063,7 +1104,7 @@ public class VerticalDecomposition implements GameStateListener {
 		/**
 		 * If the vertex represents a segment, it points to it.
 		 */
-		private Line segment;
+		private Line2D segment;
 		
 		/**
 		 * Constructs a Decomposition Vertex of type 0 (leaf) with a linked trapezoid.
@@ -1090,7 +1131,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * @param right The right child of the vertex. (below the segment)
 		 * @param segment The corresponding line segment in the decomposition.
 		 */
-		public DecompVertex(DecompVertex left, DecompVertex right, Line segment){
+		public DecompVertex(DecompVertex left, DecompVertex right, Line2D segment){
 			this(2, left, right, null, null, segment);
 		}
 		
@@ -1103,7 +1144,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * @param point The point for point nodes to link to.
 		 * @param segment The line segment for segment nodes to link to.
 		 */
-		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line segment){
+		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment){
 			this.type = type;
 			if(type == 0){
 				this.left = null;
@@ -1279,7 +1320,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * Gets the segment that the vertex points to.
 		 * @return The segment that the vertex points to.
 		 */
-		public Line getSegment(){
+		public Line2D getSegment(){
 			return segment;
 		}
 
@@ -1287,7 +1328,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 Sets the segment that the vertex points to to a given seg e t, if the vertex is a segment vertex.
 		 * @param segment The point to associate with the vertex.
 		 */
-		public void setSegment(Line segment){
+		public void setSegment(Line2D segment){
 			this.segment = segment;
 		}
 	}
@@ -1870,7 +1911,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * Contains references to segments that include it.
 	 * @author Emu
 	 */
-	public class DecompositionPoint{
+	public class DecompositionPoint extends Point2D{
 		/**
 		 * The point of this structure.
 		 */
@@ -1878,11 +1919,11 @@ public class VerticalDecomposition implements GameStateListener {
 		/**
 		 * The segments that this point bounds.
 		 */
-		List<Line> segments;
+		private List<Line> segments;
 		/**
 		 * The trapezoids that this point bounds.
 		 */
-		List<Trapezoid> trapezoids;
+		private List<Trapezoid> trapezoids;
 		
 		/**
 		 * Constructs a new decomposition point
@@ -1901,6 +1942,8 @@ public class VerticalDecomposition implements GameStateListener {
 		 */
 		public DecompositionPoint(Point2D point){
 			this.point = point;
+			segments = new ArrayList<Line>();
+			trapezoids = new ArrayList<Trapezoid>();
 		}
 		
 		@Override
@@ -1961,6 +2004,21 @@ public class VerticalDecomposition implements GameStateListener {
 				}
 			}
 			return null;
+		}
+
+		@Override
+		public double getX(){
+			return point.getX();
+		}
+
+		@Override
+		public double getY(){
+			return point.getY();
+		}
+
+		@Override
+		public void setLocation(double x, double y){
+			point.setLocation(x, y);
 		}
 	}
 }
