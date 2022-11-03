@@ -773,7 +773,22 @@ public class ConvexUtil{
 		);
 	}
 	
-	//left then right
+	/**
+	 * Splits the given convex hull into two new hulls along the given
+	 * splitting line. The given line will be treated as an infinite line
+	 * segment and has to intersect the given convex hull. Geometrically
+	 * the two returned convex hulls still cover the exact same area as
+	 * the input convex hull. Note: input and output convex objects to
+	 * this subroutine do <b>not</b> have to comply with the general convex
+	 * object assumptions for this class as specified in {@link #checkInvariants(List)}.
+	 * @param hull The convex hull to split.
+	 * @param line The line to split the hull along.
+	 * @return The two halves of the original now split convex hull. The
+	 *         first half will be entirely left to the splitting line
+	 *         (relative CCW of -1) and the second half will be right of
+	 *         the splitting line (relative CCW &GreaterEqual; 0).
+	 * @see Line2D#relativeCCW(Point2D)
+	 */
 	public static final List<List<Point2D>> splitHull(List<Point2D> hull, Line2D line){
 		List<Point2D> left = new ArrayList<Point2D>();
 		List<Point2D> right = new ArrayList<Point2D>();
