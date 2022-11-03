@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,26 +64,17 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	public boolean intersects(Point2D p1, Point2D p2){
-		return intersects(new LineSegment(p1, p2));
+		return intersectsInternal(new LineSegment(p1, p2));
 	}
 	
 	public boolean intersects(Line2D line){
-		//return intersects(partitions, line);
-		return false;//TODO
+		return intersectsInternal(new LineSegment(line));
 	}
 	
-	private boolean intersects(PartitionTree<LineSegment, T> node, LineSegment line){
-		//TODO see #addSegment
-		return false;
-//		if(node.contains(line)){
-//			if(node.isLeafCell()){
-//				return intersectsAny(node.getData(), line);
-//			}else{
-//				return intersects(node.getLowNode(), line) || intersects(node.getHighNode(), line);
-//			}
-//		}else{
-//			return false;
-//		}
+	private boolean intersectsInternal(LineSegment line){
+		return !partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.terminal((node, seg)->{
+			return intersectsAny(node.getData(), line);
+		}));
 	}
 	
 	public Stream<T> streamCells(){
@@ -156,16 +148,26 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 //						//TODO loop children
 //					}
 //				}
+		
+//		if(node.contains(line)){
+//		if(node.isLeafCell()){
+//			return intersectsAny(node.getData(), line);
+//		}else{
+//			return intersects(node.getLowNode(), line) || intersects(node.getHighNode(), line);
+//		}
+//	}else{
+//		return false;
+//	}
 	}
 	
 	//TODO
-	private static final void visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
+	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
 		if(maxDepth == 0){
-			return;
+			return false;
 		}
 		
 		if(tree.isLeafCell() || (line.p1Clipped && line.p2Clipped)){
-			visitor.acceptTerminalNode(tree, line);
+			return visitor.acceptTerminalNode(tree, line);
 		}else{
 			visitor.acceptInnerNode(tree, line);
 			Line2D bisector = tree.getBisector();
@@ -173,13 +175,16 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			
 			if(intercept == null){
 				if(bisector.relativeCCW(line.getP1()) == -1){
-					visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, visitor);
+					return visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, visitor);
 				}else{
-					visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, visitor);
+					return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, visitor);
 				}
 			}else{
-				visitConjugationTree(tree.getLeftChild(), line.derriveLine(-1, bisector, intercept), maxDepth - 1, visitor);
-				visitConjugationTree(tree.getRightChild(), line.derriveLine(1, bisector, intercept), maxDepth - 1, visitor);
+				if(visitConjugationTree(tree.getLeftChild(), line.derriveLine(-1, bisector, intercept), maxDepth - 1, visitor)){
+					return visitConjugationTree(tree.getRightChild(), line.derriveLine(1, bisector, intercept), maxDepth - 1, visitor);
+				}else{
+					return false;
+				}
 			}
 		}
 	}
@@ -187,25 +192,32 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	@FunctionalInterface
 	private static abstract interface VisitingFunction<T extends PartitionTree<LineSegment, T>>{
 		
-		public abstract void visitTree(T tree, LineSegment line, int maxDepth, PartitionTreeVisitor<T> visitor);
+		public abstract boolean visitTree(T tree, LineSegment line, int maxDepth, PartitionTreeVisitor<T> visitor);
 		
-		public default void visitTree(T tree, LineSegment line, PartitionTreeVisitor<T> visitor){
-			visitTree(tree, line, Integer.MAX_VALUE, visitor);
+		public default boolean visitTree(T tree, LineSegment line, PartitionTreeVisitor<T> visitor){
+			return visitTree(tree, line, Integer.MAX_VALUE, visitor);
 		}
 	}
 	
 	private static abstract interface PartitionTreeVisitor<T extends PartitionTree<LineSegment, T>>{
 		
-		public abstract void acceptTerminalNode(T node, LineSegment segment);
+		public abstract boolean acceptTerminalNode(T node, LineSegment segment);
 		
 		public abstract void acceptInnerNode(T node, LineSegment segment);
 		
 		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> terminal(BiConsumer<T, LineSegment> consumer){
+			return terminal((node, seg)->{
+				consumer.accept(node, seg);
+				return true;
+			});
+		}
+		
+		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> terminal(BiFunction<T, LineSegment, Boolean> fun){
 			return new PartitionTreeVisitor<T>(){
 				
 				@Override
-				public void acceptTerminalNode(T node, LineSegment segment){
-					consumer.accept(node, segment);
+				public boolean acceptTerminalNode(T node, LineSegment segment){
+					return fun.apply(node, segment);
 				}
 				
 				@Override
