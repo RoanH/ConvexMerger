@@ -51,6 +51,12 @@ public class VerticalDecomposition implements GameStateListener {
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
 	private Map<Line, ConvexObject> segToObj;
+
+	/**
+	 * The set of points added to the decomposition.
+	 */
+	private Set<DecompositionPoint> points;
+	
 	/**
 	 * All line segments ever added into the vertical decomposition.
 	 */
@@ -105,7 +111,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * Gets the last line segment added into the vertical decomposition.
 	 * @return The last line segment added to the vertical decomposition.
 	 */
-	public Line2D getLastLine(){
+	public Line getLastLine(){
 		return orientedSegments.isEmpty() ? null : orientedSegments.get(orientedSegments.size() - 1);
 	}
 	
@@ -187,7 +193,7 @@ public class VerticalDecomposition implements GameStateListener {
 		for(int i = 0; i < points.size(); i++){
 			Point2D p1 = points.get(i), p2 = points.get((i+1)%points.size());
 
-			Line2D segment = new Line(p1, p2);
+			Line segment = new Line(p1, p2);
 			addSegment(segment, obj);
 		}
 	}
@@ -826,7 +832,9 @@ public class VerticalDecomposition implements GameStateListener {
 			if(nextIntersected != null && segment.getX1() != segment.getX2()){
 				if(trap.rightPoints.stream().anyMatch(po -> segment.relativeCCW(po) <= 0)){
 					if(!trap.getNeighbours().contains(nextIntersected)){
-						assert trap.rightPoints.size() >= 2;
+						assert trap.rightPoints.size() >= 2 : 
+							"\n" + trap.getEndPoints() + " " + trap.rightPoints.size() + " " + trap.getNeighbours().size() +"\n" + 
+							nextIntersected.getEndPoints() + " " + nextIntersected.leftPoints.size() + " " + nextIntersected.getNeighbours().size();
 					} else {
 						assert nextIntersected.leftPoints.stream().anyMatch(po -> segment.relativeCCW(po) <= 0);
 					}
@@ -886,7 +894,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @param obj The object that the segment is added for.
 	 * @return A list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
 	 */
-	public Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg, ConvexObject obj){
+	public Queue<Trapezoid> findIntersectedTrapezoids(Line seg, ConvexObject obj){
 		Queue<Trapezoid>intersectedTraps = new LinkedList<Trapezoid>();
 		Trapezoid start = queryTrapezoid(seg.getP1());
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
@@ -965,7 +973,7 @@ public class VerticalDecomposition implements GameStateListener {
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
 		Set<Line> visitedSeg = new HashSet<Line>();
 		List<Point2D> borderPoints = result.getPoints();
-		Set<Line2D> borderSegments = new HashSet<Line2D>();
+		Set<Line> borderSegments = new HashSet<Line>();
 		for(int i = 0; i < borderPoints.size(); i++){
 			Point2D p1 = borderPoints.get(i), p2 = borderPoints.get((i + 1) % borderPoints.size());
 			Line segment = orientedSegments.get(orientedSegments.indexOf(new Line(p1, p2)));
@@ -1055,7 +1063,7 @@ public class VerticalDecomposition implements GameStateListener {
 		/**
 		 * If the vertex represents a segment, it points to it.
 		 */
-		private Line2D segment;
+		private Line segment;
 		
 		/**
 		 * Constructs a Decomposition Vertex of type 0 (leaf) with a linked trapezoid.
@@ -1082,7 +1090,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * @param right The right child of the vertex. (below the segment)
 		 * @param segment The corresponding line segment in the decomposition.
 		 */
-		public DecompVertex(DecompVertex left, DecompVertex right, Line2D segment){
+		public DecompVertex(DecompVertex left, DecompVertex right, Line segment){
 			this(2, left, right, null, null, segment);
 		}
 		
@@ -1095,7 +1103,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * @param point The point for point nodes to link to.
 		 * @param segment The line segment for segment nodes to link to.
 		 */
-		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment){
+		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line segment){
 			this.type = type;
 			if(type == 0){
 				this.left = null;
@@ -1271,7 +1279,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 * Gets the segment that the vertex points to.
 		 * @return The segment that the vertex points to.
 		 */
-		public Line2D getSegment(){
+		public Line getSegment(){
 			return segment;
 		}
 
@@ -1279,7 +1287,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 Sets the segment that the vertex points to to a given seg e t, if the vertex is a segment vertex.
 		 * @param segment The point to associate with the vertex.
 		 */
-		public void setSegment(Line2D segment){
+		public void setSegment(Line segment){
 			this.segment = segment;
 		}
 	}
@@ -1485,11 +1493,27 @@ public class VerticalDecomposition implements GameStateListener {
 		}
 
 		/**
-		 * Gets the vertical decomposition lines of this trapezoid.
-		 * @return The vertical decomposition lines of this trapezoid.
+		 * Gets the vertical lines of this trapezoid.
+		 * @return The vertical lines of this trapezoid.
 		 */
 		public List<Line2D> getDecompLines(){
 			return decompLines;
+		}
+		
+		/**
+		 * Gets the left vertical line of this trapezoid.
+		 * @return The left vertical line of this trapezoid.
+		 */
+		public Line2D getLeftDecompLine(){
+			return decompLines.get(0);
+		}
+		
+		/**
+		 * Gets the right vertical line of this trapezoid.
+		 * @return The left vertical line of this trapezoid.
+		 */
+		public Line2D getRightDecompLine(){
+			return decompLines.get(1);
 		}
 
 		/**
@@ -1780,6 +1804,163 @@ public class VerticalDecomposition implements GameStateListener {
 		 */
 		public void removeTrapBelow(Trapezoid trap){
 			trapsBelow.remove(trap);
+		}
+		
+		/**
+		 * Gets the leftmost trapezoid that is above this line.
+		 * @return The leftmost trapezoid that is above this line or <code>null</code> if the line is vertical.
+		 */
+		public Trapezoid getLeftmostTrapAbove(){
+			if(getX1() == getX2()){
+				return null;
+			}else if(getX1() < getX2()){
+				return trapsAbove.get(0);
+			}else{
+				return trapsAbove.get(trapsAbove.size()-1);
+			}
+		}
+		
+		/**
+		 * Gets the rightmost trapezoid that is above this line.
+		 * @return the rightmost trapezoid that is above this line or <code>null</code> if the line is vertical.
+		 */
+		public Trapezoid getRightmostTrapAbove(){
+			if(getX1() == getX2()){
+				return null;
+			}else if(getX1() < getX2()){
+				return trapsAbove.get(trapsAbove.size()-1);
+			}else{
+				return trapsAbove.get(0);
+			}
+		}
+		
+		/**
+		 * Gets the leftmost trapezoid that is below this line.
+		 * @return The leftmost trapezoid that is below this line or <code>null</code> if the line is vertical.
+		 */
+		public Trapezoid getLeftmostTrapBelow(){
+			if(getX1() == getX2()){
+				return null;
+			}else if(getX1() < getX2()){
+				return trapsBelow.get(0);
+			}else{
+				return trapsBelow.get(trapsBelow.size()-1);
+			}
+		}
+		
+		/**
+		 * Gets the rightmost trapezoid that is below this line.
+		 * @return the rightmost trapezoid that is below this line or <code>null</code> if the line is vertical.
+		 */
+		public Trapezoid getRightmostTrapBelow(){
+			if(getX1() == getX2()){
+				return null;
+			}else if(getX1() < getX2()){
+				return trapsBelow.get(trapsBelow.size()-1);
+			}else{
+				return trapsBelow.get(0);
+			}
+		}
+
+	}
+	
+	/**
+	 * A structure to represent a point in the vertical decomposition.
+	 * Equality is based on the equality of the point location.
+	 * Contains references to segments that include it.
+	 * @author Emu
+	 */
+	public class DecompositionPoint{
+		/**
+		 * The point of this structure.
+		 */
+		private Point2D point;
+		/**
+		 * The segments that this point bounds.
+		 */
+		List<Line> segments;
+		/**
+		 * The trapezoids that this point bounds.
+		 */
+		List<Trapezoid> trapezoids;
+		
+		/**
+		 * Constructs a new decomposition point
+		 * on the given coordinates.
+		 * @param x The x coordinate.
+		 * @param y The y coordinate.
+		 */
+		public DecompositionPoint(double x, double y){
+			this(new Point2D.Double(x,y));
+		}
+		
+		/**
+		 * Constructs a new decomposition point
+		 * on the given point in space.
+		 * @param point The point this structure represents.
+		 */
+		public DecompositionPoint(Point2D point){
+			this.point = point;
+		}
+		
+		@Override
+		public boolean equals(Object other){
+			if(other instanceof DecompositionPoint){
+				return ((DecompositionPoint) other).getPoint() == point;
+			}else{
+				return false;
+			}
+		}
+		
+		/**
+		 * Gets the point of this structure.
+		 * @return the point of this structure.
+		 */
+		public Point2D getPoint(){
+			return point;
+		}
+		
+		/**
+		 * Gets the list of segments that this point is part of.
+		 * @return The list of segments that this point is part of.
+		 */
+		public List<Line> getSegments(){
+			return segments;
+		}
+		
+		/**
+		 * Adds a segment to the list of segments that this point is part of.
+		 * @param seg the segment to add to the list of segments that this point is part of.
+		 */
+		public void addSegment(Line seg){
+			segments.add(seg);
+		}
+		
+		/**
+		 * Gets the trapezoid to the right that contains the given segment.
+		 * Useful for determining the trapezoid to start splitting up during
+		 * segment addition.
+		 * @param seg The query segment.
+		 * @return The trapezoid on the right that (partially) contains the segment, or <code>null</code> if this point is not the left point of the segment.
+		 */
+		public Trapezoid getIntersectedTrapezoidToTheRight(Line seg){
+			if(point != seg.getP1() || seg.getX1() == seg.getX2()){
+				return null;
+			}
+			for(Line segment : segments){
+				if(segment.getP1().getX() == point.getX() && segment.getX1() != segment.getX2()){
+					Trapezoid trap = segment.getLeftmostTrapAbove();
+					if(trap.getXLeft() == point.getX() && trap.getRightDecompLine().intersectsLine(seg)){
+						return trap;
+					}
+					
+					trap = segment.getLeftmostTrapBelow();
+					if(trap.getXLeft() == point.getX() && trap.getRightDecompLine().intersectsLine(seg)){
+						return trap;
+					}
+				}
+			}
+			return null;
 		}
 	}
 }
