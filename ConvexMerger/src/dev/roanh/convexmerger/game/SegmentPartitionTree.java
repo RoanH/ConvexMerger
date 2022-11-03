@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,11 +20,12 @@ import dev.roanh.convexmerger.ui.Theme;
  * @author Roan
  * @param <T> The partition tree type
  */
-public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, ?>>{
-	public static final SegmentPartitionTreeConstructor<KDTree<LineSegment>> TYPE_KD_TREE = new SegmentPartitionTreeConstructor<KDTree<LineSegment>>(KDTree::new);
-	public static final SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>> TYPE_CONJUGATION_TREE = new SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>>(ConjugationTree::new);
+public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>>{
+	public static final SegmentPartitionTreeConstructor<KDTree<LineSegment>> TYPE_KD_TREE = new SegmentPartitionTreeConstructor<KDTree<LineSegment>>(KDTree::new, null);//TODO
+	public static final SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>> TYPE_CONJUGATION_TREE = new SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>>(ConjugationTree::new, SegmentPartitionTree::visitConjugationTree);
 
-	private final PartitionTree<LineSegment, T> partitions;
+	private final T partitions;
+	private final VisitingFunction<T> partitionVisitor;
 	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	
 	private boolean animated = true;//TODO false
@@ -32,11 +34,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 * Constructs a new segment partition tree with the given
 	 * partitioning tree data structure.
 	 * @param partitions The partitioning data structure.
+	 * @param partitionVisitor Function that can be used to visit
+	 *        cells in the partition tree that either store or are
+	 *        along the search path for a certain query line.
 	 * @see SegmentPartitionTree#TYPE_CONJUGATION_TREE
 	 * @see SegmentPartitionTree#TYPE_KD_TREE
 	 */
-	private SegmentPartitionTree(PartitionTree<LineSegment, T> partitions){
+	private SegmentPartitionTree(T partitions, VisitingFunction<T> partitionVisitor){
 		this.partitions = partitions;
+		this.partitionVisitor = partitionVisitor;
 	}
 	
 	public boolean isAnimated(){
@@ -44,35 +50,25 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	public void addSegment(Point2D p1, Point2D p2){
-		addSegment(new LineSegment(p1, p2));
+		addSegmentInternal(new LineSegment(p1, p2));
 	}
 	
-	public void addSegment(LineSegment line){
-		addSegment(partitions, line);
+	public void addSegment(Line2D line){
+		addSegmentInternal(new LineSegment(line));
+	}
+	
+	private void addSegmentInternal(LineSegment line){
+		partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.terminal(T::addData));
 		segments.add(line);
-	}
-	
-	private void addSegment(PartitionTree<LineSegment, T> node, LineSegment line){
-		//TODO general procedure
-		//if full intersection -> clip -> store
-		//else -> clip -> recurse on children
-//		if(node.containsFully(line)){
-//			if(node.isLeafCell()){//TODO also store at internal nodes
-//				node.addData(line);
-//			}else{
-////				addSegment(node.getLowNode(), line);
-////				addSegment(node.getHighNode(), line);
-//				//TODO loop children
-//			}
-//		}
 	}
 	
 	public boolean intersects(Point2D p1, Point2D p2){
 		return intersects(new LineSegment(p1, p2));
 	}
 	
-	public boolean intersects(LineSegment line){
-		return intersects(partitions, line);
+	public boolean intersects(Line2D line){
+		//return intersects(partitions, line);
+		return false;//TODO
 	}
 	
 	private boolean intersects(PartitionTree<LineSegment, T> node, LineSegment line){
@@ -109,6 +105,21 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		
 	}
 	
+	public void queryLine(Point2D a, Point2D b){
+		
+	}
+	
+	public void queryLine(Line2D line){
+		
+	}
+	
+	private void queryLine(LineSegment line){
+		
+	}
+	
+	
+	
+	//TODO update
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
 		for(LineSegment test : lines){
 			//ensure exact endpoint matches are not intersections
@@ -126,54 +137,91 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return false;
 	}
 	
+	private static final void visitKDTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
+		if(maxDepth == 0){
+			return;
+		}
+		
+		//TODO
+		
+		//TODO general procedure
+				//if full intersection -> clip -> store
+				//else -> clip -> recurse on children
+//				if(node.containsFully(line)){
+//					if(node.isLeafCell()){//TODO also store at internal nodes
+//						node.addData(line);
+//					}else{
+////						addSegment(node.getLowNode(), line);
+////						addSegment(node.getHighNode(), line);
+//						//TODO loop children
+//					}
+//				}
+	}
+	
 	//TODO
-	public static final void conjugationTreeVisitor(ConjugationTree<LineSegment> tree, LineSegment line){
+	private static final void visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
+		if(maxDepth == 0){
+			return;
+		}
+		
 		if(tree.isLeafCell() || (line.p1Clipped && line.p2Clipped)){
-			System.out.println("store: " + tree.getPoints() + " / " + line);
-			tree.addData(line);
+			visitor.acceptTerminalNode(tree, line);
 		}else{
+			visitor.acceptInnerNode(tree, line);
 			Line2D bisector = tree.getBisector();
-			assert bisector != null;
-			assert line != null;
-			assert line.p1 != null;
-			assert line.p2 != null;
 			Point2D intercept = ConvexUtil.interceptClosed(bisector, line);
 			
 			if(intercept == null){
 				if(bisector.relativeCCW(line.getP1()) == -1){
-					System.out.println("left store: " + line);
-					conjugationTreeVisitor(tree.getLeftChild(), line);
+					visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, visitor);
 				}else{
-					System.out.println("right store: " + line);
-					conjugationTreeVisitor(tree.getRightChild(), line);
+					visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, visitor);
 				}
 			}else{
-				LineSegment remainder = line.derriveLine(-1, bisector, intercept);
-				System.out.println("both store");
-//				if(remainder.p1Clipped && remainder.p2Clipped){
-//					System.out.println("inner left store: " + tree.getPoints() + " / " + line);
-//					tree.addData(line);
-//				}else{
-//					System.out.println("left both store");
-					conjugationTreeVisitor(tree.getLeftChild(), remainder);
-//				}
-				
-				remainder = line.derriveLine(1, bisector, intercept);
-//				if(remainder.p1Clipped && remainder.p2Clipped){
-//					System.out.println("inner right store: " + tree.getPoints() + " / " + line);
-//				}else{
-//					System.out.println("right both store");
-					conjugationTreeVisitor(tree.getRightChild(), remainder);
-//				}
+				visitConjugationTree(tree.getLeftChild(), line.derriveLine(-1, bisector, intercept), maxDepth - 1, visitor);
+				visitConjugationTree(tree.getRightChild(), line.derriveLine(1, bisector, intercept), maxDepth - 1, visitor);
 			}
+		}
+	}
+	
+	@FunctionalInterface
+	private static abstract interface VisitingFunction<T extends PartitionTree<LineSegment, T>>{
+		
+		public abstract void visitTree(T tree, LineSegment line, int maxDepth, PartitionTreeVisitor<T> visitor);
+		
+		public default void visitTree(T tree, LineSegment line, PartitionTreeVisitor<T> visitor){
+			visitTree(tree, line, Integer.MAX_VALUE, visitor);
+		}
+	}
+	
+	private static abstract interface PartitionTreeVisitor<T extends PartitionTree<LineSegment, T>>{
+		
+		public abstract void acceptTerminalNode(T node, LineSegment segment);
+		
+		public abstract void acceptInnerNode(T node, LineSegment segment);
+		
+		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> terminal(BiConsumer<T, LineSegment> consumer){
+			return new PartitionTreeVisitor<T>(){
+				
+				@Override
+				public void acceptTerminalNode(T node, LineSegment segment){
+					consumer.accept(node, segment);
+				}
+				
+				@Override
+				public void acceptInnerNode(T node, LineSegment segment){
+				}
+			};
 		}
 	}
 	
 	public static final class SegmentPartitionTreeConstructor<T extends PartitionTree<LineSegment, T>>{
 		private Function<List<Point2D>, T> ctor;
+		private VisitingFunction<T> visitFun;
 		
-		private SegmentPartitionTreeConstructor(Function<List<Point2D>, T> ctor){
+		private SegmentPartitionTreeConstructor(Function<List<Point2D>, T> ctor, VisitingFunction<T> visitFun){
 			this.ctor = ctor;
+			this.visitFun = visitFun;
 		}
 		
 		//no overlap
@@ -197,9 +245,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			return tree;
 		}
 		
-		//TODO probably remove
 		public final SegmentPartitionTree<T> fromPoints(List<Point2D> points){
-			return new SegmentPartitionTree<T>(ctor.apply(points));
+			return new SegmentPartitionTree<T>(ctor.apply(points), visitFun);
 		}
 	}
 	
@@ -225,10 +272,12 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 * @param p2 The second end point of the line.
 		 */
 		public LineSegment(Point2D p1, Point2D p2){
-			assert p1 != null;
-			assert p2 != null;
 			this.p1 = p1;
 			this.p2 = p2;
+		}
+		
+		public LineSegment(Line2D line){
+			this(line.getP1(), line.getP2());
 		}
 		
 		private LineSegment derriveLine(int ccw, Line2D intersected, Point2D intersection){
