@@ -112,6 +112,7 @@ public class ConvexObject implements Identity, Serializable{
 	public ConvexObject(List<Point2D> data){
 		points = data;
 		assert ConvexUtil.checkInvariants(data) : "Game invariants violated for convex objects";
+		constructShape();
 	}
 	
 	/**
@@ -230,7 +231,13 @@ public class ConvexObject implements Identity, Serializable{
 		
 		//check if the new hull is valid
 		if(state != null){
-			SegmentPartitionTree tree = state.getSegmentTree();
+			SegmentPartitionTree<?> tree = state.getSegmentTree();
+			if(tree.isAnimated()){
+				
+			}
+			
+			
+			
 			if(tree.intersects(lines[0], lines[1]) || tree.intersects(lines[2], lines[3])){
 				return null;
 			}else if(saveSegments){
