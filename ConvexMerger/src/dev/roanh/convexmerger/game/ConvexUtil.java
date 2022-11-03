@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dev.roanh.convexmerger.Constants;
-
 /**
  * Class containing various utilities related
  * to convex objects and hulls. General assumptions
@@ -779,44 +777,21 @@ public class ConvexUtil{
 	public static final List<List<Point2D>> splitHull(List<Point2D> hull, Line2D line){
 		List<Point2D> left = new ArrayList<Point2D>();
 		List<Point2D> right = new ArrayList<Point2D>();
-//		if(hull != null){
-//			return Arrays.asList(left, right);//TODO remove
-//		}
-		
-//		boolean all = true;
-//		int ccw = line.relativeCCW(hull.get(0));
-//		for(Point2D p : hull){
-//			if(line.relativeCCW(p) != ccw){
-//				all = false;
-//			}
-//		}
-//		if(all){
-//			left.add(new Point2D.Double(0, 0));
-//			right.add(left.get(0));
-//			return Arrays.asList(left, right);
-//		}
 		
 		//find start
 		int rightStart = 0;
-		while(!(line.relativeCCW(hull.get((rightStart == 0 ? hull.size() : rightStart) - 1)) == -1 && line.relativeCCW(hull.get(rightStart)) > 0)){
-//			System.out.println("skip: " + rightStart + " / " + hull.get(rightStart));
+		while(line.relativeCCW(hull.get((rightStart == 0 ? hull.size() : rightStart) - 1)) != -1 || line.relativeCCW(hull.get(rightStart)) < 0){
 			rightStart++;
 		}
 		
-//		System.out.println("ccwl: " + line.relativeCCW(hull.get(rightStart - 1)));
-//		System.out.println("ccwr: " + line.relativeCCW(hull.get(rightStart)));
-		
-		int idx = rightStart;
-
 		//first intersection
+		int idx = rightStart;
 		Point2D p = interceptOpen(hull.get(idx), hull.get((rightStart == 0 ? hull.size() : rightStart) - 1), line.getP1(), line.getP2());
 		left.add(p);
 		right.add(p);
-//		System.out.println("in: " + p);
 		
 		//right part
 		while(line.relativeCCW(hull.get(idx)) >= 0){
-//			System.out.println("add right: " + hull.get(idx));
 			right.add(hull.get(idx));
 			idx = (idx + 1) % hull.size();
 		}
@@ -825,11 +800,9 @@ public class ConvexUtil{
 		p = interceptOpen(hull.get(idx), hull.get((idx == 0 ? hull.size() : idx) - 1), line.getP1(), line.getP2());
 		right.add(p);
 		left.add(p);
-//		System.out.println("in: " + p);
 		
-		//remaining left part
+		//left part
 		while(idx != rightStart){
-//			System.out.println("left add: " + hull.get(idx));
 			left.add(hull.get(idx));
 			idx = (idx + 1) % hull.size();
 		}
