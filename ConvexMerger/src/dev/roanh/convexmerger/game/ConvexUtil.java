@@ -786,7 +786,7 @@ public class ConvexUtil{
 	 * @return The two halves of the original now split convex hull. The
 	 *         first half will be entirely left to the splitting line
 	 *         (relative CCW of -1) and the second half will be right of
-	 *         the splitting line (relative CCW &GreaterEqual; 0).
+	 *         the splitting line (relative CCW &gt;= 0).
 	 * @see Line2D#relativeCCW(Point2D)
 	 */
 	public static final List<List<Point2D>> splitHull(List<Point2D> hull, Line2D line){
