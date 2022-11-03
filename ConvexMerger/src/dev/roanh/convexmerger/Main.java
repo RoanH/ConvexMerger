@@ -64,8 +64,10 @@ public class Main{
 //				PlayfieldGenerator gen = new PlayfieldGenerator();
 //				tree = new ConjugationTree<Void>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 
-				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(800, 100));
+				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(1100, 100));
 				
+				System.out.println("====");
+				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
 				
 				g.translate(200, 50);
 				tree.render(g);
@@ -83,9 +85,6 @@ public class Main{
 				
 				g.setColor(Color.RED);
 				g.draw(query);
-				
-				System.out.println("====");
-				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
 				
 				g.setColor(Color.CYAN);
 				for(Point2D p : new Point2D[]{point(1100, 480), point(800, 200)}){

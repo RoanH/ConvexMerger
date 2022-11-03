@@ -115,7 +115,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	//TODO
 	public static final void conjugationTreeVisitor(ConjugationTree<LineSegment> tree, LineSegment line){
-		if(!tree.isLeafCell()){
+		if(tree.isLeafCell() || (line.p1Clipped && line.p2Clipped)){
+			System.out.println("store: " + tree.getPoints() + " / " + line);
+			tree.addData(line);
+		}else{
 			Line2D bisector = tree.getBisector();
 			assert bisector != null;
 			assert line != null;
@@ -133,23 +136,23 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				}
 			}else{
 				LineSegment remainder = line.derriveLine(-1, bisector, intercept);
-				if(remainder.p1Clipped && remainder.p2Clipped){
-					System.out.println("inner left store: " + tree.getPoints() + " / " + line);
-				}else{
-					System.out.println("left both store");
+				System.out.println("both store");
+//				if(remainder.p1Clipped && remainder.p2Clipped){
+//					System.out.println("inner left store: " + tree.getPoints() + " / " + line);
+//					tree.addData(line);
+//				}else{
+//					System.out.println("left both store");
 					conjugationTreeVisitor(tree.getLeftChild(), remainder);
-				}
+//				}
 				
 				remainder = line.derriveLine(1, bisector, intercept);
-				if(remainder.p1Clipped && remainder.p2Clipped){
-					System.out.println("inner right store: " + tree.getPoints() + " / " + line);
-				}else{
-					System.out.println("right both store");
+//				if(remainder.p1Clipped && remainder.p2Clipped){
+//					System.out.println("inner right store: " + tree.getPoints() + " / " + line);
+//				}else{
+//					System.out.println("right both store");
 					conjugationTreeVisitor(tree.getRightChild(), remainder);
-				}
+//				}
 			}
-		}else{
-			System.out.println("leaf store: " + tree.getPoints() + " / " + line);
 		}
 	}
 	
