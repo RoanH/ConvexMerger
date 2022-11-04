@@ -104,7 +104,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 	/**
 	 * The playfield generator being configured.
 	 */
-	private PlayfieldGenerator gen = new PlayfieldGenerator();
+	private PlayfieldGenerator gen;
 	
 	/**
 	 * Constructs a new new game menu with the given game context.
@@ -113,13 +113,11 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 	public NewGameMenu(ConvexMerger context){
 		super(context);
 		
-		seed.setText(gen.getSeed());
 		seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
 		seed.setChangeListener(this);
 		seed.setFocusListener(this);
 		seed.setCentred(true);
 		
-		gen.setProgressListener(this);
 		size.setChangeListener(i->{
 			gen.setRange(RANGE_VALUES_MIN[i], RANGE_VALUES_MAX[i]);
 			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
@@ -132,6 +130,8 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 			gen.setScaling(SCALING_VALUES[i]);
 			seed.setForegroundColor(PlayerTheme.P3.getBaseOutline());
 		});
+		
+		reset();
 	}
 	
 	/**
@@ -141,6 +141,17 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 	public void reset(){
 		started = false;
 		progress = 0.0D;
+		
+		PlayfieldGenerator newGen = new PlayfieldGenerator();
+		if(gen != null){
+			newGen.setCoverage(gen.getCoverage());
+			newGen.setRange(gen.getRangeMin(), gen.getRangeMax());
+			newGen.setScaling(gen.getScaling());
+		}
+		gen = newGen;
+		
+		seed.setText(gen.getSeed());
+		gen.setProgressListener(this);
 	}
 	
 	/**
