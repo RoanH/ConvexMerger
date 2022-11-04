@@ -69,10 +69,10 @@ public class PlayfieldGenerator{
 	
 	/**
 	 * Constructs a new playfield generator with a random seed,
-	 * range of 0-100, coverage of 0.4471 and scale of 1.
+	 * range of 0-100, coverage of 0.2745 and scale of 0.78.
 	 */
 	public PlayfieldGenerator(){
-		init(ThreadLocalRandom.current().nextLong(), 0, 100, 114, 255);
+		init(ThreadLocalRandom.current().nextLong(), 0, 100, 70, 200);
 	}
 	
 	/**
