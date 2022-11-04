@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
@@ -82,9 +83,9 @@ public class SegmentPartitionTreeTest{
 	@Test
 	public void edgeCaseSeed(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
-			new PlayfieldGenerator("3Y64YRJ35TVADL3BXU2V").generatePlayfield()
+			new PlayfieldGenerator("3Y64QTK1WI14ZQ79GFMW").generatePlayfield()
 		);
-		
-		
+		assertTrue(tree.intersects(new Line2D.Double(444.31914618102513D, 194.85131929075814D, 628.4039710577933D, 331.7503860849795D)));
+		assertFalse(tree.intersects(new Line2D.Double(514.6784789976089D, 402.33862253612847D, 350.20149757949315D, 306.22387013590435D)));
 	}
 }

@@ -236,8 +236,6 @@ public class ConvexObject implements Identity, Serializable{
 				
 			}
 			
-			
-			
 			if(tree.intersects(lines[0], lines[1]) || tree.intersects(lines[2], lines[3])){
 				return null;
 			}else if(saveSegments){
