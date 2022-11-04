@@ -31,7 +31,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-		game.switchScene(getTestScreen(game));
+//		game.switchScene(getTestScreen(game));
 		game.showGame();
 	}
 
@@ -57,15 +57,15 @@ public class Main{
 					point(1100, 480)
 				);
 				
-				points = Arrays.asList(
-					new Point2D.Double(100.0D, 300.0D),
-					new Point2D.Double(200.0D, 200.0D),
-					new Point2D.Double(400.0D, 400.0D),
-					new Point2D.Double(600.0D, 600.0D),
-					new Point2D.Double(800.0D, 800.0D),
-					new Point2D.Double(1000.0D, 800.0D),
-					new Point2D.Double(900.0D, 700.0D)
-				);
+//				points = Arrays.asList(
+//					new Point2D.Double(100.0D, 300.0D),
+//					new Point2D.Double(200.0D, 200.0D),
+//					new Point2D.Double(400.0D, 400.0D),
+//					new Point2D.Double(600.0D, 600.0D),
+//					new Point2D.Double(800.0D, 800.0D),
+//					new Point2D.Double(1000.0D, 800.0D),
+//					new Point2D.Double(900.0D, 700.0D)
+//				);
 				
 				
 				ConjugationTree<LineSegment> tree = new ConjugationTree<LineSegment>(points);
@@ -78,11 +78,11 @@ public class Main{
 //				System.out.println("====");
 //				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
 				
-				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(points);
-				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
+//				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(points);
+//				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
 				
 				g.translate(200, 50);
-				stree.render(g);
+				tree.render(g);
 				
 				g.setColor(Color.MAGENTA);
 				g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
@@ -106,37 +106,29 @@ public class Main{
 			
 			@Override
 			protected boolean isRightButtonEnabled(){
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
 			@Override
 			protected boolean isLeftButtonEnabled(){
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
 			@Override
 			protected void handleRightButtonClick(){
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			protected void handleLeftButtonClick(){
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			protected String getRightButtonText(){
-				// TODO Auto-generated method stub
 				return null;
 			}
 			
 			@Override
 			protected String getLeftButtonText(){
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};

@@ -63,20 +63,19 @@ public class SegmentPartitionTreeTest{
 	public void simpleIntersectionTest(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(6));
-		tree.streamCells().forEach(c->{
-			System.out.println(c + " | " + c.getData());
-		});
+//		tree.streamCells().forEach(c->{
+//			System.out.println(c + " | " + c.getData());
+//		});
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(3)));
 	}
 	
-	@Disabled
 	@Test
 	public void overlapIsNotIntersectionTest(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(6));
-		tree.streamCells().forEach(c->{
-			System.out.println(c + " | " + c.getData());
-		});
+//		tree.streamCells().forEach(c->{
+//			System.out.println(c + " | " + c.getData());
+//		});
 		assertFalse(tree.intersects(testPoints.get(0), testPoints.get(3)));
 	}
 }

@@ -59,8 +59,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	private void addSegmentInternal(LineSegment line){
-		System.out.println("add seg");
-		partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.terminal(T::addData));
+//		System.out.println("add seg");
+		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal(T::addData));
 		segments.add(line);
 	}
 	
@@ -75,12 +75,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	private boolean intersectsInternal(LineSegment line){
 //		return !
 			
-			boolean val = partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.all((node, seg)->{
+			boolean val = partitionVisitor.visitTree(partitions, line, true, PartitionTreeVisitor.all((node, seg)->{
 			boolean inter = intersectsAny(node.getData(), line);
-			System.out.println("intersection in: " + node.getData() + " for " + line + " / " + inter);
+			if(inter){
+				System.out.println("intersection in: " + node.getData() + " / " + line);
+			}
+//			System.out.println("intersection in: " + node.getData() + " for " + line + " / " + inter);
 			return !inter;
 		}));
-			System.out.println("val: " + val);
+//			System.out.println("val: " + val);
 			return !val;
 	}
 	
@@ -123,15 +126,23 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		for(LineSegment test : lines){
 			//ensure exact endpoint matches are not intersections
 			if(approxEqual(test.p1, line.p1) || approxEqual(test.p1, line.p2) || approxEqual(test.p2, line.p1) || approxEqual(test.p2, line.p2)){
-				System.out.println("colin check");
+//				System.out.println("colin check");
 				//the only way line segments that share an end point can still intersect is if they overlap
-				return ConvexUtil.checkCollinear(
+				boolean colin = ConvexUtil.checkCollinear(
 					(approxEqual(test.p1, line.p1) || approxEqual(test.p1, line.p2)) ? test.getP2() : test.getP1(),
 					line.getP1(),
 					line.getP2()
 				);
+				
+				if(colin){
+					System.out.println("colini: " + test + " / " + line);
+					System.out.println("    | " + approxEqual(test.p1, line.p1) + " | " + approxEqual(test.p1, line.p2) + " | " + approxEqual(test.p2, line.p1) + " | " + approxEqual(test.p2, line.p2));
+				}
+				
+				return colin;
 			}else if(test.intersectsLine(line)){
-				System.out.println("no colin check");
+				System.out.println("di: " + test + " / " + line);
+//				System.out.println("no colin check");
 				return true;
 			}
 		}
@@ -174,12 +185,12 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	//TODO
-	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
-		if(maxDepth == 0){
+	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnnerTerminals, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
+		if(maxDepth == 0 || approxEqual(line.getP1(), line.getP2())){
 			return true;
 		}
 		
-		if(tree.isLeafCell() || (line.p1Clipped && line.p2Clipped)){
+		if(tree.isLeafCell() || (!ignoreInnnerTerminals && line.p1Clipped && line.p2Clipped)){
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
 			if(!visitor.acceptInnerNode(tree, line)){
@@ -191,13 +202,13 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			
 			if(intercept == null){
 				if(bisector.relativeCCW(line.getP1()) == -1){
-					return visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, visitor);
+					return visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor);
 				}else{
-					return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, visitor);
+					return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor);
 				}
 			}else{
-				if(visitConjugationTree(tree.getLeftChild(), line.derriveLine(-1, bisector, intercept), maxDepth - 1, visitor)){
-					return visitConjugationTree(tree.getRightChild(), line.derriveLine(1, bisector, intercept), maxDepth - 1, visitor);
+				if(visitConjugationTree(tree.getLeftChild(), line.derriveLine(-1, bisector, intercept), maxDepth - 1, ignoreInnnerTerminals, visitor)){
+					return visitConjugationTree(tree.getRightChild(), line.derriveLine(1, bisector, intercept), maxDepth - 1, ignoreInnnerTerminals, visitor);
 				}else{
 					return false;
 				}
@@ -208,10 +219,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	@FunctionalInterface
 	private static abstract interface VisitingFunction<T extends PartitionTree<LineSegment, T>>{
 		
-		public abstract boolean visitTree(T tree, LineSegment line, int maxDepth, PartitionTreeVisitor<T> visitor);
+		public abstract boolean visitTree(T tree, LineSegment line, int maxDepth, boolean ignoreInnnerTerminals, PartitionTreeVisitor<T> visitor);
 		
-		public default boolean visitTree(T tree, LineSegment line, PartitionTreeVisitor<T> visitor){
-			return visitTree(tree, line, Integer.MAX_VALUE, visitor);
+		public default boolean visitTree(T tree, LineSegment line, boolean ignoreInnnerTerminals, PartitionTreeVisitor<T> visitor){
+			return visitTree(tree, line, Integer.MAX_VALUE, ignoreInnnerTerminals, visitor);
 		}
 	}
 	
@@ -226,7 +237,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				
 				@Override
 				public boolean acceptTerminalNode(T node, LineSegment segment){
-					System.out.println("terminal store");
+//					System.out.println("terminal store");
 					consumer.accept(node, segment);
 					return true;
 				}
@@ -320,7 +331,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 		
 		private LineSegment derriveLine(int ccw, Line2D intersected, Point2D intersection){
-			System.out.println("int: " + intersection);
 			if(intersected.relativeCCW(p1) == ccw){
 				LineSegment line = new LineSegment(p1, intersection);
 				line.p2Clipped = true;
