@@ -72,7 +72,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	private boolean intersectsInternal(LineSegment line){
-		return !partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.terminal((node, seg)->{
+		return !partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.all((node, seg)->{
 			return intersectsAny(node.getData(), line);
 		}));
 	}
@@ -169,7 +169,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		if(tree.isLeafCell() || (line.p1Clipped && line.p2Clipped)){
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
-			visitor.acceptInnerNode(tree, line);
+			if(visitor.acceptInnerNode(tree, line)){
+				return true;
+			}
+			
 			Line2D bisector = tree.getBisector();
 			Point2D intercept = ConvexUtil.interceptClosed(bisector, line);
 			
@@ -203,16 +206,25 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		
 		public abstract boolean acceptTerminalNode(T node, LineSegment segment);
 		
-		public abstract void acceptInnerNode(T node, LineSegment segment);
+		public abstract boolean acceptInnerNode(T node, LineSegment segment);
 		
 		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> terminal(BiConsumer<T, LineSegment> consumer){
-			return terminal((node, seg)->{
-				consumer.accept(node, seg);
-				return true;
-			});
+			return new PartitionTreeVisitor<T>(){
+				
+				@Override
+				public boolean acceptTerminalNode(T node, LineSegment segment){
+					consumer.accept(node, segment);
+					return true;
+				}
+				
+				@Override
+				public boolean acceptInnerNode(T node, LineSegment segment){
+					return true;
+				}
+			};
 		}
 		
-		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> terminal(BiFunction<T, LineSegment, Boolean> fun){
+		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> all(BiFunction<T, LineSegment, Boolean> fun){
 			return new PartitionTreeVisitor<T>(){
 				
 				@Override
@@ -221,7 +233,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				}
 				
 				@Override
-				public void acceptInnerNode(T node, LineSegment segment){
+				public boolean acceptInnerNode(T node, LineSegment segment){
+					return fun.apply(node, segment);
 				}
 			};
 		}

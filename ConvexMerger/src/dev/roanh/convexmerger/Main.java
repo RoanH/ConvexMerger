@@ -31,7 +31,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-//		game.switchScene(getTestScreen(game));
+		game.switchScene(getTestScreen(game));
 		game.showGame();
 	}
 
@@ -57,20 +57,32 @@ public class Main{
 					point(1100, 480)
 				);
 				
+				points = Arrays.asList(
+					new Point2D.Double(100.0D, 300.0D),
+					new Point2D.Double(200.0D, 200.0D),
+					new Point2D.Double(400.0D, 400.0D),
+					new Point2D.Double(600.0D, 600.0D),
+					new Point2D.Double(800.0D, 800.0D),
+					new Point2D.Double(1000.0D, 800.0D),
+					new Point2D.Double(900.0D, 700.0D)
+				);
 				
 				
 				ConjugationTree<LineSegment> tree = new ConjugationTree<LineSegment>(points);
 				
-				PlayfieldGenerator gen = new PlayfieldGenerator("3Y64YQ01S7B35T82PK9G");
-				tree = new ConjugationTree<LineSegment>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
+//				PlayfieldGenerator gen = new PlayfieldGenerator("3Y64YQ01S7B35T82PK9G");
+//				tree = new ConjugationTree<LineSegment>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 
 				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(300, 100));
 				
 //				System.out.println("====");
 //				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
 				
+				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(points);
+				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
+				
 				g.translate(200, 50);
-				tree.render(g);
+				stree.render(g);
 				
 				g.setColor(Color.MAGENTA);
 				g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);

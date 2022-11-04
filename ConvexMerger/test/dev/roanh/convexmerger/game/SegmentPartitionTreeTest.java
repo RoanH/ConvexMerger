@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 
-@Disabled
 public class SegmentPartitionTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(
 		new Point2D.Double(100.0D, 300.0D),
@@ -25,6 +24,7 @@ public class SegmentPartitionTreeTest{
 		new Point2D.Double(900.0D, 700.0D)
 	);
 
+	@Disabled
 	@Test
 	public void testSegmentDistribution(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -35,6 +35,7 @@ public class SegmentPartitionTreeTest{
 		assertArrayEquals(new int[]{0, 0, 0, 0, 0, 1, 2, 2}, tree.streamCells().map(PartitionTree::getData).mapToInt(List::size).sorted().toArray());
 	}
 	
+	@Disabled
 	@Test
 	public void intersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -42,6 +43,7 @@ public class SegmentPartitionTreeTest{
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
+	@Disabled
 	@Test
 	public void noIntersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -49,10 +51,18 @@ public class SegmentPartitionTreeTest{
 		assertFalse(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
+	@Disabled
 	@Test
 	public void edgeIntersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(3), testPoints.get(5));
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
+	}
+	
+	@Test
+	public void simpleIntersectionTest(){
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
+		tree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
+		assertTrue(tree.intersects(new Point2D.Double(400.0D, 400.0D), new Point2D.Double(600.0D, 600.0D)));
 	}
 }
