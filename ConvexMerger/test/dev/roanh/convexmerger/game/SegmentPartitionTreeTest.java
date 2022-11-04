@@ -78,4 +78,13 @@ public class SegmentPartitionTreeTest{
 //		});
 		assertFalse(tree.intersects(testPoints.get(0), testPoints.get(3)));
 	}
+	
+	@Test
+	public void edgeCaseSeed(){
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
+			new PlayfieldGenerator("3Y64YRJ35TVADL3BXU2V").generatePlayfield()
+		);
+		
+		
+	}
 }

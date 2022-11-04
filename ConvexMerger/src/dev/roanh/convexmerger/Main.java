@@ -70,7 +70,7 @@ public class Main{
 				
 				ConjugationTree<LineSegment> tree = new ConjugationTree<LineSegment>(points);
 				
-//				PlayfieldGenerator gen = new PlayfieldGenerator("3Y64YQ01S7B35T82PK9G");
+//				PlayfieldGenerator gen = new PlayfieldGenerator("3Y64YRJ35TVADL3BXU2V");
 //				tree = new ConjugationTree<LineSegment>(gen.generatePlayfield().stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 
 				LineSegment query = new LineSegment(new Point2D.Double(1000, 600), new Point2D.Double(300, 100));
@@ -81,8 +81,12 @@ public class Main{
 //				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(points);
 //				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
 				
+				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
+					new PlayfieldGenerator("3Y64QV335TVADL3BXU2V").generatePlayfield()
+				);
+				
 				g.translate(200, 50);
-				tree.render(g);
+				stree.render(g);
 				
 				g.setColor(Color.MAGENTA);
 				g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
@@ -95,8 +99,8 @@ public class Main{
 //					g.fill(new Ellipse2D.Double(p.getX() - 3, p.getY() - 3, 6, 6));
 //				}
 				
-				g.setColor(Color.RED);
-				g.draw(query);
+//				g.setColor(Color.RED);
+//				g.draw(query);
 				
 				g.setColor(Color.CYAN);
 				for(Point2D p : new Point2D[]{point(1100, 480), point(800, 200)}){
