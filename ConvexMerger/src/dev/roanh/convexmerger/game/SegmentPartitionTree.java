@@ -59,6 +59,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	private void addSegmentInternal(LineSegment line){
+		System.out.println("add seg");
 		partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.terminal(T::addData));
 		segments.add(line);
 	}
@@ -72,9 +73,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	private boolean intersectsInternal(LineSegment line){
-		return !partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.all((node, seg)->{
-			return intersectsAny(node.getData(), line);
+//		return !
+			
+			boolean val = partitionVisitor.visitTree(partitions, line, PartitionTreeVisitor.all((node, seg)->{
+			boolean inter = intersectsAny(node.getData(), line);
+			System.out.println("intersection in: " + node.getData() + " for " + line + " / " + inter);
+			return !inter;
 		}));
+			System.out.println("val: " + val);
+			return !val;
 	}
 	
 	public Stream<T> streamCells(){
@@ -115,18 +122,24 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
 		for(LineSegment test : lines){
 			//ensure exact endpoint matches are not intersections
-			if(test.getP1() == line.getP1() || test.getP1() == line.getP2() || test.getP2() == line.getP1() || test.getP2() == line.getP2()){
+			if(approxEqual(test.p1, line.p1) || approxEqual(test.p1, line.p2) || approxEqual(test.p2, line.p1) || approxEqual(test.p2, line.p2)){
+				System.out.println("colin check");
 				//the only way line segments that share an end point can still intersect is if they overlap
 				return ConvexUtil.checkCollinear(
-					(test.getP1() == line.getP1() || test.getP1() == line.getP2()) ? test.getP2() : test.getP1(),
+					(approxEqual(test.p1, line.p1) || approxEqual(test.p1, line.p2)) ? test.getP2() : test.getP1(),
 					line.getP1(),
 					line.getP2()
 				);
 			}else if(test.intersectsLine(line)){
+				System.out.println("no colin check");
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	private static final boolean approxEqual(Point2D a, Point2D b){
+		return Math.abs(a.getX() - b.getX()) < 0.00005D && Math.abs(a.getY() - b.getY()) < 0.00005D;
 	}
 	
 	private static final void visitKDTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
@@ -163,14 +176,14 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	//TODO
 	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
 		if(maxDepth == 0){
-			return false;
+			return true;
 		}
 		
 		if(tree.isLeafCell() || (line.p1Clipped && line.p2Clipped)){
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
-			if(visitor.acceptInnerNode(tree, line)){
-				return true;
+			if(!visitor.acceptInnerNode(tree, line)){
+				return false;
 			}
 			
 			Line2D bisector = tree.getBisector();
@@ -213,6 +226,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				
 				@Override
 				public boolean acceptTerminalNode(T node, LineSegment segment){
+					System.out.println("terminal store");
 					consumer.accept(node, segment);
 					return true;
 				}
@@ -306,6 +320,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 		
 		private LineSegment derriveLine(int ccw, Line2D intersected, Point2D intersection){
+			System.out.println("int: " + intersection);
 			if(intersected.relativeCCW(p1) == ccw){
 				LineSegment line = new LineSegment(p1, intersection);
 				line.p2Clipped = true;
