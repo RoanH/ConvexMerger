@@ -55,21 +55,21 @@ public class SegmentPartitionTreeTest{
 	
 	@Test
 	public void simpleIntersectionTestKD(){
-		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
+		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(6));
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(3)));
 	}
 	
 	@Test
 	public void overlapIsNotIntersectionTestKD(){
-		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
+		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(6));
 		assertFalse(tree.intersects(testPoints.get(0), testPoints.get(3)));
 	}
 	
 	@Test
 	public void edgeCaseSeed1KD(){
-		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
+		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(
 			new PlayfieldGenerator("3Y64QTK1WI14ZQ79GFMW").generatePlayfield()
 		);
 		assertTrue(tree.intersects(new Line2D.Double(444.31914618102513D, 194.85131929075814D, 628.4039710577933D, 331.7503860849795D)));
@@ -78,28 +78,28 @@ public class SegmentPartitionTreeTest{
 	
 	@Test
 	public void intersectTestConj(){
-		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(5));
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
 	@Test
 	public void noIntersectTestConj(){
-		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(4), testPoints.get(5));
 		assertFalse(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
 	@Test
 	public void edgeIntersectTestConj(){
-		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(3), testPoints.get(5));
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
 	@Test
 	public void edgeCaseSeed0Conj(){
-		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
 			new PlayfieldGenerator("3Y657EW3LVKQ9LHX178Z").generatePlayfield()
 		);
 		assertTrue(tree.intersects(new Line2D.Double(133.692809343338D, 690.875816822052D, 107.05947849314808D, 518.3026268080998D)));
@@ -128,4 +128,13 @@ public class SegmentPartitionTreeTest{
 		assertTrue(tree.intersects(new Line2D.Double(444.31914618102513D, 194.85131929075814D, 628.4039710577933D, 331.7503860849795D)));
 		assertFalse(tree.intersects(new Line2D.Double(514.6784789976089D, 402.33862253612847D, 350.20149757949315D, 306.22387013590435D)));
 	}
+	
+//	@Test
+//	public randomTestKD(){
+//		SegmentPartitionTree<PartitionTree<LineSegment,T>>
+//		
+//		
+//		
+//		
+//	}
 }
