@@ -10,7 +10,7 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	 * The data stored in this cell.
 	 */
 	private List<T> data = new ArrayList<T>();
-	private boolean marked = false;//anim
+	protected boolean marked = false;//anim
 	
 	public void setMarked(boolean marked){
 		this.marked = marked;

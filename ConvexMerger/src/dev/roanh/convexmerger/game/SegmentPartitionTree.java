@@ -73,6 +73,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	private boolean intersectsInternal(LineSegment line){
 		return !partitionVisitor.visitTree(partitions, line, true, PartitionTreeVisitor.all((node, seg)->{
+			System.out.println("cell check: " + node.getData() + " / " + seg);
+			node.setMarked(true);
 			return !intersectsAny(node.getData(), line);
 		}));
 	}
@@ -96,15 +98,14 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
 		for(LineSegment test : lines){
+			test.flag = true;
 			//ensure exact endpoint matches are not intersections
 			boolean p1Either = ConvexUtil.approxEqual(test.getP1(), line.getP1()) || ConvexUtil.approxEqual(test.getP1(), line.getP2());
 			if(p1Either || ConvexUtil.approxEqual(test.getP2(), line.getP1()) || ConvexUtil.approxEqual(test.getP2(), line.getP2())){
 				//the only way line segments that share an end point can still intersect is if they overlap
-				return ConvexUtil.checkCollinear(
-					p1Either ? test.getP2() : test.getP1(),
-					line.getP1(),
-					line.getP2()
-				);
+				if(ConvexUtil.checkCollinear(p1Either ? test.getP2() : test.getP1(), line.getP1(), line.getP2())){
+					return true;
+				}
 			}else if(test.intersectsLine(line)){
 				return true;
 			}
@@ -266,6 +267,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		private Point2D p2;
 		private boolean p1Clipped = false;
 		private boolean p2Clipped = false;
+		public boolean flag = false;
 
 		/**
 		 * Constructs a new line segment with the given end points. 
