@@ -112,9 +112,27 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return false;
 	}
 	
-	private static final void visitKDTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
-		if(maxDepth == 0){
-			return;
+	private static final boolean visitKDTree(KDTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnerTerminals, PartitionTreeVisitor<KDTree<LineSegment>> visitor){
+		if(maxDepth == 0 || ConvexUtil.approxEqual(line.getP1(), line.getP2())){
+			return true;
+		}
+		
+		if(tree.isLeafCell() || (!ignoreInnerTerminals && line.p1Clipped && line.p2Clipped)){
+			return visitor.acceptTerminalNode(tree, line);
+		}else{
+			if(!visitor.acceptInnerNode(tree, line)){
+				return false;
+			}
+			
+			for(KDTree<LineSegment> node : tree.getChildren()){
+				if(node.intersects(line)){
+					if(!visitKDTree(node, line.deriveLine(node.getBounds()), maxDepth - 1, ignoreInnerTerminals, visitor)){
+						return false;
+					}
+				}
+			}
+			
+			throw new IllegalStateException("Contained line segment not actually contained");
 		}
 		
 		//TODO
@@ -285,6 +303,54 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		
 		public LineSegment(Line2D line){
 			this(line.getP1(), line.getP2());
+		}
+		
+		private LineSegment deriveLine(Rectangle2D bounds){
+			Point2D p1 = this.p1;
+			Point2D p2 = this.p2;
+			int out1 = bounds.outcode(p1);
+			int out2 = bounds.outcode(p2);
+			
+			Point2D tl = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
+			Point2D tr = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
+			Point2D bl = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
+			Point2D br = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
+			
+			if(out1 != 0){
+				p1 = boundClip(tl, tr, bl, br, out1);
+			}
+			
+			if(out2 != 0){
+				p2 = boundClip(tl, tr, bl, br, out2);
+			}
+			
+			LineSegment line = new LineSegment(p1, p2);
+			line.p1Clipped = p1Clipped | (p1 != this.p1);
+			line.p2Clipped = p2Clipped | (p2 != this.p2);
+			return line;
+		}
+		
+		//out not 0
+		private Point2D boundClip(Point2D tl, Point2D tr, Point2D bl, Point2D br, int out){
+			Point2D p = null;
+			
+			if((out & Rectangle2D.OUT_BOTTOM) > 0){
+				p = ConvexUtil.interceptClosed(bl, br, p1, p2);
+			}
+			
+			if(p == null && (out & Rectangle2D.OUT_TOP) > 0){
+				p = ConvexUtil.interceptClosed(tl, tr, p1, p2);
+			}
+			
+			if(p == null && (out & Rectangle2D.OUT_LEFT) > 0){
+				p = ConvexUtil.interceptClosed(tl, bl, p1, p2);
+			}
+			
+			if(p == null && (out & Rectangle2D.OUT_RIGHT) > 0){
+				p = ConvexUtil.interceptClosed(tr, br, p1, p2);
+			}
+			
+			return p;
 		}
 		
 		/**

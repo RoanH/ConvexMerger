@@ -106,9 +106,13 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 	public KDTree<T> getHighNode(){
 		return high;
 	}
+
+	public boolean intersects(Line2D line){
+		return getBounds().intersectsLine(line);
+	}
 	
 	@Deprecated
-	public boolean containsFully(Line2D line){
+	public boolean contains(Line2D line){
 		Rectangle2D bounds = getBounds();
 		int pos1 = bounds.outcode(line.getP1());
 		int pos2 = bounds.outcode(line.getP2());
