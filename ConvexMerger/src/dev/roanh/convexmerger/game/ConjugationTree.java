@@ -127,7 +127,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	
 	@Override
 	public void render(Graphics2D g){
-		if(depth() == 4){
+		if(getDepth() == 4){
 //			g.setColor(new Color(
 //				(int)(hull.get(0).getX() * 255 / 1600),
 //				(int)(hull.get(0).getY() * 255 / 900),
@@ -143,7 +143,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			return;
 		}
 		
-		int c = Math.max(0, 255 - depth() * 25);
+		int c = Math.max(0, 255 - getDepth() * 25);
 		g.setColor(new Color(0, c, c));
 		g.draw(bisector);
 		
@@ -200,11 +200,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return bisector;
 	}
 	
-	//node depth, root = 0
-	public int depth(){
-		return parent == null ? 0 : 1 + parent.depth();
-	}
-	
 	public ConjugationTree<T> getLeftChild(){
 		return left;
 	}
@@ -217,7 +212,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		//TODO after decomp merge
 		return null;
 	}
-
+	
 	@Override
 	public ConjugationTree<T> getParent(){
 		return parent;

@@ -22,7 +22,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * @param <T> The partition tree type
  */
 public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>>{
-	public static final SegmentPartitionTreeConstructor<KDTree<LineSegment>> TYPE_KD_TREE = new SegmentPartitionTreeConstructor<KDTree<LineSegment>>(KDTree::new, null);//TODO
+	public static final SegmentPartitionTreeConstructor<KDTree<LineSegment>> TYPE_KD_TREE = new SegmentPartitionTreeConstructor<KDTree<LineSegment>>(KDTree::new, SegmentPartitionTree::visitKDTree);
 	public static final SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>> TYPE_CONJUGATION_TREE = new SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>>(ConjugationTree::new, SegmentPartitionTree::visitConjugationTree);
 
 	private final T partitions;
@@ -113,11 +113,12 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	private static final boolean visitKDTree(KDTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnerTerminals, PartitionTreeVisitor<KDTree<LineSegment>> visitor){
-		if(maxDepth == 0 || ConvexUtil.approxEqual(line.getP1(), line.getP2())){
+		if(maxDepth == 0 || line == null || ConvexUtil.approxEqual(line.getP1(), line.getP2())){
 			return true;
 		}
 		
 		if(tree.isLeafCell() || (!ignoreInnerTerminals && line.p1Clipped && line.p2Clipped)){
+			//assert tree.getBounds().contains(line.getBounds2D()) : "bounds off";
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
 			if(!visitor.acceptInnerNode(tree, line)){
@@ -132,33 +133,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				}
 			}
 			
-			throw new IllegalStateException("Contained line segment not actually contained");
+			return true;
 		}
-		
-		//TODO
-		
-		//TODO general procedure
-				//if full intersection -> clip -> store
-				//else -> clip -> recurse on children
-//				if(node.containsFully(line)){
-//					if(node.isLeafCell()){//TODO also store at internal nodes
-//						node.addData(line);
-//					}else{
-////						addSegment(node.getLowNode(), line);
-////						addSegment(node.getHighNode(), line);
-//						//TODO loop children
-//					}
-//				}
-		
-//		if(node.contains(line)){
-//		if(node.isLeafCell()){
-//			return intersectsAny(node.getData(), line);
-//		}else{
-//			return intersects(node.getLowNode(), line) || intersects(node.getHighNode(), line);
-//		}
-//	}else{
-//		return false;
-//	}
 	}
 	
 	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnnerTerminals, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
@@ -306,6 +282,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 		
 		private LineSegment deriveLine(Rectangle2D bounds){
+			if(bounds.contains(p1) && bounds.contains(p2)){
+				return this;
+			}
+			
 			Point2D p1 = this.p1;
 			Point2D p2 = this.p2;
 			int out1 = bounds.outcode(p1);
@@ -324,10 +304,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				p2 = boundClip(tl, tr, bl, br, out2);
 			}
 			
-			LineSegment line = new LineSegment(p1, p2);
-			line.p1Clipped = p1Clipped | (p1 != this.p1);
-			line.p2Clipped = p2Clipped | (p2 != this.p2);
-			return line;
+			if(p1 == null || p2 == null){
+				//one endpoint of the line segment is exactly on the boundary and the other possibly outside
+				return null;
+			}else{
+				LineSegment line = new LineSegment(p1, p2);
+				line.p1Clipped = p1Clipped | (p1 != this.p1);
+				line.p2Clipped = p2Clipped | (p2 != this.p2);
+				return line;
+			}
 		}
 		
 		//out not 0
@@ -335,11 +320,11 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			Point2D p = null;
 			
 			if((out & Rectangle2D.OUT_BOTTOM) > 0){
-				p = ConvexUtil.interceptClosed(bl, br, p1, p2);
+				p = ConvexUtil.interceptClosed(tl, tr, p1, p2);
 			}
 			
 			if(p == null && (out & Rectangle2D.OUT_TOP) > 0){
-				p = ConvexUtil.interceptClosed(tl, tr, p1, p2);
+				p = ConvexUtil.interceptClosed(bl, br, p1, p2);
 			}
 			
 			if(p == null && (out & Rectangle2D.OUT_LEFT) > 0){

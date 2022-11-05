@@ -32,6 +32,12 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	
 	public abstract S getParent();
 	
+	//node depth, root = 0
+	public int getDepth(){
+		S parent = getParent();
+		return parent == null ? 0 : 1 + parent.getDepth();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Stream<S> streamLeafCells(){
 		if(isLeafCell()){

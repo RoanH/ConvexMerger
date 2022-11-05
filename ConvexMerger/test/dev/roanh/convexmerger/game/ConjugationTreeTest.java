@@ -42,7 +42,7 @@ public class ConjugationTreeTest{
 			assertNull(leaf.getBisector());
 			
 			//all leaves are at depth 4
-			assertEquals(4, leaf.depth());
+			assertEquals(4, leaf.getDepth());
 		}
 		
 		//all internal nodes have exactly one point
@@ -55,7 +55,7 @@ public class ConjugationTreeTest{
 		}
 		
 		//the root is at depth 0
-		assertEquals(0, tree.depth());
+		assertEquals(0, tree.getDepth());
 	}
 	
 	@Test
@@ -66,7 +66,7 @@ public class ConjugationTreeTest{
 		
 		//assert that all bisectors are also conjugates
 		tree.streamCells().forEach(cell->{
-			if(cell.depth() > 0 && !cell.isLeafCell()){
+			if(cell.getDepth() > 0 && !cell.isLeafCell()){
 				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
 			}
 		});

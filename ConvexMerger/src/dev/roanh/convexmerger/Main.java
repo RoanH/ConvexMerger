@@ -31,7 +31,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-		game.switchScene(getTestScreen(game));
+//		game.switchScene(getTestScreen(game));
 		game.showGame();
 	}
 
@@ -78,12 +78,12 @@ public class Main{
 //				System.out.println("====");
 //				SegmentPartitionTree.conjugationTreeVisitor(tree, query);
 				
-//				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(points);
-//				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
+				SegmentPartitionTree<?> stree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(points);
+				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
 				
-				SegmentPartitionTree<ConjugationTree<LineSegment>> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
-					new PlayfieldGenerator("3Y64QTK1WI14ZQ79GFMW").generatePlayfield()
-				);
+//				SegmentPartitionTree<?> stree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(
+//					new PlayfieldGenerator("3Y64QTK1WI14ZQ79GFMW").generatePlayfield()
+//				);
 				
 				g.translate(200, 50);
 				stree.render(g);
