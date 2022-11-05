@@ -237,7 +237,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				
 				@Override
 				public boolean acceptTerminalNode(T node, LineSegment segment){
-//					System.out.println("terminal store");
 					consumer.accept(node, segment);
 					return true;
 				}
@@ -331,32 +330,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 		
 		private LineSegment derriveLine(int ccw, Line2D intersected, Point2D intersection){
-//			if(intersected.ptLineDistSq(p1) > intersected.ptLineDistSq(p2)){
-//				if(intersected.relativeCCW(p1) == ccw){
-//					LineSegment line = new LineSegment(p1, intersection);
-//					line.p2Clipped = true;
-//					line.p1Clipped = p1Clipped;
-//					return line;
-//				}else{
-//					LineSegment line = new LineSegment(intersection, p2);
-//					line.p1Clipped = true;
-//					line.p2Clipped = p2Clipped;
-//					return line;
-//				}
-//			}else{
-//				if(intersected.relativeCCW(p2) == ccw){
-//					LineSegment line = new LineSegment(intersection, p2);
-//					line.p1Clipped = true;
-//					line.p2Clipped = p2Clipped;
-//					return line;
-//				}else{
-//					LineSegment line = new LineSegment(p1, intersection);
-//					line.p2Clipped = true;
-//					line.p1Clipped = p1Clipped;
-//					return line;
-//				}
-//			}
-			
 			boolean leftFurthest = intersected.ptLineDistSq(p1) > intersected.ptLineDistSq(p2);
 			boolean ccwCorrect = intersected.relativeCCW(leftFurthest ? p1 : p2) == ccw;
 			
@@ -372,33 +345,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				line.p1Clipped = p1Clipped;
 				return line;
 			}
-			
-			//L & C -> 1
-			//L & !C -> 2
-			//!L & C -> 2
-			//!L & !C -> 1
-			//(L & C) | (!L & !C) -> 1
-			//(L & !C) | (!L & C) -> 2
-			
-			//if(A){
-			//  if(B)
-			//    1.
-			//  else
-			//    2.
-			//else
-			//  if(C)
-			//    2.
-			//  else
-			//    1.
-			
-			//ccc = (A & B) | (!A & C)
-			
-			//A & B -> 1
-			//A & !B -> 2
-			//!A & C -> 2
-			//!A & !C -> 1
-			//(A & B) | (!A & !C) -> 1
-			//(A & !B) | (!A & C) -> 2
 		}
 
 		@Override

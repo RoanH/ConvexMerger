@@ -130,72 +130,18 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		shape.closePath();
 	}
 	
-	/**
-	 * Computes the centroid of the given convex object.
-	 * @param points The points that make up the convex object
-	 *        in (counter) clockwise order.
-	 * @return The centroid of the convex object.
-	 */
-	public static final Point2D computeCentroid(List<Point2D> points){
-		double cx = 0.0D;
-		double cy = 0.0D;
-		for(int i = 0; i < points.size(); i++){
-			Point2D p1 = points.get(i);
-			Point2D p2 = points.get((i + 1) % points.size());
-			double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
-			cx += (p1.getX() + p2.getX()) * factor;
-			cy += (p1.getY() + p2.getY()) * factor;
-		}
-
-		double area = 6.0D * computeArea(points);
-		return new Point2D.Double(cx / area, cy / area);
-	}
-	
-	/**
-	 * Computes the area of the given convex object.
-	 * @param points The points that make up the convex object
-	 *        in (counter) clockwise order.
-	 * @return The area for the convex object.
-	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
-	 */
-	public static final double computeArea(List<Point2D> points){
-		double area = 0.0D;
-		for(int i = 0; i < points.size(); i++){
-			int j = (i + 1) % points.size();
-			area += points.get(i).getX() * points.get(j).getY();
-			area -= points.get(i).getY() * points.get(j).getX();
-		}
-		return area / 2.0D;
-	}
-	
 	@Override
 	public void render(Graphics2D g){
 		if(depth() == 4){
-			g.setColor(new Color(
-				(int)(hull.get(0).getX() * 255 / 1600),
-				(int)(hull.get(0).getY() * 255 / 900),
-				(int)(hull.get(1).getX() * 255 / 1600),
-				100
-			));
+//			g.setColor(new Color(
+//				(int)(hull.get(0).getX() * 255 / 1600),
+//				(int)(hull.get(0).getY() * 255 / 900),
+//				(int)(hull.get(1).getX() * 255 / 1600),
+//				100
+//			));
 //			g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
-//			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
+			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
 			g.fill(shape);
-			
-//			g.setColor(Color.MAGENTA);
-			g.setStroke(Theme.POLY_STROKE);
-			g.setColor(new Color(
-				(int)(hull.get(0).getX() * 255 / 1600),
-				(int)(hull.get(0).getY() * 255 / 900),
-				(int)(hull.get(1).getX() * 255 / 1600)
-			));
-			for(Object obj : getData()){
-				g.draw((Shape)obj);
-			}
-			g.setStroke(Theme.BORDER_STROKE);
-			
-			g.setColor(Color.WHITE);
-			Point2D pt = computeCentroid(hull);
-			g.drawString(getData().size() + "", (int)pt.getX(), (int)pt.getY());
 		}
 		
 		if(isLeafCell()){
@@ -211,21 +157,11 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			g.fill(new Ellipse2D.Double(p.getX() - 5, p.getY() - 5, 10, 10));
 		}
 		
-		if(parent == null || parent.parent == null || true){//TODO remove
-			if(left != null){
-				left.render(g);
-			}
-			if(right != null){
-				right.render(g);
-			}
+		if(left != null){
+			left.render(g);
 		}
-	}
-	
-	private Line2D clipLine(Line2D line, Point2D on){
-		if(parent == null || parent.parent == null){
-			return line;
-		}else{
-			return clipLine(parent.parent, line, on);
+		if(right != null){
+			right.render(g);
 		}
 	}
 	
@@ -281,13 +217,12 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	public ConjugationTree<T> getRightChild(){
 		return right;
 	}
-
-	@Deprecated
-	public boolean containsFully(Line2D line){
-		// TODO Auto-generated method stub
-		return false;
-	}
 	
+	public Point2D getCentroid(){
+		//TODO after decomp merge
+		return null;
+	}
+
 	@Override
 	public ConjugationTree<T> getParent(){
 		return parent;
@@ -304,7 +239,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	}
 	
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
-		//TODO this is a naive temporary solution
+		//TODO this is a naive temporary solution, @emu have fun
 		
 		ConjugateData data = new ConjugateData();
 		for(Point2D p1 : left){

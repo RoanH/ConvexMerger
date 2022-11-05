@@ -34,8 +34,6 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	
 	public abstract S getParent();
 	
-	//public abstract boolean queryLine(Line2D line, Consumer<S> callback);
-	
 	@SuppressWarnings("unchecked")
 	public Stream<S> streamLeafCells(){
 		if(isLeafCell()){
