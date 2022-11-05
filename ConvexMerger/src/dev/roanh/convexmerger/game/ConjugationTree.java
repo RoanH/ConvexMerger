@@ -2,7 +2,6 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -12,11 +11,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.ui.Theme;
 
 public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private ConjugationTree<T> parent;
@@ -24,7 +20,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private List<Point2D> on = new ArrayList<Point2D>(2);
 	private ConjugationTree<T> left;
 	private ConjugationTree<T> right;
-	@Deprecated
 	private List<Point2D> hull;
 	private Path2D shape;
 	
@@ -283,21 +278,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		}
 
 		return data;
-	}
-	
-	private void drawLine(Graphics2D g, Line2D line){
-		drawLine(g, line.getX1(), line.getY1(), line.getX2(), line.getY2());
-	}
-	
-	//TODO move to util?
-	private void drawLine(Graphics2D g, double x1, double y1, double x2, double y2){
-		if(x1 == x2){
-			g.draw(new Line2D.Double(x1, 0.0D, x2, Constants.PLAYFIELD_HEIGHT));
-		}else{
-			double coef = (y2 - y1) / (x2 - x1);
-			double base = y1 - x1 * coef;
-			g.draw(new Line2D.Double(0.0D, base, Constants.PLAYFIELD_WIDTH, base + coef * Constants.PLAYFIELD_WIDTH));
-		}
 	}
 	
 	private static class ConjugateData{

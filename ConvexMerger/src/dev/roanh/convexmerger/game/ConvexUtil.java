@@ -824,4 +824,16 @@ public class ConvexUtil{
 		
 		return Arrays.asList(left, right);
 	}
+	
+	/**
+	 * Checks if the two given points are approximately equal.
+	 * Meaning that save for floating point rounding errors both
+	 * points are in the same location.
+	 * @param a The first point.
+	 * @param b The second point.
+	 * @return If both points represent the same location.
+	 */
+	public static final boolean approxEqual(Point2D a, Point2D b){
+		return Math.abs(a.getX() - b.getX()) < 0.00005D && Math.abs(a.getY() - b.getY()) < 0.00005D;
+	}
 }

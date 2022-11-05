@@ -25,7 +25,7 @@ public class SegmentPartitionTreeTest{
 		new Point2D.Double(900.0D, 700.0D)
 	);
 
-	@Disabled
+	@Disabled//TODO
 	@Test
 	public void testSegmentDistribution(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -36,7 +36,7 @@ public class SegmentPartitionTreeTest{
 		assertArrayEquals(new int[]{0, 0, 0, 0, 0, 1, 2, 2}, tree.streamCells().map(PartitionTree::getData).mapToInt(List::size).sorted().toArray());
 	}
 	
-	@Disabled
+	@Disabled//TODO
 	@Test
 	public void intersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -44,7 +44,7 @@ public class SegmentPartitionTreeTest{
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
-	@Disabled
+	@Disabled//TODO
 	@Test
 	public void noIntersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -52,7 +52,7 @@ public class SegmentPartitionTreeTest{
 		assertFalse(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
-	@Disabled
+	@Disabled//TODO
 	@Test
 	public void edgeIntersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -64,9 +64,6 @@ public class SegmentPartitionTreeTest{
 	public void simpleIntersectionTest(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(6));
-//		tree.streamCells().forEach(c->{
-//			System.out.println(c + " | " + c.getData());
-//		});
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(3)));
 	}
 	
@@ -74,9 +71,6 @@ public class SegmentPartitionTreeTest{
 	public void overlapIsNotIntersectionTest(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(6));
-//		tree.streamCells().forEach(c->{
-//			System.out.println(c + " | " + c.getData());
-//		});
 		assertFalse(tree.intersects(testPoints.get(0), testPoints.get(3)));
 	}
 	

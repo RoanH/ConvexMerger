@@ -8,7 +8,6 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ConvexUtilTest{
