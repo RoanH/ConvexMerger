@@ -9,7 +9,6 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
@@ -85,7 +84,7 @@ public class SegmentPartitionTreeTest{
 			new PlayfieldGenerator("3Y64YQ018986HXCC9DZ3").generatePlayfield()
 		);
 		assertTrue(tree.intersects(new Line2D.Double(193.6013062596321D, 640.6928106546402D, 323.98344983777235D, 485.96471945056874D)));
-//		assertFalse(tree.intersects(new Line2D.Double(465.15992274007033D, 562.0431520701404D, 257.9150328040123D, 667.3594777584076D)));
+		assertFalse(tree.intersects(new Line2D.Double(465.15992274007033D, 562.0431520701404D, 257.9150328040123D, 667.3594777584076D)));
 	}
 	
 	@Test
@@ -141,13 +140,20 @@ public class SegmentPartitionTreeTest{
 		assertFalse(tree.intersects(new Line2D.Double(514.6784789976089D, 402.33862253612847D, 350.20149757949315D, 306.22387013590435D)));
 	}
 	
-	@Disabled
+	@Test
+	public void edgeCaseSeed2Conj(){
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
+			new PlayfieldGenerator("3Y64YQ018986HXCC9DZ3").generatePlayfield()
+		);
+		assertTrue(tree.intersects(new Line2D.Double(193.6013062596321D, 640.6928106546402D, 323.98344983777235D, 485.96471945056874D)));
+		assertFalse(tree.intersects(new Line2D.Double(465.15992274007033D, 562.0431520701404D, 257.9150328040123D, 667.3594777584076D)));
+	}
+	
 	@Test
 	public void randomTestKD(){
 		testAll(SegmentPartitionTree.TYPE_KD_TREE, new PlayfieldGenerator());
 	}
 	
-	@Disabled
 	@Test
 	public void randomTestConj(){
 		testAll(SegmentPartitionTree.TYPE_CONJUGATION_TREE, new PlayfieldGenerator());
