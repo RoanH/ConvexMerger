@@ -80,7 +80,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			if(inter){
 				System.out.println("intersection in: " + node.getData() + " / " + line);
 			}
-//			System.out.println("intersection in: " + node.getData() + " for " + line + " / " + inter);
+			System.out.println("intersection in: " + node.getData() + " for " + line + " / " + inter);
 			return !inter;
 		}));
 //			System.out.println("val: " + val);
@@ -331,16 +331,57 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 		
 		private LineSegment derriveLine(int ccw, Line2D intersected, Point2D intersection){
-			if(intersected.relativeCCW(p1) == ccw){
-				LineSegment line = new LineSegment(p1, intersection);
-				line.p2Clipped = true;
-				line.p1Clipped = p1Clipped;
-				return line;
+//			if(intersected.relativeCCW(p1) == ccw){
+//				LineSegment line = new LineSegment(p1, intersection);
+//				line.p2Clipped = true;
+//				line.p1Clipped = p1Clipped;
+//				return line;
+//			}else{
+//				LineSegment line = new LineSegment(intersection, p2);
+//				line.p1Clipped = true;
+//				line.p2Clipped = p2Clipped;
+//				return line;
+//			}
+			
+			if(intersected.ptLineDistSq(p1) > intersected.ptLineDistSq(p2)){
+				if(intersected.relativeCCW(p1) == ccw){
+					LineSegment line = new LineSegment(p1, intersection);
+					line.p2Clipped = true;
+					line.p1Clipped = p1Clipped;
+					return line;
+				}else{
+					LineSegment line = new LineSegment(intersection, p2);
+					line.p1Clipped = true;
+					line.p2Clipped = p2Clipped;
+					return line;
+				}
+				
+				
+				
+				
+				
 			}else{
-				LineSegment line = new LineSegment(intersection, p2);
-				line.p1Clipped = true;
-				line.p2Clipped = p2Clipped;
-				return line;
+//				System.out.println("else");
+				
+				if(intersected.relativeCCW(p2) == ccw){
+					
+					LineSegment line = new LineSegment(intersection, p2);
+					line.p1Clipped = true;
+					line.p2Clipped = p2Clipped;
+					return line;
+					
+					
+				}else{
+					
+					
+					
+					LineSegment line = new LineSegment(p1, intersection);
+					line.p2Clipped = true;
+					line.p1Clipped = p1Clipped;
+					return line;
+				}
+				
+				
 			}
 		}
 

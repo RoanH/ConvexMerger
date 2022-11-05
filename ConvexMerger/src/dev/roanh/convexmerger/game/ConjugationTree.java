@@ -16,6 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.ui.Theme;
 
 public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private ConjugationTree<T> parent;
@@ -129,12 +130,72 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		shape.closePath();
 	}
 	
+	/**
+	 * Computes the centroid of the given convex object.
+	 * @param points The points that make up the convex object
+	 *        in (counter) clockwise order.
+	 * @return The centroid of the convex object.
+	 */
+	public static final Point2D computeCentroid(List<Point2D> points){
+		double cx = 0.0D;
+		double cy = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			Point2D p1 = points.get(i);
+			Point2D p2 = points.get((i + 1) % points.size());
+			double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
+			cx += (p1.getX() + p2.getX()) * factor;
+			cy += (p1.getY() + p2.getY()) * factor;
+		}
+
+		double area = 6.0D * computeArea(points);
+		return new Point2D.Double(cx / area, cy / area);
+	}
+	
+	/**
+	 * Computes the area of the given convex object.
+	 * @param points The points that make up the convex object
+	 *        in (counter) clockwise order.
+	 * @return The area for the convex object.
+	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
+	 */
+	public static final double computeArea(List<Point2D> points){
+		double area = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			int j = (i + 1) % points.size();
+			area += points.get(i).getX() * points.get(j).getY();
+			area -= points.get(i).getY() * points.get(j).getX();
+		}
+		return area / 2.0D;
+	}
+	
 	@Override
 	public void render(Graphics2D g){
-		if(depth() == -9){
-			//g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
-			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
+		if(depth() == 4){
+			g.setColor(new Color(
+				(int)(hull.get(0).getX() * 255 / 1600),
+				(int)(hull.get(0).getY() * 255 / 900),
+				(int)(hull.get(1).getX() * 255 / 1600),
+				100
+			));
+//			g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
+//			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
 			g.fill(shape);
+			
+//			g.setColor(Color.MAGENTA);
+			g.setStroke(Theme.POLY_STROKE);
+			g.setColor(new Color(
+				(int)(hull.get(0).getX() * 255 / 1600),
+				(int)(hull.get(0).getY() * 255 / 900),
+				(int)(hull.get(1).getX() * 255 / 1600)
+			));
+			for(Object obj : getData()){
+				g.draw((Shape)obj);
+			}
+			g.setStroke(Theme.BORDER_STROKE);
+			
+			g.setColor(Color.WHITE);
+			Point2D pt = computeCentroid(hull);
+			g.drawString(getData().size() + "", (int)pt.getX(), (int)pt.getY());
 		}
 		
 		if(isLeafCell()){
