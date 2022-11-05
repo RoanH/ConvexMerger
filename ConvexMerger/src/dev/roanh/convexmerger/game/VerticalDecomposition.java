@@ -282,7 +282,7 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @param point The point at which to add a new decomposition point.
 	 * @return The added decomposition point or the existing decomposition point at this point.
 	 */
-	private DecompositionPoint addAndGetPoint(Point2D point){
+	private DecompositionPoint getOrCreatePoint(Point2D point){
 		int idx = points.indexOf(point);
 		if(idx != -1){
 			return points.get(idx);
@@ -306,11 +306,28 @@ public class VerticalDecomposition implements GameStateListener {
 	 * @return The query point if it is in the list, or <code>null</code> otherwise.
 	 */
 	private DecompositionPoint getPoint(Point2D point){
+//		DecompositionPoint dp = new DecompositionPoint(point);
 		int idx = points.indexOf(point);
 		if(idx == -1){
 			return null;
 		}
 		return points.get(idx);
+	}
+	
+	private Trapezoid getFirstIntersectedTrapezoid(Line2D seg){
+		DecompositionPoint dp = getPoint(seg.getP1());
+		if(dp == null){
+			return null;
+		}
+		return dp.getIntersectedTrapezoidToTheRight(seg);
+//		if(trap == null){
+//			trap = dp.getIntersectedTrapezoidToTheLeft(seg);
+//		}
+//		return trap;
+	}
+	
+	private void handleOverlappingSegments(){
+		//TODO
 	}
 	
 	/**
@@ -330,8 +347,7 @@ public class VerticalDecomposition implements GameStateListener {
 			
 			Line orientedSegment = Line.orientedLine(p1, p2);
 			
-			addAndGetPoint(p1).addSegment(orientedSegment);
-			addAndGetPoint(p2).addSegment(orientedSegment);
+			
 			
 			orientedSegments.add(orientedSegment);
 			lines.add(orientedSegment);
@@ -348,6 +364,12 @@ public class VerticalDecomposition implements GameStateListener {
 				addedIntersectsSingleTrapezoid(orientedSegment);
 			}else{
 				addedIntersectsMultipleTrapezoids(orientedSegment, obj);
+			}
+			
+			//TODO: Figure out if these really go here
+			if(p1.getX() != p2.getX()){
+				getOrCreatePoint(p1).addSegment(orientedSegment);
+				getOrCreatePoint(p2).addSegment(orientedSegment);
 			}
 		}
 	}
@@ -937,29 +959,37 @@ public class VerticalDecomposition implements GameStateListener {
 	 */
 	public Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg, ConvexObject obj){
 		Queue<Trapezoid>intersectedTraps = new LinkedList<Trapezoid>();
-		Trapezoid start = queryTrapezoid(seg.getP1());
+		
+		Trapezoid start = getFirstIntersectedTrapezoid(seg);
+		
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
-		if(segToObj.get(start.botSegment) == obj && start.botSegment.getP2() != seg.getP1() ||
-		   segToObj.get(start.botSegment) == null){
-			q.add(start);
-		} else {
-			Trapezoid last = start;
-			while(q.isEmpty()){
-				outer_for: for(Trapezoid onOtherSide : last.botSegment.trapsBelow){
-					if(onOtherSide.leftPoints.contains(seg.getP1())){
-						q.add(onOtherSide);
-						break;
-					}
-					for(Trapezoid neib : onOtherSide.getNeighbours()){
-						if(neib.leftPoints.contains(seg.getP1())){
-							q.add(neib);
-							break outer_for;
+		if(start == null){
+			start = queryTrapezoid(seg.getP1());
+			
+			if(segToObj.get(start.botSegment) == obj && start.botSegment.getP2() != seg.getP1() ||
+			   segToObj.get(start.botSegment) == null){
+				q.add(start);
+			} else {
+				Trapezoid last = start;
+				while(q.isEmpty()){
+					outer_for: for(Trapezoid onOtherSide : last.botSegment.trapsBelow){
+						if(onOtherSide.leftPoints.contains(seg.getP1())){
+							q.add(onOtherSide);
+							break;
 						}
+						for(Trapezoid neib : onOtherSide.getNeighbours()){
+							if(neib.leftPoints.contains(seg.getP1())){
+								q.add(neib);
+								break outer_for;
+							}
+						}
+						last = onOtherSide;
 					}
-					last = onOtherSide;
 				}
 			}
+		} else {
+			q.add(start);
 		}
 		assert q.size() == 1;
 		while(!q.isEmpty()){
@@ -1003,6 +1033,10 @@ public class VerticalDecomposition implements GameStateListener {
 		Line secondLine = new Line(mergePoints[2], mergePoints[3]);
 //		System.out.println(firstLine.getP1() + "  " + firstLine.getP2());
 //		System.out.println(secondLine.getP1() + "  " + secondLine.getP2());
+		
+		
+		//TODO: Figure out how to replace old lines with new lines.
+		
 		try{
 			addSegment(firstLine, result);
 			addSegment(secondLine, result);
@@ -1010,6 +1044,9 @@ public class VerticalDecomposition implements GameStateListener {
 			// TODO @Roan help
 			e.printStackTrace();
 		}
+		
+//		handleOverlappingSegments(source, target, );//TODO: Implement
+		
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
 		Set<Line2D> visitedSeg = new HashSet<Line2D>();
@@ -1920,10 +1957,6 @@ public class VerticalDecomposition implements GameStateListener {
 		 * The segments that this point bounds.
 		 */
 		private List<Line> segments;
-		/**
-		 * The trapezoids that this point bounds.
-		 */
-		private List<Trapezoid> trapezoids;
 		
 		/**
 		 * Constructs a new decomposition point
@@ -1979,26 +2012,71 @@ public class VerticalDecomposition implements GameStateListener {
 			segments.add(seg);
 		}
 		
+		public Set<Trapezoid> getAdjacentTrapezoids(){
+			Set<Trapezoid> adjacent = new HashSet<Trapezoid>();
+			for(Line segment : segments){
+				if(segment.getX1() == segment.getX2()){
+					continue;
+				}
+				if(segment.getP1().getX() == point.getX()){
+					adjacent.add(segment.getLeftmostTrapAbove());
+					adjacent.add(segment.getLeftmostTrapBelow());
+				} else {
+					adjacent.add(segment.getRightmostTrapAbove());
+					adjacent.add(segment.getRightmostTrapBelow());
+				}
+			}
+			
+			return adjacent;
+		}
+		
 		/**
 		 * Gets the trapezoid to the right that contains the given segment.
 		 * Useful for determining the trapezoid to start splitting up during
 		 * segment addition.
 		 * @param seg The query segment.
-		 * @return The trapezoid on the right that (partially) contains the segment, or <code>null</code> if this point is not the left point of the segment.
+		 * @return The trapezoid on the right that (partially) contains the segment, or <code>null</code> if this point is not the left point of the segment or the segment is vertical.
 		 */
-		public Trapezoid getIntersectedTrapezoidToTheRight(Line seg){
+		public Trapezoid getIntersectedTrapezoidToTheRight(Line2D seg){
 			if(point != seg.getP1() || seg.getX1() == seg.getX2()){
 				return null;
 			}
 			for(Line segment : segments){
-				if(segment.getP1().getX() == point.getX() && segment.getX1() != segment.getX2()){
+				if(segment.getP1() == point && segment.getX1() != segment.getX2()){
 					Trapezoid trap = segment.getLeftmostTrapAbove();
 					if(trap.getXLeft() == point.getX() && trap.getRightDecompLine().intersectsLine(seg)){
+//						System.out.println(trap.getEndPoints());
 						return trap;
 					}
 					
 					trap = segment.getLeftmostTrapBelow();
 					if(trap.getXLeft() == point.getX() && trap.getRightDecompLine().intersectsLine(seg)){
+						return trap;
+					}
+				}
+			}
+//			System.out.println("Great fail");
+			return null;
+		}
+		
+		/**
+		 * Gets the trapezoid to the left that contains the given segment.
+		 * @param seg The query segment.
+		 * @return The trapezoid on the left that (partially) contains the segment, or <code>null</code> if this point is right point of the segment or the segment is vertical.
+		 */
+		public Trapezoid getIntersectedTrapezoidToTheLeft(Line2D seg){
+			if(point != seg.getP2() || seg.getX1() == seg.getX2()){
+				return null;
+			}
+			for(Line segment : segments){
+				if(segment.getP2().getX() == point.getX() && segment.getX1() != segment.getX2()){
+					Trapezoid trap = segment.getRightmostTrapAbove();
+					if(trap.getXRight() == point.getX() && trap.getLeftDecompLine().intersectsLine(seg)){
+						return trap;
+					}
+					
+					trap = segment.getRightmostTrapBelow();
+					if(trap.getXRight() == point.getX() && trap.getLeftDecompLine().intersectsLine(seg)){
 						return trap;
 					}
 				}
