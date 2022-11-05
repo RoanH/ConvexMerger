@@ -14,6 +14,10 @@ import java.util.List;
  * @author Roan
  */
 public class ConvexUtil{
+	/**
+	 * Tolerance value used for dealing with floating point rounding errors.
+	 */
+	private static final double EPS = 0.000005D;
 
 	/**
 	 * Computes the convex hull of the given point set
@@ -294,7 +298,7 @@ public class ConvexUtil{
 	 * @return True if the given points are (close to) collinear.
 	 */
 	public static final boolean checkCollinear(double x1, double y1, double x2, double y2, double x3, double y3){
-		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
+		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < EPS;
 	}
 	
 	/**
@@ -705,7 +709,7 @@ public class ConvexUtil{
 	 * @return True if the given point is on the given line segment.
 	 */
 	public static final boolean onLine(Point2D p, Point2D a, Point2D b){
-		return Math.min(a.getX(), b.getX()) - 0.00005D <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) + 0.00005D && Math.min(a.getY(), b.getY()) - 0.00005D <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()) + 0.00005D; 
+		return Math.min(a.getX(), b.getX()) - EPS <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) + EPS && Math.min(a.getY(), b.getY()) - EPS <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()) + EPS; 
 	}
 	
 	/**
@@ -834,6 +838,6 @@ public class ConvexUtil{
 	 * @return If both points represent the same location.
 	 */
 	public static final boolean approxEqual(Point2D a, Point2D b){
-		return Math.abs(a.getX() - b.getX()) < 0.00005D && Math.abs(a.getY() - b.getY()) < 0.00005D;
+		return Math.abs(a.getX() - b.getX()) < EPS && Math.abs(a.getY() - b.getY()) < EPS;
 	}
 }
