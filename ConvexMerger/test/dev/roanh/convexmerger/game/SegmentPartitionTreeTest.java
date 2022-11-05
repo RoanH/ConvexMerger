@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.game;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -9,7 +8,6 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
@@ -24,19 +22,7 @@ public class SegmentPartitionTreeTest{
 		new Point2D.Double(1000.0D, 800.0D),
 		new Point2D.Double(900.0D, 700.0D)
 	);
-
-	@Disabled//TODO
-	@Test
-	public void testSegmentDistribution(){
-		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
-		tree.addSegment(testPoints.get(0), testPoints.get(5));
-		tree.addSegment(testPoints.get(2), testPoints.get(4));
 	
-		//TODO this will be wrong after proper storage is implemented
-		assertArrayEquals(new int[]{0, 0, 0, 0, 0, 1, 2, 2}, tree.streamCells().map(PartitionTree::getData).mapToInt(List::size).sorted().toArray());
-	}
-	
-	@Disabled//TODO
 	@Test
 	public void intersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -44,7 +30,6 @@ public class SegmentPartitionTreeTest{
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
-	@Disabled//TODO
 	@Test
 	public void noIntersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
@@ -52,12 +37,20 @@ public class SegmentPartitionTreeTest{
 		assertFalse(tree.intersects(testPoints.get(2), testPoints.get(4)));
 	}
 	
-	@Disabled//TODO
 	@Test
 	public void edgeIntersectTest(){
 		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(3), testPoints.get(5));
 		assertTrue(tree.intersects(testPoints.get(2), testPoints.get(4)));
+	}
+	
+	@Test
+	public void edgeCaseSeed0(){
+		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(
+			new PlayfieldGenerator("3Y657EW3LVKQ9LHX178Z").generatePlayfield()
+		);
+		assertTrue(tree.intersects(new Line2D.Double(133.692809343338D, 690.875816822052D, 107.05947849314808D, 518.3026268080998D)));
+		assertFalse(tree.intersects(new Line2D.Double(238.82418653529285D, 617.9104715780545D, 249.7712426185608D, 668.1307184100151D)));
 	}
 	
 	@Test
@@ -75,7 +68,7 @@ public class SegmentPartitionTreeTest{
 	}
 	
 	@Test
-	public void edgeCaseSeed(){
+	public void edgeCaseSeed1(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
 			new PlayfieldGenerator("3Y64QTK1WI14ZQ79GFMW").generatePlayfield()
 		);
