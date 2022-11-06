@@ -67,7 +67,13 @@ public class GameState{
 	 * The seed of the generator that generated this game's playfield.
 	 */
 	private String seed;
+	/**
+	 * The conjugation tree based segment intersection tree.
+	 */
 	private SegmentPartitionTree<ConjugationTree<LineSegment>> segmentTreeConj;
+	/**
+	 * The kd-tree based segment intersection tree.
+	 */
 	private SegmentPartitionTree<KDTree<LineSegment>> segmentTreeKD;
 
 	/**
@@ -109,10 +115,18 @@ public class GameState{
 		gameStart = System.currentTimeMillis();
 	}
 	
+	/**
+	 * Gets the conjugation tree based segment intersection tree for this game state.
+	 * @return The conjugation tree based segment intersection tree.
+	 */
 	public SegmentPartitionTree<ConjugationTree<LineSegment>> getSegmentTreeConj(){
 		return segmentTreeConj;
 	}
 	
+	/**
+	 * Gets the kd-tree based segment intersection tree for this game state.
+	 * @return The kd-tree based segment intersection tree.
+	 */
 	public SegmentPartitionTree<KDTree<LineSegment>> getSegmentTreeKD(){
 		return segmentTreeKD;
 	}
