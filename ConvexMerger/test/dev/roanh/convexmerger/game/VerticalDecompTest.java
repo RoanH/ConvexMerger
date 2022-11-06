@@ -131,22 +131,22 @@ public class VerticalDecompTest{
 	@Test
 	public void horizontalMergeCase() throws InterruptedException{
 			ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(420.3156037808325D, 134.97237278180245D),
-				new Point2D.Double(494.55090032824535D, 134.97237278180245D),
-				new Point2D.Double(494.55090032824535D, 271.14884502844933D),
-				new Point2D.Double(420.3156037808325D, 271.14884502844933D)
+				new Point2D.Double(420D, 134D),
+				new Point2D.Double(494D, 134D),
+				new Point2D.Double(494D, 271D),
+				new Point2D.Double(420D, 271D)
 			)));
 			ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(527.9794331301437D, 134.97237278180245D),
-				new Point2D.Double(607.1951207030997D, 134.67825455622796D),
-				new Point2D.Double(607.1951207030997D, 271.14884502844933D),
-				new Point2D.Double(527.9794331301437D, 271.14884502844933D)
+				new Point2D.Double(527D, 134D),
+				new Point2D.Double(607D, 134D),
+				new Point2D.Double(607D, 271D),
+				new Point2D.Double(527D, 271D)
 			)));
 			ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(667.5037849870058D, 134.67825455622796D),
-				new Point2D.Double(749.0724137750002D, 134.67825455622796D),
-				new Point2D.Double(749.0724137750002D, 271.14884502844933D),
-				new Point2D.Double(667.5037849870058D, 271.14884502844933D)
+				new Point2D.Double(667D, 134D),
+				new Point2D.Double(749D, 134D),
+				new Point2D.Double(749D, 271D),
+				new Point2D.Double(667D, 271D)
 			)));
 			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
 			ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
@@ -165,7 +165,7 @@ public class VerticalDecompTest{
 			testPlayfield(Arrays.asList(obj1,obj2,obj3), decomp);
 			
 			decomp.merge(null, obj1, obj2, merged, contained);
-			testPlayfield(Arrays.asList(merged), decomp);
+			testPlayfield(Arrays.asList(merged, obj3), decomp);
 			
 			decomp.merge(null, merged, obj3, merged2, contained);
 			testPlayfield(Arrays.asList(merged2), decomp);
@@ -270,7 +270,7 @@ public class VerticalDecompTest{
 		testSpecific("3Y657GF39AOQSOYS0Y0C");
 	}
 	
-	@RepeatedTest(100)
+//	@RepeatedTest(100)
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		System.out.println("Game seed: " + game.getSeed());
@@ -324,7 +324,7 @@ public class VerticalDecompTest{
 			if(obj.contains(x, y)){
 				assertEquals(obj, decomp.queryObject(x, y), obj.getID() + " " + decomp.queryObject(x, y).getID());
 			}else{
-				assertNotEquals(obj, decomp.queryObject(x, y));
+				assertNotEquals(obj, decomp.queryObject(x, y), x + " " + y);
 			}
 		}
 	}
