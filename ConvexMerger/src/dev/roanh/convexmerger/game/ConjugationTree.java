@@ -14,18 +14,52 @@ import java.util.Comparator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.ui.Theme;
 
+/**
+ * Implementation of a conjugation tree inspired by the
+ * description in a paper by Herbert Edelsbrunner and Emo Welzl.
+ * @author Roan
+ * @param <T> The metadata storage type.
+ * @see <a href="https://doi.org/10.1016/0020-0190(86)90088-8">Edelsbrunner, Herbert and Welzl, Emo, 
+ *      "Halfplanar range search in linear space and O(n^0.695) query time", in Information Processing
+ *      Letters, vol. 23, 1986, pp. 289-293</a>
+ */
 public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
+	/**
+	 * The parent node of this tree node.
+	 */
 	private ConjugationTree<T> parent;
+	/**
+	 * The bisector of this tree node (a conjugate of the parent bisector).
+	 */
 	private Line2D bisector;
+	/**
+	 * The points in this cell on the bisector line.
+	 */
 	private List<Point2D> on = new ArrayList<Point2D>(2);
+	/**
+	 * The left child node of this node (containing CCW -1 points).
+	 */
 	private ConjugationTree<T> left;
+	/**
+	 * The right child node of this node (containing CCW 1 points).
+	 */
 	private ConjugationTree<T> right;
+	/**
+	 * The convex hull defining the bounds of this tree cell.
+	 */
 	private List<Point2D> hull;
+	/**
+	 * The shape defining the bounds of this cell as constructed
+	 * from the convex hull points in {@link #hull}.
+	 */
 	private Path2D shape;
 	
+	/**
+	 * Constructs a new conjugation tree storing the given point set.
+	 * @param points The point set to store.
+	 */
 	public ConjugationTree(List<Point2D> points){
 		//only root bisector finding requires O(n log n) time
 		points.sort(Comparator.comparingDouble(Point2D::getX));
@@ -71,6 +105,15 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		constructShape();
 	}
 	
+	/**
+	 * Constructs a new child conjugation tree node with the given parent node,
+	 * point set, conjugate bisector line and convex hull.
+	 * @param parent The parent node for this conjugation tree node.
+	 * @param points The points stored at or below this tree node.
+	 * @param on The points on the bisector for this tree node.
+	 * @param bisector The bisector for this tree node (conjugate of the parent bisector).
+	 * @param hull The convex hull for this tree cell.
+	 */
 	private ConjugationTree(ConjugationTree<T> parent, List<Point2D> points, Point2D on, Line2D bisector, List<Point2D> hull){
 		this.parent = parent;
 		this.bisector = bisector;
@@ -128,25 +171,48 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		shape.closePath();
 	}
 	
-	//on points
+	/**
+	 * Gets all the points located on the bisector for this tree cell.
+	 * @return The points on the bisector of this tree node.
+	 */
 	public List<Point2D> getPoints(){
 		return on;
 	}
 	
+	/**
+	 * Gets the bisector line for this tree node. This
+	 * line splits this tree cell in two halves with
+	 * both about the same number of points.
+	 * @return The bisector for this tree cell.
+	 */
 	public Line2D getBisector(){
 		return bisector;
 	}
 	
+	/**
+	 * Gets the left child node of this tree node (CCW -1).
+	 * @return The left child node of <code>null</code>
+	 *         if this node is a leaf.
+	 */
 	public ConjugationTree<T> getLeftChild(){
 		return left;
 	}
 	
+	/**
+	 * Gets the right child node of this tree node (CCW 1).
+	 * @return The right child node of <code>null</code>
+	 *         if this node is a leaf.
+	 */
 	public ConjugationTree<T> getRightChild(){
 		return right;
 	}
 	
+	/**
+	 * Gets the centroid of this conjugation tree node.
+	 * @return The centroid.
+	 */
 	public Point2D getCentroid(){
-		//TODO after decomp merge
+		//TODO after vertical decomposition merge
 		return null;
 	}
 	
@@ -190,8 +256,16 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return isLeafCell() ? Collections.emptyList() : Arrays.asList(left, right);
 	}
 
-	//given node + ancestors
-	private static Line2D clipLine(ConjugationTree<?> node, Line2D line, Point2D on){
+	/**
+	 * Clips the given line segment to be fully contained within the bounds
+	 * of the given conjugation tree node. The given point is assumed to lie
+	 * on the given line segment and within the given tree node.
+	 * @param node The tree node to contain the line within.
+	 * @param line The line to clip.
+	 * @param on A point on the given line and within the tree node.
+	 * @return The clipped line segment.
+	 */
+	private static final Line2D clipLine(ConjugationTree<?> node, Line2D line, Point2D on){
 		while(node != null){
 			Point2D intercept = ConvexUtil.interceptClosed(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
 			if(intercept != null){
@@ -216,7 +290,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param line The line to extend.
 	 * @return The line segment extended to the structure bounds.
 	 */
-	private static Line2D extendLine(Line2D line){
+	private static final Line2D extendLine(Line2D line){
 		if(line.getX1() == line.getX2()){
 			return new Line2D.Double(line.getX1(), 0.0D, line.getX2(), Constants.PLAYFIELD_HEIGHT);
 		}else{
