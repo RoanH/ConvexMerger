@@ -223,7 +223,14 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return line;
 	}
 
-	//extend to structure bounds
+	/**
+	 * Extends the given closed line segment to the geometric bounds of this
+	 * partition tree as defined by {@link Constants#PLAYFIELD_HEIGHT} and
+	 * {@link Constants#PLAYFIELD_WIDTH}. The result being a new closed line
+	 * segment ending on the bounds of the partition tree.
+	 * @param line The line to extend.
+	 * @return The line segment extended to the structure bounds.
+	 */
 	private static Line2D extendLine(Line2D line){
 		if(line.getX1() == line.getX2()){
 			return new Line2D.Double(line.getX1(), 0.0D, line.getX2(), Constants.PLAYFIELD_HEIGHT);
@@ -236,6 +243,27 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		}
 	}
 
+	/**
+	 * Computes a conjugate line for the given point sets and with
+	 * the given parent conjugation tree node. All the points in the
+	 * left set are left (CCW -1) of the bisector of the given parent
+	 * tree node and all the points in the right set are right (CCW 1)
+	 * of the bisector of the parent node. The left and right sets also
+	 * have approximately the same size. The conjugate line computed by
+	 * this subroutine will split the given left and right point sets
+	 * in two subsets of approximately equal size and the conjugate line
+	 * will also intersect the bisector of the given parent node. In addition,
+	 * the conjugate line will pass through at least one point from the
+	 * left point set and at least one point from the right point set.
+	 * These points together with the computed conjugate line will be
+	 * returned from this subroutine. If either of the given point sets
+	 * is empty then the conjugate can be any line that splits the other
+	 * point set and intersects the parent node bisector.
+	 * @param left The left point set to split.
+	 * @param right The right point set to split.
+	 * @param parent The parent conjugation tree node.
+	 * @return The computed conjugate line and its supporting points.
+	 */
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
 		//TODO this is a naive temporary solution, @emu have fun
 		
@@ -283,9 +311,26 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return data;
 	}
 	
+	/**
+	 * Class holding data about a single conjugate line.
+	 * @author Roan
+	 */
 	private static class ConjugateData{
+		/**
+		 * The conjugate line.
+		 */
 		private Line2D conjugate;
+		/**
+		 * The point from the left point set
+		 * defining the conjugate line, possibly
+		 * null if the left point set was empty.
+		 */
 		private Point2D leftOn;
+		/**
+		 * The point from the right point set
+		 * defining the conjugate line, possibly
+		 * null if the left point set was empty.
+		 */
 		private Point2D rightOn;
 	}
 }
