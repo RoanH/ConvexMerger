@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.MergeAnimation;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.MessageDialog;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
@@ -66,7 +67,8 @@ public class GameState{
 	 * The seed of the generator that generated this game's playfield.
 	 */
 	private String seed;
-	private SegmentPartitionTree segmentTree;
+	private SegmentPartitionTree<ConjugationTree<LineSegment>> segmentTreeConj;
+	private SegmentPartitionTree<KDTree<LineSegment>> segmentTreeKD;
 
 	/**
 	 * Constructs a new game state with the given playfield generator and
@@ -102,12 +104,17 @@ public class GameState{
 				listeners.add((GameStateListener)player);
 			}
 		}
-		segmentTree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(objects);
+		segmentTreeConj = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(objects);
+		segmentTreeKD = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(objects);
 		gameStart = System.currentTimeMillis();
 	}
 	
-	public SegmentPartitionTree getSegmentTree(){
-		return segmentTree;
+	public SegmentPartitionTree<ConjugationTree<LineSegment>> getSegmentTreeConj(){
+		return segmentTreeConj;
+	}
+	
+	public SegmentPartitionTree<KDTree<LineSegment>> getSegmentTreeKD(){
+		return segmentTreeKD;
 	}
 	
 	/**

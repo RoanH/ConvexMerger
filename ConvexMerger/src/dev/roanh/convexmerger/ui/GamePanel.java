@@ -61,9 +61,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private boolean showDecomp = false;
 	/**
-	 * True if the segment tree should be rendered.
+	 * True if the segment tree (conjugation) should be rendered.
 	 */
-	private boolean showSegmentTree = false;
+	private boolean showSegmentTreeConj = false;
+	/**
+	 * True if the segment tree (kd-tree) should be rendered.
+	 */
+	private boolean showSegmentTreeKD = false;
 	/**
 	 * Currently showing feedback dialog.
 	 */
@@ -260,8 +264,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
-		if(showSegmentTree){
-			state.getSegmentTree().render(g);
+		if(showSegmentTreeKD){
+			state.getSegmentTreeKD().render(g);
+		}
+		
+		if(showSegmentTreeConj){
+			state.getSegmentTreeConj().render(g);
 		}
 		
 		if(helperLines != null){
@@ -401,9 +409,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 				showDecomp = !showDecomp;
 				state.getVerticalDecomposition().setAnimated(showDecomp);
 			}else if(e.getKeyCode() == KeyEvent.VK_S){
-				showSegmentTree = !showSegmentTree;
+				showSegmentTreeConj = !showSegmentTreeConj;
+			}else if(e.getKeyCode() == KeyEvent.VK_K){
+				showSegmentTreeKD = !showSegmentTreeKD;
 			}else if(e.getKeyCode() == KeyEvent.VK_M){
-				//TODO to be completed
+				//TODO to be completed (animated)
 				Dialog.showMessageDialog("TODO");
 			}
 		}

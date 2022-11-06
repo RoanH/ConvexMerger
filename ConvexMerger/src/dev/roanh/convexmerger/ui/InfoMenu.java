@@ -54,7 +54,7 @@ public class InfoMenu extends Screen{
 	/**
 	 * Height of the shortcuts box.
 	 */
-	private static final int KEYS_HEIGHT = 204;
+	private static final int KEYS_HEIGHT = 231;
 	/**
 	 * Width of a keyboard key frame.
 	 */
@@ -151,11 +151,15 @@ public class InfoMenu extends Screen{
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "D");
-		g.drawString("Vertical Decomposition", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		g.drawString("Show Vertical Decomposition", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "S");
-		g.drawString("Segment Partition Tree", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		g.drawString("Show Segment Partition Tree (conjugation)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x, y, "Ctrl");
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "K");
+		g.drawString("Show Segment Partition Tree (kd-tree)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "M");

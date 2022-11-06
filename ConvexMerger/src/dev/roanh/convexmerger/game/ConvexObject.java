@@ -9,9 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import javax.management.RuntimeErrorException;
-
 import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
 
@@ -233,19 +232,26 @@ public class ConvexObject implements Identity, Serializable{
 		
 		//check if the new hull is valid
 		if(state != null){
-			SegmentPartitionTree<?> tree = state.getSegmentTree();
-			if(saveSegments && tree.isAnimated()){
-				tree.renderQuery(lines[0], lines[1], lines[2], lines[3]);
-//				throw new RuntimeException("trace");
-			}
+			SegmentPartitionTree<ConjugationTree<LineSegment>> treeC = state.getSegmentTreeConj();
+			SegmentPartitionTree<KDTree<LineSegment>> treeK = state.getSegmentTreeKD();
 			
-			System.out.println(Arrays.toString(lines));
-			
-			if(tree.intersects(lines[0], lines[1]) || tree.intersects(lines[2], lines[3])){
+			if(treeC.intersects(lines[0], lines[1]) || treeC.intersects(lines[2], lines[3]) || treeK.intersects(lines[0], lines[1]) || treeK.intersects(lines[2], lines[3])){
 				return null;
 			}else if(saveSegments){
-				tree.addSegment(lines[0], lines[1]);
-				tree.addSegment(lines[2], lines[3]);
+				if(treeC.isAnimated()){
+					//TODO proper animation
+					treeC.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+				}
+				
+				if(treeK.isAnimated()){
+					//TODO proper animation
+					treeK.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+				}
+				
+				treeC.addSegment(lines[0], lines[1]);
+				treeC.addSegment(lines[2], lines[3]);
+				treeK.addSegment(lines[0], lines[1]);
+				treeK.addSegment(lines[2], lines[3]);
 			}
 		}
 		
