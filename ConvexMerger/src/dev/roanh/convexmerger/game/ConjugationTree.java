@@ -166,21 +166,17 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		}
 		
 		if(!isLeafCell()){
+			left.render(g);
+			right.render(g);
+			
 			int c = Math.max(0, 255 - getDepth() * 25);
 			g.setColor(new Color(0, c, c));
 			g.setStroke(Theme.BORDER_STROKE);
 			g.draw(bisector);
 			
-			g.setColor(Color.RED);
+			g.setColor(Color.BLUE);
 			for(Point2D p : on){
-				g.fill(new Ellipse2D.Double(p.getX() - 5, p.getY() - 5, 10, 10));
-			}
-			
-			if(left != null){
-				left.render(g);
-			}
-			if(right != null){
-				right.render(g);
+				g.fill(new Ellipse2D.Double(p.getX() - 2.5D, p.getY() - 2.5D, 5.0D, 5.0D));
 			}
 		}
 	}

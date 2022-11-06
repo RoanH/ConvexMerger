@@ -197,16 +197,17 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		}
 		
 		if(!isLeafCell()){
-			g.setColor(Color.WHITE);
+			low.render(g);
+			high.render(g);
+			
+			int c = Math.max(0, 255 - getDepth() * 25);
+			g.setColor(new Color(0, c, c));
 			g.setStroke(Theme.BORDER_STROKE);
 			if(xAxis){
 				g.draw(new Line2D.Double(point.getX(), bounds.getMinY(), point.getX(), bounds.getMaxY()));
 			}else{
 				g.draw(new Line2D.Double(bounds.getMinX(), point.getY(), bounds.getMaxX(), point.getY()));
 			}
-			
-			low.render(g);
-			high.render(g);
 			
 			g.setColor(Color.BLUE);
 			g.fill(new Ellipse2D.Double(point.getX() - 2.5D, point.getY() - 2.5D, 5.0D, 5.0D));

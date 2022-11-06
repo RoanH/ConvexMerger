@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -14,6 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.ui.Theme;
 
 /**
@@ -92,6 +94,12 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 //		}
 		g.setStroke(Theme.BORDER_STROKE);
 		partitions.render(g);
+		
+		g.setColor(Color.CYAN);
+		g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
+		g.drawLine(0, 0, Constants.PLAYFIELD_WIDTH, 0);
+		g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+		g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 	}
 	
 	public void renderQuery(Point2D a, Point2D b, Point2D c, Point2D d){
