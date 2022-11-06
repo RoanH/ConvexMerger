@@ -187,17 +187,12 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 			g.fill(bounds);
 		}
 		
+		//TODO no
 		for(Object obj : getData()){
 			LineSegment s = (LineSegment)obj;
 			g.setStroke(Theme.POLY_STROKE);
 			g.setColor(s.marked ? Color.RED : Color.BLACK);
-//			if(s.marked){
-				g.draw(s);
-//				Point2D p = s.getP1();
-//				g.fill(new Ellipse2D.Double(p.getX() - 2, p.getY() - 2, 4, 4));
-//				p = s.getP2();
-//				g.fill(new Ellipse2D.Double(p.getX() - 2, p.getY() - 2, 4, 4));
-//			}
+			g.draw(s);
 		}
 		
 		if(!isLeafCell()){

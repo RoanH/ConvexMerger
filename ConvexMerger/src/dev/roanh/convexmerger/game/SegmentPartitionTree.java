@@ -1,6 +1,5 @@
 package dev.roanh.convexmerger.game;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -76,10 +75,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	private boolean intersectsInternal(LineSegment line){
 		return !partitionVisitor.visitTree(partitions, line, true, PartitionTreeVisitor.all((node, seg)->{
-//			node.setMarked(node.getDepth() == 8);
-//			for(LineSegment l : node.getData()){
-//				l.marked = node.marked;
-//			}
 			return !intersectsAny(node.getData(), line);
 		}));
 	}
@@ -89,6 +84,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	public void render(Graphics2D g){
+		//TODO remove?
 //		g.setStroke(Theme.POLY_STROKE);
 //		for(LineSegment line : segments){
 //			g.setColor(line.marked ? Color.MAGENTA : Color.BLUE);
@@ -104,31 +100,16 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		executor.submit(()->renderQuery(c, d));
 	}
 
-	
 	private void renderQuery(Point2D a, Point2D b){
-
 		LineSegment line = new LineSegment(a, b);
 		for(int i = 0; i <= partitions.getHeight(); i++){
 			System.out.println("anim: " + i);
 			final int depth = i;
-//			if(!
-				
-				partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
+			partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
 				boolean mark = depth == node.getDepth();
-				System.out.println("set: " + mark + " / " + node.getDepth());
 				node.setMarked(mark);
 				node.getData().forEach(l->l.marked = mark);
-//				return !intersectsAny(node.getData(), line);
 			}));
-				
-//				){
-//				partitions.streamCells().forEach(c->c.setMarked(false));
-//				segments.forEach(l->l.marked = false);
-//				break;
-//			}
-
-
-
 
 			try{
 				Thread.sleep(250);
@@ -137,20 +118,17 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				e.printStackTrace();
 			}
 		}
+		
 		partitions.streamCells().forEach(c->{
 			c.setMarked(false);
 			for(LineSegment l : c.getData()){
 				l.marked = false;
 			}
 		});
-//		segments.forEach(l->l.marked = false);
-
-		//TODO
 	}
 	
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
 		for(LineSegment test : lines){
-//			test.marked = true;
 			test = test.getOriginalSegment();
 			//ensure exact endpoint matches are not intersections
 			boolean p1Either = ConvexUtil.approxEqual(test.getP1(), line.getP1()) || ConvexUtil.approxEqual(test.getP1(), line.getP2());
@@ -172,7 +150,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 		
 		if(tree.isLeafCell() || (!ignoreInnerTerminals && line.p1Clipped && line.p2Clipped)){
-			//assert tree.getBounds().contains(line.getBounds2D()) : "bounds off";
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
 			if(!visitor.acceptInnerNode(tree, line)){
