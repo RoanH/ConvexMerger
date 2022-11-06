@@ -400,9 +400,6 @@ public class ConvexObject implements Identity, Serializable{
 		g.setStroke(Theme.POLY_STROKE);
 		g.setColor(Theme.getPlayerOutline(this));
 		g.draw(shape);
-		
-		Point2D c = getCentroid();
-		g.drawString(String.valueOf(getID()), (int)c.getX(), (int)c.getY());
 	}
 	
 	/**
