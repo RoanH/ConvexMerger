@@ -2086,8 +2086,7 @@ public class VerticalDecomposition implements GameStateListener {
 		 */
 		public DecompositionPoint(Point2D point){
 			this.point = point;
-			segments = new ArrayList<Line>();
-			trapezoids = new ArrayList<Trapezoid>();
+			this.segments = new ArrayList<Line>();
 		}
 		
 		@Override
