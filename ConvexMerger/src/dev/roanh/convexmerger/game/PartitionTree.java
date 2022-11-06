@@ -1,5 +1,6 @@
 package dev.roanh.convexmerger.game;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.util.ArrayList;
@@ -25,7 +26,12 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 		return data;
 	}
 	
-	public abstract void render(Graphics2D g);
+	public void render(Graphics2D g){
+		if(marked){
+			g.setColor(new Color(255, 0, 0, 50));
+			g.fill(getShape());
+		}
+	}
 	
 	/**
 	 * Checks if this tree node is a leaf cell.

@@ -14,7 +14,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.ui.Theme;
 
 /**
@@ -181,25 +180,13 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 	
 	@Override
 	public void render(Graphics2D g){
-		Rectangle2D bounds = getBounds();
-		
-		if(marked){
-			g.setColor(new Color(255, 0, 0, 50));
-			g.fill(bounds);
-		}
-		
-		//TODO no
-		for(Object obj : getData()){
-			LineSegment s = (LineSegment)obj;
-			g.setStroke(Theme.POLY_STROKE);
-			g.setColor(s.marked ? Color.RED : Color.BLACK);
-			g.draw(s);
-		}
+		super.render(g);
 		
 		if(!isLeafCell()){
 			low.render(g);
 			high.render(g);
 			
+			Rectangle2D bounds = getBounds();
 			int c = Math.max(0, 255 - getDepth() * 25);
 			g.setColor(new Color(0, c, c));
 			g.setStroke(Theme.BORDER_STROKE);

@@ -152,18 +152,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	
 	@Override
 	public void render(Graphics2D g){
-		if(marked){
-			g.setColor(new Color(255, 0, 0, 50));
-			g.fill(shape);
-		}
-		
-		//TODO no
-		for(Object obj : getData()){
-			LineSegment s = (LineSegment)obj;
-			g.setStroke(Theme.POLY_STROKE);
-			g.setColor(s.marked ? Color.RED : Color.BLACK);
-			g.draw(s);
-		}
+		super.render(g);
 		
 		if(!isLeafCell()){
 			left.render(g);

@@ -410,8 +410,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 				state.getVerticalDecomposition().setAnimated(showDecomp);
 			}else if(e.getKeyCode() == KeyEvent.VK_S){
 				showSegmentTreeConj = !showSegmentTreeConj;
+				state.getSegmentTreeConj().setAnimated(showSegmentTreeConj);
 			}else if(e.getKeyCode() == KeyEvent.VK_K){
 				showSegmentTreeKD = !showSegmentTreeKD;
+				state.getSegmentTreeKD().setAnimated(showSegmentTreeKD);
 			}else if(e.getKeyCode() == KeyEvent.VK_M){
 				//TODO to be completed (animated)
 				Dialog.showMessageDialog("TODO");

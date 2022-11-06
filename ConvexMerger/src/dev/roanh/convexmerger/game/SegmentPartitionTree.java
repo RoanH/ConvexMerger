@@ -30,10 +30,9 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 
 	private final T partitions;
 	private final VisitingFunction<T> partitionVisitor;
-	@Deprecated
 	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	
-	private boolean animated = true;//TODO false
+	private boolean animated = false;
 	
 	/**
 	 * Constructs a new segment partition tree with the given
@@ -54,6 +53,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return animated;
 	}
 	
+	public void setAnimated(boolean animated){
+		this.animated = animated;
+	}
+	
 	public void addSegment(Point2D p1, Point2D p2){
 		addSegmentInternal(new LineSegment(p1, p2));
 	}
@@ -63,8 +66,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	private void addSegmentInternal(LineSegment line){
-		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal(T::addData));
-		segments.add(line);
+		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal((node, seg)->{
+			node.addData(seg);
+			segments.add(seg);
+		}));
 	}
 	
 	public boolean intersects(Point2D p1, Point2D p2){
@@ -86,16 +91,17 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	public void render(Graphics2D g){
-		//TODO remove?
-//		g.setStroke(Theme.POLY_STROKE);
-//		for(LineSegment line : segments){
-//			g.setColor(line.marked ? Color.MAGENTA : Color.BLUE);
-//			g.draw(line);
-//		}
+		g.setStroke(Theme.POLY_STROKE);
+		for(LineSegment seg : segments){
+			g.setColor(seg.marked ? Color.RED : Color.BLACK);
+			g.draw(seg);
+		}
+		
 		g.setStroke(Theme.BORDER_STROKE);
 		partitions.render(g);
 		
 		g.setColor(Color.CYAN);
+		g.setStroke(Theme.BORDER_STROKE);
 		g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
 		g.drawLine(0, 0, Constants.PLAYFIELD_WIDTH, 0);
 		g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
