@@ -65,15 +65,15 @@ public class Main{
 				
 				System.out.println("===");
 				SegmentPartitionTree<?> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
-					new PlayfieldGenerator("3Y64YQ00FZCAU04RTVFN").generatePlayfield()
+					new PlayfieldGenerator("3Y64YQ01U353FSBUFKRA").generatePlayfield()
 				);
-				stree.intersects(new Line2D.Double(816.1023556884412D, 693.7616905532058D, 1105.7172609057357D, 768.9144205150844D));
+				stree.intersects(new Line2D.Double(555.1689979160483, 245.19403134949087, 166.45977223596157, 209.23237782781638));
 				
 				g.translate(200, 50);
 				stree.render(g);
 				
 				g.setColor(Color.RED);
-				g.draw(new Line2D.Double(816.1023556884412D, 693.7616905532058D, 1105.7172609057357D, 768.9144205150844D));
+				g.draw(new Line2D.Double(555.1689979160483, 245.19403134949087, 166.45977223596157, 209.23237782781638));
 				
 				g.setColor(Color.MAGENTA);
 				g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);

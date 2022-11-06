@@ -76,7 +76,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	private boolean intersectsInternal(LineSegment line){
 		return !partitionVisitor.visitTree(partitions, line, true, PartitionTreeVisitor.all((node, seg)->{
-//			node.setMarked(node.getDepth() == 7);
+//			node.setMarked(node.getDepth() == 8);
 //			for(LineSegment l : node.getData()){
 //				l.marked = node.marked;
 //			}
@@ -141,6 +141,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
 		for(LineSegment test : lines){
+//			test.marked = true;
+			test = test.getOriginalSegment();
 			//ensure exact endpoint matches are not intersections
 			boolean p1Either = ConvexUtil.approxEqual(test.getP1(), line.getP1()) || ConvexUtil.approxEqual(test.getP1(), line.getP2());
 			if(p1Either || ConvexUtil.approxEqual(test.getP2(), line.getP1()) || ConvexUtil.approxEqual(test.getP2(), line.getP2())){
@@ -189,8 +191,21 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
 			Line2D bisector = tree.getBisector();
+			
 			if(ConvexUtil.overlapsLine(line, bisector)){
-				return visitor.acceptTerminalNode(tree, line);
+				if(!ignoreInnnerTerminals){
+					return visitor.acceptTerminalNode(tree, line);
+				}else{
+					if(!visitor.acceptInnerNode(tree, line)){
+						return false;
+					}
+					
+					if(visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor)){
+						return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor);
+					}else{
+						return false;
+					}
+				}
 			}
 			
 			if(!visitor.acceptInnerNode(tree, line)){
@@ -311,6 +326,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 * Second end point of the line.
 		 */
 		private Point2D p2;
+		private LineSegment original = null;
 		private boolean p1Clipped = false;
 		private boolean p2Clipped = false;
 		public boolean marked = false;
@@ -359,6 +375,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				LineSegment line = new LineSegment(p1, p2);
 				line.p1Clipped = p1Clipped | (p1 != this.p1);
 				line.p2Clipped = p2Clipped | (p2 != this.p2);
+				line.original = getOriginalSegment();
 				return line;
 			}
 		}
@@ -405,29 +422,24 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			boolean leftFurthest = intersected.ptLineDistSq(p1) > intersected.ptLineDistSq(p2);
 			boolean ccwCorrect = intersected.relativeCCW(leftFurthest ? p1 : p2) == ccw;
 			
-			
-			LineSegment ret;
-			
 			//use p1 only if it is furthest and on the correct side or closest but p2 is on the wrong side
 			if(leftFurthest ^ ccwCorrect){
 				LineSegment line = new LineSegment(intersection, p2);
 				line.p1Clipped = true;
 				line.p2Clipped = p2Clipped;
-				ret = line;
+				line.original = getOriginalSegment();
+				return line;
 			}else{
 				LineSegment line = new LineSegment(p1, intersection);
 				line.p2Clipped = true;
 				line.p1Clipped = p1Clipped;
-				ret = line;
+				line.original = getOriginalSegment();
+				return line;
 			}
-			
-			if(intersected.ptLineDist(p1) == 0 && intersected.ptLineDist(p2) == 0){
-//				System.out.println("on line " + leftFurthest + " ccw: " + intersected.relativeCCW(leftFurthest ? p1 : p2));
-				ret.marked = true;
-//				System.out.println(this + " to " + ret + " inter: " + intersected.getP1() + "," + intersected.getP2());
-			}
-			
-			return ret;
+		}
+		
+		private LineSegment getOriginalSegment(){
+			return original == null ? this : original;
 		}
 
 		@Override
