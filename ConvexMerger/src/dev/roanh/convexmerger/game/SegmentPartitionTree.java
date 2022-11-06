@@ -21,17 +21,38 @@ import dev.roanh.convexmerger.ui.Theme;
 /**
  * Segment partition tree for efficient detection
  * of line intersections with the stored line set.
+ * Inspired by a paper by Mark Overmars et al.
  * @author Roan
  * @param <T> The partition tree type
+ * @see <a href="https://doi.org/10.1007/BF01931656">Overmars, M.H., Schipper, H. and Sharir, M.,
+ *      "Storing line segments in partition trees" in BIT Numerical Mathematics, vol. 30, 1990, pp. 385–403</a>
  */
 public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>>{
+	/**
+	 * Constructor for kd-tree based segment partition trees.
+	 * @see KDTree
+	 */
 	public static final SegmentPartitionTreeConstructor<KDTree<LineSegment>> TYPE_KD_TREE = new SegmentPartitionTreeConstructor<KDTree<LineSegment>>(KDTree::new, SegmentPartitionTree::visitKDTree);
+	/**
+	 * Constructor for conjugation tree based segment partition trees.
+	 * @see ConjugationTree
+	 */
 	public static final SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>> TYPE_CONJUGATION_TREE = new SegmentPartitionTreeConstructor<ConjugationTree<LineSegment>>(ConjugationTree::new, SegmentPartitionTree::visitConjugationTree);
-
+	/**
+	 * The partition tree used for store points for this segment partition tree.
+	 */
 	private final T partitions;
+	/**
+	 * A search function that can be used to traverse the used partition tree.
+	 */
 	private final VisitingFunction<T> partitionVisitor;
+	/**
+	 * The segments stored in this segment partition tree.
+	 */
 	private final List<LineSegment> segments = new ArrayList<LineSegment>();
-	
+	/**
+	 * Whether this segment partition tree is animated.
+	 */
 	private boolean animated = false;
 	
 	/**
@@ -49,22 +70,43 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		this.partitionVisitor = partitionVisitor;
 	}
 	
+	/**
+	 * Checks if this segment partition tree is animated.
+	 * @return True if this segment partition tree is animated.
+	 */
 	public boolean isAnimated(){
 		return animated;
 	}
 	
+	/**
+	 * Sets whether this segment partition tree is animated.
+	 * @param animated True if show animations for this tree.
+	 */
 	public void setAnimated(boolean animated){
 		this.animated = animated;
 	}
 	
+	/**
+	 * Adds a new line segment to this segment partition tree.
+	 * @param p1 The first point of the line segment to add.
+	 * @param p2 The second point of the line segment to add.
+	 */
 	public void addSegment(Point2D p1, Point2D p2){
 		addSegmentInternal(new LineSegment(p1, p2));
 	}
 	
+	/**
+	 * Adds a new line segment to this segment partition tree.
+	 * @param line The line segment to add.
+	 */
 	public void addSegment(Line2D line){
 		addSegmentInternal(new LineSegment(line));
 	}
 	
+	/**
+	 * Adds a new line segment to this segment partition tree.
+	 * @param line The line segment to add.
+	 */
 	private void addSegmentInternal(LineSegment line){
 		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal((node, seg)->{
 			node.addData(seg);
@@ -72,24 +114,51 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}));
 	}
 	
+	/**
+	 * Checks if the line segment defined by the given points
+	 * intersects any of the segments stored in this tree.
+	 * @param p1 The first point of the line segment to check.
+	 * @param p2 The second point of the line segment to check.
+	 * @return True if the given line segment intersects a stored segment.
+	 */
 	public boolean intersects(Point2D p1, Point2D p2){
 		return intersectsInternal(new LineSegment(p1, p2));
 	}
 	
+	/**
+	 * Checks if the line segment defined by the given points
+	 * intersects any of the segments stored in this tree.
+	 * @param line The line segment to check.
+	 * @return True if the given line segment intersects a stored segment.
+	 */
 	public boolean intersects(Line2D line){
 		return intersectsInternal(new LineSegment(line));
 	}
 	
+	/**
+	 * Checks if the line segment defined by the given points
+	 * intersects any of the segments stored in this tree.
+	 * @param line The line segment to check.
+	 * @return True if the given line segment intersects a stored segment.
+	 */
 	private boolean intersectsInternal(LineSegment line){
 		return !partitionVisitor.visitTree(partitions, line, true, PartitionTreeVisitor.all((node, seg)->{
 			return !intersectsAny(node.getData(), line);
 		}));
 	}
 	
+	/**
+	 * Returns a stream over all the nodes of the underlying partition tree.
+	 * @return A stream over all partition tree nodes.
+	 */
 	public Stream<T> streamCells(){
 		return partitions.streamCells();
 	}
 	
+	/**
+	 * Renders this segment partition tree.
+	 * @param g The graphics context to use.
+	 */
 	public void render(Graphics2D g){
 		g.setStroke(Theme.POLY_STROKE);
 		for(LineSegment seg : segments){
@@ -108,16 +177,29 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 	}
 	
+	//TODO temporary animation
+	/**
+	 * Animates two searches for intersections with the given line segments.
+	 * @param a The first point of the first line segment.
+	 * @param b The second point of the first line segment.
+	 * @param c The first point of the second line segment.
+	 * @param d The second point of the second line segment.
+	 */
 	public void renderQuery(Point2D a, Point2D b, Point2D c, Point2D d){
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.submit(()->renderQuery(a, b));
 		executor.submit(()->renderQuery(c, d));
 	}
 
+	//TODO temporary animation
+	/**
+	 * Animates a search for intersections with the given line segment.
+	 * @param a The first point of the line segment.
+	 * @param b The second point of the line segment.
+	 */
 	private void renderQuery(Point2D a, Point2D b){
 		LineSegment line = new LineSegment(a, b);
 		for(int i = 0; i <= partitions.getHeight(); i++){
-			System.out.println("anim: " + i);
 			final int depth = i;
 			partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
 				boolean mark = depth == node.getDepth();
@@ -128,8 +210,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			try{
 				Thread.sleep(250);
 			}catch(InterruptedException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 		
@@ -141,6 +221,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		});
 	}
 	
+	/**
+	 * Checks if the given line segment intersects any of the line segments
+	 * in the given set of line segments. Overlapping end points are not
+	 * reported as intersections.
+	 * @param lines The set of lines to check for intersection with.
+	 * @param line The line to check for whether it intersects any of
+	 *        the lines in the given set of lines.
+	 * @return True if an intersection was found with a line segment.
+	 */
 	private static final boolean intersectsAny(List<LineSegment> lines, LineSegment line){
 		for(LineSegment test : lines){
 			test = test.getOriginalSegment();
@@ -158,6 +247,17 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return false;
 	}
 	
+	/**
+	 * Visitor function for kd-tree traversal.
+	 * @param tree The kd-tree to traverse.
+	 * @param line The query line.
+	 * @param maxDepth The maximum search depth.
+	 * @param ignoreInnerTerminals Whether to ignore inner terminals or not.
+	 * @param visitor The visitor to report nodes to.
+	 * @return True if the search concluded uninterrupted.
+	 * @see VisitingFunction
+	 * @see PartitionTreeVisitor
+	 */
 	private static final boolean visitKDTree(KDTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnerTerminals, PartitionTreeVisitor<KDTree<LineSegment>> visitor){
 		if(maxDepth < 0 || line == null || ConvexUtil.approxEqual(line.getP1(), line.getP2())){
 			return true;
@@ -182,26 +282,37 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 	}
 	
-	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnnerTerminals, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
+	/**
+	 * Visitor function for conjugation tree traversal.
+	 * @param tree The conjugation tree to traverse.
+	 * @param line The query line.
+	 * @param maxDepth The maximum search depth.
+	 * @param ignoreInnerTerminals Whether to ignore inner terminals or not.
+	 * @param visitor The visitor to report nodes to.
+	 * @return True if the search concluded uninterrupted.
+	 * @see VisitingFunction
+	 * @see PartitionTreeVisitor
+	 */
+	private static final boolean visitConjugationTree(ConjugationTree<LineSegment> tree, LineSegment line, int maxDepth, boolean ignoreInnerTerminals, PartitionTreeVisitor<ConjugationTree<LineSegment>> visitor){
 		if(maxDepth < 0 || ConvexUtil.approxEqual(line.getP1(), line.getP2())){
 			return true;
 		}
 		
-		if(tree.isLeafCell() || (!ignoreInnnerTerminals && line.p1Clipped && line.p2Clipped)){
+		if(tree.isLeafCell() || (!ignoreInnerTerminals && line.p1Clipped && line.p2Clipped)){
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
 			Line2D bisector = tree.getBisector();
 			
 			if(ConvexUtil.overlapsLine(line, bisector)){
-				if(!ignoreInnnerTerminals){
+				if(!ignoreInnerTerminals){
 					return visitor.acceptTerminalNode(tree, line);
 				}else{
 					if(!visitor.acceptInnerNode(tree, line)){
 						return false;
 					}
 					
-					if(visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor)){
-						return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor);
+					if(visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, ignoreInnerTerminals, visitor)){
+						return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, ignoreInnerTerminals, visitor);
 					}else{
 						return false;
 					}
@@ -216,13 +327,13 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			
 			if(intercept == null){
 				if(bisector.relativeCCW(line.getP1()) == -1){
-					return visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor);
+					return visitConjugationTree(tree.getLeftChild(), line, maxDepth - 1, ignoreInnerTerminals, visitor);
 				}else{
-					return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, ignoreInnnerTerminals, visitor);
+					return visitConjugationTree(tree.getRightChild(), line, maxDepth - 1, ignoreInnerTerminals, visitor);
 				}
 			}else{
-				if(visitConjugationTree(tree.getLeftChild(), line.deriveLine(-1, bisector, intercept), maxDepth - 1, ignoreInnnerTerminals, visitor)){
-					return visitConjugationTree(tree.getRightChild(), line.deriveLine(1, bisector, intercept), maxDepth - 1, ignoreInnnerTerminals, visitor);
+				if(visitConjugationTree(tree.getLeftChild(), line.deriveLine(-1, bisector, intercept), maxDepth - 1, ignoreInnerTerminals, visitor)){
+					return visitConjugationTree(tree.getRightChild(), line.deriveLine(1, bisector, intercept), maxDepth - 1, ignoreInnerTerminals, visitor);
 				}else{
 					return false;
 				}
@@ -230,22 +341,87 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 	}
 	
+	/**
+	 * Interface for a function that can be used to search a partition tree.
+	 * @author Roan
+	 * @param <T> The partition tree type.
+	 */
 	@FunctionalInterface
 	private static abstract interface VisitingFunction<T extends PartitionTree<LineSegment, T>>{
 		
-		public abstract boolean visitTree(T tree, LineSegment line, int maxDepth, boolean ignoreInnnerTerminals, PartitionTreeVisitor<T> visitor);
+		/**
+		 * Visitor function for partition tree traversal. This function will search a partition tree
+		 * with a given query line and report any traversed inner and terminal nodes. Two nodes are
+		 * treated as terminal nodes: leaf cells and cells fully intersected by the query line.
+		 * @param tree The partition tree to traverse.
+		 * @param line The query line to search with.
+		 * @param maxDepth The maximum search depth in the tree.
+		 * @param ignoreInnerTerminals Whether to ignore inner terminals or not. When ignored the
+		 *        search treats inner terminals as regular inner nodes and the search continues to
+		 *        the child nodes of these inner terminal nodes.
+		 * @param visitor The visitor to report traversed terminal and inner nodes to.
+		 * @return True if the search concluded uninterrupted.
+		 * @see VisitingFunction
+		 * @see PartitionTreeVisitor
+		 * @see #visitTree(PartitionTree, LineSegment, boolean, PartitionTreeVisitor)
+		 */
+		public abstract boolean visitTree(T tree, LineSegment line, int maxDepth, boolean ignoreInnerTerminals, PartitionTreeVisitor<T> visitor);
 		
-		public default boolean visitTree(T tree, LineSegment line, boolean ignoreInnnerTerminals, PartitionTreeVisitor<T> visitor){
-			return visitTree(tree, line, Integer.MAX_VALUE, ignoreInnnerTerminals, visitor);
+		/**
+		 * Visitor function for partition tree traversal. This function will search a partition tree
+		 * with a given query line and report any traversed inner and terminal nodes. Two nodes are
+		 * treated as terminal nodes: leaf cells and cells fully intersected by the query line.
+		 * @param tree The partition tree to traverse.
+		 * @param line The query line to search with.
+		 * @param ignoreInnerTerminals Whether to ignore inner terminals or not. When ignored the
+		 *        search treats inner terminals as regular inner nodes and the search continues to
+		 *        the child nodes of these inner terminal nodes.
+		 * @param visitor The visitor to report traversed terminal and inner nodes to.
+		 * @return True if the search concluded uninterrupted.
+		 * @see VisitingFunction
+		 * @see PartitionTreeVisitor
+		 * @see #visitTree(PartitionTree, LineSegment, int, boolean, PartitionTreeVisitor)
+		 */
+		public default boolean visitTree(T tree, LineSegment line, boolean ignoreInnerTerminals, PartitionTreeVisitor<T> visitor){
+			return visitTree(tree, line, Integer.MAX_VALUE, ignoreInnerTerminals, visitor);
 		}
 	}
 	
+	/**
+	 * Interface for a function that nodes visited in a partition tree search are reported to.
+	 * @author Roan
+	 * @param <T> The partition tree type.
+	 * @see VisitingFunction
+	 */
 	private static abstract interface PartitionTreeVisitor<T extends PartitionTree<LineSegment, T>>{
 		
+		/**
+		 * Called when a partition tree search finds a terminal node.
+		 * @param node The found terminal node.
+		 * @param segment The segment of the query line within the terminal node.
+		 * @return False to interrupt the search and return, true to continue
+		 *         the search of the partition tree.
+		 * @see VisitingFunction
+		 */
 		public abstract boolean acceptTerminalNode(T node, LineSegment segment);
 		
+		/**
+		 * Called when a partition tree visits a new inner tree node.
+		 * @param node The visited inner node.
+		 * @param segment The segment of the query line within the node.
+		 * @return False to interrupt the search and return, true to continue
+		 *         the search of the partition tree.
+		 * @see VisitingFunction
+		 */
 		public abstract boolean acceptInnerNode(T node, LineSegment segment);
 		
+		/**
+		 * Constructs a special partition tree visitor that only receives terminal nodes.
+		 * @param <T> The partition tree type.
+		 * @param consumer The consumer to give found terminal nodes to.
+		 * @return A partition tree visitor reporting only terminal nodes.
+		 * @see VisitingFunction
+		 */
 		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> terminal(BiConsumer<T, LineSegment> consumer){
 			return new PartitionTreeVisitor<T>(){
 				
@@ -262,6 +438,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			};
 		}
 		
+		/**
+		 * Constructs a special partition tree visitor that does not distinguish
+		 * between inner and terminal nodes and reports both.
+		 * @param <T> The partition tree type.
+		 * @param fun The function to report found inner and terminal nodes to.
+		 *        This function can return false to end the search early.
+		 * @return A partition tree visitor reporting both inner and terminal nodes.
+		 * @see VisitingFunction
+		 */
 		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> all(BiFunction<T, LineSegment, Boolean> fun){
 			return new PartitionTreeVisitor<T>(){
 				
@@ -277,6 +462,14 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			};
 		}
 		
+		/**
+		 * Constructs a special partition tree visitor that does not distinguish
+		 * between inner and terminal nodes and reports both.
+		 * @param <T> The partition tree type.
+		 * @param consumer The consumer to give found inner and terminal nodes to.
+		 * @return A partition tree visitor reporting both inner and terminal nodes.
+		 * @see VisitingFunction
+		 */
 		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> all(BiConsumer<T, LineSegment> consumer){
 			return all((node, seg)->{
 				consumer.accept(node, seg);
