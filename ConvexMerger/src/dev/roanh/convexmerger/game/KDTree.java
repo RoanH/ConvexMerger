@@ -64,6 +64,14 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		this(null, points, true);
 	}
 	
+	/**
+	 * Constructs a new child kd-tree node with the given parent
+	 * node, point set to build a sub tree with and axis to split on.
+	 * @param parent The parent node of this kd-tree node.
+	 * @param points The points to build a kd-subtree from.
+	 * @param xAxis True if this cell should be split based on the
+	 *        X coordinate of points, false to split on the Y coordinate.
+	 */
 	private KDTree(KDTree<T> parent, List<Point2D> points, boolean xAxis){
 		this.parent = parent;
 		this.xAxis = xAxis;
@@ -85,22 +93,46 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		}
 	}
 	
+	/**
+	 * Gets the point defining the line dividing this kd-tree
+	 * node into two child nodes.
+	 * @return The point dividing this tree node.
+	 */
 	public Point2D getPoint(){
 		return point;
 	}
 	
+	/**
+	 * Gets the child node containing the low value
+	 * points stored in the children of this node.
+	 * @return The low value child node.
+	 */
 	public KDTree<T> getLowNode(){
 		return low;
 	}
 	
+	/**
+	 * Gets the child node containing the high value
+	 * points stored in the children of this node.
+	 * @return The high value child node.
+	 */
 	public KDTree<T> getHighNode(){
 		return high;
 	}
 
+	/**
+	 * Checks if the given line intersects this kd-tree node.
+	 * @param line The line to check for intersection.
+	 * @return True if the given line intersects this kd-tree node.
+	 */
 	public boolean intersects(Line2D line){
 		return getBounds().intersectsLine(line);
 	}
 	
+	/**
+	 * Gets the bounding rectangle of this kd-tree node.
+	 * @return The bounding rectangle of this kd-tree node.
+	 */
 	public Rectangle2D getBounds(){
 		if(bounds == null){
 			if(parent == null){
