@@ -2,6 +2,7 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -182,6 +183,11 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				right.render(g);
 			}
 		}
+	}
+	
+	@Override
+	public Shape getShape(){
+		return shape;
 	}
 	
 	@Override

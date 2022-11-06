@@ -2,6 +2,7 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -210,6 +211,11 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 			g.setColor(Color.BLUE);
 			g.fill(new Ellipse2D.Double(point.getX() - 2.5D, point.getY() - 2.5D, 5.0D, 5.0D));
 		}
+	}
+	
+	@Override
+	public Shape getShape(){
+		return getBounds();
 	}
 	
 	@Override
