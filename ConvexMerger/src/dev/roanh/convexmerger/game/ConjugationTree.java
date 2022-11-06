@@ -2,7 +2,6 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -14,7 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.ui.Theme;
 
 public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private ConjugationTree<T> parent;
@@ -127,83 +125,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		shape.closePath();
 	}
 	
-	@Override
-	public void render(Graphics2D g){
-//		if(getDepth() == 4){
-////			g.setColor(new Color(
-////				(int)(hull.get(0).getX() * 255 / 1600),
-////				(int)(hull.get(0).getY() * 255 / 900),
-////				(int)(hull.get(1).getX() * 255 / 1600),
-////				100
-////			));
-////			g.setColor(new Color(ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), ThreadLocalRandom.current().nextInt(255), 50));
-//			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
-//			g.fill(shape);
-//		}
-		
-		if(marked){
-			g.setColor(new Color(255, 0, 0, 50));
-			g.fill(shape);
-			g.setColor(Color.MAGENTA);
-			g.setStroke(Theme.POLY_STROKE);
-			for(Object obj : getData()){
-				g.draw((Shape)obj);
-			}
-			g.setStroke(Theme.BORDER_STROKE);
-		}
-		
-		if(isLeafCell()){
-			return;
-		}
-		
-		int c = Math.max(0, 255 - getDepth() * 25);
-		g.setColor(new Color(0, c, c));
-		g.draw(bisector);
-		
-		g.setColor(Color.RED);
-		for(Point2D p : on){
-			g.fill(new Ellipse2D.Double(p.getX() - 5, p.getY() - 5, 10, 10));
-		}
-		
-		if(left != null){
-			left.render(g);
-		}
-		if(right != null){
-			right.render(g);
-		}
-	}
-	
-	//given node + ancestors
-	private static Line2D clipLine(ConjugationTree<?> node, Line2D line, Point2D on){
-		while(node != null){
-			Point2D intercept = ConvexUtil.interceptClosed(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
-			if(intercept != null){
-				int onCCW = node.bisector.relativeCCW(on);
-				if(onCCW == node.bisector.relativeCCW(line.getP1())){
-					line = new Line2D.Double(line.getP1(), intercept);
-				}else{//p2
-					line = new Line2D.Double(intercept, line.getP2());
-				}
-			}
-			
-			node = node.parent;
-		}
-		return line;
-	}
-	
-	//extend to structure bounds
-	private static Line2D extendLine(Line2D line){
-		if(line.getX1() == line.getX2()){
-			return new Line2D.Double(line.getX1(), 0.0D, line.getX2(), Constants.PLAYFIELD_HEIGHT);
-		}else{
-			double coef = (line.getY2() - line.getY1()) / (line.getX2() - line.getX1());
-			double base = line.getY1() - line.getX1() * coef;
-			double max = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, (Constants.PLAYFIELD_HEIGHT - base) / coef);
-			double min = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, -base / coef);
-			return new Line2D.Double(min, base + coef * min, max, base + coef * max);
-		}
-	}
-	
 	//on points
 	public List<Point2D> getPoints(){
 		return on;
@@ -227,6 +148,32 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	}
 	
 	@Override
+	public void render(Graphics2D g){
+		if(marked){
+			g.setColor(new Color(255, 0, 0, 50));
+			g.fill(shape);
+		}
+		
+		if(!isLeafCell()){
+			int c = Math.max(0, 255 - getDepth() * 25);
+			g.setColor(new Color(0, c, c));
+			g.draw(bisector);
+			
+			g.setColor(Color.RED);
+			for(Point2D p : on){
+				g.fill(new Ellipse2D.Double(p.getX() - 5, p.getY() - 5, 10, 10));
+			}
+			
+			if(left != null){
+				left.render(g);
+			}
+			if(right != null){
+				right.render(g);
+			}
+		}
+	}
+	
+	@Override
 	public ConjugationTree<T> getParent(){
 		return parent;
 	}
@@ -240,7 +187,38 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	public List<ConjugationTree<T>> getChildren(){
 		return isLeafCell() ? Collections.emptyList() : Arrays.asList(left, right);
 	}
-	
+
+	//given node + ancestors
+	private static Line2D clipLine(ConjugationTree<?> node, Line2D line, Point2D on){
+		while(node != null){
+			Point2D intercept = ConvexUtil.interceptClosed(line.getP1(), line.getP2(), node.bisector.getP1(), node.bisector.getP2());
+			if(intercept != null){
+				int onCCW = node.bisector.relativeCCW(on);
+				if(onCCW == node.bisector.relativeCCW(line.getP1())){
+					line = new Line2D.Double(line.getP1(), intercept);
+				}else{//p2
+					line = new Line2D.Double(intercept, line.getP2());
+				}
+			}
+
+			node = node.parent;
+		}
+		return line;
+	}
+
+	//extend to structure bounds
+	private static Line2D extendLine(Line2D line){
+		if(line.getX1() == line.getX2()){
+			return new Line2D.Double(line.getX1(), 0.0D, line.getX2(), Constants.PLAYFIELD_HEIGHT);
+		}else{
+			double coef = (line.getY2() - line.getY1()) / (line.getX2() - line.getX1());
+			double base = line.getY1() - line.getX1() * coef;
+			double max = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, (Constants.PLAYFIELD_HEIGHT - base) / coef);
+			double min = ConvexUtil.clamp(0.0D, Constants.PLAYFIELD_WIDTH, -base / coef);
+			return new Line2D.Double(min, base + coef * min, max, base + coef * max);
+		}
+	}
+
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
 		//TODO this is a naive temporary solution, @emu have fun
 		

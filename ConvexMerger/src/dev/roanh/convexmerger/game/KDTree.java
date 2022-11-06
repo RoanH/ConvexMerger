@@ -2,7 +2,6 @@ package dev.roanh.convexmerger.game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -14,7 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.ui.Theme;
 
 /**
@@ -91,16 +89,6 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 		return point;
 	}
 	
-	@Override
-	public boolean isLeafCell(){
-		return point == null;
-	}
-	
-	@Override
-	public List<KDTree<T>> getChildren(){
-		return isLeafCell() ? Collections.emptyList() : Arrays.asList(low, high);
-	}
-	
 	public KDTree<T> getLowNode(){
 		return low;
 	}
@@ -111,38 +99,6 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 
 	public boolean intersects(Line2D line){
 		return getBounds().intersectsLine(line);
-	}
-	
-	@Deprecated
-	public boolean contains(Line2D line){
-		Rectangle2D bounds = getBounds();
-		int pos1 = bounds.outcode(line.getP1());
-		int pos2 = bounds.outcode(line.getP2());
-		
-		//delegate when no boundary points are involved
-		if(pos1 != 0 && pos2 != 0){
-			return bounds.intersectsLine(line);
-		}
-		
-		//for a non degenerate line an intersection exists if both points are internal
-		if(pos1 == 0 && pos2 == 0){
-			return true;
-		}
-		
-		//make p1 internal
-		Point2D p1 = line.getP1();
-		if(pos1 != 0){
-			pos2 = pos1;
-			pos1 = 0;
-			p1 = line.getP2();
-		}
-		
-		//check for lines moving away from each boundary
-		//note: lower bounds are inherited and thus more accurate, exact even unless collinearity is involved
-		return (p1.getX() - bounds.getMinX() > 0.0000001D || (pos2 & Rectangle2D.OUT_LEFT) == 0) 
-		    && (bounds.getMaxX() - p1.getX() > 0.0000006D || (pos2 & Rectangle2D.OUT_RIGHT) == 0)
-		    && (p1.getY() - bounds.getMinY() > 0.0000001D || (pos2 & Rectangle2D.OUT_TOP) == 0)
-		    && (bounds.getMaxY() - p1.getY() > 0.0000006D || (pos2 & Rectangle2D.OUT_BOTTOM) == 0);
 	}
 	
 	public Rectangle2D getBounds(){
@@ -190,27 +146,15 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 	}
 	
 	@Override
-	public KDTree<T> getParent(){
-		return parent;
-	}
-	
-	@Override
 	public void render(Graphics2D g){
 		Rectangle2D bounds = getBounds();
 		
-		if(isLeafCell()){
-			//TODO won't work for inner node storage
-//			g.setColor(data.isEmpty() ? new Color(0, 255, 255, 50) : new Color(255, 0, 0, 50));
-//			g.fill(bounds);
-//			
-//			g.setColor(Color.WHITE);
-//			String num = String.valueOf(data.size());
-//			g.drawString(
-//				num,
-//				(float)(bounds.getMinX() + (bounds.getWidth() - g.getFontMetrics().stringWidth(num)) / 2.0F),
-//				(float)(bounds.getMinY() + (bounds.getHeight() + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2.0F)
-//			);
-		}else{
+		if(marked){
+			g.setColor(new Color(255, 0, 0, 50));
+			g.fill(bounds);
+		}
+		
+		if(!isLeafCell()){
 			g.setColor(Color.WHITE);
 			g.setStroke(Theme.BORDER_STROKE);
 			if(xAxis){
@@ -225,41 +169,20 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 			g.setColor(Color.BLUE);
 			g.fill(new Ellipse2D.Double(point.getX() - 2.5D, point.getY() - 2.5D, 5.0D, 5.0D));
 		}
-		
-		if(marked){
-			System.out.println("m");
-			g.setColor(new Color(255, 0, 0, 50));
-			g.fill(bounds);
-			g.setColor(Color.MAGENTA);
-			g.setStroke(Theme.POLY_STROKE);
-			for(Object obj : getData()){
-				g.draw((Shape)obj);
-			}
-		}
-		
-//		if(getDepth() == 7){
-//			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
-//			if(marked){
-//				g.setColor(new Color(0, 0, 255, 50));
-//			}
-//			g.fill(bounds);
-////			g.setColor(getData().size() == 3 ? Color.RED : Color.CYAN);
-//			
-//			
-//			g.setStroke(Theme.POLY_STROKE);
-//			for(Object obj : getData()){
-////				System.out.println(obj);
-//				
-////				if(((LineSegment)obj).flag){
-////					g.setColor(Color.RED);
-////				}else{
-////					g.setColor(Color.CYAN);
-////				}
-//				
-//				g.draw((Shape)obj);
-//			}
-//			
-//			
-//		}
+	}
+	
+	@Override
+	public boolean isLeafCell(){
+		return point == null;
+	}
+	
+	@Override
+	public List<KDTree<T>> getChildren(){
+		return isLeafCell() ? Collections.emptyList() : Arrays.asList(low, high);
+	}
+	
+	@Override
+	public KDTree<T> getParent(){
+		return parent;
 	}
 }
