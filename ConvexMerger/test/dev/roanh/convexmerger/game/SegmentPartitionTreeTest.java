@@ -88,6 +88,14 @@ public class SegmentPartitionTreeTest{
 	}
 	
 	@Test
+	public void edgeCaseSeed3KD(){
+		SegmentPartitionTree<KDTree<LineSegment>> tree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(
+			new PlayfieldGenerator("3Y64YQ00FZCAU04RTVFN").generatePlayfield()
+		);
+		assertTrue(tree.intersects(new Line2D.Double(816.1023556884412D, 693.7616905532058D, 1105.7172609057357D, 768.9144205150844D)));
+	}
+	
+	@Test
 	public void intersectTestConj(){
 		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromPoints(testPoints);
 		tree.addSegment(testPoints.get(0), testPoints.get(5));
