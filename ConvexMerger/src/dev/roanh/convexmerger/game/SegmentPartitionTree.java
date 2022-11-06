@@ -478,16 +478,40 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 	}
 	
+	/**
+	 * A class that can create new instances of a segment partition tree
+	 * based on a specific partition tree type.
+	 * @author Roan
+	 * @param <T> The partition tree type.
+	 */
 	public static final class SegmentPartitionTreeConstructor<T extends PartitionTree<LineSegment, T>>{
+		/**
+		 * The partition tree constructor.
+		 */
 		private Function<List<Point2D>, T> ctor;
+		/**
+		 * A function that can traverse the partition tree type.
+		 */
 		private VisitingFunction<T> visitFun;
 		
+		/**
+		 * Constructs a new segment partition tree constructor.
+		 * @param ctor The partition tree constructor.
+		 * @param visitFun The partition tree visiting function.
+		 * @see VisitingFunction
+		 * @see PartitionTree
+		 */
 		private SegmentPartitionTreeConstructor(Function<List<Point2D>, T> ctor, VisitingFunction<T> visitFun){
 			this.ctor = ctor;
 			this.visitFun = visitFun;
 		}
 		
-		//no overlap
+		/**
+		 * Constructs a new segment partition tree from the line segments making up
+		 * the given set of convex objects. The objects are assumed to not have any overlap.
+		 * @param objects The convex objects to initialise the segment tree with.
+		 * @return The newly created segment partition tree.
+		 */
 		public final SegmentPartitionTree<T> fromObjects(List<ConvexObject> objects){
 			SegmentPartitionTree<T> tree = fromPoints(objects.stream().flatMap(obj->obj.getPoints().stream()).collect(Collectors.toList()));
 			
@@ -501,13 +525,25 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			return tree;
 		}
 		
-		//no overlap
+		/**
+		 * Constructs a new segment partition tree from the line segments in the
+		 * given set. The lines are assumed to not have any overlap.
+		 * @param lines The line segments to initialise the segment tree with.
+		 * @return The newly created segment partition tree.
+		 */
 		public final SegmentPartitionTree<T> fromLines(List<Line2D> lines){
 			SegmentPartitionTree<T> tree = fromPoints(lines.stream().flatMap(line->Stream.of(line.getP1(), line.getP2())).collect(Collectors.toList()));
 			lines.forEach(line->tree.addSegment(line.getP1(), line.getP2()));
 			return tree;
 		}
 		
+		/**
+		 * Constructs a new empty segment partition tree with the given set
+		 * of points for the underlying partition tree. No line segments will
+		 * be present in the segment tree initially.
+		 * @param points The points to initialise the segment tree with.
+		 * @return The newly created segment partition tree.
+		 */
 		public final SegmentPartitionTree<T> fromPoints(List<Point2D> points){
 			return new SegmentPartitionTree<T>(ctor.apply(points), visitFun);
 		}
@@ -526,11 +562,36 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 * Second end point of the line.
 		 */
 		private Point2D p2;
+		/**
+		 * The line segment this line segment was derived
+		 * from or null if this line segment was not derived.
+		 */
 		private LineSegment original = null;
+		/**
+		 * Whether the first end point of this line was
+		 * clipped, meaning the original line segment
+		 * continues beyond the new first end point.
+		 */
 		private boolean p1Clipped = false;
+		/**
+		 * Whether the second end point of this line was
+		 * clipped, meaning the original line segment
+		 * continues beyond the new second end point.
+		 */
 		private boolean p2Clipped = false;
-		public boolean marked = false;
+		/**
+		 * Whether this segment is marked, used for animation.
+		 */
+		private boolean marked = false;
 
+		/**
+		 * Constructs a new line segment from the given line.
+		 * @param line The line to initialise this line segment with.
+		 */
+		public LineSegment(Line2D line){
+			this(line.getP1(), line.getP2());
+		}
+		
 		/**
 		 * Constructs a new line segment with the given end points. 
 		 * @param p1 The first end point of the line.
@@ -541,10 +602,14 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			this.p2 = p2;
 		}
 		
-		public LineSegment(Line2D line){
-			this(line.getP1(), line.getP2());
-		}
-		
+		/**
+		 * Derives a new line from this line segment that is exactly the
+		 * part of this line that lies within the given rectangle.
+		 * @param bounds The rectangle to bound this line segment with.
+		 * @return The part of this line segment within the given rectangle
+		 *         or <code>null</code> if this line segment was not (partially)
+		 *         contained within the given rectangle.
+		 */
 		private LineSegment deriveLine(Rectangle2D bounds){
 			if(bounds.contains(p1) && bounds.contains(p2)){
 				return this;
@@ -580,7 +645,20 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			}
 		}
 		
-		//out not 0
+		/**
+		 * Computes the intersection of this line segment with
+		 * the given rectangle in the given direction.
+		 * @param tl The top left point of the rectangle.
+		 * @param tr The top right point of the rectangle.
+		 * @param bl The bottom left point of the rectangle.
+		 * @param br The bottom right point of the rectangle.
+		 * @param out The outcode of the either line segment point
+		 *        to determine the appropriate intersection. This
+		 *        value cannot be 0
+		 * @return The intersection of the line segment and the given
+		 *         rectangle at the given exit point.
+		 * @see Rectangle2D#outcode(Point2D)
+		 */
 		private Point2D boundClip(Point2D tl, Point2D tr, Point2D bl, Point2D br, int out){
 			Point2D p = null;
 			
@@ -638,6 +716,16 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			}
 		}
 		
+		/**
+		 * Gets the original line segment this line
+		 * segment was derived from. If this line segment
+		 * was obtained though a series of derivations then
+		 * the original segment is returned and not an
+		 * intermediate derivative line.
+		 * @return The line segment this line segment was
+		 *         derived from or this line segment if this
+		 *         line was not derived.
+		 */
 		private LineSegment getOriginalSegment(){
 			return original == null ? this : original;
 		}
