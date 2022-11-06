@@ -14,6 +14,7 @@ import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
+import dev.roanh.convexmerger.ui.Theme;
 
 public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private ConjugationTree<T> parent;
@@ -157,7 +158,8 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		
 		for(Object obj : getData()){
 			LineSegment s = (LineSegment)obj;
-			g.setColor(s.marked ? Color.MAGENTA : Color.BLUE);
+			g.setStroke(Theme.POLY_STROKE);
+			g.setColor(s.marked ? Color.RED : Color.BLACK);
 //			if(s.marked){
 				g.draw(s);
 //				Point2D p = s.getP1();
@@ -170,6 +172,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		if(!isLeafCell()){
 			int c = Math.max(0, 255 - getDepth() * 25);
 			g.setColor(new Color(0, c, c));
+			g.setStroke(Theme.BORDER_STROKE);
 			g.draw(bisector);
 			
 			g.setColor(Color.RED);

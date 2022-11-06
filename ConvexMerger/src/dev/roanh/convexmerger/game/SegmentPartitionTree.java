@@ -94,7 +94,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 //			g.setColor(line.marked ? Color.MAGENTA : Color.BLUE);
 //			g.draw(line);
 //		}
-//		g.setStroke(Theme.BORDER_STROKE);
+		g.setStroke(Theme.BORDER_STROKE);
 		partitions.render(g);
 	}
 	
@@ -111,30 +111,39 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		for(int i = 0; i <= partitions.getHeight(); i++){
 			System.out.println("anim: " + i);
 			final int depth = i;
-			if(!partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
+//			if(!
+				
+				partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
 				boolean mark = depth == node.getDepth();
 				System.out.println("set: " + mark + " / " + node.getDepth());
 				node.setMarked(mark);
 				node.getData().forEach(l->l.marked = mark);
-				return !intersectsAny(node.getData(), line);
-			}))){
-				partitions.streamCells().forEach(c->c.setMarked(false));
-				segments.forEach(l->l.marked = false);
-				break;
-			}
+//				return !intersectsAny(node.getData(), line);
+			}));
+				
+//				){
+//				partitions.streamCells().forEach(c->c.setMarked(false));
+//				segments.forEach(l->l.marked = false);
+//				break;
+//			}
 
 
 
 
 			try{
-				Thread.sleep(500);
+				Thread.sleep(250);
 			}catch(InterruptedException e){
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		partitions.streamCells().forEach(c->c.setMarked(false));
-		segments.forEach(l->l.marked = false);
+		partitions.streamCells().forEach(c->{
+			c.setMarked(false);
+			for(LineSegment l : c.getData()){
+				l.marked = false;
+			}
+		});
+//		segments.forEach(l->l.marked = false);
 
 		//TODO
 	}
@@ -275,6 +284,13 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 					return fun.apply(node, segment);
 				}
 			};
+		}
+		
+		public static <T extends PartitionTree<LineSegment, T>> PartitionTreeVisitor<T> all(BiConsumer<T, LineSegment> consumer){
+			return all((node, seg)->{
+				consumer.accept(node, seg);
+				return true;
+			});
 		}
 	}
 	
