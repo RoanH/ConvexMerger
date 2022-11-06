@@ -29,6 +29,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 
 	private final T partitions;
 	private final VisitingFunction<T> partitionVisitor;
+	@Deprecated
 	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	
 	private boolean animated = true;//TODO false
