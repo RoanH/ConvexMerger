@@ -76,6 +76,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	
 	private boolean intersectsInternal(LineSegment line){
 		return !partitionVisitor.visitTree(partitions, line, true, PartitionTreeVisitor.all((node, seg)->{
+//			node.setMarked(node.getDepth() == 7);
+//			for(LineSegment l : node.getData()){
+//				l.marked = node.marked;
+//			}
 			return !intersectsAny(node.getData(), line);
 		}));
 	}
@@ -85,11 +89,12 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	public void render(Graphics2D g){
-		g.setStroke(Theme.BORDER_STROKE);
-		for(LineSegment line : segments){
-			g.setColor(line.marked ? Color.MAGENTA : Color.BLUE);
-			g.draw(line);
-		}
+//		g.setStroke(Theme.POLY_STROKE);
+//		for(LineSegment line : segments){
+//			g.setColor(line.marked ? Color.MAGENTA : Color.BLUE);
+//			g.draw(line);
+//		}
+//		g.setStroke(Theme.BORDER_STROKE);
 		partitions.render(g);
 	}
 	
@@ -183,11 +188,15 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		if(tree.isLeafCell() || (!ignoreInnnerTerminals && line.p1Clipped && line.p2Clipped)){
 			return visitor.acceptTerminalNode(tree, line);
 		}else{
+			Line2D bisector = tree.getBisector();
+			if(ConvexUtil.overlapsLine(line, bisector)){
+				return visitor.acceptTerminalNode(tree, line);
+			}
+			
 			if(!visitor.acceptInnerNode(tree, line)){
 				return false;
 			}
 			
-			Line2D bisector = tree.getBisector();
 			Point2D intercept = ConvexUtil.interceptClosed(bisector, line);
 			
 			if(intercept == null){
@@ -304,7 +313,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		private Point2D p2;
 		private boolean p1Clipped = false;
 		private boolean p2Clipped = false;
-		private boolean marked = false;
+		public boolean marked = false;
 
 		/**
 		 * Constructs a new line segment with the given end points. 
@@ -396,18 +405,29 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			boolean leftFurthest = intersected.ptLineDistSq(p1) > intersected.ptLineDistSq(p2);
 			boolean ccwCorrect = intersected.relativeCCW(leftFurthest ? p1 : p2) == ccw;
 			
+			
+			LineSegment ret;
+			
 			//use p1 only if it is furthest and on the correct side or closest but p2 is on the wrong side
 			if(leftFurthest ^ ccwCorrect){
 				LineSegment line = new LineSegment(intersection, p2);
 				line.p1Clipped = true;
 				line.p2Clipped = p2Clipped;
-				return line;
+				ret = line;
 			}else{
 				LineSegment line = new LineSegment(p1, intersection);
 				line.p2Clipped = true;
 				line.p1Clipped = p1Clipped;
-				return line;
+				ret = line;
 			}
+			
+			if(intersected.ptLineDist(p1) == 0 && intersected.ptLineDist(p2) == 0){
+//				System.out.println("on line " + leftFurthest + " ccw: " + intersected.relativeCCW(leftFurthest ? p1 : p2));
+				ret.marked = true;
+//				System.out.println(this + " to " + ret + " inter: " + intersected.getP1() + "," + intersected.getP2());
+			}
+			
+			return ret;
 		}
 
 		@Override

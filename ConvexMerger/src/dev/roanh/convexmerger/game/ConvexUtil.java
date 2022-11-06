@@ -840,4 +840,15 @@ public class ConvexUtil{
 	public static final boolean approxEqual(Point2D a, Point2D b){
 		return Math.abs(a.getX() - b.getX()) < EPS && Math.abs(a.getY() - b.getY()) < EPS;
 	}
+	
+	/**
+	 * Checks if the given test line segment fully overlaps
+	 * the given line segment.
+	 * @param test The line segment to test.
+	 * @param line The line segment.
+	 * @return True if the test line segment overlaps the line segment.
+	 */
+	public static final boolean overlapsLine(Line2D test, Line2D line){
+		return line.ptLineDistSq(test.getP1()) < EPS && line.ptLineDistSq(test.getP2()) < EPS;
+	}
 }

@@ -2,6 +2,7 @@ package dev.roanh.convexmerger;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-//		game.switchScene(getTestScreen(game));
+		game.switchScene(getTestScreen(game));
 		game.showGame();
 	}
 
@@ -62,12 +63,17 @@ public class Main{
 //				SegmentPartitionTree<?> stree = SegmentPartitionTree.TYPE_KD_TREE.fromPoints(points);
 //				stree.addSegment(new Point2D.Double(100.0D, 300.0D), new Point2D.Double(900.0D, 700.0D));
 				
-				SegmentPartitionTree<?> stree = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(
-					new PlayfieldGenerator("3Y64YQ018986HXCC9DZ3").generatePlayfield()
+				System.out.println("===");
+				SegmentPartitionTree<?> stree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
+					new PlayfieldGenerator("3Y64YQ00FZCAU04RTVFN").generatePlayfield()
 				);
+				stree.intersects(new Line2D.Double(816.1023556884412D, 693.7616905532058D, 1105.7172609057357D, 768.9144205150844D));
 				
 				g.translate(200, 50);
 				stree.render(g);
+				
+				g.setColor(Color.RED);
+				g.draw(new Line2D.Double(816.1023556884412D, 693.7616905532058D, 1105.7172609057357D, 768.9144205150844D));
 				
 				g.setColor(Color.MAGENTA);
 				g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);

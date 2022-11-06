@@ -150,6 +150,14 @@ public class SegmentPartitionTreeTest{
 	}
 	
 	@Test
+	public void edgeCaseSeed3Conj(){
+		SegmentPartitionTree<ConjugationTree<LineSegment>> tree = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(
+			new PlayfieldGenerator("3Y64YQ00FZCAU04RTVFN").generatePlayfield()
+		);
+		assertTrue(tree.intersects(new Line2D.Double(816.1023556884412D, 693.7616905532058D, 1105.7172609057357D, 768.9144205150844D)));
+	}
+	
+	@Test
 	public void randomTestKD(){
 		testAll(SegmentPartitionTree.TYPE_KD_TREE, new PlayfieldGenerator());
 	}
@@ -177,7 +185,6 @@ public class SegmentPartitionTreeTest{
 						tree.intersects(merge[0], merge[1]),
 						"obj " + obj1.getID() + " to " + obj2.getID() + " with seed " + gen.getSeed()
 						+ " and line " + merge[0] + " to " + merge[1] + (intersected != null ? " intersects " + intersected.getID() : "")
-						
 					);
 					
 					intersected = objects.stream().filter(obj->obj != obj1 && obj != obj2).filter(obj->obj.intersects(merge[2], merge[3])).findAny().orElse(null);
