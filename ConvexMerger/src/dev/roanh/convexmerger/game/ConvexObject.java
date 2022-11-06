@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import javax.management.RuntimeErrorException;
+
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
@@ -232,8 +234,9 @@ public class ConvexObject implements Identity, Serializable{
 		//check if the new hull is valid
 		if(state != null){
 			SegmentPartitionTree<?> tree = state.getSegmentTree();
-			if(tree.isAnimated()){
-				
+			if(saveSegments && tree.isAnimated()){
+				tree.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+//				throw new RuntimeException("trace");
 			}
 			
 			System.out.println(Arrays.toString(lines));

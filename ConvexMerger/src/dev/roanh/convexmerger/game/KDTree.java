@@ -226,29 +226,40 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 			g.fill(new Ellipse2D.Double(point.getX() - 2.5D, point.getY() - 2.5D, 5.0D, 5.0D));
 		}
 		
-		if(getDepth() == 7){
-			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
-			if(marked){
-				g.setColor(new Color(0, 0, 255, 50));
-			}
+		if(marked){
+			System.out.println("m");
+			g.setColor(new Color(255, 0, 0, 50));
 			g.fill(bounds);
-//			g.setColor(getData().size() == 3 ? Color.RED : Color.CYAN);
-			
-			
+			g.setColor(Color.MAGENTA);
 			g.setStroke(Theme.POLY_STROKE);
 			for(Object obj : getData()){
-//				System.out.println(obj);
-				
-				if(((LineSegment)obj).flag){
-					g.setColor(Color.RED);
-				}else{
-					g.setColor(Color.CYAN);
-				}
-				
 				g.draw((Shape)obj);
 			}
-			
-			
 		}
+		
+//		if(getDepth() == 7){
+//			g.setColor(new Color(getData().isEmpty() ? 0 : 255, getData().isEmpty() ? 255 : 0, 0, 50));
+//			if(marked){
+//				g.setColor(new Color(0, 0, 255, 50));
+//			}
+//			g.fill(bounds);
+////			g.setColor(getData().size() == 3 ? Color.RED : Color.CYAN);
+//			
+//			
+//			g.setStroke(Theme.POLY_STROKE);
+//			for(Object obj : getData()){
+////				System.out.println(obj);
+//				
+////				if(((LineSegment)obj).flag){
+////					g.setColor(Color.RED);
+////				}else{
+////					g.setColor(Color.CYAN);
+////				}
+//				
+//				g.draw((Shape)obj);
+//			}
+//			
+//			
+//		}
 	}
 }

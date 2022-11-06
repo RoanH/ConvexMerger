@@ -32,6 +32,10 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	
 	public abstract S getParent();
 	
+	public int getHeight(){
+		return streamLeafCells().mapToInt(S::getDepth).max().orElse(0);
+	}
+	
 	//node depth, root = 0
 	public int getDepth(){
 		S parent = getParent();

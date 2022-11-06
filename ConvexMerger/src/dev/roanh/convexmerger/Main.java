@@ -31,7 +31,7 @@ public class Main{
 		Util.installUI();
 		
 		ConvexMerger game = new ConvexMerger();
-		game.switchScene(getTestScreen(game));
+//		game.switchScene(getTestScreen(game));
 		game.showGame();
 	}
 
