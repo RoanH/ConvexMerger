@@ -7,25 +7,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
+/**
+ * Abstract base class for partition tree implementations.
+ * @author Roan
+ * @param <T> The metadata type.
+ * @param <S> The partition tree type.
+ * @see KDTree
+ * @see ConjugationTree
+ */
+public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
 	/**
 	 * The data stored in this cell.
 	 */
 	private List<T> data = new ArrayList<T>();
-	protected boolean marked = false;//anim
+	/**
+	 * Whether this partition tree is marked or not, used for animation.
+	 */
+	protected boolean marked = false;
 	
+	/**
+	 * Sets whether this partition tree is marked or not.
+	 * This is used for animations.
+	 * @param marked True to mark this tree.
+	 */
 	public void setMarked(boolean marked){
 		this.marked = marked;
 	}
 	
+	/**
+	 * Adds an object to store at this tree node.
+	 * @param obj The object to store.
+	 */
 	public void addData(T obj){
 		data.add(obj);
 	}
 	
+	/**
+	 * Gets the data stored at this tree node.
+	 * @return The data stored.
+	 */
 	public List<T> getData(){
 		return data;
 	}
 	
+	/**
+	 * Renders this partition tree.
+	 * @param g The graphics context to use.
+	 */
 	public void render(Graphics2D g){
 		if(marked){
 			g.setColor(new Color(255, 0, 0, 50));
@@ -60,6 +88,12 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	public abstract Shape getShape();
 	
 	/**
+	 * Gets 'this' partition tree.
+	 * @return This partition tree.
+	 */
+	public abstract S getSelf();
+	
+	/**
 	 * Gets the height of the partition tree this
 	 * cell is a part of. A value of 0 indicates
 	 * that this tree only has a root node.
@@ -83,14 +117,13 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	 * Streams all the leaf cells in this tree.
 	 * @return A stream of all partition tree leaf cells.
 	 */
-	@SuppressWarnings("unchecked")
 	public Stream<S> streamLeafCells(){
 		if(isLeafCell()){
-			return Stream.of((S)this);
+			return Stream.of(getSelf());
 		}else{
 			Stream<S> stream = Stream.empty();
 			for(S child : getChildren()){
-				stream = (Stream<S>)Stream.concat(stream, child.streamLeafCells());
+				stream = Stream.concat(stream, child.streamLeafCells());
 			}
 			return stream;
 		}
@@ -100,11 +133,10 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, ?>>{
 	 * Streams all the cells (both leaf and internal) in this tree.
 	 * @return A stream of all partition tree cells.
 	 */
-	@SuppressWarnings("unchecked")
 	public Stream<S> streamCells(){
-		Stream<S> stream = (Stream<S>)Stream.of(this);
+		Stream<S> stream = Stream.of(getSelf());
 		for(S child : getChildren()){
-			stream = (Stream<S>)Stream.concat(stream, child.streamCells());
+			stream = Stream.concat(stream, child.streamCells());
 		}
 		return stream;
 	}

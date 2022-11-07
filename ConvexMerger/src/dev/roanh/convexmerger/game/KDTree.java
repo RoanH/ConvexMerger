@@ -220,4 +220,9 @@ public class KDTree<T> extends PartitionTree<T, KDTree<T>>{
 	public KDTree<T> getParent(){
 		return parent;
 	}
+	
+	@Override
+	public KDTree<T> getSelf(){
+		return this;
+	}
 }

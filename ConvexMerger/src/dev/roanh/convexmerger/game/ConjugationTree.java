@@ -255,6 +255,11 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	public List<ConjugationTree<T>> getChildren(){
 		return isLeafCell() ? Collections.emptyList() : Arrays.asList(left, right);
 	}
+	
+	@Override
+	public ConjugationTree<T> getSelf(){
+		return this;
+	}
 
 	/**
 	 * Clips the given line segment to be fully contained within the bounds
