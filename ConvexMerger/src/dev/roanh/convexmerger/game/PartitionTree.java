@@ -23,7 +23,7 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
 	/**
 	 * Whether this partition tree is marked or not, used for animation.
 	 */
-	protected boolean marked = false;
+	private boolean marked = false;
 	
 	/**
 	 * Sets whether this partition tree is marked or not.
