@@ -62,38 +62,6 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
 	}
 	
 	/**
-	 * Checks if this tree node is a leaf cell.
-	 * @return True if this tree node is a leaf cell.
-	 */
-	public abstract boolean isLeafCell();
-	
-	/**
-	 * Gets the child nodes of this tree node.
-	 * @return The direct child nodes of this node.
-	 */
-	public abstract List<S> getChildren();
-	
-	/**
-	 * Gets the parent tree node of this node.
-	 * @return The parent node of this node or
-	 *         <code>null</code> if this is node
-	 *         is the root node of the tree.
-	 */
-	public abstract S getParent();
-	
-	/**
-	 * Gets the shape defining the boundary of this tree cell.
-	 * @return The partition tree cell bounds.
-	 */
-	public abstract Shape getShape();
-	
-	/**
-	 * Gets 'this' partition tree.
-	 * @return This partition tree.
-	 */
-	public abstract S getSelf();
-	
-	/**
 	 * Gets the height of the partition tree this
 	 * cell is a part of. A value of 0 indicates
 	 * that this tree only has a root node.
@@ -140,4 +108,36 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
 		}
 		return stream;
 	}
+	
+	/**
+	 * Checks if this tree node is a leaf cell.
+	 * @return True if this tree node is a leaf cell.
+	 */
+	public abstract boolean isLeafCell();
+	
+	/**
+	 * Gets the child nodes of this tree node.
+	 * @return The direct child nodes of this node.
+	 */
+	public abstract List<S> getChildren();
+	
+	/**
+	 * Gets the parent tree node of this node.
+	 * @return The parent node of this node or
+	 *         <code>null</code> if this is node
+	 *         is the root node of the tree.
+	 */
+	public abstract S getParent();
+	
+	/**
+	 * Gets the shape defining the boundary of this tree cell.
+	 * @return The partition tree cell bounds.
+	 */
+	public abstract Shape getShape();
+	
+	/**
+	 * Gets 'this' partition tree.
+	 * @return This partition tree.
+	 */
+	public abstract S getSelf();
 }
