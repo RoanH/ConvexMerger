@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
 
@@ -112,15 +113,14 @@ public class ConvexObject implements Identity, Serializable{
 	public ConvexObject(List<Point2D> data){
 		points = data;
 		assert ConvexUtil.checkInvariants(data) : "Game invariants violated for convex objects";
-		constructShape(data.size());
+		constructShape();
 	}
 	
 	/**
 	 * Constructs the shape object for the bounds of this object.
-	 * @param size The number of points that define the bounds.
 	 */
-	private void constructShape(int size){
-		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, size);
+	private void constructShape(){
+		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, points.size());
 		shape.moveTo(points.get(0).getX(), points.get(0).getY());
 		for(int i = 1; i < points.size(); i++){
 			shape.lineTo(points.get(i).getX(), points.get(i).getY());
@@ -210,14 +210,48 @@ public class ConvexObject implements Identity, Serializable{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
+		return merge(state, other, false);
+	}
+	
+	/**
+	 * Attempts to merge this object with the given
+	 * object while checking that the boundary of the
+	 * resulting merged object does not intersect any
+	 * other objects in the given game state.
+	 * @param state The game state to check with if the
+	 *        resulting object has any intersections. Can
+	 *        be <code>null</code> to skip this check.
+	 * @param other The object to merge with.
+	 * @param saveSegments True if the merge lines for the
+	 *        merge should be added to the game state.
+	 * @return The resulting merged convex object.
+	 * @see #merge(ConvexObject)
+	 */
+	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments){
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		
+		//check if the new hull is valid
 		if(state != null){
-			//check if the new hull is valid
-			for(ConvexObject obj : state.getObjects()){
-				if(!obj.equals(this) && !obj.equals(other) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
-					return null;
+			SegmentPartitionTree<ConjugationTree<LineSegment>> treeC = state.getSegmentTreeConj();
+			SegmentPartitionTree<KDTree<LineSegment>> treeK = state.getSegmentTreeKD();
+			
+			if(treeC.intersects(lines[0], lines[1]) || treeC.intersects(lines[2], lines[3]) || treeK.intersects(lines[0], lines[1]) || treeK.intersects(lines[2], lines[3])){
+				return null;
+			}else if(saveSegments){
+				if(treeC.isAnimated()){
+					//TODO proper animation
+					treeC.renderQuery(lines[0], lines[1], lines[2], lines[3]);
 				}
+				
+				if(treeK.isAnimated()){
+					//TODO proper animation
+					treeK.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+				}
+				
+				treeC.addSegment(lines[0], lines[1]);
+				treeC.addSegment(lines[2], lines[3]);
+				treeK.addSegment(lines[0], lines[1]);
+				treeK.addSegment(lines[2], lines[3]);
 			}
 		}
 		
@@ -389,7 +423,7 @@ public class ConvexObject implements Identity, Serializable{
 			p.setLocation(p.getX() * factor - origin.getX() + centroid.getX(), p.getY() * factor - origin.getY() + centroid.getY());
 		}
 		
-		constructShape(points.size());
+		constructShape();
 	}
 	
 	@Override

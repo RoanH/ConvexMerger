@@ -81,8 +81,12 @@ public class CalliperAnimation implements Animation{
 	 * @param y2 The y-coordinate of the second point.
 	 */
 	private void drawLine(Graphics2D g, double x1, double y1, double x2, double y2){
-		double coef = x1 == x2 ? 0.0D : (y2 - y1) / (x2 - x1);
-		double base = y1 - x1 * coef;
-		g.draw(new Line2D.Double(0.0D, base, Constants.PLAYFIELD_WIDTH, base + coef * Constants.PLAYFIELD_WIDTH));
+		if(x1 == x2){
+			g.draw(new Line2D.Double(x1, 0.0D, x2, Constants.PLAYFIELD_HEIGHT));
+		}else{
+			double coef = (y2 - y1) / (x2 - x1);
+			double base = y1 - x1 * coef;
+			g.draw(new Line2D.Double(0.0D, base, Constants.PLAYFIELD_WIDTH, base + coef * Constants.PLAYFIELD_WIDTH));
+		}
 	}
 }

@@ -21,6 +21,7 @@ import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.util.Dialog;
 
 /**
  * Main panel responsible for rendering the current game state.
@@ -56,9 +57,17 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private boolean showCentroids = false;
 	/**
-	 * True if the vertical decomposition objects should be rendered/
+	 * True if the vertical decomposition objects should be rendered.
 	 */
 	private boolean showDecomp = false;
+	/**
+	 * True if the segment tree (conjugation) should be rendered.
+	 */
+	private boolean showSegmentTreeConj = false;
+	/**
+	 * True if the segment tree (kd-tree) should be rendered.
+	 */
+	private boolean showSegmentTreeKD = false;
 	/**
 	 * Currently showing feedback dialog.
 	 */
@@ -230,7 +239,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 			if(showCentroids){
 				g.setColor(Color.BLACK);
 				Point2D c = obj.getCentroid();
-				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));	
+				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));
 			}
 		}
 		
@@ -253,6 +262,14 @@ public final class GamePanel extends Screen implements GameStateListener{
 				g.setStroke(Theme.BORDER_STROKE);
 				decomp.getDecompLines().forEach(g::draw);
 			}
+		}
+		
+		if(showSegmentTreeKD){
+			state.getSegmentTreeKD().render(g);
+		}
+		
+		if(showSegmentTreeConj){
+			state.getSegmentTreeConj().render(g);
 		}
 		
 		if(helperLines != null){
@@ -391,6 +408,15 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
 				showDecomp = !showDecomp;
 				state.getVerticalDecomposition().setAnimated(showDecomp);
+			}else if(e.getKeyCode() == KeyEvent.VK_S){
+				showSegmentTreeConj = !showSegmentTreeConj;
+				state.getSegmentTreeConj().setAnimated(showSegmentTreeConj);
+			}else if(e.getKeyCode() == KeyEvent.VK_K){
+				showSegmentTreeKD = !showSegmentTreeKD;
+				state.getSegmentTreeKD().setAnimated(showSegmentTreeKD);
+			}else if(e.getKeyCode() == KeyEvent.VK_M){
+				//TODO to be completed (animated)
+				Dialog.showMessageDialog("TODO");
 			}
 		}
 	}

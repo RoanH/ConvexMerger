@@ -14,6 +14,10 @@ import java.util.List;
  * @author Roan
  */
 public class ConvexUtil{
+	/**
+	 * Tolerance value used for dealing with floating point rounding errors.
+	 */
+	private static final double EPS = 0.000005D;
 
 	/**
 	 * Computes the convex hull of the given point set
@@ -294,7 +298,7 @@ public class ConvexUtil{
 	 * @return True if the given points are (close to) collinear.
 	 */
 	public static final boolean checkCollinear(double x1, double y1, double x2, double y2, double x3, double y3){
-		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < 0.000006D;//account for FP rounding errors
+		return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) < EPS;
 	}
 	
 	/**
@@ -423,7 +427,7 @@ public class ConvexUtil{
 	 * @return The two resultant merge lines, both starting
 	 *         from the convex object and ending at the point.
 	 */
-	public static List<Line2D> computeSinglePointMergeLines(List<Point2D> points, Point2D point){
+	public static final List<Line2D> computeSinglePointMergeLines(List<Point2D> points, Point2D point){
 		int ccw = Line2D.relativeCCW(
 			points.get(0).getX(),
 			points.get(0).getY(),
@@ -457,8 +461,7 @@ public class ConvexUtil{
 			}
 		}
 		
-		assert false : "Not enough merge lines found: " + (p1 == null ? 0 : 1);
-		return null;
+		throw new IllegalStateException("Not enough merge lines found");
 	}
 	
 	/**
@@ -693,5 +696,159 @@ public class ConvexUtil{
 	public static final double angleBetweenLines(Line2D a, Line2D b){
 		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
+	}
+	
+	/**
+	 * Checks if the given point <code>p</code> is on the closed line
+	 * segment between <code>a</code> and <code>b</code>. The given point
+	 * is assumed to be on the infinite line segment between <code>a</code>
+	 * and <code>b</code>.
+	 * @param p The point to check.
+	 * @param a The first point of the line segment.
+	 * @param b The second point of the line segment.
+	 * @return True if the given point is on the given line segment.
+	 */
+	public static final boolean onLine(Point2D p, Point2D a, Point2D b){
+		return Math.min(a.getX(), b.getX()) - EPS <= p.getX() && p.getX() <= Math.max(a.getX(), b.getX()) + EPS && Math.min(a.getY(), b.getY()) - EPS <= p.getY() && p.getY() <= Math.max(a.getY(), b.getY()) + EPS; 
+	}
+	
+	/**
+	 * Clamps the given value to be between the given bounds.
+	 * @param a The first bound value.
+	 * @param b The second bound value.
+	 * @param val The value to clamp.
+	 * @return The clamped value.
+	 */
+	public static final double clamp(double a, double b, double val){
+		return Math.max(Math.min(a, b), Math.min(Math.max(a, b), val));
+	}
+	
+	/**
+	 * Computes the intersection point of the two given closed line segments.
+	 * @param a The first line segment.
+	 * @param b The second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect.
+	 */
+	public static final Point2D interceptClosed(Line2D a, Line2D b){
+		return interceptClosed(a.getP1(), a.getP2(), b.getP1(), b.getP2());
+	}
+	
+	/**
+	 * Computes the intersection point of the two given infinite line segments.
+	 * @param a The first line segment.
+	 * @param b The second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect.
+	 */
+	public static final Point2D interceptOpen(Line2D a, Line2D b){
+		return interceptOpen(a.getP1(), a.getP2(), b.getP1(), b.getP2());
+	}
+	
+	/**
+	 * Computes the intersection point of the two given closed line segments.
+	 * @param a The first point of the first line segment.
+	 * @param b The second point of the first line segment.
+	 * @param c The first point of the second line segment.
+	 * @param d The second point of the second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect.
+	 */
+	public static final Point2D interceptClosed(Point2D a, Point2D b, Point2D c, Point2D d){
+		Point2D p = interceptOpen(a, b, c, d);
+		return (p == null || !onLine(p, a, b) || !onLine(p, c, d)) ? null : p;
+	}
+	
+	/**
+	 * Computes the intersection point of the two given infinite line segments.
+	 * @param a The first point of the first line segment.
+	 * @param b The second point of the first line segment.
+	 * @param c The first point of the second line segment.
+	 * @param d The second point of the second line segment.
+	 * @return The intersection point, or <code>null</code>
+	 *         if the given line segments do not intersect
+	 *         (meaning they run parallel).
+	 */
+	public static final Point2D interceptOpen(Point2D a, Point2D b, Point2D c, Point2D d){
+		double det = (a.getX() - b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() - d.getX());
+		return det == 0.0D ? null : new Point2D.Double(
+			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getX() - d.getX()) - (a.getX() - b.getX()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det,
+			((a.getX() * b.getY() - a.getY() * b.getX()) * (c.getY() - d.getY()) - (a.getY() - b.getY()) * (c.getX() * d.getY() - c.getY() * d.getX())) / det
+		);
+	}
+	
+	/**
+	 * Splits the given convex hull into two new hulls along the given
+	 * splitting line. The given line will be treated as an infinite line
+	 * segment and has to intersect the given convex hull. Geometrically
+	 * the two returned convex hulls still cover the exact same area as
+	 * the input convex hull. Note: input and output convex objects to
+	 * this subroutine do <b>not</b> have to comply with the general convex
+	 * object assumptions for this class as specified in {@link #checkInvariants(List)}.
+	 * @param hull The convex hull to split.
+	 * @param line The line to split the hull along.
+	 * @return The two halves of the original now split convex hull. The
+	 *         first half will be entirely left to the splitting line
+	 *         (relative CCW of -1) and the second half will be right of
+	 *         the splitting line (relative CCW &gt;= 0).
+	 * @see Line2D#relativeCCW(Point2D)
+	 */
+	public static final List<List<Point2D>> splitHull(List<Point2D> hull, Line2D line){
+		List<Point2D> left = new ArrayList<Point2D>();
+		List<Point2D> right = new ArrayList<Point2D>();
+		
+		//find start
+		int rightStart = 0;
+		while(line.relativeCCW(hull.get((rightStart == 0 ? hull.size() : rightStart) - 1)) != -1 || line.relativeCCW(hull.get(rightStart)) < 0){
+			rightStart++;
+		}
+		
+		//first intersection
+		int idx = rightStart;
+		Point2D p = interceptOpen(hull.get(idx), hull.get((rightStart == 0 ? hull.size() : rightStart) - 1), line.getP1(), line.getP2());
+		left.add(p);
+		right.add(p);
+		
+		//right part
+		while(line.relativeCCW(hull.get(idx)) >= 0){
+			right.add(hull.get(idx));
+			idx = (idx + 1) % hull.size();
+		}
+		
+		//second intersection
+		p = interceptOpen(hull.get(idx), hull.get((idx == 0 ? hull.size() : idx) - 1), line.getP1(), line.getP2());
+		right.add(p);
+		left.add(p);
+		
+		//left part
+		while(idx != rightStart){
+			left.add(hull.get(idx));
+			idx = (idx + 1) % hull.size();
+		}
+		
+		return Arrays.asList(left, right);
+	}
+	
+	/**
+	 * Checks if the two given points are approximately equal.
+	 * Meaning that save for floating point rounding errors both
+	 * points are in the same location.
+	 * @param a The first point.
+	 * @param b The second point.
+	 * @return If both points represent the same location.
+	 */
+	public static final boolean approxEqual(Point2D a, Point2D b){
+		return Math.abs(a.getX() - b.getX()) < EPS && Math.abs(a.getY() - b.getY()) < EPS;
+	}
+	
+	/**
+	 * Checks if the given test line segment fully overlaps
+	 * the given line segment.
+	 * @param test The line segment to test.
+	 * @param line The line segment.
+	 * @return True if the test line segment overlaps the line segment.
+	 */
+	public static final boolean overlapsLine(Line2D test, Line2D line){
+		return line.ptLineDistSq(test.getP1()) < EPS && line.ptLineDistSq(test.getP2()) < EPS;
 	}
 }
