@@ -204,9 +204,11 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 * @param d The second point of the second line segment.
 	 */
 	public void renderQuery(Point2D a, Point2D b, Point2D c, Point2D d){
-		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-		executor.submit(()->renderQuery(a, b));
-		executor.submit(()->renderQuery(c, d));
+//		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+//		executor.submit(()->renderQuery(a, b));
+//		executor.submit(()->renderQuery(c, d));
+		renderQuery(a, b);
+		renderQuery(c, d);
 	}
 
 	//TODO temporary animation

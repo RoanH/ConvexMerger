@@ -111,7 +111,7 @@ public abstract class Player implements Identity{
 	 * @return True if this player requires UI interaction.
 	 */
 	public boolean requireInput(){
-		return !ai && local;
+		return false;
 	}
 	
 	/**

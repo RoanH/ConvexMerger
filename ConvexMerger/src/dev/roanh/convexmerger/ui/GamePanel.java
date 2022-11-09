@@ -38,6 +38,7 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
+import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.util.Dialog;
 
@@ -384,16 +385,18 @@ public final class GamePanel extends Screen implements GameStateListener{
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
 			ConvexObject obj = state.getObject(loc);
 			if(obj != null){
+				helperLines = null;
 				if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
-					synchronized(state){
-						ClaimResult result = state.claimObject(obj, loc);
-						activeDialog = result.getMessage();
-					}
+					((HumanPlayer)state.getActivePlayer()).handleClaim(obj, loc);
+					
+//					synchronized(state){
+//						ClaimResult result = state.claimObject(obj, loc);
+//						activeDialog = result.getMessage();
+//					}
 				}else if(!obj.isOwnedBy(state.getActivePlayer())){
 					state.clearSelection();
 					activeDialog = MessageDialog.ALREADY_OWNED;
 				}
-				helperLines = null;
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);

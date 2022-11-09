@@ -18,8 +18,10 @@
  */
 package dev.roanh.convexmerger.player;
 
+import java.awt.geom.Point2D;
 import java.util.List;
 
+import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 
@@ -32,6 +34,9 @@ public class HumanPlayer extends Player implements GameStateListener{
 	 * Boolean indicating the end of a player turn.
 	 */
 	private volatile boolean turnEnd;
+	
+	private volatile ConvexObject nextClaim = null;
+	private volatile Point2D clickPoint = new Point2D.Double();
 
 	/**
 	 * Constructs a new human player with the given name.
@@ -49,12 +54,40 @@ public class HumanPlayer extends Player implements GameStateListener{
 			}
 		}
 		
-		turnEnd = false;
-		while(!turnEnd){
-			wait();
+//		turnEnd = false;
+//		while(!turnEnd){
+//			wait();
+//		}
+		
+		while(true){
+			while(nextClaim == null){
+				wait();
+			}
+			
+			ClaimResult result = state.claimObject(nextClaim, clickPoint);
+			
+			//TODO set message
+			if(result.hasResult()){
+				break;
+			}else{
+				nextClaim = null;
+			}
 		}
 		
+		nextClaim = null;
 		return true;
+	}
+	
+	@Override
+	public boolean requireInput(){
+		return nextClaim == null;
+	}
+	
+	//TODO somehow pass message -- consumer?
+	public synchronized void handleClaim(ConvexObject claimed, Point2D location){
+		nextClaim = claimed;
+		clickPoint = location;
+		notify();
 	}
 
 	@Override
