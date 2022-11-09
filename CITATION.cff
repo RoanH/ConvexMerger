@@ -1,0 +1,60 @@
+cff-version: 1.2.0
+title: ConvexMerger
+version: 1.1
+date-released: 2022-01-26
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+contact:
+  - given-names: Roan
+    family-names: Hofland
+    email: roan@roanh.dev
+    website: 'https://roanh.dev'
+authors:
+  - given-names: Roan
+    family-names: Hofland
+    email: roan@roanh.dev
+  - given-names: Emiliyan
+    family-names: Greshkov
+    email: e.greshkov@student.tue.nl
+  - given-names: Thiam Wai
+    family-names: Chua
+    email: t.w.chua@student.tue.nl
+  - name: RockRoller
+repository-code: 'https://github.com/RoanH/ConvexMerger'
+abstract: "ConvexMerger is an area maximisation game based on the idea of merging convex shapes"
+license: GPL-3.0-or-later
+year-original: 2021
+references:
+  - title: "ConvexMerger: Algorithmic Optimisations & Challenges"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Eindhoven University of Technology"
+      email: r.w.p.hofland@student.tue.nl
+    - given-names: Emiliyan
+      family-names: Greshkov
+      affiliation: "Eindhoven University of Technology"
+      email: e.greshkov@student.tue.nl
+    type: report
+    department: "Department of Mathematics and Computer Science"
+    institution:
+      name: "Eindhoven University of Technology"
+  - title: "Convex Merger 2IMA15 Project Group 23"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Eindhoven University of Technology"
+      email: r.w.p.hofland@student.tue.nl
+    - given-names: Emiliyan
+      family-names: Greshkov
+      affiliation: "Eindhoven University of Technology"
+      email: e.greshkov@student.tue.nl
+    - given-names: Thiam Wai
+      family-names: Chua
+      affiliation: "Eindhoven University of Technology"
+      email: t.w.chua@student.tue.nl
+    type: report
+    date-published: 2022-01-26
+    department: "Department of Mathematics and Computer Science"
+    institution:
+      name: "Eindhoven University of Technology"
