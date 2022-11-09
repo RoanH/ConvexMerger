@@ -162,6 +162,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 				frame.setUndecorated(false);
 				frame.setSize(lastSize);
 				frame.setLocation(lastLocation);
+				frame.setAlwaysOnTop(false);
 				frame.setVisible(true);
 			}else{
 				lastSize = frame.getSize();
@@ -171,6 +172,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 				frame.setUndecorated(true);
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 				frame.setLocationRelativeTo(null);
+				frame.setAlwaysOnTop(true);
 				frame.setVisible(true);
 			}
 		}
