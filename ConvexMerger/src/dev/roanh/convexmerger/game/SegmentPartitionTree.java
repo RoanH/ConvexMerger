@@ -25,6 +25,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
@@ -67,7 +68,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	/**
 	 * The segments stored in this segment partition tree.
 	 */
-	private final List<LineSegment> segments = new ArrayList<LineSegment>();
+	private final List<LineSegment> segments = new CopyOnWriteArrayList<LineSegment>();
 	/**
 	 * Whether this segment partition tree is animated.
 	 */
@@ -128,9 +129,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	private void addSegmentInternal(LineSegment line){
 		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal((node, seg)->{
 			node.addData(seg);
-			synchronized(segments){
-				segments.add(seg);	
-			}
+			segments.add(seg);	
 		}));
 	}
 	
@@ -181,12 +180,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 */
 	public void render(Graphics2D g){
 		g.setStroke(Theme.POLY_STROKE);
-		synchronized(segments){
-			for(LineSegment seg : segments){
-				g.setColor(seg.marked ? Color.RED : Color.BLACK);
-				g.draw(seg);
-			}	
-		}
+		for(LineSegment seg : segments){
+			g.setColor(seg.marked ? Color.RED : Color.BLACK);
+			g.draw(seg);
+		}	
 		
 		g.setStroke(Theme.BORDER_STROKE);
 		partitions.render(g);
