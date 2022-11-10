@@ -128,7 +128,9 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	private void addSegmentInternal(LineSegment line){
 		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal((node, seg)->{
 			node.addData(seg);
-			segments.add(seg);
+			synchronized(segments){
+				segments.add(seg);	
+			}
 		}));
 	}
 	
@@ -179,9 +181,11 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 */
 	public void render(Graphics2D g){
 		g.setStroke(Theme.POLY_STROKE);
-		for(LineSegment seg : segments){
-			g.setColor(seg.marked ? Color.RED : Color.BLACK);
-			g.draw(seg);
+		synchronized(segments){
+			for(LineSegment seg : segments){
+				g.setColor(seg.marked ? Color.RED : Color.BLACK);
+				g.draw(seg);
+			}	
 		}
 		
 		g.setStroke(Theme.BORDER_STROKE);
