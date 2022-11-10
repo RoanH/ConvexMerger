@@ -38,7 +38,7 @@ public class CalliperAnimation extends Animation{
 	/**
 	 * The number of milliseconds the animation runs for.
 	 */
-	private static final float DURATION = 10000.0F;
+	private static final float DURATION = 5000.0F;
 	/**
 	 * The epoch millis start time of the animation.
 	 */
@@ -100,11 +100,11 @@ public class CalliperAnimation extends Animation{
 	 */
 	private void drawLine(Graphics2D g, double x1, double y1, double x2, double y2){
 		if(x1 == x2){
-			g.draw(new Line2D.Double(x1, 0.0D, x2, Constants.PLAYFIELD_HEIGHT));
+			g.draw(new Line2D.Double(x1, -Constants.PLAYFIELD_HEIGHT, x2, Constants.PLAYFIELD_HEIGHT * 2.0D));
 		}else{
 			double coef = (y2 - y1) / (x2 - x1);
 			double base = y1 - x1 * coef;
-			g.draw(new Line2D.Double(0.0D, base, Constants.PLAYFIELD_WIDTH, base + coef * Constants.PLAYFIELD_WIDTH));
+			g.draw(new Line2D.Double(-Constants.PLAYFIELD_WIDTH, base - coef * Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_WIDTH * 2.0D, base + coef * 2.0D * Constants.PLAYFIELD_WIDTH));
 		}
 	}
 }

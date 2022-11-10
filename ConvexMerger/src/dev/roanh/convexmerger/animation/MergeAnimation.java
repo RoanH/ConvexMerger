@@ -135,7 +135,7 @@ public class MergeAnimation extends ClaimAnimation{
 				obj.render(g);
 			}
 			
-			if(!super.run(g)){
+			if(!super.render(g)){
 				unclaimed = false;
 				start = System.currentTimeMillis();
 			}

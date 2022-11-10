@@ -31,10 +31,13 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.animation.CalliperAnimation;
+import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
@@ -78,17 +81,9 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private boolean showCentroids = false;
 	/**
-	 * True if the vertical decomposition objects should be rendered.
+	 * True if the callipers for merges should be rendered.
 	 */
-	private boolean showDecomp = false;
-	/**
-	 * True if the segment tree (conjugation) should be rendered.
-	 */
-	private boolean showSegmentTreeConj = false;
-	/**
-	 * True if the segment tree (kd-tree) should be rendered.
-	 */
-	private boolean showSegmentTreeKD = false;
+	private boolean showCallipers = false;
 	/**
 	 * Currently showing feedback dialog.
 	 */
@@ -119,9 +114,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 	protected GamePanel(ConvexMerger context, GameState state){
 		super(context);
 		resultOverlay = new ResultOverlay(state);
-		this.showDecomp = state.getVerticalDecomposition().isAnimated();
 		this.state = state;
 		state.registerStateListener(this);
+		for(Player player : state.getPlayers()){
+			if(player instanceof HumanPlayer){
+				((HumanPlayer)player).setGamePanel(this);
+			}
+		}
 	}
 	
 	@Override
@@ -172,6 +171,16 @@ public final class GamePanel extends Screen implements GameStateListener{
 		//render results
 		if(resultOverlay != null){
 			resultOverlay.render(g, width, height, mouseLoc);
+		}
+	}
+	
+	public void setMessage(MessageDialog message){
+		activeDialog = message;
+	}
+	
+	public void addAnimation(Animation animation){
+		synchronized(animations){
+			animations.add(animation);
 		}
 	}
 	
@@ -265,8 +274,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
-		if(showDecomp){
-			VerticalDecomposition decomp = state.getVerticalDecomposition();
+		VerticalDecomposition decomp = state.getVerticalDecomposition();
+		if(decomp.isAnimated()){
 			synchronized(decomp){
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
@@ -286,11 +295,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
-		if(showSegmentTreeKD){
+		if(state.getSegmentTreeKD().isAnimated()){
 			state.getSegmentTreeKD().render(g);
 		}
 		
-		if(showSegmentTreeConj){
+		if(state.getSegmentTreeConj().isAnimated()){
 			state.getSegmentTreeConj().render(g);
 		}
 		
@@ -298,6 +307,15 @@ public final class GamePanel extends Screen implements GameStateListener{
 			g.setStroke(Theme.HELPER_STROKE);
 			g.setColor(state.getActivePlayer().getTheme().getOutline());
 			helperLines.forEach(g::draw);
+		}
+		
+		synchronized(animations){
+			Iterator<Animation> iter = animations.iterator();
+			while(iter.hasNext()){
+				if(!iter.next().run(g)){
+					iter.remove();
+				}
+			}
 		}
 		
 		g.setTransform(transform);
@@ -430,17 +448,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}else if(e.getKeyCode() == KeyEvent.VK_C){
 				showCentroids = !showCentroids;
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
-				showDecomp = !showDecomp;
-				state.getVerticalDecomposition().setAnimated(showDecomp);
+				state.getVerticalDecomposition().setAnimated(state.getVerticalDecomposition().isAnimated());
 			}else if(e.getKeyCode() == KeyEvent.VK_S){
-				showSegmentTreeConj = !showSegmentTreeConj;
-				state.getSegmentTreeConj().setAnimated(showSegmentTreeConj);
+				state.getSegmentTreeConj().setAnimated(!state.getSegmentTreeConj().isAnimated());
 			}else if(e.getKeyCode() == KeyEvent.VK_K){
-				showSegmentTreeKD = !showSegmentTreeKD;
-				state.getSegmentTreeKD().setAnimated(showSegmentTreeKD);
+				state.getSegmentTreeKD().setAnimated(!state.getSegmentTreeKD().isAnimated());
 			}else if(e.getKeyCode() == KeyEvent.VK_M){
-				//TODO to be completed (animated)
-				Dialog.showMessageDialog("TODO");
+				showCallipers = !showCallipers;
 			}
 		}
 	}
@@ -477,6 +491,28 @@ public final class GamePanel extends Screen implements GameStateListener{
 
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
+		if(showCallipers){
+			result.setAnimation(new Animation(){
+
+				@Override
+				protected boolean render(Graphics2D g){
+					source.render(g);
+					target.render(g);
+					// TODO Auto-generated method stub
+					return true;
+				}
+				
+			});
+			addAnimation(new CalliperAnimation(source));
+			Animation trgAnim = new CalliperAnimation(target);
+			addAnimation(trgAnim);
+			try{
+				trgAnim.waitFor();
+			}catch(InterruptedException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override

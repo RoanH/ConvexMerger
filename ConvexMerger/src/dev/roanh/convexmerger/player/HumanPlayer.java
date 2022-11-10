@@ -34,7 +34,9 @@ public class HumanPlayer extends Player implements GameStateListener{
 	/**
 	 * Boolean indicating the end of a player turn.
 	 */
+	@Deprecated
 	private volatile boolean turnEnd;
+	private GamePanel game;
 	
 	private volatile ConvexObject nextClaim = null;
 	private volatile Point2D clickPoint = new Point2D.Double();
@@ -43,8 +45,12 @@ public class HumanPlayer extends Player implements GameStateListener{
 	 * Constructs a new human player with the given name.
 	 * @param name The name of the player.
 	 */
-	public HumanPlayer(String name/*, GamePanel game*/){
+	public HumanPlayer(String name){
 		super(true, false, name);
+	}
+	
+	public void setGamePanel(GamePanel game){
+		this.game = game;
 	}
 
 	@Override
@@ -66,6 +72,7 @@ public class HumanPlayer extends Player implements GameStateListener{
 			}
 			
 			ClaimResult result = state.claimObject(nextClaim, clickPoint);
+			game.setMessage(result.getMessage());
 			
 			//TODO set message
 			if(result.hasResult()){
@@ -94,13 +101,14 @@ public class HumanPlayer extends Player implements GameStateListener{
 	@Override
 	public synchronized void claim(Player player, ConvexObject obj){
 		turnEnd = true;
-		notify();
+//		notify();
 	}
 
 	@Override
 	public synchronized void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
+		
 		turnEnd = true;
-		notify();
+//		notify();
 	}
 
 	@Override
