@@ -30,9 +30,11 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
@@ -107,6 +109,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Quit dialog no button.
 	 */
 	private Path2D quitNo = new Path2D.Double();
+	private List<Animation> animations = new ArrayList<Animation>();
 	
 	/**
 	 * Constructs a new game panel with the given game context.

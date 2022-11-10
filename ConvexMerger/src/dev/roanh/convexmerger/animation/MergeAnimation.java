@@ -128,7 +128,7 @@ public class MergeAnimation extends ClaimAnimation{
 	}
 
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		if(unclaimed){
 			owned.render(g);
 			for(ConvexObject obj : contained){

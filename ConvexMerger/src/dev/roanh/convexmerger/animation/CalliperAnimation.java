@@ -34,7 +34,7 @@ import dev.roanh.convexmerger.game.ConvexUtil;
  * when merging two convex objects.
  * @author Roan
  */
-public class CalliperAnimation implements Animation{
+public class CalliperAnimation extends Animation{
 	/**
 	 * The number of milliseconds the animation runs for.
 	 */
@@ -63,7 +63,7 @@ public class CalliperAnimation implements Animation{
 	}
 
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		long elapsed = System.currentTimeMillis() - start;
 		double angle = (Math.PI * 2.0F * elapsed) / DURATION;
 		

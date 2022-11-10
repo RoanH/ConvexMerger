@@ -21,10 +21,11 @@ package dev.roanh.convexmerger.animation;
 import java.awt.Graphics2D;
 
 /**
- * Interface to represent ongoing animations.
+ * Class to represent ongoing animations.
  * @author Roan
  */
-public abstract interface Animation{
+public abstract class Animation{
+	private volatile boolean finished;
 
 	/**
 	 * Renders the next frame of the animation.
@@ -32,5 +33,25 @@ public abstract interface Animation{
 	 * @return True if the animation has frames
 	 *         remaining, false if it finished.
 	 */
-	public abstract boolean run(Graphics2D g);
+	public final boolean run(Graphics2D g){
+		if(!finished){
+			finished = !render(g);
+			if(finished){
+				synchronized(this){
+					notifyAll();
+				}
+			}else{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public synchronized void waitFor() throws InterruptedException{
+		while(!finished){
+			wait();
+		}
+	}
+	
+	protected abstract boolean render(Graphics2D g);
 }

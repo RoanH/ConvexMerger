@@ -24,6 +24,7 @@ import java.util.List;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
+import dev.roanh.convexmerger.ui.GamePanel;
 
 /**
  * Represents a player controlled by a local human.
@@ -42,7 +43,7 @@ public class HumanPlayer extends Player implements GameStateListener{
 	 * Constructs a new human player with the given name.
 	 * @param name The name of the player.
 	 */
-	public HumanPlayer(String name){
+	public HumanPlayer(String name/*, GamePanel game*/){
 		super(true, false, name);
 	}
 
