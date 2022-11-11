@@ -187,9 +187,12 @@ public class GameState{
 	 * Attempts to claim the given convex object for the active player.
 	 * @param obj The object to claim.
 	 * @return The result of the attempted claim.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 * @see #getActivePlayer()
 	 */
-	public ClaimResult claimObject(ConvexObject obj){
+	public ClaimResult claimObject(ConvexObject obj) throws InterruptedException{
 		return claimObject(obj, obj.getCentroid());
 	}
 	
@@ -198,9 +201,12 @@ public class GameState{
 	 * @param obj The object to claim.
 	 * @param location The point within the object that was clicked to claim it.
 	 * @return The result of the attempted claim.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 * @see #getActivePlayer()
 	 */
-	public ClaimResult claimObject(ConvexObject obj, Point2D location){
+	public ClaimResult claimObject(ConvexObject obj, Point2D location) throws InterruptedException{
 		if(!obj.isOwned()){
 			if(selected != null){
 				ConvexObject merged = mergeObjects(selected, obj);
@@ -264,8 +270,11 @@ public class GameState{
 	 * @return The convex object that is the result of merging the
 	 *         two given objects, or <code>null</code> if the merge
 	 *         was not possible.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 */
-	private ConvexObject mergeObjects(ConvexObject first, ConvexObject second){
+	private ConvexObject mergeObjects(ConvexObject first, ConvexObject second) throws InterruptedException{
 		ConvexObject merged = first.merge(this, second, true);
 		if(merged != null){
 			Player player = first.getOwner();
@@ -447,6 +456,10 @@ public class GameState{
 	public int getRounds(){
 		int rounds = Math.floorDiv(turns, players.size());
 		return rounds * players.size() == turns ? rounds : (rounds + 1);
+	}
+	
+	public void setSelectedObject(ConvexObject obj){
+		selected = obj;
 	}
 
 	/**

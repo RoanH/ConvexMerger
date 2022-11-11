@@ -42,5 +42,9 @@ public abstract class RenderableObject{
 		}
 	}
 	
+	/**
+	 * Renders this object.
+	 * @param g The graphics context to use.
+	 */
 	public abstract void render(Graphics2D g);
 }

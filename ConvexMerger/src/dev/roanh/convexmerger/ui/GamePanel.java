@@ -366,12 +366,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 	public void handleMousePress(Point2D point, int width, int height){
 		if(!resultOverlay.isEnabled() && activeDialog == null){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
+			ConvexObject obj = state.getObject(loc);
 			if(!state.isSelectingSecond()){
-				ConvexObject obj = state.getObject(loc);
 				if(obj != null && obj.isOwnedBy(state.getActivePlayer())){
-					state.claimObject(obj, loc);
+					state.setSelectedObject(obj);
 				}
-			}else if(state.getSelectedObject().equals(state.getObject(loc))){
+			}else if(state.getSelectedObject().equals(obj)){
 				state.clearSelection();
 			}
 		}

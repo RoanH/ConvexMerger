@@ -386,8 +386,11 @@ public abstract class Player implements Identity{
 		/**
 		 * Executes this merge by making it concrete in the game state.
 		 * @return The object that resulted from the merge.
+		 * @throws InterruptedException When the player was
+		 *         interrupted while making its move. Signalling
+		 *         that the game was aborted.
 		 */
-		public ConvexObject execute(){
+		public ConvexObject execute() throws InterruptedException{
 			state.claimObject(first);
 			return state.claimObject(second).getResult();
 		}

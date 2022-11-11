@@ -223,7 +223,12 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
-		return merge(state, other, false);
+		try{
+			return merge(state, other, false);
+		}catch(InterruptedException e){
+			//only saving merges can be interrupted
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
@@ -238,9 +243,12 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	 * @param saveSegments True if the merge lines for the
 	 *        merge should be added to the game state.
 	 * @return The resulting merged convex object.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 * @see #merge(ConvexObject)
 	 */
-	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments){
+	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments) throws InterruptedException{
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		
 		//check if the new hull is valid
@@ -252,14 +260,13 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 				return null;
 			}else if(saveSegments){
 				if(treeC.isAnimated()){
-					//TODO proper animation
-					treeC.renderQuery(lines[0], lines[1], lines[2], lines[3]);
-					
+					treeC.showAnimation(lines[0], lines[1]).waitFor();
+					treeC.showAnimation(lines[2], lines[3]).waitFor();
 				}
 				
 				if(treeK.isAnimated()){
-					//TODO proper animation
-					treeK.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+					treeK.showAnimation(lines[0], lines[1]).waitFor();
+					treeK.showAnimation(lines[2], lines[3]).waitFor();
 				}
 				
 				treeC.addSegment(lines[0], lines[1]);
@@ -372,19 +379,6 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	}
 	
 	/**
-	 * Renders this convex object using the given
-	 * graphics instance.
-	 * @param g The graphics instance to use.
-	 */
-	public void render(Graphics2D g){
-		g.setColor(Theme.getPlayerBody(this));
-		g.fill(shape);
-		g.setStroke(Theme.POLY_STROKE);
-		g.setColor(Theme.getPlayerOutline(this));
-		g.draw(shape);
-	}
-	
-	/**
 	 * Checks if this objects is unowned and
 	 * thus claimable by any player.
 	 * @return True if this object can be claimed.
@@ -406,6 +400,15 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 		}
 		
 		constructShape();
+	}
+	
+	@Override
+	public void render(Graphics2D g){
+		g.setColor(Theme.getPlayerBody(this));
+		g.fill(shape);
+		g.setStroke(Theme.POLY_STROKE);
+		g.setColor(Theme.getPlayerOutline(this));
+		g.draw(shape);
 	}
 	
 	@Override

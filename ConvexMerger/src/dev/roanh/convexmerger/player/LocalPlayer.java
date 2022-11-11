@@ -63,8 +63,11 @@ public class LocalPlayer extends Player{
 	/**
 	 * Selects a new object to claim and start maximising area from.
 	 * @return True if a new object was found, false otherwise (no move left).
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 */
-	protected boolean claimNewObject(){
+	protected boolean claimNewObject() throws InterruptedException{
 		target = findLargestUnownedObject();
 		if(target == null){
 			return false;

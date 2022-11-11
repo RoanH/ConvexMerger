@@ -201,55 +201,13 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 	}
 	
-	//TODO temporary animation
-	/**
-	 * Animates two searches for intersections with the given line segments.
-	 * @param a The first point of the first line segment.
-	 * @param b The second point of the first line segment.
-	 * @param c The first point of the second line segment.
-	 * @param d The second point of the second line segment.
-	 */
-	@Deprecated
-	public void renderQuery(Point2D a, Point2D b, Point2D c, Point2D d){
-//		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-//		executor.submit(()->renderQuery(a, b));
-//		executor.submit(()->renderQuery(c, d));
-		renderQuery(a, b);
-		renderQuery(c, d);
-	}
-
-	//TODO temporary animation
 	/**
 	 * Animates a search for intersections with the given line segment.
 	 * @param a The first point of the line segment.
 	 * @param b The second point of the line segment.
+	 * @return The created animation object.
 	 */
-	@Deprecated
-	private void renderQuery(Point2D a, Point2D b){
-		LineSegment line = new LineSegment(a, b);
-		for(int i = 0; i <= partitions.getHeight(); i++){
-			final int depth = i;
-			partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
-				boolean mark = depth == node.getDepth();
-				node.setMarked(mark);
-				node.getData().forEach(l->l.marked = mark);
-			}));
-
-			try{
-				Thread.sleep(250);
-			}catch(InterruptedException e){
-			}
-		}
-		
-		partitions.streamCells().forEach(c->{
-			c.setMarked(false);
-			for(LineSegment l : c.getData()){
-				l.marked = false;
-			}
-		});
-	}
-	
-	public Animation createSearchAnimation(Point2D a, Point2D b){
+	public Animation showAnimation(Point2D a, Point2D b){
 		Animation anim = new SearchAnimation(new LineSegment(a, b));
 		setAnimation(anim);
 		return anim;
