@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
@@ -38,7 +37,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * are given in counter clockwise order.
  * @author Roan
  */
-public class ConvexObject implements Identity, Serializable{
+public class ConvexObject extends RenderableObject implements Identity, Serializable{
 	/**
 	 * Serial ID.
 	 */
@@ -60,10 +59,6 @@ public class ConvexObject implements Identity, Serializable{
 	 * The player that owns this object.
 	 */
 	private transient Player owner = null;
-	/**
-	 * The active animation for this object.
-	 */
-	private transient Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -259,6 +254,7 @@ public class ConvexObject implements Identity, Serializable{
 				if(treeC.isAnimated()){
 					//TODO proper animation
 					treeC.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+					
 				}
 				
 				if(treeK.isAnimated()){
@@ -373,38 +369,6 @@ public class ConvexObject implements Identity, Serializable{
 
 		double area = 6.0D * getArea();
 		return new Point2D.Double(cx / area, cy / area);
-	}
-	
-	/**
-	 * Checks if this convex object has an active animation.
-	 * @return True if this convex object has an active animation.
-	 */
-	public boolean hasAnimation(){
-		return animation != null;
-	}
-	
-	/**
-	 * Sets the active animation for this convex object.
-	 * @param animation The new active animation.
-	 */
-	public void setAnimation(Animation animation){
-		this.animation = animation;
-	}
-	
-	/**
-	 * Renders the animation for this convex object
-	 * using the given graphics instance.
-	 * @param g The graphics instance to use.
-	 * @return True if the animation still has frames
-	 *         remaining, false otherwise.
-	 */
-	public boolean runAnimation(Graphics2D g){
-		if(animation.run(g)){
-			return true;
-		}else{
-			animation = null;
-			return false;
-		}
 	}
 	
 	/**

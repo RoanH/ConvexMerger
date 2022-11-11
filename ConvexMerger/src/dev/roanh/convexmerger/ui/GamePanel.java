@@ -274,6 +274,15 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
+		synchronized(animations){
+			Iterator<Animation> iter = animations.iterator();
+			while(iter.hasNext()){
+				if(!iter.next().run(g)){
+					iter.remove();
+				}
+			}
+		}
+		
 		VerticalDecomposition decomp = state.getVerticalDecomposition();
 		if(decomp.isAnimated()){
 			synchronized(decomp){
@@ -307,15 +316,6 @@ public final class GamePanel extends Screen implements GameStateListener{
 			g.setStroke(Theme.HELPER_STROKE);
 			g.setColor(state.getActivePlayer().getTheme().getOutline());
 			helperLines.forEach(g::draw);
-		}
-		
-		synchronized(animations){
-			Iterator<Animation> iter = animations.iterator();
-			while(iter.hasNext()){
-				if(!iter.next().run(g)){
-					iter.remove();
-				}
-			}
 		}
 		
 		g.setTransform(transform);

@@ -23,8 +23,12 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.ui.Theme;
 
 /**
@@ -46,7 +51,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * @see <a href="https://doi.org/10.1007/BF01931656">Overmars, M.H., Schipper, H. and Sharir, M.,
  *      "Storing line segments in partition trees" in BIT Numerical Mathematics, vol. 30, 1990, pp. 385–403</a>
  */
-public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>>{
+public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>> extends RenderableObject{
 	/**
 	 * Constructor for kd-tree based segment partition trees.
 	 * @see KDTree
@@ -204,6 +209,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 * @param c The first point of the second line segment.
 	 * @param d The second point of the second line segment.
 	 */
+	@Deprecated
 	public void renderQuery(Point2D a, Point2D b, Point2D c, Point2D d){
 //		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 //		executor.submit(()->renderQuery(a, b));
@@ -218,6 +224,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 * @param a The first point of the line segment.
 	 * @param b The second point of the line segment.
 	 */
+	@Deprecated
 	private void renderQuery(Point2D a, Point2D b){
 		LineSegment line = new LineSegment(a, b);
 		for(int i = 0; i <= partitions.getHeight(); i++){
@@ -240,6 +247,12 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				l.marked = false;
 			}
 		});
+	}
+	
+	public Animation createSearchAnimation(Point2D a, Point2D b){
+		Animation anim = new SearchAnimation(new LineSegment(a, b));
+		setAnimation(anim);
+		return anim;
 	}
 	
 	/**
@@ -360,6 +373,61 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 				}
 			}
 		}
+	}
+	
+	private class SearchAnimation extends Animation implements BiConsumer<T, LineSegment>{
+		private static final int DEPTH_DURATION = 250;
+		private Map<Integer, List<T>> depthData = new HashMap<Integer, List<T>>();
+		private int maxDepth;
+		private long start;
+		private int lastDepth = 0;
+		
+		private SearchAnimation(LineSegment query){
+			partitionVisitor.visitTree(partitions, query, true, PartitionTreeVisitor.all(this));
+			maxDepth = depthData.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
+			start = System.currentTimeMillis();
+		}
+		
+		@Override
+		public void accept(T node, LineSegment seg){
+			depthData.computeIfAbsent(node.getDepth(), d->new ArrayList<T>()).add(node);
+		}
+		
+
+		@Override
+		protected boolean render(Graphics2D g){
+			int depth = (int)Math.floorDiv(System.currentTimeMillis() - start, DEPTH_DURATION);
+			System.out.println("run: " + depth);
+			for(int i = lastDepth; i < Math.min(depth, maxDepth + 1); i++){
+				for(T node : depthData.get(i)){
+					node.setMarked(false);
+					for(LineSegment seg : node.getData()){
+						seg.marked = false;
+					}
+				}
+			}
+			
+			if(depth <= maxDepth){
+				if(lastDepth != depth){
+					for(T node : depthData.get(depth)){
+						node.setMarked(true);
+						for(LineSegment seg : node.getData()){
+							seg.marked = true;
+						}
+					}
+					lastDepth = depth;
+				}
+			}
+			
+			SegmentPartitionTree.this.render(g);
+			
+			return depth <= maxDepth;
+		}
+
+
+
+		
+		
 	}
 	
 	/**
