@@ -41,6 +41,7 @@ import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.SegmentPartitionTree;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.HumanPlayer;
@@ -263,11 +264,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		List<ConvexObject> objects = state.getObjects();
 		synchronized(objects){
 			for(ConvexObject obj : objects){
-				if(obj.hasAnimation()){
-					obj.runAnimation(g);
-				}else{
-					obj.render(g);
-				}
+				obj.renderOrAnimate(g);
 				
 				if(showCentroids){
 					g.setColor(Color.BLACK);
@@ -307,12 +304,14 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}
 		}
 		
-		if(state.getSegmentTreeKD().isAnimated()){
-			state.getSegmentTreeKD().render(g);
+		SegmentPartitionTree<?> tree = state.getSegmentTreeKD();
+		if(tree.isAnimated()){
+			tree.renderOrAnimate(g);
 		}
 		
-		if(state.getSegmentTreeConj().isAnimated()){
-			state.getSegmentTreeConj().render(g);
+		tree = state.getSegmentTreeConj();
+		if(tree.isAnimated()){
+			tree.renderOrAnimate(g);
 		}
 		
 		if(helperLines != null){

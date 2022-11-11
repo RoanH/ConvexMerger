@@ -42,6 +42,14 @@ public abstract class RenderableObject{
 		}
 	}
 	
+	public void renderOrAnimate(Graphics2D g){
+		if(hasAnimation()){
+			runAnimation(g);
+		}else{
+			render(g);
+		}
+	}
+	
 	/**
 	 * Renders this object.
 	 * @param g The graphics context to use.

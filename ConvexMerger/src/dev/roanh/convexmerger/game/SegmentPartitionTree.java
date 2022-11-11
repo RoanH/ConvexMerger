@@ -179,10 +179,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return partitions.streamCells();
 	}
 	
-	/**
-	 * Renders this segment partition tree.
-	 * @param g The graphics context to use.
-	 */
+	@Override
 	public void render(Graphics2D g){
 		g.setStroke(Theme.POLY_STROKE);
 		for(LineSegment seg : segments){
