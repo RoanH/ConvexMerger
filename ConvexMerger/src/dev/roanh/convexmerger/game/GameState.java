@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.MergeAnimation;
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
@@ -219,9 +220,11 @@ public class GameState{
 				}
 			}else{
 				Player player = getActivePlayer();
-				obj.setOwner(player);
 				player.addArea(obj.getArea());
-				obj.setAnimation(new ClaimAnimation(obj, location));
+				synchronized(objects){
+					obj.setOwner(player);
+					obj.setAnimation(new ClaimAnimation(obj, location));
+				}
 				player.getStats().addClaim();
 				listeners.forEach(l->l.claim(player, obj));
 				endTurn();
@@ -278,35 +281,41 @@ public class GameState{
 		ConvexObject merged = first.merge(this, second, true);
 		if(merged != null){
 			Player player = first.getOwner();
-			merged.setOwner(player);
-			objects.remove(first);
-			objects.remove(second);
-			decomp.removeObject(first);
-			decomp.removeObject(second);
-			player.removeArea(first.getArea());
-			player.removeArea(second.getArea());
 			
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
 			int maxID = Math.max(first.getID(), second.getID());
-			for(ConvexObject obj : objects){
-				maxID = Math.max(maxID, obj.getID());
-				if(merged.contains(obj)){
-					decomp.removeObject(obj);
-					contained.add(obj);
-					if(obj.isOwned()){
-						obj.getOwner().removeArea(obj.getArea());
+			synchronized(objects){
+				objects.remove(first);
+				objects.remove(second);
+				decomp.removeObject(first);
+				decomp.removeObject(second);
+				
+				for(ConvexObject obj : objects){
+					maxID = Math.max(maxID, obj.getID());
+					if(merged.contains(obj)){
+						decomp.removeObject(obj);
+						contained.add(obj);
+						if(obj.isOwned()){
+							obj.getOwner().removeArea(obj.getArea());
+						}
 					}
 				}
+				objects.removeAll(contained);
+				
+				objects.add(merged);
+				decomp.addObject(merged);
+				
+				player.removeArea(first.getArea());
+				player.removeArea(second.getArea());
+				player.addArea(merged.getArea());
+				player.getStats().addMerge();
+				player.getStats().addAbsorbed(contained.size());
+				
+				merged.setOwner(player);
+				merged.setID(maxID + 1);
+				merged.setAnimation(Animation.EMPTY);
 			}
-			objects.removeAll(contained);
 			
-			objects.add(merged);
-			decomp.addObject(merged);
-			player.addArea(merged.getArea());
-			player.getStats().addMerge();
-			player.getStats().addAbsorbed(contained.size());
-			
-			merged.setID(maxID + 1);
 			listeners.forEach(l->l.merge(player, first, second, merged, contained));
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			

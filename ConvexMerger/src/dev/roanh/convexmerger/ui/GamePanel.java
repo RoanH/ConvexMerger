@@ -260,17 +260,20 @@ public final class GamePanel extends Screen implements GameStateListener{
 			g.scale(sy, sy);
 		}
 		
-		for(ConvexObject obj : state.getObjects()){
-			if(obj.hasAnimation()){
-				obj.runAnimation(g);
-			}else{
-				obj.render(g);
-			}
-			
-			if(showCentroids){
-				g.setColor(Color.BLACK);
-				Point2D c = obj.getCentroid();
-				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));
+		List<ConvexObject> objects = state.getObjects();
+		synchronized(objects){
+			for(ConvexObject obj : objects){
+				if(obj.hasAnimation()){
+					obj.runAnimation(g);
+				}else{
+					obj.render(g);
+				}
+				
+				if(showCentroids){
+					g.setColor(Color.BLACK);
+					Point2D c = obj.getCentroid();
+					g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));
+				}
 			}
 		}
 		

@@ -25,6 +25,13 @@ import java.awt.Graphics2D;
  * @author Roan
  */
 public abstract class Animation{
+	public static final Animation EMPTY = new Animation(){
+
+		@Override
+		protected boolean render(Graphics2D g){
+			return true;
+		}
+	};
 	private volatile boolean finished;
 
 	/**
