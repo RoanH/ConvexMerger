@@ -19,23 +19,16 @@
 package dev.roanh.convexmerger.player;
 
 import java.awt.geom.Point2D;
-import java.util.List;
 
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.ui.GamePanel;
 
 /**
  * Represents a player controlled by a local human.
  * @author Roan
  */
-public class HumanPlayer extends Player implements GameStateListener{
-	/**
-	 * Boolean indicating the end of a player turn.
-	 */
-	@Deprecated
-	private volatile boolean turnEnd;
+public class HumanPlayer extends Player{
 	private GamePanel game;
 	
 	private volatile ConvexObject nextClaim = null;
@@ -52,46 +45,12 @@ public class HumanPlayer extends Player implements GameStateListener{
 	public void setGamePanel(GamePanel game){
 		this.game = game;
 	}
-
-	@Override
-	public synchronized boolean executeMove() throws InterruptedException{
-		synchronized(state){
-			if(!state.stream().filter(ConvexObject::canClaim).findAny().isPresent() && !stream().filter(this::hasMergeFrom).findAny().isPresent()){
-				return false;
-			}
-		}
-		
-//		turnEnd = false;
-//		while(!turnEnd){
-//			wait();
-//		}
-		
-		while(true){
-			while(nextClaim == null){
-				wait();
-			}
-			
-			ClaimResult result = state.claimObject(nextClaim, clickPoint);
-			game.setMessage(result.getMessage());
-			
-			//TODO set message
-			if(result.hasResult()){
-				break;
-			}else{
-				nextClaim = null;
-			}
-		}
-		
-		nextClaim = null;
-		return true;
-	}
 	
 	@Override
 	public boolean requireInput(){
 		return nextClaim == null;
 	}
 	
-	//TODO somehow pass message -- consumer?
 	public synchronized void handleClaim(ConvexObject claimed, Point2D location){
 		nextClaim = claimed;
 		clickPoint = location;
@@ -99,23 +58,22 @@ public class HumanPlayer extends Player implements GameStateListener{
 	}
 
 	@Override
-	public synchronized void claim(Player player, ConvexObject obj){
-		turnEnd = true;
-//		notify();
-	}
-
-	@Override
-	public synchronized void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
+	public synchronized boolean executeMove() throws InterruptedException{
+		if(!state.stream().filter(ConvexObject::canClaim).findAny().isPresent() && !stream().filter(this::hasMergeFrom).findAny().isPresent()){
+			return false;
+		}
 		
-		turnEnd = true;
-//		notify();
-	}
-
-	@Override
-	public void end(){
-	}
-
-	@Override
-	public void abort(){
+		ClaimResult result;
+		do{
+			while(nextClaim == null){
+				wait();
+			}
+			
+			result = state.claimObject(nextClaim, clickPoint);
+			game.setMessage(result.getMessage());
+			nextClaim = null;
+		}while(!result.hasResult());
+		
+		return true;
 	}
 }
