@@ -23,15 +23,11 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -347,12 +343,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		public void accept(T node, LineSegment seg){
 			depthData.computeIfAbsent(node.getDepth(), d->new ArrayList<T>()).add(node);
 		}
-		
 
 		@Override
 		protected boolean render(Graphics2D g){
 			int depth = (int)Math.floorDiv(System.currentTimeMillis() - start, DEPTH_DURATION);
-			System.out.println("run: " + depth);
 			for(int i = lastDepth; i < Math.min(depth, maxDepth + 1); i++){
 				for(T node : depthData.get(i)){
 					node.setMarked(false);
@@ -378,11 +372,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			
 			return depth <= maxDepth;
 		}
-
-
-
-		
-		
 	}
 	
 	/**
