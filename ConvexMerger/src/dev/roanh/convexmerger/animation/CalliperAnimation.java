@@ -97,10 +97,10 @@ public class CalliperAnimation extends Animation{
 
 	@Override
 	protected boolean render(Graphics2D g){
-		g.setStroke(Theme.BORDER_STROKE);
 		long elapsed = System.currentTimeMillis() - start;
 		double angle = (Math.PI * 2.0F * elapsed) / DURATION;
 		
+		g.setStroke(Theme.POLY_STROKE);
 		g.setColor(Color.BLUE);
 		if(firstAngle <= angle){
 			g.draw(firstLine);
