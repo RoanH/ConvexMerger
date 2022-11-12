@@ -107,14 +107,6 @@ public abstract class Player implements Identity{
 	public abstract boolean executeMove() throws InterruptedException;
 	
 	/**
-	 * Checks if this player requires input via the UI.
-	 * @return True if this player requires UI interaction.
-	 */
-	public boolean requireInput(){
-		return false;
-	}
-	
-	/**
 	 * Checks if this player is executing locally or
 	 * acting as a remote proxy.
 	 * @return True if this player is local.

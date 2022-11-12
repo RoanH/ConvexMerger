@@ -37,9 +37,7 @@ import java.util.List;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.CalliperAnimation;
-import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.ProxyAnimation;
-import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.SegmentPartitionTree;
@@ -47,7 +45,6 @@ import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
-import dev.roanh.util.Dialog;
 
 /**
  * Main panel responsible for rendering the current game state.
@@ -405,22 +402,22 @@ public final class GamePanel extends Screen implements GameStateListener{
 			return;
 		}
 		
-		if(state.ready() && state.getActivePlayer().requireInput() && !state.isFinished()){
-			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
-			ConvexObject obj = state.getObject(loc);
-			if(obj != null){
-				helperLines = null;
-				if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
-					((HumanPlayer)state.getActivePlayer()).handleClaim(obj, loc);
-					
-//					synchronized(state){
-//						ClaimResult result = state.claimObject(obj, loc);
-//						activeDialog = result.getMessage();
-//					}
-				}else if(!obj.isOwnedBy(state.getActivePlayer())){
-					state.clearSelection();
-					activeDialog = MessageDialog.ALREADY_OWNED;
+		if(state.ready() && state.getActivePlayer() instanceof HumanPlayer && !state.isFinished()){
+			HumanPlayer player = ((HumanPlayer)state.getActivePlayer());
+			if(player.requireInput()){
+				Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
+				ConvexObject obj = state.getObject(loc);
+				if(obj != null){
+					helperLines = null;
+					if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
+						player.handleClaim(obj, loc);
+					}else if(!obj.isOwnedBy(state.getActivePlayer())){
+						state.clearSelection();
+						activeDialog = MessageDialog.ALREADY_OWNED;
+					}
 				}
+			}else{
+				activeDialog = MessageDialog.NOT_READY;
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);
@@ -435,7 +432,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	public void handleMouseMove(Point2D loc, int width, int height){
 		super.handleMouseMove(loc, width, height);
-		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
+		Player player = state.getActivePlayer();
+		if(player instanceof HumanPlayer && ((HumanPlayer)player).requireInput() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(loc.getX(), loc.getY(), width, height));
 		}
 	}

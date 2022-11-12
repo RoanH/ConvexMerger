@@ -46,7 +46,10 @@ public class HumanPlayer extends Player{
 		this.game = game;
 	}
 	
-	@Override
+	/**
+	 * Checks if this player requires input via the UI.
+	 * @return True if this player requires UI interaction.
+	 */
 	public boolean requireInput(){
 		return nextClaim == null;
 	}
