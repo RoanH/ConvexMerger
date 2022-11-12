@@ -33,6 +33,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringJoiner;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
@@ -196,6 +197,32 @@ public final class GamePanel extends Screen implements GameStateListener{
 			return;
 		}
 		
+		//render data structure info
+		StringJoiner info = new StringJoiner(", ", "Showing: ", "");
+		info.setEmptyValue("");
+		if(state.getVerticalDecomposition().isAnimated()){
+			info.add("Vertical Decomposition");
+		}
+		if(showCentroids){
+			info.add("Centroids");
+		}
+		if(state.getSegmentTreeConj().isAnimated()){
+			info.add("Segment Partitions (Conjugation)");
+		}
+		if(state.getSegmentTreeKD().isAnimated()){
+			info.add("Segment Partitions (KD)");
+		}
+		if(showCallipers){
+			info.add("Merge Callipers");
+		}
+		if(info.length() != 0){
+			g.setFont(Theme.PRIDI_MEDIUM_14);
+			g.setColor(Color.WHITE);
+			FontMetrics fm = g.getFontMetrics();
+			String str = info.toString();
+			g.drawString(str, Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2) + (TOP_MIDDLE_WIDTH - fm.stringWidth(str)) / 2.0F, height - BOX_TEXT_OFFSET);
+		}
+
 		//render action hint
 		g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
 		renderMenuTitle(g, width, state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object"));
@@ -449,7 +476,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}else if(e.getKeyCode() == KeyEvent.VK_C){
 				showCentroids = !showCentroids;
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
-				state.getVerticalDecomposition().setAnimated(state.getVerticalDecomposition().isAnimated());
+				state.getVerticalDecomposition().setAnimated(!state.getVerticalDecomposition().isAnimated());
 			}else if(e.getKeyCode() == KeyEvent.VK_S){
 				state.getSegmentTreeConj().setAnimated(!state.getSegmentTreeConj().isAnimated());
 			}else if(e.getKeyCode() == KeyEvent.VK_K){
