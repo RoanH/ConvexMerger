@@ -25,13 +25,33 @@ import java.util.List;
 
 import dev.roanh.convexmerger.game.RenderableObject;
 
+/**
+ * Animation that renders the object it is initialised with.
+ * @author Roan
+ * @see RenderableObject
+ */
 public class ProxyAnimation extends Animation{
+	/**
+	 * List of objects to render.
+	 */
 	private List<RenderableObject> objects;
 	
+	/**
+	 * Constructs a new proxy animation with the
+	 * given list of objects to render.
+	 * @param objs The list of objects to render.
+	 */
 	public ProxyAnimation(RenderableObject... objs){
 		objects = Arrays.asList(objs);
 	}
 	
+	/**
+	 * Constructs a new proxy animation with the
+	 * given objects to render.
+	 * @param obj1 The first object to render.
+	 * @param obj2 The second object to render.
+	 * @param other Other objects to render.
+	 */
 	public ProxyAnimation(RenderableObject obj1, RenderableObject obj2, List<? extends RenderableObject> other){
 		objects = new ArrayList<RenderableObject>(2 + other.size());
 		objects.add(obj1);
