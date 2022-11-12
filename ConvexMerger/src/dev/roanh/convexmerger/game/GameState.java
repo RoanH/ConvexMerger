@@ -473,10 +473,12 @@ public class GameState{
 	 * Sets the object selected by the current player. This is the
 	 * object the player intends to start a merge from. Note that
 	 * it is generally safer to use {@link #claimObject(ConvexObject)}
-	 * to set this value as this method does not perform and checks
+	 * to set this value as this method does not perform any checks
 	 * to ensure it is actually valid for the player to select the
 	 * provided object.
 	 * @param obj The objected to set as selected.
+	 * @see #claimObject(ConvexObject)
+	 * @see #claimObject(ConvexObject, Point2D)
 	 */
 	public void setSelectedObject(ConvexObject obj){
 		selected = obj;
