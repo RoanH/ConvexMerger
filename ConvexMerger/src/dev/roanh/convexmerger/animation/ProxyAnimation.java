@@ -19,50 +19,32 @@
 package dev.roanh.convexmerger.animation;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * Class to represent ongoing animations.
- * @author Roan
- */
-public abstract class Animation{
-	/**
-	 * An 'animation' that renders nothing effectively
-	 * hiding the object it is applied to.
-	 */
-	public static final Animation EMPTY = new Animation(){
+import dev.roanh.convexmerger.game.RenderableObject;
 
-		@Override
-		protected boolean render(Graphics2D g){
-			return true;
-		}
-	};
-	private volatile boolean finished;
-
-	/**
-	 * Renders the next frame of the animation.
-	 * @param g The graphics instance to use.
-	 * @return True if the animation has frames
-	 *         remaining, false if it finished.
-	 */
-	public final boolean run(Graphics2D g){
-		if(!finished){
-			finished = !render(g);
-			if(finished){
-				synchronized(this){
-					notifyAll();
-				}
-			}else{
-				return true;
-			}
-		}
-		return false;
+public class ProxyAnimation extends Animation{
+	private List<RenderableObject> objects;
+	
+	public ProxyAnimation(RenderableObject... objs){
+		objects = Arrays.asList(objs);
 	}
 	
-	public synchronized void waitFor() throws InterruptedException{
-		while(!finished){
-			wait();
-		}
+	public ProxyAnimation(RenderableObject obj1, RenderableObject obj2, List<? extends RenderableObject> other){
+		objects = new ArrayList<RenderableObject>(2 + other.size());
+		objects.add(obj1);
+		objects.add(obj2);
+		objects.addAll(other);
 	}
-	
-	protected abstract boolean render(Graphics2D g);
+
+	@Override
+	protected boolean render(Graphics2D g){
+		for(RenderableObject obj : objects){
+			obj.renderOrAnimate(g);
+		}
+
+		return true;
+	}
 }

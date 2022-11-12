@@ -38,6 +38,7 @@ import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.CalliperAnimation;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
+import dev.roanh.convexmerger.animation.ProxyAnimation;
 import dev.roanh.convexmerger.game.ClaimResult;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
@@ -494,6 +495,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException{
 		if(showCallipers){
+			result.setAnimation(new ProxyAnimation(source, target, absorbed));
 			Animation anim = new CalliperAnimation(source, target);
 			addAnimation(anim);
 			anim.waitFor();
