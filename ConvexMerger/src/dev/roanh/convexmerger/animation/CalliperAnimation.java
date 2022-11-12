@@ -43,22 +43,27 @@ public class CalliperAnimation extends Animation{
 	 * The epoch millis start time of the animation.
 	 */
 	private long start;
-	/**
-	 * The convex object point set.
-	 */
-	private List<Point2D> points;
+//	/**
+//	 * The convex object point set.
+//	 */
+//	private List<Point2D> points;
 	/**
 	 * Cached current index in the points list.
 	 */
-	private int index = 0;
+	private int indexFirst = 0;
+	private int indexSecond = 0;
+	private ConvexObject first;
+	private ConvexObject second;
 	
-	/**
-	 * Constructs a new calliper animation for the given object.
-	 * Note: this animation only renders the calliper and not the object.
-	 * @param obj The object to show a calliper for.
-	 */
-	public CalliperAnimation(ConvexObject obj){
-		points = obj.getPoints();
+	
+//	/**
+//	 * Constructs a new calliper animation for the given object.
+//	 * Note: this animation only renders the calliper and not the object.
+//	 * @param obj The object to show a calliper for.
+//	 */
+	public CalliperAnimation(ConvexObject first, ConvexObject second){
+		this.first = first;
+		this.second = second;
 		start = System.currentTimeMillis();
 	}
 
@@ -67,6 +72,16 @@ public class CalliperAnimation extends Animation{
 		long elapsed = System.currentTimeMillis() - start;
 		double angle = (Math.PI * 2.0F * elapsed) / DURATION;
 		
+		first.render(g);
+		second.render(g);
+		
+		indexFirst = drawCalliper(g, first.getPoints(), angle, indexFirst);
+		indexSecond = drawCalliper(g, second.getPoints(), angle, indexSecond);
+		
+		return elapsed < DURATION;
+	}
+	
+	private int drawCalliper(Graphics2D g, List<Point2D> points, double angle, int index){
 		Point2D base = points.get(index % points.size());
 		while(index < points.size()){
 			if(ConvexUtil.angleFromVertical(points.get(index % points.size()), points.get((index + 1) % points.size())) >= angle){
@@ -87,7 +102,7 @@ public class CalliperAnimation extends Animation{
 			base.getY() + Math.sin(angle)
 		);
 		
-		return elapsed < DURATION;
+		return index;
 	}
 	
 	/**

@@ -494,22 +494,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
 		if(showCallipers){
-			result.setAnimation(new Animation(){
-
-				@Override
-				protected boolean render(Graphics2D g){
-					source.render(g);
-					target.render(g);
-					// TODO Auto-generated method stub
-					return true;
-				}
-				
-			});
-			addAnimation(new CalliperAnimation(source));
-			Animation trgAnim = new CalliperAnimation(target);
-			addAnimation(trgAnim);
+			Animation anim = new CalliperAnimation(source, target);
+			addAnimation(anim);
 			try{
-				trgAnim.waitFor();
+				anim.waitFor();
 			}catch(InterruptedException e){
 				// TODO Auto-generated catch block
 				e.printStackTrace();
