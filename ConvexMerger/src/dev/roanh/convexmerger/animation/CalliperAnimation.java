@@ -28,6 +28,7 @@ import java.util.List;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.ConvexUtil;
+import dev.roanh.convexmerger.ui.Theme;
 
 /**
  * Animation to visualise the callipers used
@@ -54,7 +55,10 @@ public class CalliperAnimation extends Animation{
 	private int indexSecond = 0;
 	private ConvexObject first;
 	private ConvexObject second;
-	
+	private Line2D firstLine;
+	private Line2D secondLine;
+	private double firstAngle;
+	private double secondAngle;
 	
 //	/**
 //	 * Constructs a new calliper animation for the given object.
@@ -64,16 +68,33 @@ public class CalliperAnimation extends Animation{
 	public CalliperAnimation(ConvexObject first, ConvexObject second){
 		this.first = first;
 		this.second = second;
+		
+		Point2D[] lines = ConvexUtil.computeMergeLines(first.getPoints(), second.getPoints());
+		firstLine = new Line2D.Double(lines[0], lines[1]);
+		secondLine = new Line2D.Double(lines[2], lines[3]);
+		firstAngle = ConvexUtil.angleFromVertical(firstLine);
+		secondAngle = ConvexUtil.angleFromVertical(secondLine);
+		
 		start = System.currentTimeMillis();
 	}
 
 	@Override
 	protected boolean render(Graphics2D g){
+		g.setStroke(Theme.BORDER_STROKE);
 		long elapsed = System.currentTimeMillis() - start;
 		double angle = (Math.PI * 2.0F * elapsed) / DURATION;
 		
 		first.render(g);
 		second.render(g);
+		
+		g.setColor(Color.BLUE);
+		if(firstAngle <= angle){
+			g.draw(firstLine);
+		}
+		
+		if(secondAngle <= angle){
+			g.draw(secondLine);
+		}
 		
 		indexFirst = drawCalliper(g, first.getPoints(), angle, indexFirst);
 		indexSecond = drawCalliper(g, second.getPoints(), angle, indexSecond);
@@ -91,7 +112,6 @@ public class CalliperAnimation extends Animation{
 			index++;
 		}
 		
-		g.setStroke(new BasicStroke(1.0F));
 		g.setColor(Color.RED);
 		angle += Math.PI * 0.5F;
 		drawLine(
