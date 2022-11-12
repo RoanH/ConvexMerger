@@ -492,16 +492,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException{
 		if(showCallipers){
 			Animation anim = new CalliperAnimation(source, target);
 			addAnimation(anim);
-			try{
-				anim.waitFor();
-			}catch(InterruptedException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			anim.waitFor();
 		}
 	}
 

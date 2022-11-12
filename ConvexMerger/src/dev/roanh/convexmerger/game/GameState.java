@@ -316,7 +316,9 @@ public class GameState{
 				merged.setAnimation(Animation.EMPTY);
 			}
 			
-			listeners.forEach(l->l.merge(player, first, second, merged, contained));
+			for(GameStateListener listener : listeners){
+				listener.merge(player, first, second, merged, contained);
+			}
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			return merged;
@@ -517,8 +519,11 @@ public class GameState{
 		 * @param target The target object of the merge.
 		 * @param result The object resulting from the merge.
 		 * @param absorbed The objects absorbed in the merge.
+		 * @throws InterruptedException When the player was
+		 *         interrupted while making its move. Signalling
+		 *         that the game was aborted.
 		 */
-		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed);
+		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException;
 		
 		/**
 		 * Called when the game ends.
