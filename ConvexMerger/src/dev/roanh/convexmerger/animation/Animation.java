@@ -26,7 +26,7 @@ import java.awt.Graphics2D;
  */
 public abstract class Animation{
 	/**
-	 * An 'animation' that renders nothing effectively
+	 * An 'animation' that renders nothing, effectively
 	 * hiding the object it is applied to.
 	 */
 	public static final Animation EMPTY = new Animation(){
