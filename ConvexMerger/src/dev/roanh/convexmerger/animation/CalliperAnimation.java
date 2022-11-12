@@ -18,7 +18,6 @@
  */
 package dev.roanh.convexmerger.animation;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
@@ -41,30 +40,48 @@ public class CalliperAnimation extends Animation{
 	 */
 	private static final float DURATION = 5000.0F;
 	/**
-	 * The epoch millis start time of the animation.
+	 * The epoch millisecond start time of the animation.
 	 */
 	private long start;
-//	/**
-//	 * The convex object point set.
-//	 */
-//	private List<Point2D> points;
 	/**
-	 * Cached current index in the points list.
+	 * Cached current index in the first object's points list.
 	 */
 	private int indexFirst = 0;
+	/**
+	 * Cached current index in the second object's points list.
+	 */
 	private int indexSecond = 0;
+	/**
+	 * The first object in the merge.
+	 */
 	private ConvexObject first;
+	/**
+	 * The second object in the merge.
+	 */
 	private ConvexObject second;
+	/**
+	 * The first merge line.
+	 */
 	private Line2D firstLine;
+	/**
+	 * The second merge line.
+	 */
 	private Line2D secondLine;
+	/**
+	 * The angle of the first merge line.
+	 */
 	private double firstAngle;
+	/**
+	 * The angle of the second merge line.
+	 */
 	private double secondAngle;
 	
-//	/**
-//	 * Constructs a new calliper animation for the given object.
-//	 * Note: this animation only renders the calliper and not the object.
-//	 * @param obj The object to show a calliper for.
-//	 */
+	/**
+	 * Constructs a new calliper animation for the given objects.
+	 * Note: this animation only renders the callipers and not the objects.
+	 * @param first The first object from the merge.
+	 * @param second The second object from the merge.
+	 */
 	public CalliperAnimation(ConvexObject first, ConvexObject second){
 		this.first = first;
 		this.second = second;
@@ -96,12 +113,21 @@ public class CalliperAnimation extends Animation{
 			g.draw(secondLine);
 		}
 		
+		g.setColor(Color.RED);
 		indexFirst = drawCalliper(g, first.getPoints(), angle, indexFirst);
 		indexSecond = drawCalliper(g, second.getPoints(), angle, indexSecond);
 		
 		return elapsed < DURATION;
 	}
 	
+	/**
+	 * Draws the calliper line for the given object at the given angle.
+	 * @param g The graphics context to use.
+	 * @param points The points of the convex object to draw a calliper for.
+	 * @param angle The angle of the calliper line to draw.
+	 * @param index The object point set index left off at during the previous animation frame.
+	 * @return The new object point set index left off at.
+	 */
 	private int drawCalliper(Graphics2D g, List<Point2D> points, double angle, int index){
 		Point2D base = points.get(index % points.size());
 		while(index < points.size()){
@@ -112,7 +138,6 @@ public class CalliperAnimation extends Animation{
 			index++;
 		}
 		
-		g.setColor(Color.RED);
 		angle += Math.PI * 0.5F;
 		drawLine(
 			g,
