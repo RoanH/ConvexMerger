@@ -36,6 +36,9 @@ public abstract class Animation{
 			return true;
 		}
 	};
+	/**
+	 * When true indicates that the animation has no frames remaining.
+	 */
 	private volatile boolean finished;
 
 	/**
@@ -58,11 +61,21 @@ public abstract class Animation{
 		return false;
 	}
 	
+	/**
+	 * Blocks the current thread until this animation has finished.
+	 * @throws InterruptedException When the current thread is interrupted.
+	 */
 	public synchronized void waitFor() throws InterruptedException{
 		while(!finished){
 			wait();
 		}
 	}
 	
+	/**
+	 * Renders the next frame of this animation.
+	 * @param g The graphics context to use.
+	 * @return True if the animation has frames
+	 *         remaining, false if it finished.
+	 */
 	protected abstract boolean render(Graphics2D g);
 }
