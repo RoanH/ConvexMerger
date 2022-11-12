@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -69,7 +68,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	/**
 	 * The segments stored in this segment partition tree.
 	 */
-	private final List<LineSegment> segments = new CopyOnWriteArrayList<LineSegment>();
+	private final List<LineSegment> segments = new ArrayList<LineSegment>();
 	/**
 	 * Whether this segment partition tree is animated.
 	 */
@@ -178,7 +177,8 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	@Override
 	public void render(Graphics2D g){
 		g.setStroke(Theme.POLY_STROKE);
-		for(LineSegment seg : segments){
+		for(int i = 0; i < segments.size(); i++){
+			LineSegment seg = segments.get(i);
 			g.setColor(seg.marked ? Color.RED : Color.BLACK);
 			g.draw(seg);
 		}	
