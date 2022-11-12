@@ -101,9 +101,6 @@ public class CalliperAnimation extends Animation{
 		long elapsed = System.currentTimeMillis() - start;
 		double angle = (Math.PI * 2.0F * elapsed) / DURATION;
 		
-		first.render(g);
-		second.render(g);
-		
 		g.setColor(Color.BLUE);
 		if(firstAngle <= angle){
 			g.draw(firstLine);
