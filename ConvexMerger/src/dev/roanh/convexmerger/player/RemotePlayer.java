@@ -55,7 +55,7 @@ public class RemotePlayer extends GreedyPlayer{
 	}
 	
 	/**
-	 * Checks if the connection to the remtoe player was lost.
+	 * Checks if the connection to the remote player was lost.
 	 * @return True if the remote connection was lost.
 	 */
 	public boolean isLost(){
