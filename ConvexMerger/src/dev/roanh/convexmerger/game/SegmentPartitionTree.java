@@ -129,7 +129,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	private void addSegmentInternal(LineSegment line){
 		partitionVisitor.visitTree(partitions, line, false, PartitionTreeVisitor.terminal((node, seg)->{
 			node.addData(seg);
-			segments.add(seg);	
+			segments.add(seg);
 		}));
 	}
 	
@@ -174,26 +174,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		return partitions.streamCells();
 	}
 	
-	@Override
-	public void render(Graphics2D g){
-		g.setStroke(Theme.POLY_STROKE);
-		for(int i = 0; i < segments.size(); i++){
-			LineSegment seg = segments.get(i);
-			g.setColor(seg.marked ? Color.RED : Color.BLACK);
-			g.draw(seg);
-		}	
-		
-		g.setStroke(Theme.BORDER_STROKE);
-		partitions.render(g);
-		
-		g.setColor(Color.CYAN);
-		g.setStroke(Theme.BORDER_STROKE);
-		g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
-		g.drawLine(0, 0, Constants.PLAYFIELD_WIDTH, 0);
-		g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-		g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-	}
-	
 	/**
 	 * Animates a search for intersections with the given line segment.
 	 * @param a The first point of the line segment.
@@ -204,6 +184,26 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		Animation anim = new SearchAnimation(new LineSegment(a, b));
 		setAnimation(anim);
 		return anim;
+	}
+	
+	@Override
+	public void render(Graphics2D g){
+		g.setStroke(Theme.POLY_STROKE);
+		for(int i = 0; i < segments.size(); i++){
+			LineSegment seg = segments.get(i);
+			g.setColor(seg.marked ? Color.RED : Color.BLACK);
+			g.draw(seg);
+		}
+		
+		g.setStroke(Theme.BORDER_STROKE);
+		partitions.render(g);
+		
+		g.setColor(Color.CYAN);
+		g.setStroke(Theme.BORDER_STROKE);
+		g.drawLine(0, 0, 0, Constants.PLAYFIELD_HEIGHT);
+		g.drawLine(0, 0, Constants.PLAYFIELD_WIDTH, 0);
+		g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+		g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 	}
 	
 	/**
@@ -326,14 +326,44 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		}
 	}
 	
+	/**
+	 * Implementation of a search animation with a segment in the tree.
+	 * The search will not stop early to show exactly which cells would
+	 * be visited potentially.
+	 * @author Roan
+	 */
 	private class SearchAnimation extends Animation implements BiConsumer<T, LineSegment>{
+		/**
+		 * The number of milliseconds to show each search depth in the animation for.
+		 */
 		private static final int DEPTH_DURATION = 250;
+		/**
+		 * Nodes to highlight by their depth.
+		 */
 		private Map<Integer, List<T>> depthData = new HashMap<Integer, List<T>>();
+		/**
+		 * The lowest depth searched by the search.
+		 */
 		private int maxDepth;
+		/**
+		 * The millisecond start time of the animation.
+		 */
 		private long start;
+		/**
+		 * The depth visualised in the last animation frame.
+		 */
 		private int lastDepth = 0;
+		/**
+		 * The search query line.
+		 */
+		private LineSegment query;
 		
+		/**
+		 * Constructs a new search animation with the given query line.
+		 * @param query The query line for the search.
+		 */
 		private SearchAnimation(LineSegment query){
+			this.query = query;
 			partitionVisitor.visitTree(partitions, query, true, PartitionTreeVisitor.all(this));
 			maxDepth = depthData.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
 			start = System.currentTimeMillis();
@@ -367,6 +397,10 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 					lastDepth = depth;
 				}
 			}
+			
+			g.setStroke(Theme.POLY_STROKE);
+			g.setColor(Color.BLUE);
+			g.draw(query);
 			
 			SegmentPartitionTree.this.render(g);
 			
