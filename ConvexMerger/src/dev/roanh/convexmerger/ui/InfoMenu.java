@@ -169,11 +169,11 @@ public class InfoMenu extends Screen{
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "D");
-		g.drawString("Show Vertical Decomposition", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		g.drawString("Show Vertical Decomposition (works on the new game menu)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "S");
-		g.drawString("Show Segment Partition Tree (conjugation)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		g.drawString("Show Segment Partition Tree (conjugation tree)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "K");
@@ -181,7 +181,7 @@ public class InfoMenu extends Screen{
 		y += fm.getHeight() + SPACING;
 		drawKeyFrame(g, x, y, "Ctrl");
 		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "M");
-		g.drawString("Show Merge Calipers", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		g.drawString("Show Merge Calipers (used to compute merge lines)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
 	}
 	
 	/**
