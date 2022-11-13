@@ -29,9 +29,19 @@ import dev.roanh.convexmerger.ui.GamePanel;
  * @author Roan
  */
 public class HumanPlayer extends Player{
+	/**
+	 * The panel visualising the game this player is playing in.
+	 */
 	private GamePanel game;
-	
+	/**
+	 * The objected selected by the player as the next object to claim.
+	 * @see #clickPoint
+	 */
 	private volatile ConvexObject nextClaim = null;
+	/**
+	 * The point clicked to claim the next object to claim.
+	 * @see #nextClaim
+	 */
 	private volatile Point2D clickPoint = new Point2D.Double();
 
 	/**
@@ -42,18 +52,27 @@ public class HumanPlayer extends Player{
 		super(true, false, name);
 	}
 	
+	/**
+	 * Sets the game panel visualising the game this player is playing in.
+	 * @param game The game panel for this player.
+	 */
 	public void setGamePanel(GamePanel game){
 		this.game = game;
 	}
 	
 	/**
-	 * Checks if this player requires input via the UI.
+	 * Checks if this player currently requires input via the UI.
 	 * @return True if this player requires UI interaction.
 	 */
 	public boolean requireInput(){
 		return nextClaim == null;
 	}
 	
+	/**
+	 * Handles a new object to try to claim for this player.
+	 * @param claimed The object that was attempted to be claimed.
+	 * @param location The point clicked to claim the given object.
+	 */
 	public synchronized void handleClaim(ConvexObject claimed, Point2D location){
 		nextClaim = claimed;
 		clickPoint = location;
