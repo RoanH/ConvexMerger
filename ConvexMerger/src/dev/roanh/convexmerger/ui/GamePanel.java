@@ -104,6 +104,10 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Quit dialog no button.
 	 */
 	private Path2D quitNo = new Path2D.Double();
+	/**
+	 * List of global animations for the game, these are
+	 * rendered after all convex objects.
+	 */
 	private List<Animation> animations = new ArrayList<Animation>();
 	
 	/**
@@ -174,10 +178,20 @@ public final class GamePanel extends Screen implements GameStateListener{
 		}
 	}
 	
+	/**
+	 * Sets the active display message for the game.
+	 * @param message The new message to display or
+	 *        <code>null</code> to clear the current message.
+	 */
 	public void setMessage(MessageDialog message){
 		activeDialog = message;
 	}
 	
+	/**
+	 * Adds a new global animation to the game, this animation is
+	 * rendered after all convex objects.
+	 * @param animation The animation to add.
+	 */
 	public void addAnimation(Animation animation){
 		synchronized(animations){
 			animations.add(animation);
