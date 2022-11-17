@@ -101,7 +101,7 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 			g.setFont(Theme.PRIDI_MEDIUM_14);
 			g.setColor(Color.RED);
 			long max = 1000 / Constants.ANIMATION_RATE;
-			g.drawString("FPS: " + String.valueOf(Math.min(max, 1000 / delta)) + "/" + max + " (" + delta + "ms)", 7, g.getFontMetrics().getAscent());
+			g.drawString("FPS: " + String.valueOf(delta == 0 ? max : Math.min(max, 1000 / delta)) + "/" + max + " (" + delta + "ms)", 7, g.getFontMetrics().getAscent());
 		}
 	}
 
