@@ -72,10 +72,10 @@ public class ScoreAnimation extends Animation{
 		
 		if(Double.compare(area, player.getArea()) != 0){
 			last = time;
-			return true;
 		}else{
 			last = -1L;
-			return false;
 		}
+		
+		return true;
 	}
 }
