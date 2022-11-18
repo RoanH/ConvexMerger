@@ -161,7 +161,7 @@ public class CalliperAnimation extends Animation{
 		}else{
 			double coef = (y2 - y1) / (x2 - x1);
 			double base = y1 - x1 * coef;
-			g.draw(new Line2D.Double(-Constants.PLAYFIELD_WIDTH, base - coef * Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_WIDTH * 2.0D, base + coef * 2.0D * Constants.PLAYFIELD_WIDTH));
+			g.draw(new Line2D.Double(-10.0D * Constants.PLAYFIELD_WIDTH, base - coef * 10.0D * Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_WIDTH * 11.0D, base + coef * 11.0D * Constants.PLAYFIELD_WIDTH));
 		}
 	}
 }
