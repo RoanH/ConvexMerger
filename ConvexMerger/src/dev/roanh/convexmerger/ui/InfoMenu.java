@@ -64,7 +64,7 @@ public class InfoMenu extends Screen{
 	/**
 	 * Height of the version box.
 	 */
-	private static final int VERSION_HEIGHT = 70;
+	private static final int VERSION_HEIGHT = 72;
 	/**
 	 * Height of the credits box.
 	 */
@@ -225,7 +225,8 @@ public class InfoMenu extends Screen{
 		FontMetrics fm = g.getFontMetrics();
 		
 		y += Screen.BOX_HEADER_HEIGHT + 1;
-		y += fm.getAscent() + fm.getDescent();
+		y += (h - Screen.BOX_HEADER_HEIGHT - 1) / 2.0D;
+		y += (fm.getAscent() - fm.getDescent() - fm.getLeading()) / 2.0D;
 		x += Screen.BOX_TEXT_OFFSET;
 		
 		final String ver = version;
