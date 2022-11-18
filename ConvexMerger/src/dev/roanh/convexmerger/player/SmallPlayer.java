@@ -38,7 +38,7 @@ public class SmallPlayer extends LocalPlayer{
 	}
 	
 	@Override
-	protected boolean claimNewObject(){
+	protected boolean claimNewObject() throws InterruptedException{
 		Optional<ConvexObject> obj = state.stream().filter(ConvexObject::canClaim).sorted(Comparator.comparingDouble(ConvexObject::getArea)).filter(this::hasMergeFrom).findFirst();
 		if(obj.isPresent()){
 			target = state.claimObject(obj.get()).getResult();

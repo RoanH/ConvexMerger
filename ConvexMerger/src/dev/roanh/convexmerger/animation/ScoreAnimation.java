@@ -27,7 +27,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * Animation that shows the player score increasing or decreasing.
  * @author Roan
  */
-public class ScoreAnimation implements Animation{
+public class ScoreAnimation extends Animation{
 	/**
 	 * Number of score points to add each millisecond.
 	 */
@@ -56,7 +56,7 @@ public class ScoreAnimation implements Animation{
 	}
 
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		if(last == -1L){
 			last = System.currentTimeMillis();
 		}
@@ -72,10 +72,10 @@ public class ScoreAnimation implements Animation{
 		
 		if(Double.compare(area, player.getArea()) != 0){
 			last = time;
-			return true;
 		}else{
 			last = -1L;
-			return false;
 		}
+		
+		return true;
 	}
 }

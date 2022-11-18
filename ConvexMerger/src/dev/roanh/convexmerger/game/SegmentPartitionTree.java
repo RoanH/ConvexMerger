@@ -24,9 +24,9 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.ui.Theme;
 
 /**
@@ -45,7 +46,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * @see <a href="https://doi.org/10.1007/BF01931656">Overmars, M.H., Schipper, H. and Sharir, M.,
  *      "Storing line segments in partition trees" in BIT Numerical Mathematics, vol. 30, 1990, pp. 385–403</a>
  */
-public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>>{
+public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.LineSegment, T>> extends RenderableObject{
 	/**
 	 * Constructor for kd-tree based segment partition trees.
 	 * @see KDTree
@@ -102,6 +103,9 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 */
 	public void setAnimated(boolean animated){
 		this.animated = animated;
+		if(!animated && hasAnimation()){
+			getAnimation().end();
+		}
 	}
 	
 	/**
@@ -174,12 +178,26 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	}
 	
 	/**
-	 * Renders this segment partition tree.
-	 * @param g The graphics context to use.
+	 * Animates a search for intersections with the given line segment.
+	 * @param a The first point of the line segment.
+	 * @param b The second point of the line segment.
+	 * @return The created animation object.
 	 */
+	public Animation showAnimation(Point2D a, Point2D b){
+		if(animated){
+			Animation anim = new SearchAnimation(new LineSegment(a, b));
+			setAnimation(anim);
+			return anim;
+		}else{
+			return Animation.EMPTY;
+		}
+	}
+	
+	@Override
 	public void render(Graphics2D g){
 		g.setStroke(Theme.POLY_STROKE);
-		for(LineSegment seg : segments){
+		for(int i = 0; i < segments.size(); i++){
+			LineSegment seg = segments.get(i);
 			g.setColor(seg.marked ? Color.RED : Color.BLACK);
 			g.draw(seg);
 		}
@@ -193,50 +211,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		g.drawLine(0, 0, Constants.PLAYFIELD_WIDTH, 0);
 		g.drawLine(0, Constants.PLAYFIELD_HEIGHT, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 		g.drawLine(Constants.PLAYFIELD_WIDTH, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-	}
-	
-	//TODO temporary animation
-	/**
-	 * Animates two searches for intersections with the given line segments.
-	 * @param a The first point of the first line segment.
-	 * @param b The second point of the first line segment.
-	 * @param c The first point of the second line segment.
-	 * @param d The second point of the second line segment.
-	 */
-	public void renderQuery(Point2D a, Point2D b, Point2D c, Point2D d){
-		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-		executor.submit(()->renderQuery(a, b));
-		executor.submit(()->renderQuery(c, d));
-	}
-
-	//TODO temporary animation
-	/**
-	 * Animates a search for intersections with the given line segment.
-	 * @param a The first point of the line segment.
-	 * @param b The second point of the line segment.
-	 */
-	private void renderQuery(Point2D a, Point2D b){
-		LineSegment line = new LineSegment(a, b);
-		for(int i = 0; i <= partitions.getHeight(); i++){
-			final int depth = i;
-			partitionVisitor.visitTree(partitions, line, depth, true, PartitionTreeVisitor.all((node, seg)->{
-				boolean mark = depth == node.getDepth();
-				node.setMarked(mark);
-				node.getData().forEach(l->l.marked = mark);
-			}));
-
-			try{
-				Thread.sleep(250);
-			}catch(InterruptedException e){
-			}
-		}
-		
-		partitions.streamCells().forEach(c->{
-			c.setMarked(false);
-			for(LineSegment l : c.getData()){
-				l.marked = false;
-			}
-		});
 	}
 	
 	/**
@@ -356,6 +330,100 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 					return false;
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Implementation of a search animation with a segment in the tree.
+	 * The search will not stop early to show exactly which cells would
+	 * be visited potentially.
+	 * @author Roan
+	 */
+	private class SearchAnimation extends Animation implements BiConsumer<T, LineSegment>{
+		/**
+		 * The number of milliseconds to show each search depth in the animation for.
+		 */
+		private static final int DEPTH_DURATION = 250;
+		/**
+		 * Nodes to highlight by their depth.
+		 */
+		private Map<Integer, List<T>> depthData = new HashMap<Integer, List<T>>();
+		/**
+		 * The lowest depth searched by the search.
+		 */
+		private int maxDepth;
+		/**
+		 * The millisecond start time of the animation.
+		 */
+		private long start;
+		/**
+		 * The depth visualised in the last animation frame.
+		 */
+		private int lastDepth = -1;
+		/**
+		 * The search query line.
+		 */
+		private LineSegment query;
+		
+		/**
+		 * Constructs a new search animation with the given query line.
+		 * @param query The query line for the search.
+		 */
+		private SearchAnimation(LineSegment query){
+			this.query = query;
+			partitionVisitor.visitTree(partitions, query, true, PartitionTreeVisitor.all(this));
+			maxDepth = depthData.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
+			start = System.currentTimeMillis();
+		}
+		
+		@Override
+		public void accept(T node, LineSegment seg){
+			depthData.computeIfAbsent(node.getDepth(), d->new ArrayList<T>()).add(node);
+		}
+
+		@Override
+		protected boolean render(Graphics2D g){
+			int depth = (int)Math.floorDiv(System.currentTimeMillis() - start, DEPTH_DURATION);
+			for(int i = Math.max(0, lastDepth); i < Math.min(depth, maxDepth + 1); i++){
+				for(T node : depthData.get(i)){
+					node.setMarked(false);
+					for(LineSegment seg : node.getData()){
+						seg.marked = false;
+					}
+				}
+			}
+			
+			if(depth <= maxDepth){
+				if(lastDepth != depth){
+					for(T node : depthData.get(depth)){
+						node.setMarked(true);
+						for(LineSegment seg : node.getData()){
+							seg.marked = true;
+						}
+					}
+					lastDepth = depth;
+				}
+			}
+			
+			g.setStroke(Theme.POLY_STROKE);
+			g.setColor(Color.BLUE);
+			g.draw(query);
+			
+			SegmentPartitionTree.this.render(g);
+			
+			return depth <= maxDepth;
+		}
+		
+		@Override
+		public void end(){
+			depthData.values().stream().flatMap(List::stream).forEach(node->{
+				node.setMarked(false);
+				for(LineSegment seg : node.getData()){
+					seg.marked = false;
+				}
+			});
+			
+			super.end();
 		}
 	}
 	

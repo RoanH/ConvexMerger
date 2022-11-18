@@ -107,14 +107,6 @@ public abstract class Player implements Identity{
 	public abstract boolean executeMove() throws InterruptedException;
 	
 	/**
-	 * Checks if this player requires input via the UI.
-	 * @return True if this player requires UI interaction.
-	 */
-	public boolean requireInput(){
-		return !ai && local;
-	}
-	
-	/**
 	 * Checks if this player is executing locally or
 	 * acting as a remote proxy.
 	 * @return True if this player is local.
@@ -386,8 +378,11 @@ public abstract class Player implements Identity{
 		/**
 		 * Executes this merge by making it concrete in the game state.
 		 * @return The object that resulted from the merge.
+		 * @throws InterruptedException When the player was
+		 *         interrupted while making its move. Signalling
+		 *         that the game was aborted.
 		 */
-		public ConvexObject execute(){
+		public ConvexObject execute() throws InterruptedException{
 			state.claimObject(first);
 			return state.claimObject(second).getResult();
 		}

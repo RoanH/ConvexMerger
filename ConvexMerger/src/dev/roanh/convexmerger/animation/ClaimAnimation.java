@@ -31,7 +31,7 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * Animation shown when claiming a single object.
  * @author Roan
  */
-public class ClaimAnimation implements Animation{
+public class ClaimAnimation extends Animation{
 	/**
 	 * Number of milliseconds the animation plays for.
 	 */
@@ -68,7 +68,7 @@ public class ClaimAnimation implements Animation{
 	}
 
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		long elapsed = System.currentTimeMillis() - start;
 
 		if(elapsed < DURATION){

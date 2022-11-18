@@ -213,6 +213,9 @@ public class ConvexMerger implements KeyEventDispatcher{
 				
 				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();
+					if(player.isAI()){
+						Thread.sleep(Constants.AI_WAIT_TIME);
+					}
 					
 					long start = System.currentTimeMillis();
 					state.executePlayerTurn();

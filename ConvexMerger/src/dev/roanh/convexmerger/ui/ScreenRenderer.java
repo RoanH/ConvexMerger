@@ -18,6 +18,7 @@
  */
 package dev.roanh.convexmerger.ui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -26,6 +27,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -52,6 +54,10 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 	 * The active screen to render.
 	 */
 	private Screen screen;
+	/**
+	 * Whether to render the FPS counter.
+	 */
+	private boolean showFPS = false;
 	
 	/**
 	 * Constructs a new screen renderer with the given
@@ -83,10 +89,20 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 		Graphics2D g = (Graphics2D)g1.create();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		AffineTransform transform = g.getTransform();
 		
 		long start = System.currentTimeMillis();
 		screen.render(g, this.getWidth(), this.getHeight());
-		executor.schedule(()->this.repaint(), Math.max(0, Constants.ANIMATION_RATE - System.currentTimeMillis() + start), TimeUnit.MILLISECONDS);
+		long delta = System.currentTimeMillis() - start;
+		executor.schedule(()->this.repaint(), Math.max(0, Constants.ANIMATION_RATE - delta), TimeUnit.MILLISECONDS);
+		
+		if(showFPS){
+			g.setTransform(transform);
+			g.setFont(Theme.PRIDI_MEDIUM_14);
+			g.setColor(Color.RED);
+			long max = 1000 / Constants.ANIMATION_RATE;
+			g.drawString("FPS: " + String.valueOf(delta == 0 ? max : Math.min(max, 1000 / delta)) + "/" + max + " (" + delta + "ms)", 7, g.getFontMetrics().getAscent());
+		}
 	}
 
 	@Override
@@ -96,6 +112,9 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 	@Override
 	public void keyPressed(KeyEvent e){
 		screen.handleKeyPressed(e);
+		if(e.getKeyCode() == KeyEvent.VK_F3){
+			showFPS = !showFPS;
+		}
 	}
 
 	@Override

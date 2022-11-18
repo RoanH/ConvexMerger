@@ -128,14 +128,14 @@ public class MergeAnimation extends ClaimAnimation{
 	}
 
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		if(unclaimed){
 			owned.render(g);
 			for(ConvexObject obj : contained){
 				obj.render(g);
 			}
 			
-			if(!super.run(g)){
+			if(!super.render(g)){
 				unclaimed = false;
 				start = System.currentTimeMillis();
 			}

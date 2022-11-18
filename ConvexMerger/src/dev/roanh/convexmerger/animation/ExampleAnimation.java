@@ -33,7 +33,7 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * The example animation shown on the information menu.
  * @author Roan
  */
-public class ExampleAnimation implements Animation{
+public class ExampleAnimation extends Animation{
 	/**
 	 * Width of the animation.
 	 */
@@ -80,7 +80,7 @@ public class ExampleAnimation implements Animation{
 	private long time;
 	
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		switch(state){
 		case 0:
 			first.setOwner(null);

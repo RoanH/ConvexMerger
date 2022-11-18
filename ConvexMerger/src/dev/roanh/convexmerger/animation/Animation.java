@@ -21,10 +21,30 @@ package dev.roanh.convexmerger.animation;
 import java.awt.Graphics2D;
 
 /**
- * Interface to represent ongoing animations.
+ * Class to represent ongoing animations.
  * @author Roan
  */
-public abstract interface Animation{
+public abstract class Animation{
+	/**
+	 * An 'animation' that renders nothing, effectively
+	 * hiding the object it is applied to. It is also not
+	 * possible to wait on this animation.
+	 */
+	public static final Animation EMPTY = new Animation(){
+
+		@Override
+		protected boolean render(Graphics2D g){
+			return true;
+		}
+		
+		@Override
+		public synchronized void waitFor() throws InterruptedException{
+		}
+	};
+	/**
+	 * When true indicates that the animation has no frames remaining.
+	 */
+	private volatile boolean finished;
 
 	/**
 	 * Renders the next frame of the animation.
@@ -32,5 +52,40 @@ public abstract interface Animation{
 	 * @return True if the animation has frames
 	 *         remaining, false if it finished.
 	 */
-	public abstract boolean run(Graphics2D g);
+	public final boolean run(Graphics2D g){
+		boolean remaining = render(g);
+		if(!remaining && !finished){
+			finished = true;
+			synchronized(this){
+				notifyAll();
+			}
+		}
+		return remaining;
+	}
+	
+	/**
+	 * Forcefully ends this animation.
+	 */
+	public synchronized void end(){
+		finished = true;
+		notifyAll();
+	}
+	
+	/**
+	 * Blocks the current thread until this animation has finished.
+	 * @throws InterruptedException When the current thread is interrupted.
+	 */
+	public synchronized void waitFor() throws InterruptedException{
+		while(!finished){
+			wait();
+		}
+	}
+	
+	/**
+	 * Renders the next frame of this animation.
+	 * @param g The graphics context to use.
+	 * @return True if the animation has frames
+	 *         remaining, false if it finished.
+	 */
+	protected abstract boolean render(Graphics2D g);
 }

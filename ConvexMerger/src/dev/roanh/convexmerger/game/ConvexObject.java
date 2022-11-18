@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
@@ -38,7 +37,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * are given in counter clockwise order.
  * @author Roan
  */
-public class ConvexObject implements Identity, Serializable{
+public class ConvexObject extends RenderableObject implements Identity, Serializable{
 	/**
 	 * Serial ID.
 	 */
@@ -60,10 +59,6 @@ public class ConvexObject implements Identity, Serializable{
 	 * The player that owns this object.
 	 */
 	private transient Player owner = null;
-	/**
-	 * The active animation for this object.
-	 */
-	private transient Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -228,7 +223,12 @@ public class ConvexObject implements Identity, Serializable{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
-		return merge(state, other, false);
+		try{
+			return merge(state, other, false);
+		}catch(InterruptedException e){
+			//only saving merges can be interrupted
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
@@ -243,9 +243,12 @@ public class ConvexObject implements Identity, Serializable{
 	 * @param saveSegments True if the merge lines for the
 	 *        merge should be added to the game state.
 	 * @return The resulting merged convex object.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 * @see #merge(ConvexObject)
 	 */
-	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments){
+	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments) throws InterruptedException{
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		
 		//check if the new hull is valid
@@ -257,13 +260,13 @@ public class ConvexObject implements Identity, Serializable{
 				return null;
 			}else if(saveSegments){
 				if(treeC.isAnimated()){
-					//TODO proper animation
-					treeC.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+					treeC.showAnimation(lines[0], lines[1]).waitFor();
+					treeC.showAnimation(lines[2], lines[3]).waitFor();
 				}
 				
 				if(treeK.isAnimated()){
-					//TODO proper animation
-					treeK.renderQuery(lines[0], lines[1], lines[2], lines[3]);
+					treeK.showAnimation(lines[0], lines[1]).waitFor();
+					treeK.showAnimation(lines[2], lines[3]).waitFor();
 				}
 				
 				treeC.addSegment(lines[0], lines[1]);
@@ -376,51 +379,6 @@ public class ConvexObject implements Identity, Serializable{
 	}
 	
 	/**
-	 * Checks if this convex object has an active animation.
-	 * @return True if this convex object has an active animation.
-	 */
-	public boolean hasAnimation(){
-		return animation != null;
-	}
-	
-	/**
-	 * Sets the active animation for this convex object.
-	 * @param animation The new active animation.
-	 */
-	public void setAnimation(Animation animation){
-		this.animation = animation;
-	}
-	
-	/**
-	 * Renders the animation for this convex object
-	 * using the given graphics instance.
-	 * @param g The graphics instance to use.
-	 * @return True if the animation still has frames
-	 *         remaining, false otherwise.
-	 */
-	public boolean runAnimation(Graphics2D g){
-		if(animation.run(g)){
-			return true;
-		}else{
-			animation = null;
-			return false;
-		}
-	}
-	
-	/**
-	 * Renders this convex object using the given
-	 * graphics instance.
-	 * @param g The graphics instance to use.
-	 */
-	public void render(Graphics2D g){
-		g.setColor(Theme.getPlayerBody(this));
-		g.fill(shape);
-		g.setStroke(Theme.POLY_STROKE);
-		g.setColor(Theme.getPlayerOutline(this));
-		g.draw(shape);
-	}
-	
-	/**
 	 * Checks if this objects is unowned and
 	 * thus claimable by any player.
 	 * @return True if this object can be claimed.
@@ -442,6 +400,15 @@ public class ConvexObject implements Identity, Serializable{
 		}
 		
 		constructShape();
+	}
+	
+	@Override
+	public void render(Graphics2D g){
+		g.setColor(Theme.getPlayerBody(this));
+		g.fill(shape);
+		g.setStroke(Theme.POLY_STROKE);
+		g.setColor(Theme.getPlayerOutline(this));
+		g.draw(shape);
 	}
 	
 	@Override

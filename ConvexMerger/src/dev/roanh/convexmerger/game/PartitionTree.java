@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * @see KDTree
  * @see ConjugationTree
  */
-public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
+public abstract class PartitionTree<T, S extends PartitionTree<T, S>> extends RenderableObject{
 	/**
 	 * The data stored in this cell.
 	 */
@@ -66,17 +66,6 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
 	 */
 	public List<T> getData(){
 		return data;
-	}
-	
-	/**
-	 * Renders this partition tree.
-	 * @param g The graphics context to use.
-	 */
-	public void render(Graphics2D g){
-		if(marked){
-			g.setColor(new Color(255, 0, 0, 50));
-			g.fill(getShape());
-		}
 	}
 	
 	/**
@@ -158,4 +147,12 @@ public abstract class PartitionTree<T, S extends PartitionTree<T, S>>{
 	 * @return This partition tree.
 	 */
 	public abstract S getSelf();
+	
+	@Override
+	public void render(Graphics2D g){
+		if(marked){
+			g.setColor(new Color(255, 0, 0, 50));
+			g.fill(getShape());
+		}
+	}
 }
