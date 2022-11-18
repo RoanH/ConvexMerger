@@ -66,4 +66,8 @@ public final class Constants{
 	 * Multiplayer server port.
 	 */
 	public static final int PORT = 11111;
+	/**
+	 * The number of milliseconds an AI has to wait before making a move.
+	 */
+	public static final long AI_WAIT_TIME = 400;
 }

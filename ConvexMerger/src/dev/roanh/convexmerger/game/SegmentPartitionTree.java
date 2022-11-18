@@ -103,6 +103,9 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 */
 	public void setAnimated(boolean animated){
 		this.animated = animated;
+		if(!animated && hasAnimation()){
+			getAnimation().end();
+		}
 	}
 	
 	/**
@@ -181,9 +184,13 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 * @return The created animation object.
 	 */
 	public Animation showAnimation(Point2D a, Point2D b){
-		Animation anim = new SearchAnimation(new LineSegment(a, b));
-		setAnimation(anim);
-		return anim;
+		if(animated){
+			Animation anim = new SearchAnimation(new LineSegment(a, b));
+			setAnimation(anim);
+			return anim;
+		}else{
+			return Animation.EMPTY;
+		}
 	}
 	
 	@Override
@@ -352,7 +359,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		/**
 		 * The depth visualised in the last animation frame.
 		 */
-		private int lastDepth = 0;
+		private int lastDepth = -1;
 		/**
 		 * The search query line.
 		 */
@@ -377,7 +384,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		@Override
 		protected boolean render(Graphics2D g){
 			int depth = (int)Math.floorDiv(System.currentTimeMillis() - start, DEPTH_DURATION);
-			for(int i = lastDepth; i < Math.min(depth, maxDepth + 1); i++){
+			for(int i = Math.max(0, lastDepth); i < Math.min(depth, maxDepth + 1); i++){
 				for(T node : depthData.get(i)){
 					node.setMarked(false);
 					for(LineSegment seg : node.getData()){
@@ -405,6 +412,18 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 			SegmentPartitionTree.this.render(g);
 			
 			return depth <= maxDepth;
+		}
+		
+		@Override
+		public void end(){
+			depthData.values().stream().flatMap(List::stream).forEach(node->{
+				node.setMarked(false);
+				for(LineSegment seg : node.getData()){
+					seg.marked = false;
+				}
+			});
+			
+			super.end();
 		}
 	}
 	

@@ -27,13 +27,18 @@ import java.awt.Graphics2D;
 public abstract class Animation{
 	/**
 	 * An 'animation' that renders nothing, effectively
-	 * hiding the object it is applied to.
+	 * hiding the object it is applied to. It is also not
+	 * possible to wait on this animation.
 	 */
 	public static final Animation EMPTY = new Animation(){
 
 		@Override
 		protected boolean render(Graphics2D g){
 			return true;
+		}
+		
+		@Override
+		public synchronized void waitFor() throws InterruptedException{
 		}
 	};
 	/**
@@ -48,17 +53,22 @@ public abstract class Animation{
 	 *         remaining, false if it finished.
 	 */
 	public final boolean run(Graphics2D g){
-		if(!finished){
-			finished = !render(g);
-			if(finished){
-				synchronized(this){
-					notifyAll();
-				}
-			}else{
-				return true;
+		boolean remaining = render(g);
+		if(!remaining && !finished){
+			finished = true;
+			synchronized(this){
+				notifyAll();
 			}
 		}
-		return false;
+		return remaining;
+	}
+	
+	/**
+	 * Forcefully ends this animation.
+	 */
+	public synchronized void end(){
+		finished = true;
+		notifyAll();
 	}
 	
 	/**

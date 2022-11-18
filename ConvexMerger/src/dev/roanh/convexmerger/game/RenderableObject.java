@@ -34,6 +34,14 @@ public abstract class RenderableObject{
 	private transient Animation animation = null;
 	
 	/**
+	 * Gets the animation for this object.
+	 * @return The animation for this object.
+	 */
+	public Animation getAnimation(){
+		return animation;
+	}
+	
+	/**
 	 * Checks if this convex object has an active animation.
 	 * @return True if this convex object has an active animation.
 	 */
