@@ -23,7 +23,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
@@ -113,7 +112,7 @@ public class GameState{
 	 * @param players The list of participating players.
 	 */
 	public GameState(List<ConvexObject> objects, String seed, List<Player> players){
-		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
+		this.objects = new ArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);
 		this.seed = seed;
 		for(int i = 0; i < objects.size(); i++){
