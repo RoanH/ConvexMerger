@@ -55,8 +55,8 @@ public abstract class Animation{
 	public final boolean run(Graphics2D g){
 		boolean remaining = render(g);
 		if(!remaining && !finished){
-			finished = true;
 			synchronized(this){
+				finished = true;
 				notifyAll();
 			}
 		}
