@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.game;
 
 import java.awt.Graphics2D;
@@ -9,7 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
 
@@ -19,7 +37,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * are given in counter clockwise order.
  * @author Roan
  */
-public class ConvexObject implements Identity, Serializable{
+public class ConvexObject extends RenderableObject implements Identity, Serializable{
 	/**
 	 * Serial ID.
 	 */
@@ -41,10 +59,6 @@ public class ConvexObject implements Identity, Serializable{
 	 * The player that owns this object.
 	 */
 	private transient Player owner = null;
-	/**
-	 * The active animation for this object.
-	 */
-	private transient Animation animation = null;
 	
 	/**
 	 * Constructs a new convex object defined by the given four points.
@@ -112,15 +126,14 @@ public class ConvexObject implements Identity, Serializable{
 	public ConvexObject(List<Point2D> data){
 		points = data;
 		assert ConvexUtil.checkInvariants(data) : "Game invariants violated for convex objects";
-		constructShape(data.size());
+		constructShape();
 	}
 	
 	/**
 	 * Constructs the shape object for the bounds of this object.
-	 * @param size The number of points that define the bounds.
 	 */
-	private void constructShape(int size){
-		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, size);
+	private void constructShape(){
+		shape = new Path2D.Double(Path2D.WIND_NON_ZERO, points.size());
 		shape.moveTo(points.get(0).getX(), points.get(0).getY());
 		for(int i = 1; i < points.size(); i++){
 			shape.lineTo(points.get(i).getX(), points.get(i).getY());
@@ -210,14 +223,56 @@ public class ConvexObject implements Identity, Serializable{
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other){
+		try{
+			return merge(state, other, false);
+		}catch(InterruptedException e){
+			//only saving merges can be interrupted
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Attempts to merge this object with the given
+	 * object while checking that the boundary of the
+	 * resulting merged object does not intersect any
+	 * other objects in the given game state.
+	 * @param state The game state to check with if the
+	 *        resulting object has any intersections. Can
+	 *        be <code>null</code> to skip this check.
+	 * @param other The object to merge with.
+	 * @param saveSegments True if the merge lines for the
+	 *        merge should be added to the game state.
+	 * @return The resulting merged convex object.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
+	 * @see #merge(ConvexObject)
+	 */
+	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments) throws InterruptedException{
 		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
 		
+		//check if the new hull is valid
 		if(state != null){
-			//check if the new hull is valid
-			for(ConvexObject obj : state.getObjects()){
-				if(!obj.equals(this) && !obj.equals(other) && (obj.intersects(lines[0], lines[1]) || obj.intersects(lines[2], lines[3]))){
-					return null;
+			SegmentPartitionTree<ConjugationTree<LineSegment>> treeC = state.getSegmentTreeConj();
+			SegmentPartitionTree<KDTree<LineSegment>> treeK = state.getSegmentTreeKD();
+			
+			if(treeC.intersects(lines[0], lines[1]) || treeC.intersects(lines[2], lines[3]) || treeK.intersects(lines[0], lines[1]) || treeK.intersects(lines[2], lines[3])){
+				return null;
+			}else if(saveSegments){
+				if(treeC.isAnimated()){
+					treeC.showAnimation(lines[0], lines[1]).waitFor();
+					treeC.showAnimation(lines[2], lines[3]).waitFor();
 				}
+				
+				if(treeK.isAnimated()){
+					treeK.showAnimation(lines[0], lines[1]).waitFor();
+					treeK.showAnimation(lines[2], lines[3]).waitFor();
+				}
+				
+				treeC.addSegment(lines[0], lines[1]);
+				treeC.addSegment(lines[2], lines[3]);
+				treeK.addSegment(lines[0], lines[1]);
+				treeK.addSegment(lines[2], lines[3]);
 			}
 		}
 		
@@ -306,51 +361,6 @@ public class ConvexObject implements Identity, Serializable{
 	}
 	
 	/**
-	 * Checks if this convex object has an active animation.
-	 * @return True if this convex object has an active animation.
-	 */
-	public boolean hasAnimation(){
-		return animation != null;
-	}
-	
-	/**
-	 * Sets the active animation for this convex object.
-	 * @param animation The new active animation.
-	 */
-	public void setAnimation(Animation animation){
-		this.animation = animation;
-	}
-	
-	/**
-	 * Renders the animation for this convex object
-	 * using the given graphics instance.
-	 * @param g The graphics instance to use.
-	 * @return True if the animation still has frames
-	 *         remaining, false otherwise.
-	 */
-	public boolean runAnimation(Graphics2D g){
-		if(animation.run(g)){
-			return true;
-		}else{
-			animation = null;
-			return false;
-		}
-	}
-	
-	/**
-	 * Renders this convex object using the given
-	 * graphics instance.
-	 * @param g The graphics instance to use.
-	 */
-	public void render(Graphics2D g){
-		g.setColor(Theme.getPlayerBody(this));
-		g.fill(shape);
-		g.setStroke(Theme.POLY_STROKE);
-		g.setColor(Theme.getPlayerOutline(this));
-		g.draw(shape);
-	}
-	
-	/**
 	 * Checks if this objects is unowned and
 	 * thus claimable by any player.
 	 * @return True if this object can be claimed.
@@ -371,7 +381,16 @@ public class ConvexObject implements Identity, Serializable{
 			p.setLocation(p.getX() * factor - origin.getX() + centroid.getX(), p.getY() * factor - origin.getY() + centroid.getY());
 		}
 		
-		constructShape(points.size());
+		constructShape();
+	}
+	
+	@Override
+	public void render(Graphics2D g){
+		g.setColor(Theme.getPlayerBody(this));
+		g.fill(shape);
+		g.setStroke(Theme.POLY_STROKE);
+		g.setColor(Theme.getPlayerOutline(this));
+		g.draw(shape);
 	}
 	
 	@Override

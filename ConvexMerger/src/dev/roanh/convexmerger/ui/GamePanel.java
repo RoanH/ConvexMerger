@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.ui;
 
 import static dev.roanh.convexmerger.ui.Theme.CROWN_ICON_SIZE;
@@ -12,16 +30,23 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.ClaimResult;
+import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.animation.CalliperAnimation;
+import dev.roanh.convexmerger.animation.ProxyAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.SegmentPartitionTree;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.game.VerticalDecomposition.Trapezoid;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
+import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
 
 /**
@@ -58,9 +83,9 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 */
 	private boolean showCentroids = false;
 	/**
-	 * True if the vertical decomposition objects should be rendered/
+	 * True if the callipers for merges should be rendered.
 	 */
-	private boolean showDecomp = false;
+	private boolean showCallipers = false;
 	/**
 	 * Currently showing feedback dialog.
 	 */
@@ -81,6 +106,11 @@ public final class GamePanel extends Screen implements GameStateListener{
 	 * Quit dialog no button.
 	 */
 	private Path2D quitNo = new Path2D.Double();
+	/**
+	 * List of global animations for the game, these are
+	 * rendered after all convex objects.
+	 */
+	private List<Animation> animations = new ArrayList<Animation>();
 	
 	/**
 	 * Constructs a new game panel with the given game context.
@@ -90,9 +120,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 	protected GamePanel(ConvexMerger context, GameState state){
 		super(context);
 		resultOverlay = new ResultOverlay(state);
-		this.showDecomp = state.getVerticalDecomposition().isAnimated();
 		this.state = state;
 		state.registerStateListener(this);
+		for(Player player : state.getPlayers()){
+			if(player instanceof HumanPlayer){
+				((HumanPlayer)player).setGamePanel(this);
+			}
+		}
 	}
 	
 	@Override
@@ -147,6 +181,26 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 	
 	/**
+	 * Sets the active display message for the game.
+	 * @param message The new message to display or
+	 *        <code>null</code> to clear the current message.
+	 */
+	public void setMessage(MessageDialog message){
+		activeDialog = message;
+	}
+	
+	/**
+	 * Adds a new global animation to the game, this animation is
+	 * rendered after all convex objects.
+	 * @param animation The animation to add.
+	 */
+	public void addAnimation(Animation animation){
+		synchronized(animations){
+			animations.add(animation);
+		}
+	}
+	
+	/**
 	 * Renders the user interface with the given graphics.
 	 * @param g The graphics context to use.
 	 * @param width The width of the screen.
@@ -159,6 +213,32 @@ public final class GamePanel extends Screen implements GameStateListener{
 			return;
 		}
 		
+		//render data structure info
+		StringJoiner info = new StringJoiner(", ", "Showing: ", "");
+		info.setEmptyValue("");
+		if(state.getVerticalDecomposition().isAnimated()){
+			info.add("Vertical Decomposition");
+		}
+		if(showCentroids){
+			info.add("Centroids");
+		}
+		if(state.getSegmentTreeConj().isAnimated()){
+			info.add("Segment Partitions (Conjugation)");
+		}
+		if(state.getSegmentTreeKD().isAnimated()){
+			info.add("Segment Partitions (KD)");
+		}
+		if(showCallipers){
+			info.add("Merge Callipers");
+		}
+		if(info.length() != 0){
+			g.setFont(Theme.PRIDI_MEDIUM_14);
+			g.setColor(Color.WHITE);
+			FontMetrics fm = g.getFontMetrics();
+			String str = info.toString();
+			g.drawString(str, Math.floorDiv(width, 2) - (TOP_MIDDLE_WIDTH / 2) + (TOP_MIDDLE_WIDTH - fm.stringWidth(str)) / 2.0F, height - BOX_TEXT_OFFSET);
+		}
+
 		//render action hint
 		g.setColor(state.isFinished() ? Theme.CROWN_COLOR : state.getActivePlayer().getTheme().getTextColor());
 		renderMenuTitle(g, width, state.isFinished() ? "Game Finished" : (state.isSelectingSecond() ? "Merge with an object" : "Select an object"));
@@ -222,22 +302,30 @@ public final class GamePanel extends Screen implements GameStateListener{
 			g.scale(sy, sy);
 		}
 		
-		for(ConvexObject obj : state.getObjects()){
-			if(obj.hasAnimation()){
-				obj.runAnimation(g);
-			}else{
-				obj.render(g);
-			}
-			
-			if(showCentroids){
-				g.setColor(Color.BLACK);
-				Point2D c = obj.getCentroid();
-				g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));	
+		List<ConvexObject> objects = state.getObjects();
+		synchronized(objects){
+			for(ConvexObject obj : objects){
+				obj.renderOrAnimate(g);
+				
+				if(showCentroids){
+					g.setColor(Color.BLACK);
+					Point2D c = obj.getCentroid();
+					g.fill(new Ellipse2D.Double(c.getX() - 5, c.getY() - 5, 10, 10));
+				}
 			}
 		}
 		
-		if(showDecomp){
-			VerticalDecomposition decomp = state.getVerticalDecomposition();
+		synchronized(animations){
+			Iterator<Animation> iter = animations.iterator();
+			while(iter.hasNext()){
+				if(!iter.next().run(g)){
+					iter.remove();
+				}
+			}
+		}
+		
+		VerticalDecomposition decomp = state.getVerticalDecomposition();
+		if(decomp.isAnimated()){
 			synchronized(decomp){
 				g.setStroke(Theme.POLY_STROKE);
 				g.setColor(Color.BLACK);
@@ -277,6 +365,16 @@ public final class GamePanel extends Screen implements GameStateListener{
 					);
 				}
 			}
+		}
+		
+		SegmentPartitionTree<?> tree = state.getSegmentTreeKD();
+		if(tree.isAnimated()){
+			tree.renderOrAnimate(g);
+		}
+		
+		tree = state.getSegmentTreeConj();
+		if(tree.isAnimated()){
+			tree.renderOrAnimate(g);
 		}
 		
 		if(helperLines != null){
@@ -333,12 +431,12 @@ public final class GamePanel extends Screen implements GameStateListener{
 	public void handleMousePress(Point2D point, int width, int height){
 		if(!resultOverlay.isEnabled() && activeDialog == null){
 			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
+			ConvexObject obj = state.getObject(loc);
 			if(!state.isSelectingSecond()){
-				ConvexObject obj = state.getObject(loc);
 				if(obj != null && obj.isOwnedBy(state.getActivePlayer())){
-					state.claimObject(obj, loc);
+					state.setSelectedObject(obj);
 				}
-			}else if(state.getSelectedObject().equals(state.getObject(loc))){
+			}else if(state.getSelectedObject().equals(obj)){
 				state.clearSelection();
 			}
 		}
@@ -369,20 +467,22 @@ public final class GamePanel extends Screen implements GameStateListener{
 			return;
 		}
 		
-		if(state.ready() && state.getActivePlayer().requireInput() && !state.isFinished()){
-			Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
-			ConvexObject obj = state.getObject(loc);
-			if(obj != null){
-				if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
-					synchronized(state){
-						ClaimResult result = state.claimObject(obj, loc);
-						activeDialog = result.getMessage();
+		if(state.ready() && state.getActivePlayer() instanceof HumanPlayer && !state.isFinished()){
+			HumanPlayer player = ((HumanPlayer)state.getActivePlayer());
+			if(player.requireInput()){
+				Point2D loc = translateToGameSpace(point.getX(), point.getY(), width, height);
+				ConvexObject obj = state.getObject(loc);
+				if(obj != null){
+					helperLines = null;
+					if(obj.canClaim() || (state.isSelectingSecond() && !obj.equals(state.getSelectedObject()))){
+						player.handleClaim(obj, loc);
+					}else if(!obj.isOwnedBy(state.getActivePlayer())){
+						state.clearSelection();
+						activeDialog = MessageDialog.ALREADY_OWNED;
 					}
-				}else if(!obj.isOwnedBy(state.getActivePlayer())){
-					state.clearSelection();
-					activeDialog = MessageDialog.ALREADY_OWNED;
 				}
-				helperLines = null;
+			}else{
+				activeDialog = MessageDialog.NOT_READY;
 			}
 		}else{
 			activeDialog = state.isFinished() ? MessageDialog.GAME_END : (state.ready() ? MessageDialog.NO_TURN : MessageDialog.NOT_READY);
@@ -397,7 +497,8 @@ public final class GamePanel extends Screen implements GameStateListener{
 	@Override
 	public void handleMouseMove(Point2D loc, int width, int height){
 		super.handleMouseMove(loc, width, height);
-		if(state.getActivePlayer().requireInput() && state.isSelectingSecond()){
+		Player player = state.getActivePlayer();
+		if(player instanceof HumanPlayer && ((HumanPlayer)player).requireInput() && state.isSelectingSecond()){
 			helperLines = state.getHelperLines(translateToGameSpace(loc.getX(), loc.getY(), width, height));
 		}
 	}
@@ -413,8 +514,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 			}else if(e.getKeyCode() == KeyEvent.VK_C){
 				showCentroids = !showCentroids;
 			}else if(e.getKeyCode() == KeyEvent.VK_D){
-				showDecomp = !showDecomp;
-				state.getVerticalDecomposition().setAnimated(showDecomp);
+				state.getVerticalDecomposition().setAnimated(!state.getVerticalDecomposition().isAnimated());
+			}else if(e.getKeyCode() == KeyEvent.VK_S){
+				state.getSegmentTreeConj().setAnimated(!state.getSegmentTreeConj().isAnimated());
+			}else if(e.getKeyCode() == KeyEvent.VK_K){
+				state.getSegmentTreeKD().setAnimated(!state.getSegmentTreeKD().isAnimated());
+			}else if(e.getKeyCode() == KeyEvent.VK_M){
+				showCallipers = !showCallipers;
 			}
 		}
 	}
@@ -450,7 +556,13 @@ public final class GamePanel extends Screen implements GameStateListener{
 	}
 
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException{
+		if(showCallipers){
+			result.setAnimation(new ProxyAnimation(source, target, absorbed));
+			Animation anim = new CalliperAnimation(source, target);
+			addAnimation(anim);
+			anim.waitFor();
+		}
 	}
 
 	@Override

@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.game;
 
 import java.awt.geom.Line2D;
@@ -5,12 +23,13 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.MergeAnimation;
+import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.MessageDialog;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
@@ -66,6 +85,14 @@ public class GameState{
 	 * The seed of the generator that generated this game's playfield.
 	 */
 	private String seed;
+	/**
+	 * The conjugation tree based segment intersection tree.
+	 */
+	private SegmentPartitionTree<ConjugationTree<LineSegment>> segmentTreeConj;
+	/**
+	 * The kd-tree based segment intersection tree.
+	 */
+	private SegmentPartitionTree<KDTree<LineSegment>> segmentTreeKD;
 
 	/**
 	 * Constructs a new game state with the given playfield generator and
@@ -85,7 +112,7 @@ public class GameState{
 	 * @param players The list of participating players.
 	 */
 	public GameState(List<ConvexObject> objects, String seed, List<Player> players){
-		this.objects = new CopyOnWriteArrayList<ConvexObject>(objects);
+		this.objects = new ArrayList<ConvexObject>(objects);
 		this.players = Collections.unmodifiableList(players);
 		this.seed = seed;
 		for(int i = 0; i < objects.size(); i++){
@@ -107,7 +134,26 @@ public class GameState{
 			}
 		}
 		registerStateListener(decomp);
+
+		segmentTreeConj = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(objects);
+		segmentTreeKD = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(objects);
 		gameStart = System.currentTimeMillis();
+	}
+	
+	/**
+	 * Gets the conjugation tree based segment intersection tree for this game state.
+	 * @return The conjugation tree based segment intersection tree.
+	 */
+	public SegmentPartitionTree<ConjugationTree<LineSegment>> getSegmentTreeConj(){
+		return segmentTreeConj;
+	}
+	
+	/**
+	 * Gets the kd-tree based segment intersection tree for this game state.
+	 * @return The kd-tree based segment intersection tree.
+	 */
+	public SegmentPartitionTree<KDTree<LineSegment>> getSegmentTreeKD(){
+		return segmentTreeKD;
 	}
 	
 	/**
@@ -148,9 +194,12 @@ public class GameState{
 	 * Attempts to claim the given convex object for the active player.
 	 * @param obj The object to claim.
 	 * @return The result of the attempted claim.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 * @see #getActivePlayer()
 	 */
-	public ClaimResult claimObject(ConvexObject obj){
+	public ClaimResult claimObject(ConvexObject obj) throws InterruptedException{
 		return claimObject(obj, obj.getCentroid());
 	}
 	
@@ -159,9 +208,12 @@ public class GameState{
 	 * @param obj The object to claim.
 	 * @param location The point within the object that was clicked to claim it.
 	 * @return The result of the attempted claim.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 * @see #getActivePlayer()
 	 */
-	public ClaimResult claimObject(ConvexObject obj, Point2D location){
+	public ClaimResult claimObject(ConvexObject obj, Point2D location) throws InterruptedException{
 		if(!obj.isOwned()){
 			if(selected != null){
 				ConvexObject merged = mergeObjects(selected, obj);
@@ -174,9 +226,11 @@ public class GameState{
 				}
 			}else{
 				Player player = getActivePlayer();
-				obj.setOwner(player);
 				player.addArea(obj.getArea());
-				obj.setAnimation(new ClaimAnimation(obj, location));
+				synchronized(objects){
+					obj.setOwner(player);
+					obj.setAnimation(new ClaimAnimation(obj, location));
+				}
 				player.getStats().addClaim();
 				listeners.forEach(l->l.claim(player, obj));
 				endTurn();
@@ -225,37 +279,54 @@ public class GameState{
 	 * @return The convex object that is the result of merging the
 	 *         two given objects, or <code>null</code> if the merge
 	 *         was not possible.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 */
-	private ConvexObject mergeObjects(ConvexObject first, ConvexObject second){
-		ConvexObject merged = first.merge(this, second);
+	private ConvexObject mergeObjects(ConvexObject first, ConvexObject second) throws InterruptedException{
+		ConvexObject merged = first.merge(this, second, true);
 		if(merged != null){
 			Player player = first.getOwner();
-			merged.setOwner(player);
-			objects.remove(first);
-			objects.remove(second);
-			player.removeArea(first.getArea());
-			player.removeArea(second.getArea());
 			
 			List<ConvexObject> contained = new ArrayList<ConvexObject>();
 			int maxID = Math.max(first.getID(), second.getID());
-			for(ConvexObject obj : objects){
-				maxID = Math.max(maxID, obj.getID());
-				if(merged.contains(obj)){
-					contained.add(obj);
-					if(obj.isOwned()){
-						obj.getOwner().removeArea(obj.getArea());
+			synchronized(objects){
+				objects.remove(first);
+				objects.remove(second);
+//				decomp.removeObject(first);
+//				decomp.removeObject(second);
+				
+				for(ConvexObject obj : objects){
+					maxID = Math.max(maxID, obj.getID());
+					if(merged.contains(obj)){
+//						decomp.removeObject(obj);
+						contained.add(obj);
+						if(obj.isOwned()){
+							obj.getOwner().removeArea(obj.getArea());
+						}
 					}
 				}
+				objects.removeAll(contained);
+				
+				objects.add(merged);
+				
+				player.removeArea(first.getArea());
+				player.removeArea(second.getArea());
+				player.addArea(merged.getArea());
+				player.getStats().addMerge();
+				player.getStats().addAbsorbed(contained.size());
+				
+				merged.setOwner(player);
+				merged.setID(maxID + 1);
+				merged.setAnimation(Animation.EMPTY);
 			}
-			objects.removeAll(contained);
 			
-			objects.add(merged);
-			player.addArea(merged.getArea());
-			player.getStats().addMerge();
-			player.getStats().addAbsorbed(contained.size());
+
 			
-			merged.setID(maxID + 1);
-			listeners.forEach(l->l.merge(player, first, second, merged, contained));
+//			listeners.forEach(l->l.merge(player, first, second, merged, contained));
+			for(GameStateListener listener : listeners){
+				listener.merge(player, first, second, merged, contained);
+			}
 			merged.setAnimation(new MergeAnimation(first, second, merged, contained));
 			
 			return merged;
@@ -402,6 +473,21 @@ public class GameState{
 		int rounds = Math.floorDiv(turns, players.size());
 		return rounds * players.size() == turns ? rounds : (rounds + 1);
 	}
+	
+	/**
+	 * Sets the object selected by the current player. This is the
+	 * object the player intends to start a merge from. Note that
+	 * it is generally safer to use {@link #claimObject(ConvexObject)}
+	 * to set this value as this method does not perform any checks
+	 * to ensure it is actually valid for the player to select the
+	 * provided object.
+	 * @param obj The objected to set as selected.
+	 * @see #claimObject(ConvexObject)
+	 * @see #claimObject(ConvexObject, Point2D)
+	 */
+	public void setSelectedObject(ConvexObject obj){
+		selected = obj;
+	}
 
 	/**
 	 * Clears the object selection for the active player,
@@ -449,8 +535,11 @@ public class GameState{
 		 * @param target The target object of the merge.
 		 * @param result The object resulting from the merge.
 		 * @param absorbed The objects absorbed in the merge.
+		 * @throws InterruptedException When the player was
+		 *         interrupted while making its move. Signalling
+		 *         that the game was aborted.
 		 */
-		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed);
+		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException;
 		
 		/**
 		 * Called when the game ends.

@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.animation;
 
 import java.awt.Color;
@@ -13,7 +31,7 @@ import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
  * Animation shown when claiming a single object.
  * @author Roan
  */
-public class ClaimAnimation implements Animation{
+public class ClaimAnimation extends Animation{
 	/**
 	 * Number of milliseconds the animation plays for.
 	 */
@@ -50,7 +68,7 @@ public class ClaimAnimation implements Animation{
 	}
 
 	@Override
-	public boolean run(Graphics2D g){
+	protected boolean render(Graphics2D g){
 		long elapsed = System.currentTimeMillis() - start;
 
 		if(elapsed < DURATION){

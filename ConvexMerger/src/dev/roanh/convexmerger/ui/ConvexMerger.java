@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.ui;
 
 import java.awt.BorderLayout;
@@ -144,6 +162,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 				frame.setUndecorated(false);
 				frame.setSize(lastSize);
 				frame.setLocation(lastLocation);
+				frame.setAlwaysOnTop(false);
 				frame.setVisible(true);
 			}else{
 				lastSize = frame.getSize();
@@ -153,6 +172,7 @@ public class ConvexMerger implements KeyEventDispatcher{
 				frame.setUndecorated(true);
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 				frame.setLocationRelativeTo(null);
+				frame.setAlwaysOnTop(true);
 				frame.setVisible(true);
 			}
 		}
@@ -193,6 +213,9 @@ public class ConvexMerger implements KeyEventDispatcher{
 				
 				while(!state.isFinished() && !this.isInterrupted()){
 					Player player = state.getActivePlayer();
+					if(player.isAI()){
+						Thread.sleep(Constants.AI_WAIT_TIME);
+					}
 					
 					long start = System.currentTimeMillis();
 					state.executePlayerTurn();

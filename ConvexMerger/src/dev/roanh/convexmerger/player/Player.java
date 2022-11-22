@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.player;
 
 import java.util.Comparator;
@@ -87,14 +105,6 @@ public abstract class Player implements Identity{
 	 *         that the game was aborted.
 	 */
 	public abstract boolean executeMove() throws InterruptedException;
-	
-	/**
-	 * Checks if this player requires input via the UI.
-	 * @return True if this player requires UI interaction.
-	 */
-	public boolean requireInput(){
-		return !ai && local;
-	}
 	
 	/**
 	 * Checks if this player is executing locally or
@@ -368,8 +378,11 @@ public abstract class Player implements Identity{
 		/**
 		 * Executes this merge by making it concrete in the game state.
 		 * @return The object that resulted from the merge.
+		 * @throws InterruptedException When the player was
+		 *         interrupted while making its move. Signalling
+		 *         that the game was aborted.
 		 */
-		public ConvexObject execute(){
+		public ConvexObject execute() throws InterruptedException{
 			state.claimObject(first);
 			return state.claimObject(second).getResult();
 		}

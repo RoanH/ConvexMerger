@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -304,6 +322,42 @@ public class ConvexUtilTest{
 			new Line2D.Double(0.0D, 0.0D, 0.0D, 10.0D),
 			new Line2D.Double(0.0D, 0.0D, 10.0D, -10.0D)
 		)));
+	}
+	
+	@Test
+	public void splitTest0(){
+		Line2D line = new Line2D.Double(0.0D, 296.1595270500022D, 423.8366269562274D, 347.5546275143126D);
+		List<Point2D> hull = Arrays.asList(
+			new Point2D.Double(238.97236862731728D, 260.3696625364535D),
+			new Point2D.Double(307.0116840472612D, 446.3381687834213D),
+			new Point2D.Double(0.0D, 453.48990663373934D), 
+			new Point2D.Double(0.0D, 263.16052849881885D)
+		);
+		
+		for(List<Point2D> sub : ConvexUtil.splitHull(hull, line)){
+			assertEquals(4, sub.size());
+			for(Point2D p : sub){
+				assertTrue(p.getX() >= 0.0D && p.getX() <= 307.0116840472612D && p.getY() >= 260.3696625364535D && p.getY() <= 453.48990663373934D);
+			}
+		}
+	}
+	
+	@Test
+	public void splitTest1(){
+		Line2D line = new Line2D.Double(550.0D, 0.0D, 550.0D, 900.0D);
+		List<Point2D> hull = Arrays.asList(
+			new Point2D.Double(0.0D, 0.0D),
+			new Point2D.Double(1600.0D, 0.0D),
+			new Point2D.Double(1600.0D, 900.0D),
+			new Point2D.Double(0.0D, 900.0D)
+		);
+		
+		for(List<Point2D> sub : ConvexUtil.splitHull(hull, line)){
+			assertEquals(4, sub.size());
+			for(Point2D p : sub){
+				assertTrue(p.getX() >= 0.0D && p.getX() <= 1600.0D && p.getY() >= 0.0D && p.getY() <= 900.0D);
+			}
+		}
 	}
 	
 	private void mergeTest(ConvexObject obj1, ConvexObject obj2){

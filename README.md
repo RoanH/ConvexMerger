@@ -45,4 +45,4 @@ This is an [Eclipse](https://www.eclipse.org/) + [Gradle](https://gradle.org/) p
 
 ## History
 Project development started: 20th of November, 2021.    
-Project due date: 30th of January, 2022.
+Project due date (2IMA25 course): 30th of January, 2022.
