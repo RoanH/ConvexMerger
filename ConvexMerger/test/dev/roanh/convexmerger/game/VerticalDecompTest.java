@@ -259,13 +259,13 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void edgeCaseUnderInvestigation() throws InterruptedException{
-		testSpecific("3Y657GF3UY8PP82I89LY");
+		testSpecific("3Y657GF3UY8PP82I89LY"); //8->12->63; 31->47->91
 	}
 	
 	@Test
 	public void edgeCasesToCheck() throws InterruptedException{
-		testSpecific("3Y657GF3UY8PP82I89LY");
-		testSpecific("3Y657GF2ZJSAPANVG50E"); 
+		testSpecific("3Y657GF3UY8PP82I89LY"); //8->12->63; 31->47->91
+		testSpecific("3Y657GF2ZJSAPANVG50E"); //52->91
 		testSpecific("3Y657GF162MOIVY34A16");
 		testSpecific("3Y657GF39AOQSOYS0Y0C");
 	}
