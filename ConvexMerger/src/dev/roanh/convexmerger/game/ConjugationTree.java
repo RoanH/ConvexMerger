@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.ui.Theme;
@@ -392,6 +393,46 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 
 		return data;
 	}
+	
+	public static final ConjugateData computeConjugateNew(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
+		ConjugateData data = new ConjugateData();
+		
+		Line2D bis = parent.getBisector();
+		left.sort(Comparator.comparingDouble(Point2D::getY));
+		Point2D pivot = left.get(left.size()/2);
+		right.sort(Comparator.comparingDouble(new PivotSort(pivot)::applyAsDouble));
+		System.out.println(right);
+		//handle empty leaf cells
+		
+		if(left.isEmpty()){
+			data.rightOn = right.get(0);
+			data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
+		}else{
+			data.leftOn = left.get(0);
+			data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
+		}
+		
+		return data;
+	}
+	
+	private static class PivotSort implements ToDoubleFunction<Point2D>{
+		Point2D pivot;
+		
+		public PivotSort(Point2D pivot){
+			this.pivot = pivot;
+		}
+		
+		@Override
+		public double applyAsDouble(Point2D p){
+			double dx = p.getX() - pivot.getX(), dy = p.getY() - pivot.getY();
+			assert dx != 0 && dy != 0;
+			
+			double acos = Math.acos(dx / Math.sqrt(dx * dx + dy * dy));
+			return dy > 0 ? acos : -acos;
+		}
+		
+	}
+	
 	
 	/**
 	 * Class holding data about a single conjugate line.

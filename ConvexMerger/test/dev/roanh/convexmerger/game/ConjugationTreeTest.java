@@ -89,4 +89,21 @@ public class ConjugationTreeTest{
 			}
 		});
 	}
+	
+	@Test
+	public void sortConjugates(){
+		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
+
+		assertEquals(31L, tree.streamCells().count());
+		
+		//assert that all bisectors are also conjugates
+		tree.streamCells().forEach(cell->{
+			if(cell.getDepth() > 0 && !cell.isLeafCell()){
+				ConjugationTree.computeConjugateNew(cell.getLeftChild().getPoints(), cell.getRightChild().getPoints(), cell.getParent());
+			}
+			if(cell.getDepth() > 0 && !cell.isLeafCell()){
+				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
+			}
+		});
+	}
 }
