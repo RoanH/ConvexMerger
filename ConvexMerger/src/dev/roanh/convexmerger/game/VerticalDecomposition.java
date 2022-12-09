@@ -724,7 +724,7 @@ public class VerticalDecomposition implements GameStateListener {
 		
 		Queue<Trapezoid> intersected = findIntersectedTrapezoids(orientedSegment, obj);
 		
-		addSegmentEndpointsAsTrapezoidBoundingPoints(start,end, orientedSegment);
+		addSegmentEndpointsAsTrapezoidBoundingPoints(start, end, orientedSegment);
 
 		//The first (leftmost) trapezoid that the segment intersects.
 		Trapezoid first = intersected.peek();
@@ -996,7 +996,7 @@ public class VerticalDecomposition implements GameStateListener {
 				}
 				if(trap.rightPoints.stream().anyMatch(po -> segment.relativeCCW(po) >= 0)){
 					if(!trap.getNeighbours().contains(nextIntersected)){
-//						assert trap.rightPoints.size() >= 2 || segment.contains(trap.rightPoints.get(0));
+						assert trap.rightPoints.size() >= 2 || segment.contains(trap.rightPoints.get(0));
 					} else {
 						assert nextIntersected.leftPoints.stream().anyMatch(po -> segment.relativeCCW(po) >= 0) : "hmm " + trap.rightPoints.get(0) + " "+ nextIntersected.leftPoints.get(0) + " " + nextIntersected.rightPoints.get(0);
 					}
@@ -2037,9 +2037,9 @@ public class VerticalDecomposition implements GameStateListener {
 			if(getX1() == getX2()){
 				return null;
 			}else if(getX1() < getX2()){
-				return trapsBelow.get(0);
-			}else{
 				return trapsBelow.get(trapsBelow.size()-1);
+			}else{
+				return trapsBelow.get(0);
 			}
 		}
 		
