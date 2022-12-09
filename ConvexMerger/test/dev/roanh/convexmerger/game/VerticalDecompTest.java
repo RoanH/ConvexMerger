@@ -259,15 +259,24 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void edgeCaseUnderInvestigation() throws InterruptedException{
-		testSpecific("3Y657GF3UY8PP82I89LY"); //8->12->63; 31->47->91
+		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
 	}
 	
 	@Test
-	public void edgeCasesToCheck() throws InterruptedException{
-		testSpecific("3Y657GF3UY8PP82I89LY"); //8->12->63; 31->47->91
-		testSpecific("3Y657GF2ZJSAPANVG50E"); //52->91
+	public void edgeCasesFixedWithGetLeftmostBelow() throws InterruptedException{
+		testSpecific("3Y657GF3UY8PP82I89LY"); // 8->12->63; 31->47->91
+		testSpecific("3Y657GF2ZJSAPANVG50E"); // 52->91
 		testSpecific("3Y657GF162MOIVY34A16");
 		testSpecific("3Y657GF39AOQSOYS0Y0C");
+	}
+	
+	@Test
+	public void edgeCasesToFix() throws InterruptedException{
+		testSpecific("3Y64YQ039ZZB4UZQQ680");
+		testSpecific("3Y64YQ00WHENOONSIUGC");
+		testSpecific("3Y64YQ01OUDN6ZGF6D6V");
+		testSpecific("3Y64YQ02I2KJYKBFBBPE");
+		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
 	}
 	
 //	@RepeatedTest(100)
