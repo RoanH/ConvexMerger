@@ -275,7 +275,7 @@ public class VerticalDecompTest{
 		testSpecific("3Y64YQ039ZZB4UZQQ680");
 		testSpecific("3Y64YQ00WHENOONSIUGC");
 		testSpecific("3Y64YQ01OUDN6ZGF6D6V");
-		testSpecific("3Y64YQ02I2KJYKBFBBPE");
+		testSpecific("3Y64YQ02I2KJYKBFBBPE"); // 2->31->8
 		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
 	}
 	

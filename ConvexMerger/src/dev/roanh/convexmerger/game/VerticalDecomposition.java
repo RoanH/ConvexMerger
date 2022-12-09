@@ -1127,7 +1127,12 @@ public class VerticalDecomposition implements GameStateListener {
 	}
 
 	
-	private Line getShortLines(Line2D line, ConvexObject obj1, ConvexObject obj2){
+	private Line getShortLines(Line2D line, ConvexObject obj1, ConvexObject obj2, List<Point2D> hull){
+		if(!obj1.getPoints().contains(hull.get(0))){
+			ConvexObject tmp = obj2;
+			obj1 = obj2;
+			obj2 = tmp;
+		}
 		Point2D old = obj1.getPoints().get(obj1.getPoints().size()-1);
 		Point2D p1 = line.getP1(), p2 = line.getP2();
 		Point2D[] shortLines = new Point2D[2];
@@ -1163,8 +1168,8 @@ public class VerticalDecomposition implements GameStateListener {
 		
 		
 		//TODO: Figure out how to replace old lines with new lines.
-		Line firstShortLine = getShortLines(firstLine, source, target);
-		Line secondShortLine = getShortLines(secondLine, target, source);
+		Line firstShortLine = getShortLines(firstLine, source, target, result.getPoints());
+		Line secondShortLine = getShortLines(secondLine, target, source, result.getPoints());
 		try{
 			addSegment(firstShortLine, result);
 			addSegment(secondShortLine, result);
