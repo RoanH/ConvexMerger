@@ -1093,6 +1093,7 @@ public class VerticalDecomposition implements GameStateListener {
 			}
 		} else {
 			q.add(start);
+			visited.add(start);
 		}
 		assert q.size() == 1;
 		while(!q.isEmpty()){
@@ -1101,7 +1102,7 @@ public class VerticalDecomposition implements GameStateListener {
 				if(!intersectedTraps.contains(current)){
 					int cnt = 0;
 					for(Line2D decompLine : current.getDecompLines()){
-						if(decompLine.intersectsLine(seg) || seg.relativeCCW(decompLine.getP1()) == 0 || seg.relativeCCW(decompLine.getP2()) == 0){
+						if(decompLine.intersectsLine(seg)){
 							cnt++;
 						}
 					}
@@ -1110,11 +1111,12 @@ public class VerticalDecomposition implements GameStateListener {
 					}
 				}
 				for(Trapezoid neib : current.getNeighbours()){
-					if(!intersectedTraps.contains(neib) && neib.intersectsSegment(seg)){
-						if(!visited.contains(neib) && neib.getXLeft() == current.getXRight()){
-							q.add(neib);
-							visited.add(neib);
-						}
+					if(neib.getXLeft() == current.getXRight() &&
+					   neib.intersectsSegment(seg) &&
+					   !intersectedTraps.contains(neib) &&
+					   !visited.contains(neib)){
+						q.add(neib);
+						visited.add(neib);
 					}
 				}
 			}
