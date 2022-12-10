@@ -1093,7 +1093,6 @@ public class VerticalDecomposition implements GameStateListener {
 			}
 		} else {
 			q.add(start);
-			visited.add(start);
 		}
 		assert q.size() == 1;
 		while(!q.isEmpty()){
@@ -1108,6 +1107,8 @@ public class VerticalDecomposition implements GameStateListener {
 					}
 					if(cnt > 1 || current.pointInside(seg.getP1()) || current.pointInside(seg.getP2())){
 						intersectedTraps.add(current);
+						q.clear();
+						visited.clear();
 					}
 				}
 				for(Trapezoid neib : current.getNeighbours()){
