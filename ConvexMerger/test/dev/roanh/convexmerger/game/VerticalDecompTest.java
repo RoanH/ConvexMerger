@@ -271,7 +271,7 @@ public class VerticalDecompTest{
 	}
 	
 	@Test
-	public void edgeCasesToFix() throws InterruptedException{
+	public void shortCuttingEdgeCases() throws InterruptedException{
 		testSpecific("3Y64YQ039ZZB4UZQQ680");
 		testSpecific("3Y64YQ00WHENOONSIUGC");
 		testSpecific("3Y64YQ01OUDN6ZGF6D6V");
@@ -279,7 +279,7 @@ public class VerticalDecompTest{
 		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
 	}
 	
-//	@RepeatedTest(100)
+	@RepeatedTest(100)
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		System.out.println("Game seed: " + game.getSeed());
