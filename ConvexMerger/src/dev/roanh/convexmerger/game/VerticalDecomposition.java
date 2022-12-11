@@ -673,11 +673,18 @@ public class VerticalDecomposition implements GameStateListener {
 				left.addNeighbour(neib);
 				neib.addNeighbour(left);
 			} else {
-				if(segment.getP2() != neib.topSegment.getP1() && top.botSegment.getP2() != top.topSegment.getP2()){//TODO: Propagate this approach to other decompline places if possible
+				Line2D decompLine = neib.getLeftDecompLine();
+				if(neib.getXLeft() == trap.getXRight() &&
+				   segment.relativeCCW(decompLine.getP2()) < 0  &&
+				   top.getRightDecompLine().intersectsLine(decompLine) &&
+				   top.botSegment.getP2() != top.topSegment.getP2()){
 					top.addNeighbour(neib);
 					neib.addNeighbour(top);
 				}
-				if(segment.getP2() != neib.botSegment.getP1() && bottom.botSegment.getP2() != bottom.topSegment.getP2()){
+				if(neib.getXLeft() == trap.getXRight() &&
+				   segment.relativeCCW(decompLine.getP1()) > 0 &&
+				   bottom.getRightDecompLine().intersectsLine(decompLine) &&
+				   bottom.botSegment.getP2() != bottom.topSegment.getP2()){
 					bottom.addNeighbour(neib);
 					neib.addNeighbour(bottom);
 				}
@@ -1023,10 +1030,9 @@ public class VerticalDecomposition implements GameStateListener {
 			if(top.botSegment.getP2() == top.topSegment.getP2() && top.getXRight() == top.topSegment.getX2())
 				break;
 			Line2D decompLine = neib.getLeftDecompLine();
-			if(decompLine.getP1().getX() == trap.getXRight() &&
-				segment.relativeCCW(decompLine.getP2()) < 0  && 
-				top.getRightDecompLine().intersectsLine(neib.getLeftDecompLine())
-			){
+			if(neib.getXLeft() == trap.getXRight() &&
+			   segment.relativeCCW(decompLine.getP2()) < 0  && 
+			   top.getRightDecompLine().intersectsLine(decompLine)){
 				top.addNeighbour(neib);
 				neib.addNeighbour(top);
 			}
@@ -1046,8 +1052,9 @@ public class VerticalDecomposition implements GameStateListener {
 			if(bot.botSegment.getP2() == bot.topSegment.getP2() && bot.getXRight() == bot.botSegment.getX2())
 				break;
 			Line2D decompLine = neib.getLeftDecompLine();
-			if(decompLine.getP1().getX() == trap.getXRight() && segment.relativeCCW(decompLine.getP1()) > 0 
-				&& bot.getRightDecompLine().intersectsLine(neib.getLeftDecompLine())){
+			if(neib.getXLeft() == trap.getXRight() &&
+			   segment.relativeCCW(decompLine.getP1()) > 0 &&
+			   bot.getRightDecompLine().intersectsLine(decompLine)){
 				bot.addNeighbour(neib);
 				neib.addNeighbour(bot);
 			}
@@ -1216,7 +1223,6 @@ public class VerticalDecomposition implements GameStateListener {
 				segToObj.put(curr.botSegment, result);
 			}
 			//Add unvisited neighbours to the queue
-//			curr.sanitizeNeighbours();
 			for(Trapezoid neib : curr.getNeighbours()){
 				if(!visited.contains(neib)){
 					q.add(neib);
@@ -1622,14 +1628,6 @@ public class VerticalDecomposition implements GameStateListener {
 		 */
 		public void addNeighbour(Trapezoid neighbour){
 			neighbours.add(neighbour);
-		}
-
-		/**
-		 * Adds a collection of neighbours to the list of neighbours.
-		 * @param neighbours The neighbours to add to the list.
-		 */
-		public void addNeighbours(Collection<Trapezoid> neighbours){
-			this.neighbours.addAll(neighbours);
 		}
 
 		/**
