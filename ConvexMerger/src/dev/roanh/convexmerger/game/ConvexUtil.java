@@ -753,6 +753,7 @@ public class ConvexUtil{
 		}
 		return area / 2.0D;
 	}
+	
 	/*
 	 * Checks if the given point <code>p</code> is on the closed line
 	 * segment between <code>a</code> and <code>b</code>. The given point
