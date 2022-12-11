@@ -244,7 +244,7 @@ public class VerticalDecompTest{
 	
 	@Test//The start trapezoid of the merge is the one on the left of the line that was newly added to the object
 	public void edgeCaseSeed5() throws InterruptedException{
-		testSpecific("3Y64YQO2OCQZUAWQT6OQ");//Merge 9->18->25->15->31
+		testSpecific("3Y64YQO2OCQZUAWQT6OQ");// 9->18->25->15->31
 	}
 	
 	@Test
@@ -254,7 +254,7 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void edgeCaseVerticalLinePlusWeirdMerge() throws InterruptedException{
-		testSpecific("3Y657GF0Y4N8SEJO4BFO");
+		testSpecific("3Y657GF0Y4N8SEJO4BFO"); // 80->52
 	}
 	
 	@Test
