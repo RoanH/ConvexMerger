@@ -279,7 +279,7 @@ public class VerticalDecompTest{
 		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
 	}
 	
-	@RepeatedTest(100)
+	@RepeatedTest(10)
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		System.out.println("Game seed: " + game.getSeed());
