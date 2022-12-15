@@ -43,7 +43,7 @@ import dev.roanh.convexmerger.player.Player;
  * @author Roan
  * @author Emu
  */
-public class VerticalDecomposition implements GameStateListener {
+public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * The trapezoids of the decomposition.
 	 */
@@ -362,7 +362,7 @@ public class VerticalDecomposition implements GameStateListener {
 	private void replaceOverlappedSegment(Line shortLine, Line line){
 		List<Line> toReplace = new ArrayList<Line>();
 		Line orientedLine = Line.orientedLine(line.getP1(), line.getP2());
-		Line sl = orientedSegments.get(orientedSegments.indexOf(shortLine)); 
+		Line sl = orientedSegments.get(orientedSegments.indexOf(shortLine));
 		toReplace.add(sl);
 		if(shortLine.getP1() != line.getP1()){
 			toReplace.add(orientedSegments.get(orientedSegments.indexOf(new Line(shortLine.getP1(), line.getP1()))));
@@ -430,7 +430,7 @@ public class VerticalDecomposition implements GameStateListener {
 			if(p1.getX() == p2.getX()){
 				verticalSegments.add(orientedSegment);
 				addedVerticalSegment(orientedSegment);
-			} else if(start.equals(end)){
+			}else if(start.equals(end)){
 				addedIntersectsSingleTrapezoid(orientedSegment);
 			}else{
 				addedIntersectsMultipleTrapezoids(orientedSegment, obj);
@@ -1034,7 +1034,7 @@ public class VerticalDecomposition implements GameStateListener {
 			if(segToObj.get(start.botSegment) == obj && start.botSegment.getP2() != seg.getP1() ||
 			   segToObj.get(start.botSegment) == null){
 				q.add(start);
-			} else {
+			}else{
 				Trapezoid last = start;
 				while(q.isEmpty()){
 					outer_for: for(Trapezoid onOtherSide : last.botSegment.trapsBelow){
@@ -1048,7 +1048,7 @@ public class VerticalDecomposition implements GameStateListener {
 					}
 				}
 			}
-		} else {
+		}else{
 			q.add(start);
 		}
 		while(!q.isEmpty()){
@@ -1101,7 +1101,8 @@ public class VerticalDecomposition implements GameStateListener {
 		Point2D old = obj1.getPoints().get(obj1.getPoints().size()-1);
 		Point2D p1 = line.getP1(), p2 = line.getP2();
 		Point2D[] shortLines = new Point2D[2];
-		shortLines[0] = p1; shortLines[1] = p2;
+		shortLines[0] = p1;
+		shortLines[1] = p2;
 		for(Point2D p : obj1.getPoints()){
 			if(p == p1 && ConvexUtil.checkCollinear(old, p, p2)){
 				shortLines[0] = old;
@@ -1140,7 +1141,7 @@ public class VerticalDecomposition implements GameStateListener {
 		try{
 			addSegment(firstShortLine, result);
 			addSegment(secondShortLine, result);
-		} catch (InterruptedException e){
+		}catch (InterruptedException e){
 			// TODO @Roan help
 			e.printStackTrace();
 		}
@@ -1164,7 +1165,7 @@ public class VerticalDecomposition implements GameStateListener {
 			}
 			if(segment.getP1() == p1){
 				q.addAll(segment.getTrapsAbove());
-			} else {
+			}else{
 				q.addAll(segment.getTrapsBelow());
 			}
 		}
