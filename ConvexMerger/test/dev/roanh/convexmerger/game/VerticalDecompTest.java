@@ -16,6 +16,8 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.VerticalDecomposition.Line;
+import dev.roanh.convexmerger.game.VerticalDecomposition.VerticalDecompositionConstructor;
 import dev.roanh.convexmerger.player.GreedyPlayer;
 
 public class VerticalDecompTest{
@@ -220,6 +222,69 @@ public class VerticalDecompTest{
 			for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
 				assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
 			}
+	}
+	
+	@Test
+	public void testInternalVerticalSegments() throws InterruptedException{
+		List<Point2D> points = Arrays.asList(
+				new Point2D.Double(420D, 271D),
+				new Point2D.Double(420D, 134D),
+				new Point2D.Double(494D, 134D),
+				new Point2D.Double(494D, 271D),
+				new Point2D.Double(527D, 271D),
+				new Point2D.Double(527D, 134D),
+				new Point2D.Double(607D, 134D),
+				new Point2D.Double(607D, 271D),
+				new Point2D.Double(667D, 271D),
+				new Point2D.Double(667D, 134D),
+				new Point2D.Double(749D, 134D),
+				new Point2D.Double(749D, 271D)
+		);
+		List<Line> list1 = Arrays.asList(
+			new Line(points.get(0),points.get(1)),
+			new Line(points.get(2),points.get(3)),
+			new Line(points.get(1),points.get(2)),
+			new Line(points.get(3),points.get(0))
+		);
+		List<Line> list2 = Arrays.asList(
+				new Line(points.get(4),points.get(5)),
+				new Line(points.get(6),points.get(7)),
+				new Line(points.get(5),points.get(6)),
+				new Line(points.get(7),points.get(4))
+		);
+		List<Line> list3 = Arrays.asList(
+				new Line(points.get(8), points.get(9)),
+				new Line(points.get(10),points.get(11)),
+				new Line(points.get(9), points.get(10)),
+				new Line(points.get(11),points.get(8))
+		);
+		List<List<Line>> listlist = Arrays.asList(list1, list2, list3);
+		VerticalDecomposition decomp = VerticalDecompositionConstructor.fromSegments(Constants.DECOMP_BOUNDS, listlist);
+		ConvexObject obj1 = decomp.getObjejctOfSegment(list1.get(2));
+		ConvexObject obj2 = decomp.getObjejctOfSegment(list2.get(2));
+		ConvexObject obj3 = decomp.getObjejctOfSegment(list3.get(2));
+		
+		Point2D[] mergeLines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), mergeLines));
+		
+		mergeLines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
+		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), mergeLines));
+		
+		merged.setID(4);
+		merged2.setID(5);
+		List<ConvexObject> contained = new ArrayList<ConvexObject>();
+		
+		testPlayfield(Arrays.asList(obj1,obj2,obj3), decomp);
+		
+		decomp.merge(null, obj1, obj2, merged, contained);
+		testPlayfield(Arrays.asList(merged, obj3), decomp);
+		
+		decomp.merge(null, merged, obj3, merged2, contained);
+		testPlayfield(Arrays.asList(merged2), decomp);
+		
+		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
+			assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
+		}
 	}
 	
 	@Test
