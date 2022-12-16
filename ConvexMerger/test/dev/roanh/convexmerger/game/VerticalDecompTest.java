@@ -260,9 +260,9 @@ public class VerticalDecompTest{
 		);
 		List<List<Line>> listlist = Arrays.asList(list1, list2, list3);
 		VerticalDecomposition decomp = VerticalDecompositionConstructor.fromSegments(Constants.DECOMP_BOUNDS, listlist);
-		ConvexObject obj1 = decomp.getObjejctOfSegment(list1.get(2));
-		ConvexObject obj2 = decomp.getObjejctOfSegment(list2.get(2));
-		ConvexObject obj3 = decomp.getObjejctOfSegment(list3.get(2));
+		ConvexObject obj1 = decomp.getObjectOfSegment(list1.get(2));
+		ConvexObject obj2 = decomp.getObjectOfSegment(list2.get(2));
+		ConvexObject obj3 = decomp.getObjectOfSegment(list3.get(2));
 		
 		Point2D[] mergeLines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
 		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), mergeLines));

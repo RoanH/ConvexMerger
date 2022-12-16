@@ -141,7 +141,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * 		   in case the segment is oriented from right to
 	 * 		   left during addition (on the top of the object).
 	 */
-	public ConvexObject getObjejctOfSegment(Line segment){
+	public ConvexObject getObjectOfSegment(Line segment){
 		return segToObj.get(segment);
 	}
 	
