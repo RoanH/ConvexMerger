@@ -347,6 +347,7 @@ public class VerticalDecompTest{
 	@RepeatedTest(10)
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
+		game.init();
 		System.out.println("Game seed: " + game.getSeed());
 
 		while(!game.isFinished()){
@@ -357,6 +358,7 @@ public class VerticalDecompTest{
 	
 	public void testSpecific(String seed) throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(seed), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
+		game.init();
 		System.out.println("Specific Game seed: " + game.getSeed());
 
 		while(!game.isFinished()){
