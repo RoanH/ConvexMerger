@@ -43,10 +43,10 @@ public class VerticalDecompTest{
 			new Point2D.Double(568.9115250982823D, 880.8787559538806D)
 		)));
 
-		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 
-		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
+		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
 		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
 
 		obj1.setID(0);
@@ -98,16 +98,16 @@ public class VerticalDecompTest{
 			new Point2D.Double(560.6615862346871, 657.5834169849543D)
 		)));
 
-		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 
-		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
+		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
 		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
 		
-		lines = ConvexUtil.computeMergeLines(obj4.getPoints(), obj5.getPoints());
+		lines = ConvexUtil.computeMergeLines(obj4.getPoints(), obj5.getPoints(), false);
 		ConvexObject merged3 = new ConvexObject(ConvexUtil.mergeHulls(obj4.getPoints(), obj5.getPoints(), lines));
 		
-		lines = ConvexUtil.computeMergeLines(merged2.getPoints(), merged3.getPoints());
+		lines = ConvexUtil.computeMergeLines(merged2.getPoints(), merged3.getPoints(), false);
 		ConvexObject merged4 = new ConvexObject(ConvexUtil.mergeHulls(merged2.getPoints(), merged3.getPoints(), lines));
 
 		obj1.setID(0);
@@ -150,10 +150,10 @@ public class VerticalDecompTest{
 				new Point2D.Double(749D, 271D),
 				new Point2D.Double(667D, 271D)
 			)));
-			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 			ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 
-			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
+			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
 			ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
 			
 			obj1.setID(0);
@@ -197,10 +197,10 @@ public class VerticalDecompTest{
 				new Point2D.Double(271.14884502844933D, 749.0724137750002D),
 				new Point2D.Double(271.14884502844933D, 667.5037849870058D)
 			)));
-			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 			ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 
-			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
+			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
 			ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
 			
 			obj1.setID(0);
@@ -264,10 +264,10 @@ public class VerticalDecompTest{
 		ConvexObject obj2 = decomp.getObjectOfSegment(list2.get(2));
 		ConvexObject obj3 = decomp.getObjectOfSegment(list3.get(2));
 		
-		Point2D[] mergeLines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+		Point2D[] mergeLines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), mergeLines));
 		
-		mergeLines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints());
+		mergeLines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
 		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), mergeLines));
 		
 		merged.setID(4);

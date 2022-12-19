@@ -86,7 +86,7 @@ public class CalliperAnimation extends Animation{
 		this.first = first;
 		this.second = second;
 		
-		Point2D[] lines = ConvexUtil.computeMergeLines(first.getPoints(), second.getPoints());
+		Point2D[] lines = ConvexUtil.computeMergeLines(first.getPoints(), second.getPoints(), false);
 		firstLine = new Line2D.Double(lines[0], lines[1]);
 		secondLine = new Line2D.Double(lines[2], lines[3]);
 		firstAngle = ConvexUtil.angleFromVertical(firstLine);

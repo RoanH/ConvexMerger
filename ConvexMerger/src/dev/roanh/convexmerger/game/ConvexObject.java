@@ -249,7 +249,7 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments) throws InterruptedException{
-		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
+		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), true);
 		
 		//check if the new hull is valid
 		if(state != null){
