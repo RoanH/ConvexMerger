@@ -1085,72 +1085,26 @@ public class VerticalDecomposition implements GameStateListener{
 	public void claim(Player player, ConvexObject obj){
 	}
 	
-	/**
-	 * Computes the "short" merge lines between a pair of objects
-	 * that can be merged, "short" meaning that the lines do not
-	 * overlap with any existing lines in case of collinearity.
-	 * between the merge points and an adjacent point.
-	 * @param line The original, non-shortened line.
-	 * @param obj1 The first merge object.
-	 * @param obj2 The second merge object.
-	 * @return The "shortened" line, which does not overlap with
-	 * 		   any lines already in the decomposition, with the
-	 * 		   exception of sharing endpoints.
-	 */
-	private Line getShortLines(Line2D line, ConvexObject obj1, ConvexObject obj2){
-		Point2D old = obj1.getPoints().get(obj1.getPoints().size()-1);
-		Point2D p1 = line.getP1(), p2 = line.getP2();
-		Point2D[] shortLines = new Point2D[2];
-		shortLines[0] = p1;
-		shortLines[1] = p2;
-		for(Point2D p : obj1.getPoints()){
-			if(p == p1 && ConvexUtil.checkCollinear(old, p, p2)){
-				shortLines[0] = old;
-			}
-			if(old == p1 && ConvexUtil.checkCollinear(old, p, p2)){
-				shortLines[0] = p;
-			}
-			old = p;
-		}
-		old = obj2.getPoints().get(obj2.getPoints().size()-1);
-		for(Point2D p : obj2.getPoints()){
-			if(p == p2 && ConvexUtil.checkCollinear(old, p, p1)){
-				shortLines[1] = old;
-			}
-			if(old == p2 && ConvexUtil.checkCollinear(old, p, p1)){
-				shortLines[1] = p;
-			}
-			old = p;
-		}
-		return new Line(shortLines[0], shortLines[1]);
-	}
-	
 	@Override
-	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed){
-		if(!source.getPoints().contains(result.getPoints().get(0))){
-			ConvexObject tmp = source;
-			source = target;
-			target = tmp;
-		}
-		Point2D[] mergePoints = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
+	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException{
+		Point2D[] mergePointsShort = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), false);
+		Point2D[] mergePointsLong = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
 		
-		Line firstLine =  new Line(mergePoints[0], mergePoints[1]);
-		Line secondLine = new Line(mergePoints[2], mergePoints[3]);
-		Line firstShortLine = getShortLines(firstLine, source, target);
-		Line secondShortLine = getShortLines(secondLine, target, source);
-		try{
-			addSegment(firstShortLine, result);
-			addSegment(secondShortLine, result);
-		}catch (InterruptedException e){
-			// TODO @Roan help
-			e.printStackTrace();
-		}
+		Line firstLine =  new Line(mergePointsLong[0], mergePointsLong[1]);
+		Line secondLine = new Line(mergePointsLong[2], mergePointsLong[3]);
+		Line firstShortLine = new Line(mergePointsShort[0], mergePointsShort[1]);
+		Line secondShortLine = new Line(mergePointsShort[2], mergePointsShort[3]);
+		
+		addSegment(firstShortLine, result);
+		addSegment(secondShortLine, result);
+			
 		if(!firstShortLine.equals(firstLine)){
 			replaceOverlappedSegment(firstShortLine, firstLine);
 		}
 		if(!secondShortLine.equals(secondLine)){
 			replaceOverlappedSegment(secondShortLine, secondLine);
 		}
+		
 		Queue<Trapezoid> q = new LinkedList<Trapezoid>();
 		Set<Trapezoid> visited = new HashSet<Trapezoid>();
 		Set<Line2D> visitedSeg = new HashSet<Line2D>();
@@ -1169,12 +1123,14 @@ public class VerticalDecomposition implements GameStateListener{
 				q.addAll(segment.getTrapsBelow());
 			}
 		}
+		
 		while(!q.isEmpty()){
 			Trapezoid curr = q.remove();
 
 			if(segToObj.replace(curr.botSegment, result) == null){
 				segToObj.put(curr.botSegment, result);
 			}
+			
 			//Add unvisited neighbours to the queue
 			for(Trapezoid neib : curr.getNeighbours()){
 				if(!visited.contains(neib)){
@@ -1182,6 +1138,7 @@ public class VerticalDecomposition implements GameStateListener{
 					visited.add(neib);
 				}
 			}
+			
 			if(!visitedSeg.contains(curr.botSegment)){
 				visitedSeg.add(curr.botSegment);
 				if(!borderSegments.contains(curr.botSegment)){
@@ -1193,6 +1150,7 @@ public class VerticalDecomposition implements GameStateListener{
 					}
 				}
 			}
+			
 			if(!visitedSeg.contains(curr.topSegment)){
 				visitedSeg.add(curr.topSegment);
 				if(!borderSegments.contains(curr.topSegment)){
