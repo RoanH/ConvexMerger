@@ -775,7 +775,7 @@ public class VerticalDecomposition implements GameStateListener{
 			removeTrapezoid(current);
 			vertex.setTrapezoid(null);
 
-			vertex.setType(2);
+			vertex.setType(DecompVertexType.SEGMENT);
 			vertex.setTrapezoid(null);
 			vertex.setSegment(orientedSegment);
 			vertex.setLeftChild(topVertex);
@@ -1240,9 +1240,9 @@ public class VerticalDecomposition implements GameStateListener{
 	 */
 	public class DecompVertex{
 		/**
-		 * The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
+		 * The type of the vertex.
 		 */
-		private int type;
+		private DecompVertexType type;
 		/**
 		 * The left child of the vertex in the search structure.
 		 */
@@ -1265,65 +1265,47 @@ public class VerticalDecomposition implements GameStateListener{
 		private Line2D segment;
 		
 		/**
-		 * Constructs a Decomposition Vertex of type 0 (leaf) with a linked trapezoid.
+		 * Constructs a Decomposition Vertex of the leaf type with a linked trapezoid.
 		 * @param trapezoid The trapezoid to link to.
 		 */
 		public DecompVertex(Trapezoid trapezoid){
-			this(0, null, null, trapezoid, null, null);
+			this.trapezoid = trapezoid;
+			type = DecompVertexType.LEAF;
+			left = null;
+			right = null;
+			point = null;
+			segment = null;
 			trapezoid.setDecompVertex(this);
 		}
 
 		/**
-		 * Constructs a Decomposition Vertex of type 1 (point) with a corresponding point.
+		 * Constructs a Decomposition Vertex of the point type with a corresponding point.
 		 * @param left The  child of the vertex.
 		 * @param right The right child of the vertex.
 		 * @param point The corresponding point in the decomposition.
 		 */
 		public DecompVertex(DecompVertex left, DecompVertex right, Point2D point){
-			this(1, left, right, null, point, null);
+			this.left = left;
+			this.right = right;
+			this.point = point;
+			type = DecompVertexType.POINT;
+			trapezoid = null;
+			segment = null;
 		}
 
 		/**
-		 * Constructs a Decomposition Vertex of expected type 2 (segment) with a corresponding line segment.
+		 * Constructs a Decomposition Vertex of the segment type with a corresponding line segment.
 		 * @param left The left child of the vertex. (above the segment)
 		 * @param right The right child of the vertex. (below the segment)
 		 * @param segment The corresponding line segment in the decomposition.
 		 */
 		public DecompVertex(DecompVertex left, DecompVertex right, Line2D segment){
-			this(2, left, right, null, null, segment);
-		}
-		
-		/**
-		 * Unified constructor for Decomposition vertices.
-		 * @param type The type of the vertex. 0 denotes leaf, 1 denotes point, 2 denotes line segment.
-		 * @param left The left child of the vertex.
-		 * @param right The right child of the vertex.
-		 * @param trapezoid The trapezoid for leaf nodes to link to.
-		 * @param point The point for point nodes to link to.
-		 * @param segment The line segment for segment nodes to link to.
-		 */
-		public DecompVertex(int type, DecompVertex left, DecompVertex right, Trapezoid trapezoid, Point2D point, Line2D segment){
-			this.type = type;
-			if(type == 0){
-				this.left = null;
-				this.right = null;
-				this.trapezoid = trapezoid;
-				this.point = null;
-				this.segment = null;
-			}else if(type < 3){
-				this.left = left;
-				this.right = right;
-				if(type == 1){
-					this.point = point;
-					this.trapezoid = null;
-					this.segment = null;
-				}
-				if(type == 2){
-					this.trapezoid = null;
-					this.point = null;
-					this.segment = segment;
-				}
-			}
+			this.left = left;
+			this.right = right;
+			this.segment = segment;
+			type = DecompVertexType.SEGMENT;
+			trapezoid = null;
+			point = null;
 		}
 		
 		/**
@@ -1337,28 +1319,31 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @return The trapezoid that contains the query point.
 		 */
 		public Trapezoid queryPoint(Point2D query){
-			if(type == 0){
+			switch(type){
+			case LEAF:
 				return trapezoid;
-			}else if(type == 1){
+			case POINT:
 				if(query.getX() <= point.getX()){
 					return left.queryPoint(query);
 				}else{
 					return right.queryPoint(query);
 				}
-			}else{
+			case SEGMENT:
 				Line2D orientedSegment = Line.orientedLine(segment.getP1(), segment.getP2());
 				return orientedSegment.relativeCCW(query) <= 0 ? left.queryPoint(query) : right.queryPoint(query);
+			default:
+				throw new IllegalStateException("Unknown vertex type.");
 			}
 		}
 
 		/**
-		 * Sets the type to an integer (0 is vertex, 1 is point, 2 is segment).
-		 * @param type The type to set
+		 * Sets the type of this decomposition vertex.
+		 * @param type The new type to set.
 		 */
-		public void setType(int type){
+		public void setType(DecompVertexType type){
 			this.type = type;
-			if(this.type != 0){
-				this.trapezoid = null;
+			if(this.type != DecompVertexType.LEAF){
+				trapezoid = null;
 			}
 		}
 		
@@ -1375,7 +1360,7 @@ public class VerticalDecomposition implements GameStateListener{
 		public void setToPoint(Point2D point, DecompVertex left, DecompVertex right){
 			setTrapezoid(null);
 			setSegment(null);
-			setType(1);
+			setType(DecompVertexType.POINT);
 			setPoint(point);
 			setLeftChild(left);
 			setRightChild(right);
@@ -1395,7 +1380,7 @@ public class VerticalDecomposition implements GameStateListener{
 		public void setToSegment(Line segment, DecompVertex bottom, DecompVertex top){
 			setTrapezoid(null);
 			setPoint(null);
-			setType(2);
+			setType(DecompVertexType.SEGMENT);
 			setSegment(segment);
 			setLeftChild(bottom);
 			setRightChild(top);
@@ -1825,7 +1810,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * on its end points.
 	 * @author Roan
 	 */
-	protected static class Line extends Line2D{
+	public static class Line extends Line2D{
 		/**
 		 * First end point of the line.
 		 */
@@ -2025,7 +2010,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Contains references to segments that include it.
 	 * @author Emu
 	 */
-	private class DecompositionPoint extends Point2D{
+	public class DecompositionPoint extends Point2D{
 		/**
 		 * The point of this structure.
 		 */
@@ -2173,5 +2158,24 @@ public class VerticalDecomposition implements GameStateListener{
 		public void setLocation(double x, double y){
 			point.setLocation(x, y);
 		}
+	}
+	
+	/**
+	 * Denotes the type of the decomposition vertex.
+	 * @author Roan
+	 */
+	public static enum DecompVertexType{
+		/**
+		 * Indicates a leaf vertex.
+		 */
+		LEAF,
+		/**
+		 * Indicates a point vertex.
+		 */
+		POINT,
+		/**
+		 * Indicates a line segment vertex.
+		 */
+		SEGMENT
 	}
 }
