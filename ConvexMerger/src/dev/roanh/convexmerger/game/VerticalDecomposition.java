@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1634,25 +1635,29 @@ public class VerticalDecomposition implements GameStateListener{
 		 * top(bottom) bounding segment.</li></ul>
 		 */
 		public void sanitizeNeighbours(){
-			List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
-			for(Trapezoid neib: getNeighbours()){
-				if(
-					topSegment.getX1() == botSegment.getX1() && topSegment.getX1() == getXLeft() &&(
-						neib.getXRight() == getXLeft() &&
-						verticalSegments.contains(new Line(botSegment.getP1(), topSegment.getP1()))
-					)||
-					topSegment.getX2() == botSegment.getX2() && topSegment.getX2() == getXRight() &&(
-						neib.getXLeft() == getXRight() && 
-						verticalSegments.contains(new Line(botSegment.getP2(), topSegment.getP2()))
-					)||
-					neib.topSegment == botSegment ||
-					topSegment == neib.botSegment){
-					removeNeighbours.add(neib);
+			Iterator<Trapezoid> iter = getNeighbours().iterator();
+			while(iter.hasNext()){
+				Trapezoid neib = iter.next();
+				
+				checks: {
+					if(neib.topSegment == botSegment ||	topSegment == neib.botSegment){
+						break checks;
+					}
+					
+					if(topSegment.getX1() == botSegment.getX1() && topSegment.getX1() == getXLeft() && neib.getXRight() == getXLeft() && verticalSegments.contains(new Line(botSegment.getP1(), topSegment.getP1()))){
+						break checks;
+					}
+
+					if(topSegment.getX2() == botSegment.getX2() && topSegment.getX2() == getXRight() && neib.getXLeft() == getXRight() && verticalSegments.contains(new Line(botSegment.getP2(), topSegment.getP2()))){
+						break checks;
+					}
+					
+					//keep the trapezoid if the checks all pass
+					continue;
 				}
-			}
-			for(Trapezoid neib : removeNeighbours){
-				removeNeighbour(neib);
+				
 				neib.removeNeighbour(this);
+				iter.remove();
 			}
 		}
 
