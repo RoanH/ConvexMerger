@@ -1599,9 +1599,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param neighbour the neighbour to be removed.
 		 */
 		public void removeNeighbour(Trapezoid neighbour){
-			while(neighbours.contains(neighbour)){
-				neighbours.remove(neighbour);
-			}
+			neighbours.remove(neighbour);
 		}
 		
 		/**
