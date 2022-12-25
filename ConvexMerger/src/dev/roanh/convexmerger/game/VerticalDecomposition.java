@@ -18,7 +18,9 @@
  */
 package dev.roanh.convexmerger.game;
 
+import java.awt.Shape;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -1805,6 +1807,23 @@ public class VerticalDecomposition implements GameStateListener{
 		 */
 		public ConvexObject getObject(){
 			return segToObj.get(botSegment);
+		}
+		
+		/**
+		 * Computes the shape for this trapezoid.
+		 * @return The shape for this trapezoid.
+		 */
+		public Shape toShape(){
+			List<Point2D> points = getEndPoints();
+			
+			Path2D.Double path = new Path2D.Double();
+			path.moveTo(points.get(0).getX(), points.get(0).getY());
+			for(int i = 1; i < points.size(); i++){
+				path.lineTo(points.get(i).getX(), points.get(i).getY());
+			}
+			path.closePath();
+			
+			return path;
 		}
 	}
 	
