@@ -488,6 +488,7 @@ public class VerticalDecomposition implements GameStateListener{
 				left.addNeighbour(neib);
 				neib.addNeighbour(left);
 			}
+			
 			if(trap.getXRight() == neib.getXLeft()){
 				right.addNeighbour(neib);
 				neib.addNeighbour(right);
@@ -522,6 +523,7 @@ public class VerticalDecomposition implements GameStateListener{
 		if(!trap.rightPoints.contains(leftp)){
 			trap.addRightPoint(leftp);
 		}
+		
 		if(!trap.rightPoints.contains(rightp)){
 			trap.addRightPoint(rightp);
 		}
@@ -534,6 +536,7 @@ public class VerticalDecomposition implements GameStateListener{
 					}
 				}
 			}
+			
 			if(!neib.leftPoints.contains(rightp)){
 				for(Line2D decompLine : neib.getDecompLines()){
 					if(decompLine.relativeCCW(rightp) == 0 || decompLine.getP1().equals(rightp) || decompLine.getP2().equals(rightp)){
@@ -544,20 +547,19 @@ public class VerticalDecomposition implements GameStateListener{
 		}
 
 		//Remove neighbours to the right that might not share a side anymore
-		List<Trapezoid> removeNeighbours = new ArrayList<Trapezoid>();
-
-		for(Trapezoid neib : trap.getNeighbours()){
-			if(verticalSegments.contains(new Line(neib.botSegment.getP1(), neib.topSegment.getP1())) && neib.getXLeft() == trap.getXRight()){
-				removeNeighbours.add(neib);
+		Iterator<Trapezoid> iter = trap.getNeighbours().iterator();
+		while(iter.hasNext()){
+			Trapezoid neib = iter.next();
+			
+			if(neib.getXLeft() == trap.getXRight() && verticalSegments.contains(new Line(neib.botSegment.getP1(), neib.topSegment.getP1()))){
+				iter.remove();
+				neib.removeNeighbour(trap);
 			}
+			
 			if(neib.getXLeft() == leftp.getX() && ((leftp.equals(trap.botSegment.getP2()) && rightp.equals(trap.topSegment.getP2())) || (rightp.equals(trap.botSegment.getP2()) && leftp.equals(trap.topSegment.getP2())))){
-				removeNeighbours.add(neib);
+				iter.remove();
+				neib.removeNeighbour(trap);
 			}
-		}
-
-		for(Trapezoid neib : removeNeighbours){
-			trap.removeNeighbour(neib);
-			neib.removeNeighbour(trap);
 		}
 	}
 	
