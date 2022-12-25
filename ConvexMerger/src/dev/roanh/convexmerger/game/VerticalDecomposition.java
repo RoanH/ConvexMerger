@@ -225,10 +225,7 @@ public class VerticalDecomposition implements GameStateListener{
 		List<Point2D> points = obj.getPoints();
 
 		for(int i = 0; i < points.size(); i++){
-			Point2D p1 = points.get(i), p2 = points.get((i + 1) % points.size());
-
-			Line2D segment = new Line(p1, p2);
-			addSegment(segment, obj);
+			addSegment(new Line(points.get(i), points.get((i + 1) % points.size())), obj);
 		}
 	}
 	
