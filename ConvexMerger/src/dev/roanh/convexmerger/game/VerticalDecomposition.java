@@ -23,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1513,7 +1514,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
 		public Trapezoid(Point2D left, Point2D right, Line botSegment, Line topSegment){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), new ArrayList<Point2D>(Arrays.asList(right)), botSegment, topSegment);
+			this(new ArrayList<Point2D>(Collections.singletonList(left)), new ArrayList<Point2D>(Collections.singletonList(right)), botSegment, topSegment);
 		}
 
 		/**
@@ -1525,7 +1526,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
 		public Trapezoid(List<Point2D> left, Point2D right, Line botSegment, Line topSegment){
-			this(left, new ArrayList<Point2D>(Arrays.asList(right)), botSegment, topSegment);
+			this(left, new ArrayList<Point2D>(Collections.singletonList(right)), botSegment, topSegment);
 		}
 		
 		/**
@@ -1537,7 +1538,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * @param topSegment The top bounding segment of the trapezoid.
 		 */
 		public Trapezoid(Point2D left, List<Point2D> right, Line botSegment, Line topSegment){
-			this(new ArrayList<Point2D>(Arrays.asList(left)), right, botSegment, topSegment);
+			this(new ArrayList<Point2D>(Collections.singletonList(left)), right, botSegment, topSegment);
 		}
 
 		/**
