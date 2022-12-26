@@ -53,10 +53,6 @@ public class VerticalDecomposition implements GameStateListener{
 	 */
 	private List<Trapezoid> trapezoids;
 	/**
-	 * The bounding box that all objects that will ever be added will be contained in (strictly inside, there will be no overlap with the edges).
-	 */
-	private Rectangle2D bounds;
-	/**
 	 * The search structure of the decomposition. 
 	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
 	 */
@@ -95,8 +91,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 *        there will be no overlap with the edges).
 	 */
 	public VerticalDecomposition(Rectangle2D bounds){
-		this.bounds = bounds;
-		initializeDecomposition();
+		initializeDecomposition(bounds);
 	}
 	
 	/**
@@ -112,8 +107,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @throws InterruptedException When the game is aborted.
 	 */
 	public VerticalDecomposition(Rectangle2D bounds, List<ConvexObject> objects) throws InterruptedException{
-		this.bounds = bounds;
-		initializeDecomposition();
+		initializeDecomposition(bounds);
 		for(ConvexObject obj : objects){
 			addObject(obj);
 		}
@@ -163,8 +157,11 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Clears all structures except of the objects,
 	 * and initialises a blank vertical decomposition
 	 * with a bounding box trapezoid and a corresponding search structure vertex.
+	 * @param bounds A bounding box that all objects that will
+	 *        ever be added will be contained in (strictly inside,
+	 *        there will be no overlap with the edges).
 	 */
-	private void initializeDecomposition(){
+	private void initializeDecomposition(Rectangle2D bounds){
 		trapezoids = new ArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
 		points = new ArrayList<DecompositionPoint>();
@@ -285,8 +282,6 @@ public class VerticalDecomposition implements GameStateListener{
 	 */
 	public List<Line2D> getDecompLines(){
 		List<Line2D> lines = new ArrayList<Line2D>();
-		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMinY()));
-		lines.add(new Line2D.Double(bounds.getMinX(), bounds.getMaxY(), bounds.getMaxX(), bounds.getMaxY()));
 
 		for(Trapezoid trap : trapezoids){
 			lines.addAll(trap.getDecompLines());
