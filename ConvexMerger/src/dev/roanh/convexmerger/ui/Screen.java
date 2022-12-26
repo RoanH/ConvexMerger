@@ -443,9 +443,9 @@ public abstract class Screen{
 	 * @param height The height of the screen.
 	 */
 	public void handleMouseRelease(Point2D loc, int width, int height){
-		if(isLeftButtonEnabled() && leftPoly.contains(loc)){
+		if(isLeftButtonEnabled() && leftPoly != null && leftPoly.contains(loc)){
 			handleLeftButtonClick();
-		}else if(isRightButtonEnabled() && rightPoly.contains(loc)){
+		}else if(isRightButtonEnabled() && rightPoly != null && rightPoly.contains(loc)){
 			handleRightButtonClick();
 		}
 	}
