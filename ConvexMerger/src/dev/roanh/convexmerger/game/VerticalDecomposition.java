@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.player.Player;
@@ -1200,43 +1199,6 @@ public class VerticalDecomposition implements GameStateListener{
 	public void abort(){
 	}
 
-	/**
-	 * A factory class for the vertical decomposition.
-	 * @author Emu
-	 */
-	public static final class VerticalDecompositionConstructor{
-		
-		/**
-		 * Constructs a new vertical decomposition with
-		 * the given bounding box and objects in a list of segments
-		 * representation. Makes the segments up into objects and
-		 * adds the segments one by one, linked with the
-		 * corresponding objects.
-		 * @param bounds A bounding box that all objects that will
-		 *        ever be added will be contained in (strictly inside,
-		 *        there will be no overlap with the edges).
-		 * @param segmentLists List of a lists of segments, each list
-		 * 	      contains the segments for a single convex object.
-		 * @return The created vertical decomposition.
-		 * @throws InterruptedException When the game is aborted.
-		 */
-		public static VerticalDecomposition fromSegments(Rectangle2D bounds, List<List<Line>> segmentLists) throws InterruptedException{
-			VerticalDecomposition decomp = new VerticalDecomposition(bounds);
-			
-			int id = 0;
-			for(List<Line> segments : segmentLists){
-				List<Point2D> points = segments.stream().map(l->l.getP1()).collect(Collectors.toList());
-				ConvexObject object = new ConvexObject(ConvexUtil.computeConvexHull(points));
-				object.setID(id++);
-				for(Line2D segment : segments){
-					decomp.addSegment(segment, object);
-				}
-			}
-			
-			return decomp;
-		}
-	}
-	
 	/**
 	 * Represents a vertex in the search structure of the decomposition.
 	 * @author Emu
