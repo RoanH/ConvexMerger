@@ -2069,10 +2069,6 @@ public class VerticalDecomposition implements GameStateListener{
 		 *         segment or the segment is vertical.
 		 */
 		public Trapezoid getIntersectedTrapezoidToTheRight(Line2D seg){
-			if((point != seg.getP1() && point != seg.getP2()) || seg.getX1() == seg.getX2()){
-				return null;
-			}
-
 			for(Line segment : segments){
 				if(segment.getP1() == point && segment.getX1() != segment.getX2()){
 					Trapezoid trap = segment.getLeftmostTrapAbove();
