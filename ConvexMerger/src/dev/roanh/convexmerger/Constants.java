@@ -45,7 +45,8 @@ public final class Constants{
 	 * The bounding box the vertical decomposition can use that
 	 * ensures that all convex objects are fully contained.
 	 */
-	public static final Rectangle2D DECOMP_BOUNDS = new Rectangle2D.Double(-1.0D, -1.0D, PLAYFIELD_WIDTH + 1.0D, PLAYFIELD_HEIGHT + 1.0D);
+	@Deprecated
+	public static final Rectangle2D DECOMP_BOUNDS = new Rectangle2D.Double(0.0D, 0.0D, PLAYFIELD_WIDTH, PLAYFIELD_HEIGHT);
 	/**
 	 * Minimum frame size scaling factor
 	 */

@@ -18,6 +18,8 @@
  */
 package dev.roanh.convexmerger.game;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -36,9 +38,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.ui.Theme;
 
 /**
  * Vertical decomposition of a plane containing non-overlapping
@@ -47,7 +53,7 @@ import dev.roanh.convexmerger.player.Player;
  * @author Roan
  * @author Emu
  */
-public class VerticalDecomposition implements GameStateListener{
+public class VerticalDecomposition extends RenderableObject implements GameStateListener{
 	/**
 	 * The trapezoids of the decomposition.
 	 */
@@ -76,7 +82,7 @@ public class VerticalDecomposition implements GameStateListener{
 	/**
 	 * All line segments ever added into the vertical decomposition.
 	 */
-	private Set<Line> lines = new HashSet<Line>();
+	private List<Line> lines = new ArrayList<Line>();
 	/**
 	 * True the vertical decomposition is animated and showing
 	 * individual segment updates.
@@ -117,7 +123,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Gets all lines that were ever added to the vertical decomposition.
 	 * @return All line segments ever added.
 	 */
-	public Set<? extends Line2D> getLines(){
+	public List<? extends Line2D> getLines(){
 		return lines;
 	}
 	
@@ -162,7 +168,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 *        there will be no overlap with the edges).
 	 */
 	private void initializeDecomposition(Rectangle2D bounds){
-		trapezoids = new ArrayList<Trapezoid>();
+		trapezoids = new CopyOnWriteArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
 		points = new ArrayList<DecompositionPoint>();
 		orientedSegments = new ArrayList<Line>();
@@ -410,34 +416,33 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @throws InterruptedException When the game is aborted.
 	 */
 	private void addSegment(Line2D seg, ConvexObject obj) throws InterruptedException{
+		Point2D p1 = seg.getP1();
+		Point2D p2 = seg.getP2();
+		Line orientedSegment = Line.orientedLine(p1, p2);
+
+		orientedSegments.add(orientedSegment);
+		lines.add(orientedSegment);
+		ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
+		segToObj.put(orientedSegment, toPut);
+
+		Trapezoid start = queryTrapezoid(p1);
+		Trapezoid end = queryTrapezoid(p2);
+
+		if(p1.getX() == p2.getX()){
+			verticalSegments.add(orientedSegment);
+			addedVerticalSegment(orientedSegment);
+		}else if(start.equals(end)){
+			addedIntersectsSingleTrapezoid(orientedSegment);
+		}else{
+			addedIntersectsMultipleTrapezoids(orientedSegment, obj);
+		}
+		if(p1.getX() != p2.getX()){
+			getOrCreatePoint(p1).addSegment(orientedSegment);
+			getOrCreatePoint(p2).addSegment(orientedSegment);
+		}
+		
 		if(animate){
 			Thread.sleep(100);
-		}
-		synchronized(this){
-			Point2D p1 = seg.getP1();
-			Point2D p2 = seg.getP2();
-			Line orientedSegment = Line.orientedLine(p1, p2);
-
-			orientedSegments.add(orientedSegment);
-			lines.add(orientedSegment);
-			ConvexObject toPut = p1.getX() < p2.getX() ? obj : null;
-			segToObj.put(orientedSegment, toPut);
-
-			Trapezoid start = queryTrapezoid(p1);
-			Trapezoid end = queryTrapezoid(p2);
-
-			if(p1.getX() == p2.getX()){
-				verticalSegments.add(orientedSegment);
-				addedVerticalSegment(orientedSegment);
-			}else if(start.equals(end)){
-				addedIntersectsSingleTrapezoid(orientedSegment);
-			}else{
-				addedIntersectsMultipleTrapezoids(orientedSegment, obj);
-			}
-			if(p1.getX() != p2.getX()){
-				getOrCreatePoint(p1).addSegment(orientedSegment);
-				getOrCreatePoint(p2).addSegment(orientedSegment);
-			}
 		}
 	}
 	
@@ -1109,6 +1114,18 @@ public class VerticalDecomposition implements GameStateListener{
 	
 	@Override
 	public void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException{
+		setAnimation(new Animation(){
+			
+			@Override
+			protected boolean render(Graphics2D g){
+				source.renderOrAnimate(g);
+				target.renderOrAnimate(g);
+				absorbed.forEach(obj->obj.renderOrAnimate(g));
+				VerticalDecomposition.this.render(g);
+				return true;
+			}
+		});
+		
 		Point2D[] mergePointsShort = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), false);
 		Point2D[] mergePointsLong = ConvexUtil.computeMergeLines(source.getPoints(), target.getPoints(), result.getPoints());
 
@@ -1188,6 +1205,8 @@ public class VerticalDecomposition implements GameStateListener{
 				}
 			}
 		}
+		
+		setAnimation(null);
 	}
 	
 	@Override
@@ -1196,6 +1215,31 @@ public class VerticalDecomposition implements GameStateListener{
 	
 	@Override
 	public void abort(){
+	}
+
+	@Override
+	public void render(Graphics2D g){
+		g.setStroke(Theme.BORDER_STROKE);
+		for(int i = 0; i < lines.size(); i++){
+			g.setColor(i == lines.size() - 1 ? Color.BLACK : Color.BLACK);
+			g.draw(lines.get(i));
+		}
+		
+		g.setColor(new Color(0, 255, 255, 150));
+		g.setColor(Color.BLACK);
+		g.setStroke(Theme.BORDER_STROKE);
+		for(Trapezoid trap : trapezoids){
+			trap.getDecompLines().forEach(g::draw);
+		}
+		
+		for(int i = 0; i < lines.size(); i++){
+			g.setColor(Color.BLACK);
+		//	g.draw(lines.get(i));
+		}
+		
+		g.drawRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+		g.setColor(new Color(0, 255, 255, 50));
+		g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
 	}
 
 	/**

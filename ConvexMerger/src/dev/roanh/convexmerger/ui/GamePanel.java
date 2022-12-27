@@ -33,7 +33,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 import dev.roanh.convexmerger.Constants;
@@ -44,7 +43,6 @@ import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
 import dev.roanh.convexmerger.game.SegmentPartitionTree;
 import dev.roanh.convexmerger.game.GameState.GameStateListener;
-import dev.roanh.convexmerger.game.VerticalDecomposition.Trapezoid;
 import dev.roanh.convexmerger.game.VerticalDecomposition;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
@@ -326,45 +324,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		
 		VerticalDecomposition decomp = state.getVerticalDecomposition();
 		if(decomp.isAnimated()){
-			synchronized(decomp){
-				g.setStroke(Theme.POLY_STROKE);
-				g.setColor(Color.BLACK);
-				decomp.getLines().forEach(g::draw);
-				Line2D last = decomp.getLastLine();
-				if(last != null){
-					g.setColor(Color.BLUE);
-					g.draw(last);
-				}
-				
-				g.setColor(new Color(0, 255, 255, 50));
-				g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-				
-				g.setColor(Color.WHITE);
-				g.setStroke(Theme.BORDER_STROKE);
-				decomp.getDecompLines().forEach(g::draw);
-				
-				for(ConvexObject obj : state.getObjects()){
-					g.setColor(Theme.getPlayerOutline(obj));
-					Point2D center = obj.getCentroid();
-					String str = String.valueOf(obj.getID());
-					g.drawString(
-						str,
-						(float)(center.getX() - 0.5F * g.getFontMetrics().stringWidth(str)),
-						(float)(center.getY() + 0.5F * g.getFontMetrics().getAscent())
-					);
-				}
-				
-				for(Trapezoid trap : state.getVerticalDecomposition().getTrapezoids()){
-					String str = Optional.ofNullable(trap.getObject()).map(ConvexObject::getID).map(String::valueOf).orElse("-");
-					g.setColor(Color.GREEN);
-					Point2D center = trap.getCentroid();
-					g.drawString(
-						str,
-						(float)(center.getX() - 0.5F * g.getFontMetrics().stringWidth(str)),
-						(float)(center.getY() + 0.5F * g.getFontMetrics().getAscent())
-					);
-				}
-			}
+			decomp.renderOrAnimate(g);
 		}
 		
 		SegmentPartitionTree<?> tree = state.getSegmentTreeKD();
