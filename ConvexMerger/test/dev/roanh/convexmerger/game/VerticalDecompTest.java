@@ -56,7 +56,7 @@ public class VerticalDecompTest{
 		obj3.setID(2);
 		merged.setID(3);
 		merged2.setID(4);
-		
+
 		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
 
@@ -105,10 +105,10 @@ public class VerticalDecompTest{
 
 		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
 		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
-		
+
 		lines = ConvexUtil.computeMergeLines(obj4.getPoints(), obj5.getPoints(), false);
 		ConvexObject merged3 = new ConvexObject(ConvexUtil.mergeHulls(obj4.getPoints(), obj5.getPoints(), lines));
-		
+
 		lines = ConvexUtil.computeMergeLines(merged2.getPoints(), merged3.getPoints(), false);
 		ConvexObject merged4 = new ConvexObject(ConvexUtil.mergeHulls(merged2.getPoints(), merged3.getPoints(), lines));
 
@@ -134,123 +134,125 @@ public class VerticalDecompTest{
 	
 	@Test
 	public void horizontalMergeCase() throws InterruptedException{
-			ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(420D, 134D),
-				new Point2D.Double(494D, 134D),
-				new Point2D.Double(494D, 271D),
-				new Point2D.Double(420D, 271D)
-			)));
-			ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(527D, 134D),
-				new Point2D.Double(607D, 134D),
-				new Point2D.Double(607D, 271D),
-				new Point2D.Double(527D, 271D)
-			)));
-			ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(667D, 134D),
-				new Point2D.Double(749D, 134D),
-				new Point2D.Double(749D, 271D),
-				new Point2D.Double(667D, 271D)
-			)));
-			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
-			ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
+		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(420D, 134D),
+			new Point2D.Double(494D, 134D),
+			new Point2D.Double(494D, 271D),
+			new Point2D.Double(420D, 271D)
+		)));
+		ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(527D, 134D),
+			new Point2D.Double(607D, 134D),
+			new Point2D.Double(607D, 271D),
+			new Point2D.Double(527D, 271D)
+		)));
+		ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(667D, 134D),
+			new Point2D.Double(749D, 134D),
+			new Point2D.Double(749D, 271D),
+			new Point2D.Double(667D, 271D)
+		)));
 
-			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
-			ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
-			
-			obj1.setID(0);
-			obj2.setID(1);
-			obj3.setID(2);
-			merged.setID(3);
-			merged2.setID(4);
-			List<ConvexObject> contained = new ArrayList<ConvexObject>();
-			VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS,  Arrays.asList(obj1, obj2, obj3));
+		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
+		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 
-			testPlayfield(Arrays.asList(obj1,obj2,obj3), decomp);
-			
-			decomp.merge(null, obj1, obj2, merged, contained);
-			testPlayfield(Arrays.asList(merged, obj3), decomp);
-			
-			decomp.merge(null, merged, obj3, merged2, contained);
-			testPlayfield(Arrays.asList(merged2), decomp);
-			
-			for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
-				assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
-			}
+		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
+		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
+
+		obj1.setID(0);
+		obj2.setID(1);
+		obj3.setID(2);
+		merged.setID(3);
+		merged2.setID(4);
+		List<ConvexObject> contained = new ArrayList<ConvexObject>();
+		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
+
+		testPlayfield(Arrays.asList(obj1, obj2, obj3), decomp);
+
+		decomp.merge(null, obj1, obj2, merged, contained);
+		testPlayfield(Arrays.asList(merged, obj3), decomp);
+
+		decomp.merge(null, merged, obj3, merged2, contained);
+		testPlayfield(Arrays.asList(merged2), decomp);
+
+		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
+			assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
+		}
 	}
 	
 	@Test
 	public void verticalMergeCase() throws InterruptedException{
-			ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(134.97237278180245D, 420.3156037808325D),
-				new Point2D.Double(134.97237278180245D, 494.55090032824535D),
-				new Point2D.Double(271.14884502844933D, 494.55090032824535D),
-				new Point2D.Double(271.14884502844933D, 420.3156037808325D)
-			)));
-			ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(134.97237278180245D, 527.9794331301437D),
-				new Point2D.Double(134.97237278180245D, 607.1951207030997D),
-				new Point2D.Double(271.14884502844933D, 607.1951207030997D),
-				new Point2D.Double(271.14884502844933D, 527.9794331301437D)
-			)));
-			ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
-				new Point2D.Double(134.97237278180245D, 667.5037849870058D),
-				new Point2D.Double(134.97237278180245D, 749.0724137750002D),
-				new Point2D.Double(271.14884502844933D, 749.0724137750002D),
-				new Point2D.Double(271.14884502844933D, 667.5037849870058D)
-			)));
-			Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
-			ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
+		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(134.97237278180245D, 420.3156037808325D),
+			new Point2D.Double(134.97237278180245D, 494.55090032824535D),
+			new Point2D.Double(271.14884502844933D, 494.55090032824535D),
+			new Point2D.Double(271.14884502844933D, 420.3156037808325D)
+		)));
+		ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(134.97237278180245D, 527.9794331301437D),
+			new Point2D.Double(134.97237278180245D, 607.1951207030997D),
+			new Point2D.Double(271.14884502844933D, 607.1951207030997D),
+			new Point2D.Double(271.14884502844933D, 527.9794331301437D)
+		)));
+		ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+			new Point2D.Double(134.97237278180245D, 667.5037849870058D),
+			new Point2D.Double(134.97237278180245D, 749.0724137750002D),
+			new Point2D.Double(271.14884502844933D, 749.0724137750002D),
+			new Point2D.Double(271.14884502844933D, 667.5037849870058D)
+		)));
+		
+		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
+		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines));
 
-			lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
-			ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
-			
-			obj1.setID(0);
-			obj2.setID(1);
-			obj3.setID(2);
-			merged.setID(3);
-			merged2.setID(4);
-			List<ConvexObject> contained = new ArrayList<ConvexObject>();
-			VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS,  Arrays.asList(obj1, obj2, obj3));
+		lines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
+		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), lines));
 
-			testPlayfield(Arrays.asList(obj1,obj2,obj3), decomp);
-			
-			decomp.merge(null, obj1, obj2, merged, contained);
-			testPlayfield(Arrays.asList(merged, obj3), decomp);
-			
-			decomp.merge(null, merged, obj3, merged2, contained);
-			testPlayfield(Arrays.asList(merged2), decomp);
-			
-			for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
-				assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
-			}
+		obj1.setID(0);
+		obj2.setID(1);
+		obj3.setID(2);
+		merged.setID(3);
+		merged2.setID(4);
+		List<ConvexObject> contained = new ArrayList<ConvexObject>();
+		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
+
+		testPlayfield(Arrays.asList(obj1, obj2, obj3), decomp);
+
+		decomp.merge(null, obj1, obj2, merged, contained);
+		testPlayfield(Arrays.asList(merged, obj3), decomp);
+
+		decomp.merge(null, merged, obj3, merged2, contained);
+		testPlayfield(Arrays.asList(merged2), decomp);
+
+		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
+			assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
+		}
 	}
 	
 	@Test
 	public void testInternalVerticalSegments() throws InterruptedException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		List<Point2D> points = Arrays.asList(
-				new Point2D.Double(420D, 271D),
-				new Point2D.Double(420D, 134D),
-				new Point2D.Double(494D, 134D),
-				new Point2D.Double(494D, 271D),
-				new Point2D.Double(527D, 271D),
-				new Point2D.Double(527D, 134D),
-				new Point2D.Double(607D, 134D),
-				new Point2D.Double(607D, 271D),
-				new Point2D.Double(667D, 271D),
-				new Point2D.Double(667D, 134D),
-				new Point2D.Double(749D, 134D),
-				new Point2D.Double(749D, 271D)
+			new Point2D.Double(420D, 271D),
+			new Point2D.Double(420D, 134D),
+			new Point2D.Double(494D, 134D),
+			new Point2D.Double(494D, 271D),
+			new Point2D.Double(527D, 271D),
+			new Point2D.Double(527D, 134D),
+			new Point2D.Double(607D, 134D),
+			new Point2D.Double(607D, 271D),
+			new Point2D.Double(667D, 271D),
+			new Point2D.Double(667D, 134D),
+			new Point2D.Double(749D, 134D),
+			new Point2D.Double(749D, 271D)
 		);
 		
 		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(points.get(0), points.get(2), points.get(1), points.get(3))));
 		ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(points.get(4), points.get(6), points.get(5), points.get(7))));
 		ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(points.get(8), points.get(10), points.get(9), points.get(11))));
-		
+
 		obj1.setID(1);
 		obj2.setID(2);
 		obj3.setID(3);
-		
+
 		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, new ArrayList<ConvexObject>());
 		Method method = VerticalDecomposition.class.getDeclaredMethod("addSegment", Line2D.class, ConvexObject.class);
 		method.setAccessible(true);
@@ -266,7 +268,7 @@ public class VerticalDecompTest{
 		method.invoke(decomp, new Line(points.get(10), points.get(11)), obj3);
 		method.invoke(decomp, new Line(points.get(9), points.get(10)), obj3);
 		method.invoke(decomp, new Line(points.get(11), points.get(8)), obj3);
-		
+
 		Point2D[] mergeLines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), mergeLines));
 
@@ -294,50 +296,52 @@ public class VerticalDecompTest{
 	public void edgeCaseSeed() throws InterruptedException{
 		testSeed("3Y64YQ01S7B35T82PK9G");
 	}
-	
+
 	@Test
 	public void edgeCaseSeed2() throws InterruptedException{
 		testSeed("3Y657GF10E9XRWYN64ZU");
 	}
-	
+
 	@Test
 	public void edgeCaseSeed3() throws InterruptedException{
 		testSeed("3Y657GF3SVVAK592WVM5");
 	}
-	
-	@Test//Fails due to a convex object merging error
+
+	@Test
 	public void edgeCaseSeed4() throws InterruptedException{
+		//Failed due to a convex object merging error
 		testSpecific("3Y657GF2ENJVQR6KVR2I");
 	}
-	
-	@Test//The start trapezoid of the merge is the one on the left of the line that was newly added to the object
+
+	@Test 
 	public void edgeCaseSeed5() throws InterruptedException{
+		//The start trapezoid of the merge is the one on the left of the line that was newly added to the object
 		testSpecific("3Y64YQO2OCQZUAWQT6OQ");// 9->18->25->15->31
 	}
-	
+
 	@Test
 	public void edgeCaseInternalUpdates() throws InterruptedException{
 		testSpecific("3Y657GF0UKKHHRZ2NZD1");
 	}
-	
+
 	@Test
 	public void edgeCaseVerticalLinePlusWeirdMerge() throws InterruptedException{
-		testSpecific("3Y657GF0Y4N8SEJO4BFO"); // 80->52
+		testSpecific("3Y657GF0Y4N8SEJO4BFO");// 80->52
 	}
-	
+
 	@Test
 	public void edgeCaseUnderInvestigation() throws InterruptedException{
-		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
+		testSpecific("3Y64YQ02J1WPAP9NM7O8");// 3->39
 	}
-	
+
 	@Test
 	public void edgeCasesFixedWithGetLeftmostBelow() throws InterruptedException{
-		testSpecific("3Y657GF3UY8PP82I89LY"); // 8->12->63; 31->47->91
-		testSpecific("3Y657GF2ZJSAPANVG50E"); // 52->91
+		testSpecific("3Y657GF3UY8PP82I89LY");// 8->12->63; 31->47->91
+		testSpecific("3Y657GF2ZJSAPANVG50E");// 52->91
 		testSpecific("3Y657GF162MOIVY34A16");
 		testSpecific("3Y657GF39AOQSOYS0Y0C");
 	}
-	
+
 	@Test
 	public void shortCuttingEdgeCases() throws InterruptedException{
 		testSpecific("3Y64YQ039ZZB4UZQQ680");
@@ -346,7 +350,7 @@ public class VerticalDecompTest{
 		testSpecific("3Y64YQ02I2KJYKBFBBPE"); // 2->31->8
 		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
 	}
-	
+
 	@RepeatedTest(10)
 	public void testRandom() throws InterruptedException{
 		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
@@ -369,30 +373,26 @@ public class VerticalDecompTest{
 			testPlayfield(game.getObjects(), game.getVerticalDecomposition());
 		}
 	}
-	
+
 	private void testSeed(String seed) throws InterruptedException{
 		List<ConvexObject> objects = new PlayfieldGenerator(seed).generatePlayfield();
 		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
-		
+
 		int id = 1;
 		for(ConvexObject obj : objects){
 			obj.setID(id++);
 			decomp.addObject(obj);
 		}
-		
+
 		testPlayfield(objects, decomp);
 	}
 	
 	private void testPlayfield(List<ConvexObject> objects, VerticalDecomposition decomp){
-		long seed = ThreadLocalRandom.current().nextLong();
-//		System.out.println("seed: " + seed);
-		Random random = new Random(seed);
-		
 		for(ConvexObject obj : objects){
-			testObject(obj, decomp, random);
+			testObject(obj, decomp, ThreadLocalRandom.current());
 		}
 	}
-	
+
 	private void testObject(ConvexObject obj, VerticalDecomposition decomp, Random random){
 		Rectangle2D bounds = obj.getShape().getBounds2D();
 		OfDouble xs = random.doubles(bounds.getMinX() - 1.0D, bounds.getMaxX() + 1.0D).iterator();

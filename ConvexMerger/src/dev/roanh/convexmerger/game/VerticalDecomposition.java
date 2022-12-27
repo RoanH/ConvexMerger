@@ -790,7 +790,8 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @param segment THe newly added segment.
 	 */
 	private void addSegmentEndpointsAsTrapezoidBoundingPoints(Trapezoid start, Trapezoid end, Line segment){
-		Point2D leftp = segment.getP1(), rightp = segment.getP2();
+		Point2D leftp = segment.getP1();
+		Point2D rightp = segment.getP2();
 
 		if(leftp.getX() == start.getXRight()){
 			if(!start.rightPoints.contains(leftp)){
@@ -1132,12 +1133,15 @@ public class VerticalDecomposition implements GameStateListener{
 		List<Point2D> borderPoints = result.getPoints();
 		Set<Line2D> borderSegments = new HashSet<Line2D>();
 		for(int i = 0; i < borderPoints.size(); i++){
-			Point2D p1 = borderPoints.get(i), p2 = borderPoints.get((i + 1) % borderPoints.size());
+			Point2D p1 = borderPoints.get(i);
+			Point2D p2 = borderPoints.get((i + 1) % borderPoints.size());
+			
 			Line segment = orientedSegments.get(orientedSegments.indexOf(Line.orientedLine(p1, p2)));
 			borderSegments.add(segment);
 			if(p1.getX() == p2.getX()){
 				continue;
 			}
+			
 			if(segment.getP1() == p1){
 				q.addAll(segment.getTrapsAbove());
 			}else{
@@ -2021,10 +2025,7 @@ public class VerticalDecomposition implements GameStateListener{
 		
 		@Override
 		public boolean equals(Object other){
-			if(other instanceof DecompositionPoint){
-				return ((DecompositionPoint)other).getPoint() == point;
-			}
-			return false;
+			return other instanceof DecompositionPoint ? ((DecompositionPoint)other).getPoint() == point : false;
 		}
 		
 		/**
