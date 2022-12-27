@@ -200,7 +200,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Adds a trapezoid to the list of trapezoids.
 	 * @param trap The trapezoid to be added to the list.
 	 */
-	public void addTrapezoid(Trapezoid trap){
+	private void addTrapezoid(Trapezoid trap){
 		trap.sanitizeNeighbours();
 		trapezoids.add(trap);
 	}
@@ -210,7 +210,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * and disassociating it from its decomposition vertex.
 	 * @param trap The trapezoid to be removed.
 	 */
-	public void removeTrapezoid(Trapezoid trap){
+	private void removeTrapezoid(Trapezoid trap){
 		trap.freeNeighbours();
 		trap.getDecompVertex().setTrapezoid(null);
 		trap.setDecompVertex(null);
@@ -588,7 +588,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @param segment The segment that was added
 	 * @param trap The trapezoid that the segment is contained inside
 	 */
-	public void addedCompletelyInsideSingleTrapezoid(Line segment, Trapezoid trap){
+	private void addedCompletelyInsideSingleTrapezoid(Line segment, Trapezoid trap){
 		Point2D leftp = segment.getP1();
 		Point2D rightp = segment.getP2();
 		Trapezoid left = new Trapezoid(trap.leftPoints, leftp, trap.botSegment, trap.topSegment);
@@ -643,7 +643,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @param segment The segment that was added
 	 * @param trap The trapezoid that the segment is contained inside
 	 */
-	public void addedOnRightBorder(Line segment, Trapezoid trap){
+	private void addedOnRightBorder(Line segment, Trapezoid trap){
 		Point2D leftp = segment.getP1();
 		Point2D rightp = segment.getP2();
 
@@ -714,7 +714,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @param orientedSegment The segment that was added to the decomposition.
 	 * @param obj The object that orientedSegment should point towards.
 	 */
-	public void addedIntersectsMultipleTrapezoids(Line orientedSegment, ConvexObject obj){
+	private void addedIntersectsMultipleTrapezoids(Line orientedSegment, ConvexObject obj){
 		Point2D leftp = orientedSegment.getP1();
 		Point2D rightp = orientedSegment.getP2();
 		Trapezoid start = queryTrapezoid(leftp);
@@ -1047,7 +1047,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * @param obj The object that the segment is added for.
 	 * @return A list of trapezoids intersected by a line segment, excluding the leftmost and rightmost intersected trapezoids.
 	 */
-	public Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg, ConvexObject obj){
+	private Queue<Trapezoid> findIntersectedTrapezoids(Line2D seg, ConvexObject obj){
 		Queue<Trapezoid> intersectedTraps = new LinkedList<Trapezoid>();
 
 		Trapezoid start = getFirstIntersectedTrapezoid(seg);
@@ -1203,7 +1203,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Represents a vertex in the search structure of the decomposition.
 	 * @author Emu
 	 */
-	public class DecompVertex{
+	protected class DecompVertex{
 		/**
 		 * The type of the vertex.
 		 */
@@ -1554,7 +1554,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Adds a neighbour to the list of neighbours.
 		 * @param neighbour the neighbour to be added to the list.
 		 */
-		public void addNeighbour(Trapezoid neighbour){
+		private void addNeighbour(Trapezoid neighbour){
 			neighbours.add(neighbour);
 		}
 
@@ -1725,7 +1725,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Also computes the vertical decomposition lines if this is the first left bounding point and at least 1 right bounding point exists.
 		 * @param point The new left bounding point.
 		 */
-		public void addLeftPoint(Point2D point){
+		private void addLeftPoint(Point2D point){
 			leftPoints.add(point);
 			if(leftPoints.size() == 1 && !rightPoints.isEmpty()){
 				computeDecompLines();
@@ -1737,7 +1737,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Also computes the vertical decomposition lines if this is the first right bounding point and at least 1 left bounding point exists.
 		 * @param point The new right bounding point
 		 */
-		public void addRightPoint(Point2D point){
+		private void addRightPoint(Point2D point){
 			rightPoints.add(point);
 			if(rightPoints.size() == 1 && !leftPoints.isEmpty()){
 				computeDecompLines();
@@ -1923,7 +1923,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Adds a given trapezoid to the list of trapezoids below this line.
 		 * @param trap The trapezoid to add.
 		 */
-		public void addTrapAbove(Trapezoid trap){
+		private void addTrapAbove(Trapezoid trap){
 			trapsAbove.add(trap);
 		}
 		
@@ -1931,7 +1931,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Adds a given trapezoid to the list of trapezoids below this line.
 		 * @param trap The trapezoid to add.
 		 */
-		public void addTrapBelow(Trapezoid trap){
+		private void addTrapBelow(Trapezoid trap){
 			trapsBelow.add(trap);
 		}
 		
@@ -1939,7 +1939,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Removes a given trapezoid from the list of trapezoids above this line.
 		 * @param trap The trapezoid to remove.
 		 */
-		public void removeTrapAbove(Trapezoid trap){
+		private void removeTrapAbove(Trapezoid trap){
 			trapsAbove.remove(trap);
 		}
 		
@@ -1947,7 +1947,7 @@ public class VerticalDecomposition implements GameStateListener{
 		 * Removes a given trapezoid from the list of trapezoids below this line.
 		 * @param trap The trapezoid to remove.
 		 */
-		public void removeTrapBelow(Trapezoid trap){
+		private void removeTrapBelow(Trapezoid trap){
 			trapsBelow.remove(trap);
 		}
 		
@@ -1994,7 +1994,7 @@ public class VerticalDecomposition implements GameStateListener{
 	 * Contains references to segments that include it.
 	 * @author Emu
 	 */
-	public class DecompositionPoint extends Point2D{
+	protected class DecompositionPoint extends Point2D{
 		/**
 		 * The point of this structure.
 		 */
