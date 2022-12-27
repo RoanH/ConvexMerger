@@ -347,26 +347,23 @@ public class VerticalDecompTest{
 		testSpecific("3Y64YQ039ZZB4UZQQ680");
 		testSpecific("3Y64YQ00WHENOONSIUGC");
 		testSpecific("3Y64YQ01OUDN6ZGF6D6V");
-		testSpecific("3Y64YQ02I2KJYKBFBBPE"); // 2->31->8
-		testSpecific("3Y64YQ02J1WPAP9NM7O8"); // 3->39
+		testSpecific("3Y64YQ02I2KJYKBFBBPE");// 2->31->8
+		testSpecific("3Y64YQ02J1WPAP9NM7O8");// 3->39
 	}
 
 	@RepeatedTest(10)
 	public void testRandom() throws InterruptedException{
-		GameState game = new GameState(new PlayfieldGenerator(), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
-		game.init();
-		System.out.println("Game seed: " + game.getSeed());
-
-		while(!game.isFinished()){
-			game.executePlayerTurn();
-			testPlayfield(game.getObjects(), game.getVerticalDecomposition());
-		}
+		testSpecific(new PlayfieldGenerator());
 	}
 	
-	public void testSpecific(String seed) throws InterruptedException{
-		GameState game = new GameState(new PlayfieldGenerator(seed), Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
+	public void testSpecific(String seed) throws IllegalArgumentException, InterruptedException{
+		testSpecific(new PlayfieldGenerator(seed));
+	}
+	
+	public void testSpecific(PlayfieldGenerator gen) throws InterruptedException{
+		GameState game = new GameState(gen, Arrays.asList(new GreedyPlayer(), new GreedyPlayer()));
 		game.init();
-		System.out.println("Specific Game seed: " + game.getSeed());
+		System.out.println("Game seed: " + game.getSeed());
 
 		while(!game.isFinished()){
 			game.executePlayerTurn();
