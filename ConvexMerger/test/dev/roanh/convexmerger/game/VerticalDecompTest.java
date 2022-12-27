@@ -3,8 +3,11 @@ package dev.roanh.convexmerger.game;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.VerticalDecomposition.Line;
 import dev.roanh.convexmerger.player.GreedyPlayer;
 
 public class VerticalDecompTest{
@@ -223,7 +227,7 @@ public class VerticalDecompTest{
 	}
 	
 	@Test
-	public void testInternalVerticalSegments() throws InterruptedException{
+	public void testInternalVerticalSegments() throws InterruptedException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		List<Point2D> points = Arrays.asList(
 				new Point2D.Double(420D, 271D),
 				new Point2D.Double(420D, 134D),
@@ -239,54 +243,34 @@ public class VerticalDecompTest{
 				new Point2D.Double(749D, 271D)
 		);
 		
-		ConvexObject obj1 = new ConvexObject(0, 0, 1, 1, 1, 0){
-			private static final long serialVersionUID = 465171485239438501L;
-
-			@Override
-			public List<Point2D> getPoints(){
-				return Arrays.asList(
-					points.get(0), points.get(1),
-					points.get(2), points.get(3),
-					points.get(1), points.get(2),
-					points.get(3), points.get(0)
-				);
-			}
-		};
+		ConvexObject obj1 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(points.get(0), points.get(2), points.get(1), points.get(3))));
+		ConvexObject obj2 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(points.get(4), points.get(6), points.get(5), points.get(7))));
+		ConvexObject obj3 = new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(points.get(8), points.get(10), points.get(9), points.get(11))));
 		
-		ConvexObject obj2 = new ConvexObject(0, 0, 1, 1, 1, 0){
-			private static final long serialVersionUID = 3765023503852551247L;
-
-			@Override
-			public List<Point2D> getPoints(){
-				return Arrays.asList(
-					points.get(4), points.get(5),
-					points.get(6), points.get(7),
-					points.get(5), points.get(6),
-					points.get(7), points.get(4)
-				);
-			}
-		};
+		obj1.setID(1);
+		obj2.setID(2);
+		obj3.setID(3);
 		
-		ConvexObject obj3 = new ConvexObject(0, 0, 1, 1, 1, 0){
-			private static final long serialVersionUID = -6146802109917079542L;
-
-			@Override
-			public List<Point2D> getPoints(){
-				return Arrays.asList(
-					points.get(8), points.get(9),
-					points.get(10), points.get(11),
-					points.get(9), points.get(10),
-					points.get(11), points.get(8)
-				);
-			}
-		};
+		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, new ArrayList<ConvexObject>());
+		Method method = VerticalDecomposition.class.getDeclaredMethod("addSegment", Line2D.class, ConvexObject.class);
+		method.setAccessible(true);
+		method.invoke(decomp, new Line(points.get(0), points.get(1)), obj1);
+		method.invoke(decomp, new Line(points.get(2), points.get(3)), obj1);
+		method.invoke(decomp, new Line(points.get(1), points.get(2)), obj1);
+		method.invoke(decomp, new Line(points.get(3), points.get(0)), obj1);
+		method.invoke(decomp, new Line(points.get(4), points.get(5)), obj2);
+		method.invoke(decomp, new Line(points.get(6), points.get(7)), obj2);
+		method.invoke(decomp, new Line(points.get(5), points.get(6)), obj2);
+		method.invoke(decomp, new Line(points.get(7), points.get(4)), obj2);
+		method.invoke(decomp, new Line(points.get(8), points.get(9)), obj3);
+		method.invoke(decomp, new Line(points.get(10), points.get(11)), obj3);
+		method.invoke(decomp, new Line(points.get(9), points.get(10)), obj3);
+		method.invoke(decomp, new Line(points.get(11), points.get(8)), obj3);
 		
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
-
 		Point2D[] mergeLines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 		ConvexObject merged = new ConvexObject(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), mergeLines));
 
-		mergeLines = ConvexUtil.computeMergeLines(merged.getPoints(), obj3.getPoints(), false);
+		mergeLines = ConvexUtil.computeMergeLines(ConvexUtil.computeConvexHull(merged.getPoints()), obj3.getPoints(), false);
 		ConvexObject merged2 = new ConvexObject(ConvexUtil.mergeHulls(merged.getPoints(), obj3.getPoints(), mergeLines));
 
 		merged.setID(4);
