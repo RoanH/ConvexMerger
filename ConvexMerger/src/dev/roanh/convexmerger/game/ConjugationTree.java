@@ -396,6 +396,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
 		ConjugateData data = new ConjugateData();
 		
+		//handle empty leaf cells
 		if(left.isEmpty() || right.isEmpty()){
 			if(left.isEmpty()){
 				data.rightOn = right.get(0);
@@ -412,9 +413,11 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		Line2D bisector = parent.getBisector();
 		double cx = (bisector.getP1().getX() + bisector.getP2().getX()) / 2;
 		double cy = (bisector.getP1().getY() + bisector.getP2().getY()) / 2;
+
 		//The segment rotated by 90 degrees around its centre point.
 		Line2D rotated = new Line2D.Double(new Point2D.Double((bisector.getY1() - cy) + cx, -(bisector.getX1() - cx) + cy), 
 										   new Point2D.Double((bisector.getY2() - cy) + cx, -(bisector.getX2() - cx) + cy));
+		//sorts the points on the order of their projections onto the bisector, from its first point to its second point.
 		Comparator<Point2D> c = new Comparator<Point2D>(){
 			@Override
 			public int compare(Point2D p1, Point2D p2){
@@ -428,27 +431,11 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		Point2D lp = left.get(left.size()/2);
 		Point2D rp = right.get(right.size()/2);
 		do{
-			final Point2D leftp = lp;
-			final Point2D rightp = rp;
-			c = new Comparator<Point2D>(){
-				@Override
-				public int compare(Point2D p1, Point2D p2){
-					Point2D base = new Point2D.Double(rightp.getX() - leftp.getX(), rightp.getY() - leftp.getY());
-					Point2D v1 = new Point2D.Double(p1.getX() - leftp.getX(), p1.getY() - leftp.getY());
-					Point2D v2 = new Point2D.Double(p2.getX() - leftp.getX(), p2.getY() - leftp.getY());
-					double a1 = Math.acos((v1.getX()) * (base.getX()) + (v1.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
-					double a2 = Math.acos((v2.getX()) * (base.getX()) + (v2.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v2.getX() * v2.getX() + v2.getY() * v2.getY())));
-					if(a1 > Math.PI){
-						a1 -= 2 * Math.PI;
-					}
-					if(a2 > Math.PI){
-						a2 -= 2 * Math.PI;
-					}
-					return Double.compare(a1, a2);
-				}
-			};
+			c = angularComparator(new Line2D.Double(lp, rp));
 			Collections.sort(left, c);
 			Collections.sort(right, c);
+			
+			//If lp and rp are median points of the left and right lists respectively, a conjugate of the bisector passes through them.
 			if((left.get(lsz) == lp || (lsz % 2 == 0 && left.get(lsz / 2 + 1) == lp))){
 				if(right.get(rsz) == rp || (rsz % 2 == 0 && right.get(rsz % 2 + 1) == rp)){
 					data.leftOn = lp;
@@ -462,6 +449,33 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				lp = left.get(lsz);
 			}
 		}while(true);
+		
+	}
+	
+	/**
+	 * A comparator that compares points based on their angle to a
+	 * fixed point, relative to the angle of a fixed "base" vector.
+	 * The orientation of the points relative to the vector matters,
+	 * as angles <code> > PI rad</code> are considered as negative.
+	 * @param vector The fixed "base" vector, represented as a line.
+	 * @return A comparator that sorts points based on their angle
+	 * to the base vector.
+	 */
+	private static Comparator<Point2D> angularComparator(Line2D vector){
+		Point2D leftp = vector.getP1();
+		Point2D rightp = vector.getP2();
+		return new Comparator<Point2D>(){
+			@Override
+			public int compare(Point2D p1, Point2D p2){
+				Point2D base = new Point2D.Double(rightp.getX() - leftp.getX(), rightp.getY() - leftp.getY());
+				Point2D v1 = new Point2D.Double(p1.getX() - leftp.getX(), p1.getY() - leftp.getY());
+				Point2D v2 = new Point2D.Double(p2.getX() - leftp.getX(), p2.getY() - leftp.getY());
+				double a1 = vector.relativeCCW(p1) * Math.acos((v1.getX()) * (base.getX()) + (v1.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
+				double a2 = vector.relativeCCW(p2) * Math.acos((v2.getX()) * (base.getX()) + (v2.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v2.getX() * v2.getX() + v2.getY() * v2.getY())));
+				
+				return Double.compare(a1, a2);
+			}
+		};
 	}
 	
 	/**
