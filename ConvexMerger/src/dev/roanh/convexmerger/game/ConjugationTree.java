@@ -347,52 +347,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param parent The parent conjugation tree node.
 	 * @return The computed conjugate line and its supporting points.
 	 */
-	private static final ConjugateData computeConjugateOld(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
-		//TODO this is a naive temporary solution, @emu have fun
-		ConjugateData data = new ConjugateData();
-		for(Point2D p1 : left){
-			for(Point2D p2 : right){
-				Line2D conj = new Line2D.Double(p1, p2);
-				
-				int val = 0;
-				for(Point2D lp : left){
-					if(lp != p1){
-						val += conj.relativeCCW(lp);
-					}
-				}
-				
-				if(Math.abs(val) > 1){
-					continue;
-				}
-				
-				val = 0;
-				for(Point2D rp : right){
-					if(p2 != rp){
-						val += conj.relativeCCW(rp);
-					}
-				}
-				
-				if(Math.abs(val) <= 1){
-					data.conjugate = conj;
-					data.leftOn = p1;
-					data.rightOn = p2;
-					return data;
-				}
-			}
-		}
-		
-		//handle empty leaf cells
-		if(left.isEmpty()){
-			data.rightOn = right.get(0);
-			data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
-		}else{
-			data.leftOn = left.get(0);
-			data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
-		}
-
-		return data;
-	}
-	
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
 		ConjugateData data = new ConjugateData();
 		
