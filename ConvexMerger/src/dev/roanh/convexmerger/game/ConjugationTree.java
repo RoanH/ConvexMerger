@@ -393,7 +393,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return data;
 	}
 	
-	public static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
+	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
 		ConjugateData data = new ConjugateData();
 		
 		if(left.isEmpty() || right.isEmpty()){
@@ -406,13 +406,13 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 			return data;
 		}
-		
+
 		int lsz = left.size() / 2;
 		int rsz = right.size() / 2;
 		Line2D bisector = parent.getBisector();
 		double cx = (bisector.getP1().getX() + bisector.getP2().getX()) / 2;
 		double cy = (bisector.getP1().getY() + bisector.getP2().getY()) / 2;
-		//The segment rotated by 90 degrees around its center point.
+		//The segment rotated by 90 degrees around its centre point.
 		Line2D rotated = new Line2D.Double(new Point2D.Double((bisector.getY1() - cy) + cx, -(bisector.getX1() - cx) + cy), 
 										   new Point2D.Double((bisector.getY2() - cy) + cx, -(bisector.getX2() - cx) + cy));
 		Comparator<Point2D> c = new Comparator<Point2D>(){
@@ -421,15 +421,13 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				return Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
 			}
 		};
-		
+
 		Collections.sort(left, c);
 		Collections.sort(right, c);
-		
+
 		Point2D lp = left.get(left.size()/2);
 		Point2D rp = right.get(right.size()/2);
-		int cnt1 = 0, cnt2 = 0;
-		do {
-			
+		do{
 			final Point2D leftp = lp;
 			final Point2D rightp = rp;
 			c = new Comparator<Point2D>(){
@@ -464,8 +462,6 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				lp = left.get(lsz);
 			}
 		}while(true);
-		
-//		return data;
 	}
 	
 	/**
