@@ -347,9 +347,8 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param parent The parent conjugation tree node.
 	 * @return The computed conjugate line and its supporting points.
 	 */
-	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
+	private static final ConjugateData computeConjugateOld(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
 		//TODO this is a naive temporary solution, @emu have fun
-		
 		ConjugateData data = new ConjugateData();
 		for(Point2D p1 : left){
 			for(Point2D p2 : right){
@@ -394,45 +393,80 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		return data;
 	}
 	
-	public static final ConjugateData computeConjugateNew(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
+	public static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
 		ConjugateData data = new ConjugateData();
 		
-		Line2D bis = parent.getBisector();
-		left.sort(Comparator.comparingDouble(Point2D::getY));
-		Point2D pivot = left.get(left.size()/2);
-		right.sort(Comparator.comparingDouble(new PivotSort(pivot)::applyAsDouble));
-		System.out.println(right);
-		//handle empty leaf cells
-		
-		if(left.isEmpty()){
-			data.rightOn = right.get(0);
-			data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
-		}else{
-			data.leftOn = left.get(0);
-			data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
+		if(left.isEmpty() || right.isEmpty()){
+			if(left.isEmpty()){
+				data.rightOn = right.get(0);
+				data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
+			}else{
+				data.leftOn = left.get(0);
+				data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
+			}
+			return data;
 		}
 		
-		return data;
-	}
-	
-	private static class PivotSort implements ToDoubleFunction<Point2D>{
-		Point2D pivot;
+		int lsz = left.size() / 2;
+		int rsz = right.size() / 2;
+		Line2D bisector = parent.getBisector();
+		double cx = (bisector.getP1().getX() + bisector.getP2().getX()) / 2;
+		double cy = (bisector.getP1().getY() + bisector.getP2().getY()) / 2;
+		//The segment rotated by 90 degrees around its center point.
+		Line2D rotated = new Line2D.Double(new Point2D.Double((bisector.getY1() - cy) + cx, -(bisector.getX1() - cx) + cy), 
+										   new Point2D.Double((bisector.getY2() - cy) + cx, -(bisector.getX2() - cx) + cy));
+		Comparator<Point2D> c = new Comparator<Point2D>(){
+			@Override
+			public int compare(Point2D p1, Point2D p2){
+				return Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
+			}
+		};
 		
-		public PivotSort(Point2D pivot){
-			this.pivot = pivot;
-		}
+		Collections.sort(left, c);
+		Collections.sort(right, c);
 		
-		@Override
-		public double applyAsDouble(Point2D p){
-			double dx = p.getX() - pivot.getX(), dy = p.getY() - pivot.getY();
-			assert dx != 0 && dy != 0;
+		Point2D lp = left.get(left.size()/2);
+		Point2D rp = right.get(right.size()/2);
+		int cnt1 = 0, cnt2 = 0;
+		do {
 			
-			double acos = Math.acos(dx / Math.sqrt(dx * dx + dy * dy));
-			return dy > 0 ? acos : -acos;
-		}
+			final Point2D leftp = lp;
+			final Point2D rightp = rp;
+			c = new Comparator<Point2D>(){
+				@Override
+				public int compare(Point2D p1, Point2D p2){
+					Point2D base = new Point2D.Double(rightp.getX() - leftp.getX(), rightp.getY() - leftp.getY());
+					Point2D v1 = new Point2D.Double(p1.getX() - leftp.getX(), p1.getY() - leftp.getY());
+					Point2D v2 = new Point2D.Double(p2.getX() - leftp.getX(), p2.getY() - leftp.getY());
+					double a1 = Math.acos((v1.getX()) * (base.getX()) + (v1.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
+					double a2 = Math.acos((v2.getX()) * (base.getX()) + (v2.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v2.getX() * v2.getX() + v2.getY() * v2.getY())));
+					if(a1 > Math.PI){
+						a1 -= 2 * Math.PI;
+					}
+					if(a2 > Math.PI){
+						a2 -= 2 * Math.PI;
+					}
+					return Double.compare(a1, a2);
+				}
+			};
+			Collections.sort(left, c);
+			Collections.sort(right, c);
+			if((left.get(lsz) == lp || (lsz % 2 == 0 && left.get(lsz / 2 + 1) == lp))){
+				if(right.get(rsz) == rp || (rsz % 2 == 0 && right.get(rsz % 2 + 1) == rp)){
+					data.leftOn = lp;
+					data.rightOn = rp;
+					data.conjugate = new Line2D.Double(lp, rp);
+					return data;
+				}else{
+					rp = right.get(rsz);
+				}
+			}else{
+				lp = left.get(lsz);
+			}
+		}while(true);
 		
+//		return data;
 	}
-	
 	
 	/**
 	 * Class holding data about a single conjugate line.
