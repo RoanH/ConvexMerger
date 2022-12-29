@@ -350,7 +350,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
 		ConjugateData data = new ConjugateData();
 		
-		//handle empty leaf cells
+		//Handle empty leaf cells.
 		if(left.isEmpty() || right.isEmpty()){
 			if(left.isEmpty()){
 				data.rightOn = right.get(0);
@@ -371,7 +371,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		//The segment rotated by 90 degrees around its centre point.
 		Line2D rotated = new Line2D.Double(new Point2D.Double((bisector.getY1() - cy) + cx, -(bisector.getX1() - cx) + cy), 
 										   new Point2D.Double((bisector.getY2() - cy) + cx, -(bisector.getX2() - cx) + cy));
-		//sorts the points on the order of their projections onto the bisector, from its first point to its second point.
+		//Sorts the points on the order of their projections onto the bisector, from its first point to its second point.
 		Comparator<Point2D> c = new Comparator<Point2D>(){
 			@Override
 			public int compare(Point2D p1, Point2D p2){
