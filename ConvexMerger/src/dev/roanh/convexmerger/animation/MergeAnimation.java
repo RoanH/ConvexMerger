@@ -116,7 +116,7 @@ public class MergeAnimation extends ClaimAnimation{
 		this.target = target;
 		this.contained = contained;
 		
-		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), result.getPoints());
+		mergeLines = ConvexUtil.computeMergeLines(owned.getPoints(), target.getPoints(), false);
 		List<List<Point2D>> mergeBounds = ConvexUtil.computeMergeBounds(owned.getPoints(), target.getPoints(), mergeLines);
 		firstInner = createPath(mergeBounds.get(0));
 		firstOuter = createPath(mergeBounds.get(1));
