@@ -1199,27 +1199,41 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 
 	@Override
 	public void render(Graphics2D g){
+		g.setClip(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT + 1);
+		
+		g.setColor(Color.BLACK);
+		g.setStroke(Theme.POLY_STROKE);
+		for(int i = 0; i < lines.size(); i++){
+			g.setColor(Color.BLACK);
+			g.draw(lines.get(i));
+		}
+		
+		g.setColor(new Color(Theme.BACKGROUND.getRed(), Theme.BACKGROUND.getGreen(), Theme.BACKGROUND.getBlue(), 00));
+		g.fillRect(-1, -1, Constants.PLAYFIELD_WIDTH + 2, Constants.PLAYFIELD_HEIGHT + 2);
+		
+		Color c = new Color(0, 150, 150);
+		
 		g.setStroke(Theme.BORDER_STROKE);
 		for(int i = 0; i < lines.size(); i++){
-			g.setColor(i == lines.size() - 1 ? Color.BLACK : Color.BLACK);
+			g.setColor(i == lines.size() - 1 ? c : c);
 			g.draw(lines.get(i));
 		}
 		
 		g.setColor(new Color(0, 255, 255, 150));
-		g.setColor(Color.BLACK);
-		g.setStroke(Theme.BORDER_STROKE);
+		g.setColor(c);
+		//g.setStroke(Theme.BORDER_STROKE);
 		for(Trapezoid trap : trapezoids){
 			trap.getDecompLines().forEach(g::draw);
 		}
 		
-		for(int i = 0; i < lines.size(); i++){
-			g.setColor(Color.BLACK);
-		//	g.draw(lines.get(i));
-		}
 		
+		
+		g.setColor(Color.CYAN);
 		g.drawRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-		g.setColor(new Color(0, 255, 255, 50));
-		g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
+		g.setColor(new Color(0, 255, 255, 30));
+		
+		//g.setColor(new Color(Theme.BACKGROUND.getRed(), Theme.BACKGROUND.getGreen(), Theme.BACKGROUND.getBlue(), 150));
+		//g.fillRect(-1, -1, Constants.PLAYFIELD_WIDTH + 2, Constants.PLAYFIELD_HEIGHT + 2);
 	}
 
 	/**
