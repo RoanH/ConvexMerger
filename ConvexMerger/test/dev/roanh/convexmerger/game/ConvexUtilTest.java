@@ -360,6 +360,42 @@ public class ConvexUtilTest{
 		}
 	}
 	
+	@Test
+	public void splitTest2(){
+		Line2D line = new Line2D.Double(0.0D, 0.0D, 0.0D, 900.0D);
+		List<Point2D> hull = Arrays.asList(
+			new Point2D.Double(10.0D, 10.0D),
+			new Point2D.Double(0.0D, 10.0D),
+			new Point2D.Double(0.0D, 0.0D),
+			new Point2D.Double(10.0D, 0.0D)
+		);
+		
+		for(List<Point2D> sub : ConvexUtil.splitHull(hull, line)){
+			assertEquals(4, sub.size());
+			for(Point2D p : sub){
+				assertTrue(p.getX() >= 0.0D && p.getX() <= 10.0D && p.getY() >= 0.0D && p.getY() <= 10.0D);
+			}
+		}
+	}
+	
+	@Test
+	public void splitTest3(){
+		Line2D line = new Line2D.Double(10.0D, 0.0D, 10.0D, 900.0D);
+		List<Point2D> hull = Arrays.asList(
+			new Point2D.Double(10.0D, 10.0D),
+			new Point2D.Double(0.0D, 10.0D),
+			new Point2D.Double(0.0D, 0.0D),
+			new Point2D.Double(10.0D, 0.0D)
+		);
+		
+		for(List<Point2D> sub : ConvexUtil.splitHull(hull, line)){
+			assertEquals(4, sub.size());
+			for(Point2D p : sub){
+				assertTrue(p.getX() >= 0.0D && p.getX() <= 10.0D && p.getY() >= 0.0D && p.getY() <= 10.0D);
+			}
+		}
+	}
+	
 	private void mergeTest(ConvexObject obj1, ConvexObject obj2){
 		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
 		assertTrue(ConvexUtil.checkInvariants(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines)));

@@ -817,8 +817,16 @@ public class ConvexUtil{
 		
 		//find start
 		int rightStart = 0;
-		while(line.relativeCCW(hull.get((rightStart == 0 ? hull.size() : rightStart) - 1)) != -1 || line.relativeCCW(hull.get(rightStart)) < 0){
+		while(rightStart < hull.size() && (line.relativeCCW(hull.get((rightStart == 0 ? hull.size() : rightStart) - 1)) != -1 || line.relativeCCW(hull.get(rightStart)) < 0)){
 			rightStart++;
+		}
+		
+		//edge case where there is no left part, any zero area shape is fine as output
+		if(rightStart == hull.size()){
+			return Arrays.asList(
+				Arrays.asList(hull.get(0), hull.get(0), hull.get(0), hull.get(0)),
+				hull
+			);
 		}
 		
 		//first intersection
