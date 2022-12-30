@@ -18,8 +18,6 @@
  */
 package dev.roanh.convexmerger;
 
-import java.awt.geom.Rectangle2D;
-
 /**
  * Class containing various game constants.
  * @author Roan
@@ -41,12 +39,6 @@ public final class Constants{
 	 * The playfield height (from 0 to {@value #PLAYFIELD_HEIGHT}).
 	 */
 	public static final int PLAYFIELD_HEIGHT = 900;
-	/**
-	 * The bounding box the vertical decomposition can use that
-	 * ensures that all convex objects are fully contained.
-	 */
-	@Deprecated
-	public static final Rectangle2D DECOMP_BOUNDS = new Rectangle2D.Double(0.0D, 0.0D, PLAYFIELD_WIDTH, PLAYFIELD_HEIGHT);
 	/**
 	 * Minimum frame size scaling factor
 	 */

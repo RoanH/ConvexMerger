@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.MergeAnimation;
@@ -51,7 +50,7 @@ public class GameState{
 	/**
 	 * The vertical decomposition for the game state.
 	 */
-	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+	private VerticalDecomposition decomp = new VerticalDecomposition();
 	/**
 	 * The index of the player whose turn it is.
 	 */

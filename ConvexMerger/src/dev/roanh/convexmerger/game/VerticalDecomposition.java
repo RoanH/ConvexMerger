@@ -90,30 +90,26 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	private boolean animate = false;
 	
 	/**
-	 * Constructs a new vertical decomposition with
-	 * the given bounding box.
-	 * @param bounds A bounding box that all objects that will
-	 *        ever be added will be contained in (strictly inside,
-	 *        there will be no overlap with the edges).
+	 * Constructs a new vertical decomposition. The size of the
+	 * vertical decomposition is defined by {@link Constants#PLAYFIELD_WIDTH}
+	 * and {@link Constants#PLAYFIELD_HEIGHT}.
 	 */
-	public VerticalDecomposition(Rectangle2D bounds){
-		initializeDecomposition(bounds);
+	public VerticalDecomposition(){
+		initializeDecomposition();
 	}
 	
 	/**
-	 * Constructs a new vertical decomposition with
-	 * the given bounding box and objects. The decomposition
-	 * is initialised and all objects get decomposed, i.e.
-	 * their segments are added to the decomposition.
-	 * @param bounds A bounding box that all objects that will
-	 *        ever be added will be contained in (strictly inside,
-	 *        there will be no overlap with the edges).
+	 * Constructs a new vertical decomposition with the given objects.
+	 * The decomposition is initialised and all objects get decomposed,
+	 * i.e. their segments are added to the decomposition. The size of
+	 * the vertical decomposition is defined by {@link Constants#PLAYFIELD_WIDTH}
+	 * and {@link Constants#PLAYFIELD_HEIGHT}.
 	 * @param objects The objects that the vertical decomposition
 	 *        will contain at the beginning.
 	 * @throws InterruptedException When the game is aborted.
 	 */
-	public VerticalDecomposition(Rectangle2D bounds, List<ConvexObject> objects) throws InterruptedException{
-		initializeDecomposition(bounds);
+	public VerticalDecomposition(List<ConvexObject> objects) throws InterruptedException{
+		initializeDecomposition();
 		for(ConvexObject obj : objects){
 			addObject(obj);
 		}
@@ -162,22 +158,19 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	/**
 	 * Clears all structures except of the objects,
 	 * and initialises a blank vertical decomposition
-	 * with a bounding box trapezoid and a corresponding search structure vertex.
-	 * @param bounds A bounding box that all objects that will
-	 *        ever be added will be contained in (strictly inside,
-	 *        there will be no overlap with the edges).
+	 * with a corresponding search structure vertex.
 	 */
-	private void initializeDecomposition(Rectangle2D bounds){
+	private void initializeDecomposition(){
 		trapezoids = new CopyOnWriteArrayList<Trapezoid>();
 		searchStructure = new ArrayList<DecompVertex>();
 		points = new ArrayList<DecompositionPoint>();
 		orientedSegments = new ArrayList<Line>();
 		verticalSegments = new ArrayList<Line>();
 		segToObj = new HashMap<Line, ConvexObject>();
-		Point2D botLeft = new Point2D.Double(bounds.getMinX(), bounds.getMinY());
-		Point2D botRight = new Point2D.Double(bounds.getMaxX(), bounds.getMinY());
-		Point2D topLeft = new Point2D.Double(bounds.getMinX(), bounds.getMaxY());
-		Point2D topRight = new Point2D.Double(bounds.getMaxX(), bounds.getMaxY());
+		Point2D botLeft = new Point2D.Double(-0.1D, -0.1D);
+		Point2D botRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, -0.01D);
+		Point2D topLeft = new Point2D.Double(-0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
+		Point2D topRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
 
 		Line botSegment = new Line(botLeft, botRight);
 		Line topSegment = new Line(topLeft, topRight);

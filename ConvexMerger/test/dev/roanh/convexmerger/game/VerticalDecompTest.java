@@ -57,7 +57,7 @@ public class VerticalDecompTest{
 		merged.setID(3);
 		merged2.setID(4);
 
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
+		VerticalDecomposition decomp = new VerticalDecomposition(Arrays.asList(obj1, obj2, obj3));
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
 
 		decomp.merge(null, obj1, obj2, merged, contained);
@@ -119,7 +119,7 @@ public class VerticalDecompTest{
 		obj5.setID(4);
 		merged.setID(5);
 		merged2.setID(6);
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3, obj4, obj5));
+		VerticalDecomposition decomp = new VerticalDecomposition(Arrays.asList(obj1, obj2, obj3, obj4, obj5));
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
 
 		decomp.merge(null, obj1, obj2, merged, contained);
@@ -165,7 +165,7 @@ public class VerticalDecompTest{
 		merged.setID(3);
 		merged2.setID(4);
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
+		VerticalDecomposition decomp = new VerticalDecomposition(Arrays.asList(obj1, obj2, obj3));
 
 		testPlayfield(Arrays.asList(obj1, obj2, obj3), decomp);
 
@@ -213,7 +213,7 @@ public class VerticalDecompTest{
 		merged.setID(3);
 		merged2.setID(4);
 		List<ConvexObject> contained = new ArrayList<ConvexObject>();
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, Arrays.asList(obj1, obj2, obj3));
+		VerticalDecomposition decomp = new VerticalDecomposition(Arrays.asList(obj1, obj2, obj3));
 
 		testPlayfield(Arrays.asList(obj1, obj2, obj3), decomp);
 
@@ -226,6 +226,38 @@ public class VerticalDecompTest{
 		for(ConvexObject obj : Arrays.asList(obj1, obj2, obj3, merged, merged2)){
 			assertEquals(merged2, decomp.queryObject(obj.getCentroid().getX(), obj.getCentroid().getY()), "Object: " + obj.getID());
 		}
+	}
+	
+	@Test
+	public void testOnBounds() throws InterruptedException{
+		List<ConvexObject> objs = Arrays.asList(
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(0.0D, 0.0D),
+				new Point2D.Double(0.0D, 10.0D),
+				new Point2D.Double(10.0D, 10.0D),
+				new Point2D.Double(10.0D, 0.0D)
+			))),
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, Constants.PLAYFIELD_HEIGHT)
+			))),
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, 0.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, 0.0D)
+			))),
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(0.0D, Constants.PLAYFIELD_HEIGHT),
+				new Point2D.Double(0.0D, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(10.0D, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(10.0D, Constants.PLAYFIELD_HEIGHT)
+			)))
+		);
+		
+		testPlayfield(objs, new VerticalDecomposition(objs));
 	}
 	
 	@Test
@@ -253,7 +285,7 @@ public class VerticalDecompTest{
 		obj2.setID(2);
 		obj3.setID(3);
 
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS, new ArrayList<ConvexObject>());
+		VerticalDecomposition decomp = new VerticalDecomposition(new ArrayList<ConvexObject>());
 		Method method = VerticalDecomposition.class.getDeclaredMethod("addSegment", Line2D.class, ConvexObject.class);
 		method.setAccessible(true);
 		method.invoke(decomp, new Line(points.get(0), points.get(1)), obj1);
@@ -373,7 +405,7 @@ public class VerticalDecompTest{
 
 	private void testSeed(String seed) throws InterruptedException{
 		List<ConvexObject> objects = new PlayfieldGenerator(seed).generatePlayfield();
-		VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+		VerticalDecomposition decomp = new VerticalDecomposition();
 
 		int id = 1;
 		for(ConvexObject obj : objects){
