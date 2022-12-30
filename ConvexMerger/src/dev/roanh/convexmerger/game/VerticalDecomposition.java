@@ -57,28 +57,28 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	/**
 	 * The trapezoids of the decomposition.
 	 */
-	private List<Trapezoid> trapezoids;
+	private List<Trapezoid> trapezoids = new CopyOnWriteArrayList<Trapezoid>();
 	/**
 	 * The search structure of the decomposition. 
 	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
 	 */
-	private List<DecompVertex> searchStructure;
+	private List<DecompVertex> searchStructure = new ArrayList<DecompVertex>();
 	/**
 	 * The list of segments that have been added to the decomposition. 
 	 */
-	private List<Line> orientedSegments;
+	private List<Line> orientedSegments = new ArrayList<Line>();
 	/**
 	 * The list of vertical segments
 	 */
-	private List<Line> verticalSegments;
+	private List<Line> verticalSegments = new ArrayList<Line>();
 	/**
 	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
 	 */
-	private Map<Line, ConvexObject> segToObj;
+	private Map<Line, ConvexObject> segToObj = new HashMap<Line, ConvexObject>();
 	/**
 	 * The list of points added to the decomposition.
 	 */
-	private List<DecompositionPoint> points;
+	private List<DecompositionPoint> points = new ArrayList<DecompositionPoint>();
 	/**
 	 * All line segments ever added into the vertical decomposition.
 	 */
@@ -90,12 +90,27 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	private boolean animate = false;
 	
 	/**
-	 * Constructs a new vertical decomposition. The size of the
+	 * Constructs a new blank vertical decomposition vertical decomposition
+	 * with a corresponding search structure vertex. The size of the
 	 * vertical decomposition is defined by {@link Constants#PLAYFIELD_WIDTH}
 	 * and {@link Constants#PLAYFIELD_HEIGHT}.
 	 */
 	public VerticalDecomposition(){
-		initializeDecomposition();
+		Point2D botLeft = new Point2D.Double(-0.1D, -0.1D);
+		Point2D botRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, -0.01D);
+		Point2D topLeft = new Point2D.Double(-0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
+		Point2D topRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
+
+		Line botSegment = new Line(botLeft, botRight);
+		Line topSegment = new Line(topLeft, topRight);
+
+		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botSegment, topSegment);
+		initialTrapezoid.addLeftPoint(botLeft);
+		initialTrapezoid.addRightPoint(topRight);
+		DecompVertex initialVertex = new DecompVertex(initialTrapezoid);
+		trapezoids.add(initialTrapezoid);
+		initialTrapezoid.computeDecompLines();
+		searchStructure.add(initialVertex);
 	}
 	
 	/**
@@ -109,7 +124,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 * @throws InterruptedException When the game is aborted.
 	 */
 	public VerticalDecomposition(List<ConvexObject> objects) throws InterruptedException{
-		initializeDecomposition();
+		this();
+		
 		for(ConvexObject obj : objects){
 			addObject(obj);
 		}
@@ -153,35 +169,6 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 */
 	public void setAnimated(boolean animated){
 		animate = animated;
-	}
-	
-	/**
-	 * Clears all structures except of the objects,
-	 * and initialises a blank vertical decomposition
-	 * with a corresponding search structure vertex.
-	 */
-	private void initializeDecomposition(){
-		trapezoids = new CopyOnWriteArrayList<Trapezoid>();
-		searchStructure = new ArrayList<DecompVertex>();
-		points = new ArrayList<DecompositionPoint>();
-		orientedSegments = new ArrayList<Line>();
-		verticalSegments = new ArrayList<Line>();
-		segToObj = new HashMap<Line, ConvexObject>();
-		Point2D botLeft = new Point2D.Double(-0.1D, -0.1D);
-		Point2D botRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, -0.01D);
-		Point2D topLeft = new Point2D.Double(-0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
-		Point2D topRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
-
-		Line botSegment = new Line(botLeft, botRight);
-		Line topSegment = new Line(topLeft, topRight);
-
-		Trapezoid initialTrapezoid = new Trapezoid(topLeft, botRight, botSegment, topSegment);
-		initialTrapezoid.addLeftPoint(botLeft);
-		initialTrapezoid.addRightPoint(topRight);
-		DecompVertex initialVertex = new DecompVertex(initialTrapezoid);
-		trapezoids.add(initialTrapezoid);
-		initialTrapezoid.computeDecompLines();
-		searchStructure.add(initialVertex);
 	}
 	
 	/**
