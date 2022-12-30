@@ -232,7 +232,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 *         the given position.
 	 */
 	public ConvexObject queryObject(double x, double y){
-		return segToObj.get(queryTrapezoid(x, y).botSegment);
+		Trapezoid trap = queryTrapezoid(x, y);
+		return trap.pointInside(x, y) ? segToObj.get(trap.botSegment) : null;
 	}
 	
 	/**
@@ -1732,9 +1733,19 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 			}
 			return false;
 		}
+		
+		/**
+		 * Checks whether a point given by its coordinates is strictly inside a trapezoid.
+		 * @param x The x coordinate of the point to check.
+		 * @param y The y coordinate of the point to check.
+		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
+		 */
+		public boolean pointInside(double x, double y){
+			return pointInside(new Point2D.Double(x,y));
+		}
 
 		/**
-		 * Checks whether a given point is strictly inside a trapezoid
+		 * Checks whether a given point is strictly inside a trapezoid.
 		 * @param p The point to check.
 		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
 		 */
