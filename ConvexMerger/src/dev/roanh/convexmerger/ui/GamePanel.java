@@ -324,23 +324,7 @@ public final class GamePanel extends Screen implements GameStateListener{
 		
 		VerticalDecomposition decomp = state.getVerticalDecomposition();
 		if(decomp.isAnimated()){
-			synchronized(decomp){
-				g.setStroke(Theme.POLY_STROKE);
-				g.setColor(Color.BLACK);
-				decomp.getLines().forEach(g::draw);
-				Line2D last = decomp.getLastLine();
-				if(last != null){
-					g.setColor(Color.BLUE);
-					g.draw(last);
-				}
-				
-				g.setColor(new Color(0, 255, 255, 50));
-				g.fillRect(0, 0, Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT);
-				
-				g.setColor(Color.WHITE);
-				g.setStroke(Theme.BORDER_STROKE);
-				decomp.getDecompLines().forEach(g::draw);
-			}
+			decomp.renderOrAnimate(g);
 		}
 		
 		SegmentPartitionTree<?> tree = state.getSegmentTreeKD();

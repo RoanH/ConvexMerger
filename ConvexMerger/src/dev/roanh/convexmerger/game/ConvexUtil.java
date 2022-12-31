@@ -100,7 +100,7 @@ public class ConvexUtil{
 	 *         hull of the two given convex hulls. The
 	 *         first two points make up one of the line
 	 *         segments and the other two the other.
-	 * @see #computeMergeLines(List, List)
+	 * @see #computeMergeLines(List, List, boolean)
 	 * @see #checkInvariants(List)
 	 */
 	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second, List<Point2D> hull){
@@ -174,12 +174,12 @@ public class ConvexUtil{
 	 *         object that would be contained inside the resulting
 	 *         hull, index 3 has the part of the second object that
 	 *         would be part of the outside of the resulting hull.
-	 * @see #computeMergeLines(List, List)
+	 * @see #computeMergeLines(List, List, boolean)
 	 * @see #computeMergeBounds(List, List, Point2D[])
 	 * @see #checkInvariants(List)
 	 */
 	public static final List<List<Point2D>> computeMergeBounds(List<Point2D> first, List<Point2D> second){
-		return computeMergeBounds(first, second, computeMergeLines(first, second));
+		return computeMergeBounds(first, second, computeMergeLines(first, second, false));
 	}
 	
 	/**
@@ -195,7 +195,7 @@ public class ConvexUtil{
 	 *        order counter-clockwise.
 	 * @param mergeLines The points describing the merge lines
 	 *        that would be added to merge the two objects as
-	 *        computed by {@link #computeMergeLines(List, List)}.
+	 *        computed by {@link #computeMergeLines(List, List, boolean)}.
 	 *        The points given here <b>must</b> be exact object
 	 *        references corresponding to points in the given objects.
 	 *        The first merge line has to be from the object with the
@@ -209,7 +209,7 @@ public class ConvexUtil{
 	 *         object that would be contained inside the resulting
 	 *         hull, index 3 has the part of the second object that
 	 *         would be part of the outside of the resulting hull.
-	 * @see #computeMergeLines(List, List)
+	 * @see #computeMergeLines(List, List, boolean)
 	 * @see #computeMergeBounds(List, List)
 	 * @see #checkInvariants(List)
 	 */
@@ -331,6 +331,10 @@ public class ConvexUtil{
 	 * @param second The second convex hull, the first point
 	 *        has to be bottom leftmost and the winding
 	 *        order counter-clockwise.
+	 * @param allowOverlap When true the output lines are allowed
+	 *        to overlap segments from the original objects. Doing
+	 *        so will eliminate collinear points, but will also mean
+	 *        the output lines could overlap the input objects.
 	 * @return The points for the two line segments that
 	 *         would be required to complete the convex
 	 *         hull of the two given convex hulls. The
@@ -345,7 +349,7 @@ public class ConvexUtil{
 	 *      Toussaint, Godfried T., "A simple linear algorithm for intersecting convex polygons", in The Visual Computer, vol. 1, 1985, pp. 118-123</a>
 	 * @see #checkInvariants(List)
 	 */
-	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second){
+	public static final Point2D[] computeMergeLines(List<Point2D> first, List<Point2D> second, boolean allowOverlap){
 		//ensure the first object has the bottom leftmost point
 		int cmp = Double.compare(first.get(0).getX(), second.get(0).getX());
 		if(cmp > 0 || (cmp == 0 && first.get(0).getY() >= second.get(0).getY())){
@@ -420,12 +424,12 @@ public class ConvexUtil{
 				
 				//skip over collinear points if they exist
 				if(lines[0] == null){
-					lines[0] = checkCollinear(lp1, lp2, rp1) ? lp2 : lp1;
-					lines[1] = checkCollinear(lp2, rp1, rp2) ? rp2 : rp1;
+					lines[0] = (!allowOverlap && checkCollinear(lp1, lp2, rp1)) ? lp2 : lp1;
+					lines[1] = (allowOverlap && checkCollinear(lp2, rp1, rp2)) ? rp2 : rp1;
 				}else{
 					assert lines[2] == null : "More than 2 merge lines found";
-					lines[2] = checkCollinear(rp1, rp2, lp1) ? rp2 : rp1;
-					lines[3] = checkCollinear(rp2, lp1, lp2) ? lp2 : lp1;
+					lines[2] = (!allowOverlap && checkCollinear(rp1, rp2, lp1)) ? rp2 : rp1;
+					lines[3] = (allowOverlap && checkCollinear(rp2, lp1, lp2)) ? lp2 : lp1;
 					break;
 				}
 			}
@@ -496,14 +500,14 @@ public class ConvexUtil{
 	 *        order counter-clockwise.
 	 * @param mergeLines The points describing the merge lines
 	 *        that would be added to merge the two objects as
-	 *        computed by {@link #computeMergeLines(List, List)}.
+	 *        computed by {@link #computeMergeLines(List, List, boolean)}.
 	 *        The points given here <b>must</b> be exact object
 	 *        references corresponding to points in the given objects.
 	 *        The first merge line has to be from the object with the
 	 *        bottom leftmost to the other object and the second line
 	 *        back from that object to the object with the bottom leftmost point.
 	 * @return The computed joint convex hull.
-	 * @see #computeMergeLines(List, List)
+	 * @see #computeMergeLines(List, List, boolean)
 	 * @see #checkInvariants(List)
 	 */
 	public static final List<Point2D> mergeHulls(List<Point2D> first, List<Point2D> second, Point2D[] mergeLines){
@@ -714,6 +718,44 @@ public class ConvexUtil{
 	public static final double angleBetweenLines(Line2D a, Line2D b){
 		double relative = Math.atan2(b.getY2() - b.getY1(), b.getX2() - b.getX1()) - Math.atan2(a.getY2() - a.getY1(), a.getX2() - a.getX1());
 		return relative < 0.0D ? (relative + 2.0D * Math.PI) : relative;
+	}
+
+	/**
+	 * Computes the centroid of the given convex object.
+	 * @param points The points that make up the convex object
+	 *        in (counter) clockwise order.
+	 * @return The centroid of the convex object.
+	 */
+	public static final Point2D computeCentroid(List<Point2D> points){
+		double cx = 0.0D;
+		double cy = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			Point2D p1 = points.get(i);
+			Point2D p2 = points.get((i + 1) % points.size());
+			double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
+			cx += (p1.getX() + p2.getX()) * factor;
+			cy += (p1.getY() + p2.getY()) * factor;
+		}
+
+		double area = 6.0D * computeArea(points);
+		return new Point2D.Double(cx / area, cy / area);
+	}
+	
+	/**
+	 * Computes the area of the given convex object.
+	 * @param points The points that make up the convex object
+	 *        in (counter) clockwise order.
+	 * @return The area for the convex object.
+	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
+	 */
+	public static final double computeArea(List<Point2D> points){
+		double area = 0.0D;
+		for(int i = 0; i < points.size(); i++){
+			int j = (i + 1) % points.size();
+			area += points.get(i).getX() * points.get(j).getY();
+			area -= points.get(i).getY() * points.get(j).getX();
+		}
+		return area / 2.0D;
 	}
 	
 	/**

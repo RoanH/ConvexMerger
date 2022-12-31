@@ -249,7 +249,7 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	 * @see #merge(ConvexObject)
 	 */
 	public ConvexObject merge(GameState state, ConvexObject other, boolean saveSegments) throws InterruptedException{
-		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints());
+		Point2D[] lines = ConvexUtil.computeMergeLines(points, other.getPoints(), true);
 		
 		//check if the new hull is valid
 		if(state != null){
@@ -338,16 +338,9 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	/**
 	 * Computes the area of this convex object.
 	 * @return The area for this convex object.
-	 * @see <a href="https://en.wikipedia.org/wiki/Shoelace_formula">Shoelace formula</a>
 	 */
 	public double getArea(){
-		double area = 0.0D;
-		for(int i = 0; i < points.size(); i++){
-			int j = (i + 1) % points.size();
-			area += points.get(i).getX() * points.get(j).getY();
-			area -= points.get(i).getY() * points.get(j).getX();
-		}
-		return area / 2.0D;
+		return ConvexUtil.computeArea(points);
 	}
 	
 	/**
@@ -364,18 +357,7 @@ public class ConvexObject extends RenderableObject implements Identity, Serializ
 	 * @return The centroid of this convex object.
 	 */
 	public Point2D getCentroid(){
-		double cx = 0.0D;
-		double cy = 0.0D;
-		for(int i = 0; i < points.size(); i++){
-			Point2D p1 = points.get(i);
-			Point2D p2 = points.get((i + 1) % points.size());
-			double factor = (p1.getX() * p2.getY() - p2.getX() * p1.getY());
-			cx += (p1.getX() + p2.getX()) * factor;
-			cy += (p1.getY() + p2.getY()) * factor;
-		}
-
-		double area = 6.0D * getArea();
-		return new Point2D.Double(cx / area, cy / area);
+		return ConvexUtil.computeCentroid(points);
 	}
 	
 	/**
