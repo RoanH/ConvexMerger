@@ -68,11 +68,12 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 */
 	private List<Line> orientedSegments = new ArrayList<Line>();
 	/**
-	 * The list of vertical segments
+	 * The list of vertical segments.
 	 */
 	private List<Line> verticalSegments = new ArrayList<Line>();
 	/**
-	 * Map of segments to the object above them or to <code>null</code> if that object is the playing field.
+	 * Map of segments to the object above them or to <code>null</code>
+	 * if that object is the playing field.
 	 */
 	private Map<Line, ConvexObject> segToObj = new HashMap<Line, ConvexObject>();
 	/**
@@ -84,20 +85,19 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 */
 	private List<Line> lines = new ArrayList<Line>();
 	/**
-	 * True the vertical decomposition is animated and showing
+	 * True if the vertical decomposition is animated and showing
 	 * individual segment updates.
 	 */
 	private boolean animate = false;
 	
 	/**
-	 * Constructs a new blank vertical decomposition vertical decomposition
-	 * with a corresponding search structure vertex. The size of the
-	 * vertical decomposition is defined by {@link Constants#PLAYFIELD_WIDTH}
-	 * and {@link Constants#PLAYFIELD_HEIGHT}.
+	 * Constructs a new blank vertical decomposition with a corresponding
+	 * search structure vertex. The size of the vertical decomposition is
+	 * defined by {@link Constants#PLAYFIELD_WIDTH} and {@link Constants#PLAYFIELD_HEIGHT}.
 	 */
 	public VerticalDecomposition(){
 		Point2D botLeft = new Point2D.Double(-0.1D, -0.1D);
-		Point2D botRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, -0.01D);
+		Point2D botRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, -0.1D);
 		Point2D topLeft = new Point2D.Double(-0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
 		Point2D topRight = new Point2D.Double(Constants.PLAYFIELD_WIDTH + 0.1D, Constants.PLAYFIELD_HEIGHT + 0.1D);
 
@@ -153,7 +153,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 * addition it is oriented from left-to-right 
 	 * (in case of a tie, bottom to top), the segment
 	 * will point to an object, otherwise to null.
-	 * @param segment The segment for which to fetch its object
+	 * @param segment The segment for which to fetch its object.
 	 * @return The object for this segment, <code>null</code>
 	 *         in case the segment is oriented from right to
 	 *         left during addition (on the top of the object).
@@ -172,7 +172,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	}
 	
 	/**
-	 * Gets all the trapezoids that make up the vertical decomposition
+	 * Gets all the trapezoids that make up the vertical decomposition.
 	 * @return All decomposition trapezoids.
 	 */
 	public List<Trapezoid> getTrapezoids(){
@@ -207,7 +207,6 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 */
 	public void addObject(ConvexObject obj) throws InterruptedException{
 		List<Point2D> points = obj.getPoints();
-
 		for(int i = 0; i < points.size(); i++){
 			addSegment(new Line(points.get(i), points.get((i + 1) % points.size())), obj);
 		}
@@ -339,9 +338,9 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	}
 	
 	/**
-	 * Replaces a given line segment and line segments between its end points and points colinear with the line, 
+	 * Replaces a given line segment and line segments between its end points and points collinear with the line, 
 	 * with a segment that overlaps the union of the shorter line segments.
-	 * @param shortLine The central line segment (short merge line)
+	 * @param shortLine The central line segment (short merge line).
 	 * @param line The overlapping union segment.
 	 */
 	private void replaceOverlappedSegment(Line shortLine, Line line){
@@ -349,27 +348,33 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		Line orientedLine = Line.orientedLine(line.getP1(), line.getP2());
 		Line sl = orientedSegments.get(orientedSegments.indexOf(shortLine));
 		toReplace.add(sl);
+		
 		if(shortLine.getP1() != line.getP1()){
 			toReplace.add(orientedSegments.get(orientedSegments.indexOf(new Line(shortLine.getP1(), line.getP1()))));
 		}
+		
 		if(shortLine.getP2() != line.getP2()){
 			toReplace.add(orientedSegments.get(orientedSegments.indexOf(new Line(shortLine.getP2(), line.getP2()))));
 		}
+		
 		for(Line l : toReplace){
 			for(Trapezoid t : l.getTrapsAbove()){
 				t.botSegment = orientedLine;
 				orientedLine.addTrapAbove(t);
 			}
+			
 			for(Trapezoid t : l.getTrapsBelow()){
 				t.topSegment = orientedLine;
 				orientedLine.addTrapBelow(t);
 			}
+			
 			if(l.getX1() != l.getX2()){
 				DecompositionPoint p = getOrCreatePoint(l.getP1());
 				p.removeSegment(l);
 				if(p.getSegments().size() == 0){
 					removePoint(p);
 				}
+				
 				p = getOrCreatePoint(l.getP2());
 				p.removeSegment(l);
 				if(p.getSegments().size() == 0){
@@ -381,6 +386,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		segToObj.put(orientedLine, segToObj.get(sl));
 		orientedSegments.add(orientedLine);
 		lines.add(orientedLine);
+		
 		if(orientedLine.getX1() == orientedLine.getX2()){
 			verticalSegments.add(orientedLine);
 		}else{
@@ -417,6 +423,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		}else{
 			addedIntersectsMultipleTrapezoids(orientedSegment, obj);
 		}
+		
 		if(p1.getX() != p2.getX()){
 			getOrCreatePoint(p1).addSegment(orientedSegment);
 			getOrCreatePoint(p2).addSegment(orientedSegment);
@@ -491,7 +498,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	/**
 	 * Handles the case where the added vertical
 	 * segment is on the inside of a single trapezoid.
-	 * @param segment The added vertical segment
+	 * @param segment The added vertical segment.
 	 * @param trap The trapezoid whose border
 	 *        the segment lies on.
 	 */
@@ -566,8 +573,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	/**
 	 * Updates the structures for case when the added segment
 	 * fits entirely inside one trapezoid inside the decomposition.
-	 * @param segment The segment that was added
-	 * @param trap The trapezoid that the segment is contained inside
+	 * @param segment The segment that was added.
+	 * @param trap The trapezoid that the segment is contained inside.
 	 */
 	private void addedCompletelyInsideSingleTrapezoid(Line segment, Trapezoid trap){
 		Point2D leftp = segment.getP1();
@@ -621,8 +628,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 * Updates the structures for case when the added segment
 	 * fits inside one trapezoid of the decomposition, except
 	 * for its right ending point.
-	 * @param segment The segment that was added
-	 * @param trap The trapezoid that the segment is contained inside
+	 * @param segment The segment that was added.
+	 * @param trap The trapezoid that the segment is contained inside.
 	 */
 	private void addedOnRightBorder(Line segment, Trapezoid trap){
 		Point2D leftp = segment.getP1();
@@ -642,6 +649,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 			if(segment.relativeCCW(p) <= 0){
 				top.addRightPoint(p);
 			}
+			
 			if(segment.relativeCCW(p) >= 0){
 				bottom.addRightPoint(p);
 			}
@@ -654,10 +662,12 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 				neib.addNeighbour(left);
 			}else{
 				Line2D decompLine = neib.getLeftDecompLine();
+				
 				if(neib.getXLeft() == trap.getXRight() && segment.relativeCCW(decompLine.getP2()) < 0 && top.getRightDecompLine().intersectsLine(decompLine) && top.botSegment.getP2() != top.topSegment.getP2()){
 					top.addNeighbour(neib);
 					neib.addNeighbour(top);
 				}
+				
 				if(neib.getXLeft() == trap.getXRight() && segment.relativeCCW(decompLine.getP1()) > 0 && bottom.getRightDecompLine().intersectsLine(decompLine) && bottom.botSegment.getP2() != bottom.topSegment.getP2()){
 					bottom.addNeighbour(neib);
 					neib.addNeighbour(bottom);
@@ -833,6 +843,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 				left.addNeighbour(neib);
 				neib.addNeighbour(left);
 			}
+			
 			if(trap.getXRight() == neib.getXLeft()){
 				right.addNeighbour(neib);
 				neib.addNeighbour(right);
@@ -875,6 +886,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 				left.addNeighbour(neib);
 				neib.addNeighbour(left);
 			}
+			
 			if(trap.getXRight() == neib.getXLeft()){
 				right.addNeighbour(neib);
 				neib.addNeighbour(right);
@@ -973,6 +985,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 			if(segment.relativeCCW(p) <= 0){
 				top.addRightPoint(p);
 			}
+			
 			if(segment.relativeCCW(p) >= 0){
 				bot.addRightPoint(p);
 			}
@@ -1121,6 +1134,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		if(!firstShortLine.equals(firstLine)){
 			replaceOverlappedSegment(firstShortLine, firstLine);
 		}
+		
 		if(!secondShortLine.equals(secondLine)){
 			replaceOverlappedSegment(secondShortLine, secondLine);
 		}
@@ -1283,8 +1297,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 
 		/**
 		 * Constructs a Decomposition Vertex of the segment type with a corresponding line segment.
-		 * @param left The left child of the vertex. (above the segment)
-		 * @param right The right child of the vertex. (below the segment)
+		 * @param left The left child of the vertex. (above the segment).
+		 * @param right The right child of the vertex. (below the segment).
 		 * @param segment The corresponding line segment in the decomposition.
 		 */
 		public DecompVertex(DecompVertex left, DecompVertex right, Line2D segment){
@@ -1375,8 +1389,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		}
 
 		/**
-		 * Gets the left child of the vertex
-		 * @return The left child of the vertex, or null if there is none.
+		 * Gets the left child of the vertex.
+		 * @return The left child of the vertex, or <code>null</code> if there is none.
 		 */
 		public DecompVertex getLeftChild(){
 			return left;
@@ -1408,7 +1422,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 
 		/**
 		 * Gets the trapezoid that the vertex points to.
-		 * @return The trapezoid that the vertex points to. Null if not leaf.
+		 * @return The trapezoid that the vertex points to. Null if not a leaf.
 		 */
 		public Trapezoid getTrapezoid(){
 			return trapezoid;
@@ -1567,7 +1581,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		
 		/**
 		 * Getter for the neighbours of the trapezoid.
-		 * @return the neighbours of the trapezoid.
+		 * @return The neighbours of the trapezoid.
 		 */
 		public List<Trapezoid> getNeighbours(){
 			return neighbours;
@@ -1575,7 +1589,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 
 		/**
 		 * Adds a neighbour to the list of neighbours.
-		 * @param neighbour the neighbour to be added to the list.
+		 * @param neighbour The neighbour to be added to the list.
 		 */
 		private void addNeighbour(Trapezoid neighbour){
 			neighbours.add(neighbour);
@@ -1583,7 +1597,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 
 		/**
 		 * Removes a neighbour from the list of neighbours.
-		 * @param neighbour the neighbour to be removed.
+		 * @param neighbour The neighbour to be removed.
 		 */
 		public void removeNeighbour(Trapezoid neighbour){
 			neighbours.remove(neighbour);
@@ -1611,13 +1625,13 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		 * This includes:
 		 * <ul><li>Neighbours on the left (right) in case the 
 		 * top and bottom segment meet at the corresponding
-		 * left or right bounding point of this trapezoid</li>
+		 * left or right bounding point of this trapezoid.</li>
 		 * <li>Neighbours on the left (right) in case the
 		 * top and bottom segment share the same X coordinate
 		 * and there is a segment between the left (right)
 		 * endpoints of the top and bottom segments.</li>
 		 * <li>Neighbours who are somehow connected through the
-		 * top(bottom) bounding segment.</li></ul>
+		 * top (bottom) bounding segment.</li></ul>
 		 */
 		public void sanitizeNeighbours(){
 			Iterator<Trapezoid> iter = getNeighbours().iterator();
@@ -1664,7 +1678,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		
 		/**
 		 * Gets the right vertical line of this trapezoid.
-		 * @return The left vertical line of this trapezoid.
+		 * @return The right vertical line of this trapezoid.
 		 */
 		public Line2D getRightDecompLine(){
 			return decompLines.get(1);
@@ -1684,7 +1698,9 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 			Point2D topLeft = topSegment.getP1();
 			Point2D topRight = topSegment.getP2();
 			List<Line2D> verticalLines = new ArrayList<Line2D>();
-			if(leftPoints.size() > 0){//Draw vertical line between top and bottom on the left
+			
+			//Draw vertical line between top and bottom on the left
+			if(leftPoints.size() > 0){
 				double xRatioTop = (getXLeft() - topLeft.getX()) / (topRight.getX() - topLeft.getX());
 				double xRatioBot = (getXLeft() - botLeft.getX()) / (botRight.getX() - botLeft.getX());
 				verticalLines.add(new Line(
@@ -1692,8 +1708,9 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 					new Point2D.Double(getXLeft(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY()))
 				);
 			}
-
-			if(rightPoints.size() > 0){//Draw vertical line between top and bottom on the right
+			
+			//Draw vertical line between top and bottom on the right
+			if(rightPoints.size() > 0){
 				double xRatioTop = Math.abs((getXRight() - topLeft.getX()) / (topRight.getX() - topLeft.getX()));
 				double xRatioBot = Math.abs((getXRight() - botLeft.getX()) / (botRight.getX() - botLeft.getX()));
 				verticalLines.add(new Line(
@@ -1701,6 +1718,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 					new Point2D.Double(getXRight(), xRatioTop * topRight.getY() + (1 - xRatioTop) * topLeft.getY()))
 				);
 			}
+			
 			decompLines = verticalLines;
 		}
 		
@@ -1738,16 +1756,16 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		 * Checks whether a point given by its coordinates is strictly inside a trapezoid.
 		 * @param x The x coordinate of the point to check.
 		 * @param y The y coordinate of the point to check.
-		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
+		 * @return True if the point is contained in the trapezoid and not on the boundary, false otherwise.
 		 */
 		public boolean pointInside(double x, double y){
-			return pointInside(new Point2D.Double(x,y));
+			return pointInside(new Point2D.Double(x, y));
 		}
 
 		/**
 		 * Checks whether a given point is strictly inside a trapezoid.
 		 * @param p The point to check.
-		 * @return true if the point is contained in the trapezoid and not on the boundary, false otherwise.
+		 * @return True if the point is contained in the trapezoid and not on the boundary, false otherwise.
 		 */
 		public boolean pointInside(Point2D p){
 			return botSegment.relativeCCW(p) < 0 && topSegment.relativeCCW(p) > 0 && p.getX() > getXLeft() && p.getX() < getXRight();
@@ -1768,7 +1786,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		/**
 		 * Adds a right bounding point to the trapezoid.
 		 * Also computes the vertical decomposition lines if this is the first right bounding point and at least 1 left bounding point exists.
-		 * @param point The new right bounding point
+		 * @param point The new right bounding point.
 		 */
 		private void addRightPoint(Point2D point){
 			rightPoints.add(point);
@@ -1786,7 +1804,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		}
 		
 		/**
-		 * Returns the points of the trapezoid in counterclockwise order
+		 * Returns the points of the trapezoid in counterclockwise order.
 		 * @return points of the trapezoid in counterclockwise order as a list.
 		 */
 		public List<Point2D> getEndPoints(){
@@ -1923,8 +1941,8 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		/**
 		 * Create an oriented line segment given two points.
 		 * The orientation is from left-bottom to right-top.
-		 * @param p1 The first point
-		 * @param p2 The second point
+		 * @param p1 The first point.
+		 * @param p2 The second point.
 		 * @return An oriented line segment where the first point
 		 * 		   is the leftmost-lower point, and the second
 		 * 		   point is the rightmost-upper point.
@@ -1953,7 +1971,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		}
 		
 		/**
-		 * Adds a given trapezoid to the list of trapezoids below this line.
+		 * Adds a given trapezoid to the list of trapezoids above this line.
 		 * @param trap The trapezoid to add.
 		 */
 		private void addTrapAbove(Trapezoid trap){
@@ -1996,7 +2014,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		/**
 		 * Gets the rightmost trapezoid that is above this line.
 		 * Assumes a left-to-right orientation of the segment isn't vertical.
-		 * @return the rightmost trapezoid that is above this line.
+		 * @return The rightmost trapezoid that is above this line.
 		 */
 		public Trapezoid getRightmostTrapAbove(){
 			return trapsAbove.get(trapsAbove.size() - 1);
@@ -2014,7 +2032,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		/**
 		 * Gets the rightmost trapezoid that is below this line.
 		 * Assumes a left-to-right orientation of the segment isn't vertical.
-		 * @return the rightmost trapezoid that is below this line.
+		 * @return The rightmost trapezoid that is below this line.
 		 */
 		public Trapezoid getRightmostTrapBelow(){
 			return trapsBelow.get(trapsBelow.size() - 1);
@@ -2064,7 +2082,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		
 		/**
 		 * Gets the point of this structure.
-		 * @return the point of this structure.
+		 * @return The point of this structure.
 		 */
 		public Point2D getPoint(){
 			return point;
@@ -2080,7 +2098,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		
 		/**
 		 * Adds a segment to the list of segments that this point is part of.
-		 * @param seg the segment to add to the list of segments that this point is part of.
+		 * @param seg The segment to add to the list of segments that this point is part of.
 		 */
 		public void addSegment(Line seg){
 			segments.add(seg);
@@ -2088,7 +2106,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		
 		/**
 		 * Removes a segment from the list of segments that this point is part of.
-		 * @param seg the segment to remove from the list of segments.
+		 * @param seg The segment to remove from the list of segments.
 		 */
 		public void removeSegment(Line seg){
 			segments.remove(seg);
@@ -2171,7 +2189,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	}
 	
 	/**
-	 * Denotes the type of the decomposition vertex.
+	 * Enum to denote the type of a decomposition vertex.
 	 * @author Roan
 	 */
 	public static enum DecompVertexType{
