@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.MergeAnimation;
@@ -51,7 +50,7 @@ public class GameState{
 	/**
 	 * The vertical decomposition for the game state.
 	 */
-	private VerticalDecomposition decomp = new VerticalDecomposition(Constants.DECOMP_BOUNDS);
+	private VerticalDecomposition decomp = new VerticalDecomposition();
 	/**
 	 * The index of the player whose turn it is.
 	 */
@@ -66,9 +65,9 @@ public class GameState{
 	 */
 	private boolean ended = false;
 	/**
-	 * Millisecond time the game started.
+	 * Millisecond time the game started or -1 if the game has not started.
 	 */
-	private final long gameStart;
+	private long gameStart = -1L;
 	/**
 	 * Millisecond time the game ended or -1.
 	 */
@@ -118,19 +117,19 @@ public class GameState{
 		for(int i = 0; i < objects.size(); i++){
 			ConvexObject obj = objects.get(i);
 			obj.setID(i + 1);
-			decomp.addObject(obj);
 		}
 		for(int i = 0; i < players.size(); i++){
 			Player player = players.get(i);
 			player.init(this, PlayerTheme.get(i + 1));
 			player.setID(i + 1);
 			if(player instanceof GameStateListener){
-				listeners.add((GameStateListener)player);
+				registerStateListener((GameStateListener)player);
 			}
 		}
+		registerStateListener(decomp);
+
 		segmentTreeConj = SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(objects);
 		segmentTreeKD = SegmentPartitionTree.TYPE_KD_TREE.fromObjects(objects);
-		gameStart = System.currentTimeMillis();
 	}
 	
 	/**
@@ -152,10 +151,15 @@ public class GameState{
 	/**
 	 * Initialises the game state running tasks that
 	 * need to run on the main game thread.
-	 * @throws InterruptedException When the game was aborted.
+	 * @throws InterruptedException When the player was
+	 *         interrupted while making its move. Signalling
+	 *         that the game was aborted.
 	 */
 	public void init() throws InterruptedException{
-		decomp.rebuild();
+		for(ConvexObject obj : objects){
+			decomp.addObject(obj);
+		}
+		gameStart = System.currentTimeMillis();
 	}
 	
 	/**
@@ -163,7 +167,7 @@ public class GameState{
 	 * @return True if the game state is ready for the next turn.
 	 */
 	public boolean ready(){
-		return !decomp.needsRebuild();
+		return gameStart != -1L;
 	}
 	
 	/**
@@ -286,13 +290,10 @@ public class GameState{
 			synchronized(objects){
 				objects.remove(first);
 				objects.remove(second);
-				decomp.removeObject(first);
-				decomp.removeObject(second);
 				
 				for(ConvexObject obj : objects){
 					maxID = Math.max(maxID, obj.getID());
 					if(merged.contains(obj)){
-						decomp.removeObject(obj);
 						contained.add(obj);
 						if(obj.isOwned()){
 							obj.getOwner().removeArea(obj.getArea());
@@ -302,7 +303,6 @@ public class GameState{
 				objects.removeAll(contained);
 				
 				objects.add(merged);
-				decomp.addObject(merged);
 				
 				player.removeArea(first.getArea());
 				player.removeArea(second.getArea());
@@ -435,9 +435,6 @@ public class GameState{
 			listeners.forEach(GameStateListener::end);
 		}
 		turns++;
-		if(decomp.needsRebuild()){
-			decomp.rebuild();
-		}
 	}
 	
 	/**
@@ -454,7 +451,7 @@ public class GameState{
 	 * @return The total game time in milliseconds.
 	 */
 	public long getGameTime(){
-		return ended ? (gameEnd - gameStart) : (System.currentTimeMillis() - gameStart);
+		return ended ? (gameEnd - gameStart) : (gameStart == -1L ? 0 : (System.currentTimeMillis() - gameStart));
 	}
 	
 	/**

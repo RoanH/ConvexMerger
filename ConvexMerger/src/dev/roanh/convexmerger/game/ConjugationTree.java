@@ -231,8 +231,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @return The centroid.
 	 */
 	public Point2D getCentroid(){
-		//TODO after vertical decomposition merge
-		return null;
+		return ConvexUtil.computeCentroid(hull);
 	}
 	
 	@Override

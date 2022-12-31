@@ -361,7 +361,15 @@ public class ConvexUtilTest{
 	}
 	
 	private void mergeTest(ConvexObject obj1, ConvexObject obj2){
-		Point2D[] lines = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
-		assertTrue(ConvexUtil.checkInvariants(ConvexUtil.mergeHulls(obj1.getPoints(), obj2.getPoints(), lines)));
+		assertTrue(ConvexUtil.checkInvariants(ConvexUtil.mergeHulls(
+			obj1.getPoints(),
+			obj2.getPoints(),
+			ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), true))
+		));
+		assertTrue(ConvexUtil.checkInvariants(ConvexUtil.mergeHulls(
+			obj1.getPoints(),
+			obj2.getPoints(),
+			ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false))
+		));
 	}
 }

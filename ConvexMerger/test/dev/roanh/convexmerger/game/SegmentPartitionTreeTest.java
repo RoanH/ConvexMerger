@@ -203,7 +203,7 @@ public class SegmentPartitionTreeTest{
 		for(ConvexObject obj1 : objects){
 			for(ConvexObject obj2 : objects){
 				if(obj1 != obj2){
-					Point2D[] merge = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints());
+					Point2D[] merge = ConvexUtil.computeMergeLines(obj1.getPoints(), obj2.getPoints(), false);
 					
 					ConvexObject intersected = objects.stream().filter(obj->obj != obj1 && obj != obj2).filter(obj->obj.intersects(merge[0], merge[1])).findAny().orElse(null);
 					assertEquals(
