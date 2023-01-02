@@ -434,6 +434,8 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 						}
 					}
 				}
+				//reset to original in case nothing nearby is found
+				lp = left.get(lsz);
 				rp = right.get(rsz);
 			}
 			
@@ -462,7 +464,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * A comparator that compares points based on their angle to a
 	 * fixed point, relative to the angle of a fixed "base" vector.
 	 * The orientation of the points relative to the vector matters,
-	 * as angles <code> > PI rad</code> are considered as negative.
+	 * as angles <code> &gt; PI rad</code> are considered as negative.
 	 * @param vector The fixed "base" vector, represented as a line.
 	 * @return A comparator that sorts points based on their angle
 	 * to the base vector.
