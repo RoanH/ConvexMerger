@@ -363,16 +363,15 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 			return data;
 		}
-
-		int lsz = left.size() / 2;
-		int rsz = right.size() / 2;
-		Comparator<Point2D> c = segmentProjectionComparator(parent.getBisector());
-
+		Comparator<Point2D> c = segmentProjectionComparator(parent.bisector);
 		Collections.sort(left, c);
 		Collections.sort(right, c);
 
+		int lsz = left.size() / 2;
+		int rsz = right.size() / 2;
 		Point2D lp = left.get(lsz);
 		Point2D rp = right.get(rsz);
+		
 		Set<Line> used = new HashSet<Line>();
 		do{
 			Line line = Line.orientedLine(lp, rp);
