@@ -389,7 +389,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		Set<Line> used = new HashSet<Line>();
 		do{
 			Line line = Line.orientedLine(lp, rp);
-			//Search for 
+			//Search for candidate conjugate lines similar to the current candidate.
 			if_case: if(used.contains(line)){
 				for(int i = 0; i <= 10; i++){
 					if(lsz + i < left.size()){
@@ -434,8 +434,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 						}
 					}
 				}
-				//reset to original in case nothing nearby is found
-				lp = left.get(lsz);
+				//reset right point to original in case nothing nearby is found
 				rp = right.get(rsz);
 			}
 			
