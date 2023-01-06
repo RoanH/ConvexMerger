@@ -366,20 +366,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 
 		int lsz = left.size() / 2;
 		int rsz = right.size() / 2;
-		Line2D bisector = parent.getBisector();
-		double cx = (bisector.getP1().getX() + bisector.getP2().getX()) / 2;
-		double cy = (bisector.getP1().getY() + bisector.getP2().getY()) / 2;
-
-		//The segment rotated by 90 degrees around its centre point.
-		Line2D rotated = new Line2D.Double(new Point2D.Double((bisector.getY1() - cy) + cx, -(bisector.getX1() - cx) + cy), 
-										   new Point2D.Double((bisector.getY2() - cy) + cx, -(bisector.getX2() - cx) + cy));
-		//Sorts the points on the order of their projections onto the bisector, from its first point to its second point.
-		Comparator<Point2D> c = new Comparator<Point2D>(){
-			@Override
-			public int compare(Point2D p1, Point2D p2){
-				return Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
-			}
-		};
+		Comparator<Point2D> c = segmentProjectionComparator(parent.getBisector());
 
 		Collections.sort(left, c);
 		Collections.sort(right, c);
@@ -457,6 +444,27 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				lp = left.get(lsz);
 			}
 		}while(true);
+	}
+	
+	/**
+	 * Sorts the points on the order of their projections onto a segment, 
+	 * from the direction of its first point to the direction of its second point.
+	 * @param segment The segment on which to project
+	 * @return A comparator that orders points on their projection along a segment.
+	 */
+	private static Comparator<Point2D> segmentProjectionComparator(Line2D segment){
+		double cx = (segment.getP1().getX() + segment.getP2().getX()) / 2;
+		double cy = (segment.getP1().getY() + segment.getP2().getY()) / 2;
+
+		//The segment rotated by 90 degrees around its centre point.
+		Line2D rotated = new Line2D.Double(new Point2D.Double((segment.getY1() - cy) + cx, -(segment.getX1() - cx) + cy), 
+										   new Point2D.Double((segment.getY2() - cy) + cx, -(segment.getX2() - cx) + cy));
+		return new Comparator<Point2D>(){
+			@Override
+			public int compare(Point2D p1, Point2D p2){
+				return Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
+			}
+		};
 	}
 	
 	/**
