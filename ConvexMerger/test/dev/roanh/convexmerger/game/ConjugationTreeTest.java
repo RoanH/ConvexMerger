@@ -52,7 +52,7 @@ public class ConjugationTreeTest{
 	
 	@Test
 	public void constructionPoints(){
-		ConjugationTree<Void> tree = new ConjugationTree<>(testPoints);
+		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
 		
 		List<ConjugationTree<Void>> leaves = tree.streamLeafCells().collect(Collectors.toList());
 		assertEquals(16, leaves.size());
