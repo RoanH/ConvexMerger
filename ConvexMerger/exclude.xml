@@ -22,7 +22,7 @@
   
   <Match>
     <Bug pattern="SE_BAD_FIELD"/>
-    <Class name="dev.roanh.convexmerger.util.ConvexObject"/>
+    <Class name="dev.roanh.convexmerger.game.ConvexObject"/>
     <Field name="points"/>
   </Match>
   
