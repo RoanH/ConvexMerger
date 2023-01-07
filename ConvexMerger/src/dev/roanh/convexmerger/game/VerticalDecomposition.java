@@ -24,7 +24,6 @@ import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +34,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -1842,18 +1840,11 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	
 	/**
 	 * A line instance with equality based
-	 * on its end points.
+	 * on its end points, extended with
+	 * information about decomposition trapezoids.
 	 * @author Roan
 	 */
-	public static class Line extends Line2D{
-		/**
-		 * First end point of the line.
-		 */
-		private Point2D p1;
-		/**
-		 * Second end point of the line.
-		 */
-		private Point2D p2;
+	public static class Line extends Segment{
 		/**
 		 * Trapezoids with this line as its top segment.
 		 */
@@ -1872,70 +1863,9 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		 * @param p2 The second end point of the line.
 		 */
 		public Line(Point2D p1, Point2D p2){
-			this.p1 = p1;
-			this.p2 = p2;
+			super(p1, p2);
 			trapsAbove = new ArrayList<Trapezoid>();
 			trapsBelow = new ArrayList<Trapezoid>();
-		}
-
-		@Override
-		public Rectangle2D getBounds2D(){
-			return new Rectangle2D.Double(
-				Math.min(p1.getX(), p2.getX()),
-				Math.min(p1.getY(), p2.getY()),
-				Math.abs(p1.getX() - p2.getX()),
-				Math.abs(p1.getY() - p2.getY())
-			);
-		}
-
-		@Override
-		public double getX1(){
-			return p1.getX();
-		}
-
-		@Override
-		public double getY1(){
-			return p1.getY();
-		}
-
-		@Override
-		public Point2D getP1(){
-			return p1;
-		}
-
-		@Override
-		public double getX2(){
-			return p2.getX();
-		}
-
-		@Override
-		public double getY2(){
-			return p2.getY();
-		}
-
-		@Override
-		public Point2D getP2(){
-			return p2;
-		}
-
-		@Override
-		public void setLine(double x1, double y1, double x2, double y2){
-			throw new IllegalStateException("Unsupported operation");
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(p1, p2);
-		}
-
-		@Override
-		public boolean equals(Object other){
-			if(other instanceof Line){
-				Line line = (Line)other;
-				return (line.p1 == p1 && line.p2 == p2) || (line.p1 == p2 && line.p2 == p1);
-			}else{
-				return false;
-			}
 		}
 		
 		/**

@@ -25,14 +25,12 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import dev.roanh.convexmerger.Constants;
@@ -372,9 +370,9 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		Point2D lp = left.get(lsz);
 		Point2D rp = right.get(rsz);
 		
-		Set<Line> used = new HashSet<Line>();
+		Set<Segment> used = new HashSet<Segment>();
 		do{
-			Line line = Line.orientedLine(lp, rp);
+			Segment line = orientedLine(lp, rp);
 			//Search for candidate conjugate lines similar to the current candidate.
 			if(used.contains(line)){
 				line = findUnusedSegment(left, right, used, line, 10);
@@ -435,22 +433,22 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * 		   If no unused line is found after reaching maxDistance, the segment between
 	 * 		   the median points of the two sorted point lists is returned.
 	 */
-	private static Line findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Line> used, Line fallback, int maxDistance){
+	private static Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback, int maxDistance){
 		int lsz = left.size() / 2;
 		int rsz = right.size() / 2;
-		Line line;
+		Segment line;
 		for(int i = 0; i <= maxDistance; i++){
 			if(lsz + i < left.size()){
 				for(int j = 0; j <= maxDistance; j++){
 					if(rsz + j < right.size()){
-						line = Line.orientedLine(left.get(lsz + i), right.get(rsz + j));
+						line = orientedLine(left.get(lsz + i), right.get(rsz + j));
 						if(!used.contains(line)){
 							return line;
 						}
 					}
 					
 					if(rsz - j >= 0){
-						line = Line.orientedLine(left.get(lsz + i), right.get(rsz - j));
+						line = orientedLine(left.get(lsz + i), right.get(rsz - j));
 						if(!used.contains(line)){
 							return line;
 						}
@@ -461,14 +459,14 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			if(lsz - i >= 0){
 				for(int j = 0; j <= maxDistance; j++){
 					if(rsz + j < right.size()){
-						line = Line.orientedLine(left.get(lsz - i), right.get(rsz + j));
+						line = orientedLine(left.get(lsz - i), right.get(rsz + j));
 						if(!used.contains(line)){
 							return line;
 						}
 					}
 					
 					if(rsz - j >= 0){
-						line = Line.orientedLine(left.get(lsz - i), right.get(rsz - j));
+						line = orientedLine(left.get(lsz - i), right.get(rsz - j));
 						if(!used.contains(line)){
 							return line;
 						}
@@ -508,6 +506,22 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	}
 	
 	/**
+	 * Create an oriented line segment given two points.
+	 * The orientation is from left-bottom to right-top.
+	 * @param p1 The first point.
+	 * @param p2 The second point.
+	 * @return An oriented line segment where the first point
+	 * 		   is the leftmost-lower point, and the second
+	 * 		   point is the rightmost-upper point.
+	 */
+	public static Segment orientedLine(Point2D p1, Point2D p2){
+		Comparator<java.lang.Double> c = java.lang.Double::compare;
+		Point2D leftp = c.compare(p1.getX(), p2.getX()) == 0 ? (c.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2) : (c.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2);
+		Point2D rightp = leftp.equals(p1) ? p2 : p1;
+		return new Segment(leftp, rightp);
+	}
+	
+	/**
 	 * Class holding data about a single conjugate line.
 	 * @author Roan
 	 */
@@ -528,110 +542,5 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		 * null if the left point set was empty.
 		 */
 		private Point2D rightOn;
-	}
-	
-	/**
-	 * A line instance with equality based
-	 * on its end points.
-	 * @author Roan
-	 */
-	private static class Line extends Line2D{
-		/**
-		 * First end point of the line.
-		 */
-		private Point2D p1;
-		/**
-		 * Second end point of the line.
-		 */
-		private Point2D p2;
-
-		/**
-		 * Constructs a new line with the given
-		 * end points. Any line with the exact
-		 * same objects as end points is considered
-		 * equal to this line.
-		 * @param p1 The first end point of the line.
-		 * @param p2 The second end point of the line.
-		 */
-		public Line(Point2D p1, Point2D p2){
-			this.p1 = p1;
-			this.p2 = p2;
-		}
-
-		@Override
-		public Rectangle2D getBounds2D(){
-			return new Rectangle2D.Double(
-				Math.min(p1.getX(), p2.getX()),
-				Math.min(p1.getY(), p2.getY()),
-				Math.abs(p1.getX() - p2.getX()),
-				Math.abs(p1.getY() - p2.getY())
-			);
-		}
-
-		@Override
-		public double getX1(){
-			return p1.getX();
-		}
-
-		@Override
-		public double getY1(){
-			return p1.getY();
-		}
-
-		@Override
-		public Point2D getP1(){
-			return p1;
-		}
-
-		@Override
-		public double getX2(){
-			return p2.getX();
-		}
-
-		@Override
-		public double getY2(){
-			return p2.getY();
-		}
-
-		@Override
-		public Point2D getP2(){
-			return p2;
-		}
-
-		@Override
-		public void setLine(double x1, double y1, double x2, double y2){
-			throw new IllegalStateException("Unsupported operation");
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(p1, p2);
-		}
-
-		@Override
-		public boolean equals(Object other){
-			if(other instanceof Line){
-				Line line = (Line)other;
-				return (line.p1 == p1 && line.p2 == p2) || (line.p1 == p2 && line.p2 == p1);
-			}else{
-				return false;
-			}
-		}
-		
-		/**
-		 * Create an oriented line segment given two points.
-		 * The orientation is from left-bottom to right-top.
-		 * @param p1 The first point.
-		 * @param p2 The second point.
-		 * @return An oriented line segment where the first point
-		 * 		   is the leftmost-lower point, and the second
-		 * 		   point is the rightmost-upper point.
-		 */
-		public static Line orientedLine(Point2D p1, Point2D p2){
-			Comparator<java.lang.Double> c = java.lang.Double::compare;
-			Point2D leftp = c.compare(p1.getX(), p2.getX()) == 0 ? (c.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2) : (c.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2);
-			Point2D rightp = leftp.equals(p1) ? p2 : p1;
-			return new Line(leftp, rightp);
-		}
 	}
 }
