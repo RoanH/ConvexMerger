@@ -348,18 +348,11 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @return The computed conjugate line and its supporting points.
 	 */
 	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
-		ConjugateData data = new ConjugateData();
-		
 		//Handle empty leaf cells.
-		if(left.isEmpty() || right.isEmpty()){
-			if(left.isEmpty()){
-				data.rightOn = right.get(0);
-				data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
-			}else{
-				data.leftOn = left.get(0);
-				data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
-			}
-			return data;
+		if(left.isEmpty()){
+			return new ConjugateData(null, right.get(0), new Line2D.Double(parent.on.get(0), right.get(0)));
+		}else if(right.isEmpty()){
+			return new ConjugateData(left.get(0), null, new Line2D.Double(parent.on.get(0), left.get(0)));
 		}
 		
 		Comparator<Point2D> c = segmentProjectionComparator(parent.bisector);
@@ -387,10 +380,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			//If lp and rp are median points of the left and right lists respectively, a conjugate of the bisector passes through them.
 			if((left.get(lsz) == lp || (lsz % 2 == 0 && left.get(lsz / 2 + 1) == lp))){
 				if(right.get(rsz) == rp || (rsz % 2 == 0 && right.get(rsz % 2 + 1) == rp)){
-					data.leftOn = lp;
-					data.rightOn = rp;
-					data.conjugate = new Line2D.Double(lp, rp);
-					return data;
+					return new ConjugateData(lp, rp, new Line2D.Double(lp, rp));
 				}else{
 					rp = right.get(rsz);
 				}
@@ -539,5 +529,17 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		 * null if the left point set was empty.
 		 */
 		private Point2D rightOn;
+		
+		/**
+		 * Constructs a new conjugate line data object.
+		 * @param left The point from the left point set.
+		 * @param right The point from the right point set.
+		 * @param conj The conjugate line.
+		 */
+		private ConjugateData(Point2D left, Point2D right, Line2D conj){
+			leftOn = left;
+			rightOn = right;
+			conjugate = conj;
+		}
 	}
 }
