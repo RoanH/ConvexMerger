@@ -419,9 +419,9 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param fallback The original segment to return in case no segment is found.
 	 * @param maxDistance The maximum distance in the list to travel.
 	 * @return The list-wise closest segment. The distance is minimized
-	 * 		   first on <code>left</code> list, then on the <code>right</code> list.
-	 * 		   If no unused line is found after reaching maxDistance, the segment between
-	 * 		   the median points of the two sorted point lists is returned.
+	 *         first on <code>left</code> list, then on the <code>right</code> list.
+	 *         If no unused line is found after reaching maxDistance, the segment between
+	 *         the median points of the two sorted point lists is returned.
 	 */
 	private static final Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback, int maxDistance){
 		int lsz = left.size() / 2;
@@ -475,7 +475,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * as angles <code> &gt; PI rad</code> are considered as negative.
 	 * @param vector The fixed "base" vector, represented as a line.
 	 * @return A comparator that sorts points based on their angle
-	 * to the base vector.
+	 *         to the base vector.
 	 */
 	private static final Comparator<Point2D> angularComparator(Line2D vector){
 		Point2D leftp = vector.getP1();
@@ -499,8 +499,8 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param p1 The first point.
 	 * @param p2 The second point.
 	 * @return An oriented line segment where the first point
-	 * 		   is the leftmost-lower point, and the second
-	 * 		   point is the rightmost-upper point.
+	 *         is the leftmost-lower point, and the second
+	 *         point is the rightmost-upper point.
 	 */
 	private static final Segment orientedLine(Point2D p1, Point2D p2){
 		Comparator<java.lang.Double> c = java.lang.Double::compare;
