@@ -40,6 +40,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * Implementation of a conjugation tree inspired by the
  * description in a paper by Herbert Edelsbrunner and Emo Welzl.
  * @author Roan
+ * @author Emu
  * @param <T> The metadata storage type.
  * @see <a href="https://doi.org/10.1016/0020-0190(86)90088-8">Edelsbrunner, Herbert and Welzl, Emo, 
  *      "Halfplanar range search in linear space and O(n^0.695) query time", in Information Processing
