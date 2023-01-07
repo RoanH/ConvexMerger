@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -426,7 +427,7 @@ public class InfoMenu extends Screen{
 	}
 	
 	static{
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt")))){
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("assets/text/rules.txt"), StandardCharsets.UTF_8))){
 			String line;
 			while((line = reader.readLine()) != null){
 				rules.add(Arrays.asList(line.split(" ")));

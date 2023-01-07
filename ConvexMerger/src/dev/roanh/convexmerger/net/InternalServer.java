@@ -49,7 +49,7 @@ import dev.roanh.convexmerger.player.RemotePlayer;
  * Server responsible for hosting multiplayer games.
  * @author Roan
  */
-public class InternalServer implements GameStateListener{
+public final class InternalServer implements GameStateListener{
 	/**
 	 * Thread executing the main server logic.
 	 */
@@ -251,7 +251,7 @@ public class InternalServer implements GameStateListener{
 						con.sendPacket(new PacketPlayerJoinReject(RejectReason.FULL));
 					}
 				}
-			}catch(Exception e){
+			}catch(Throwable t){
 				try{
 					socket.close();
 				}catch(IOException e1){
@@ -267,7 +267,7 @@ public class InternalServer implements GameStateListener{
 				server = new ServerSocket(Constants.PORT);
 				while(running){
 					final Socket s = server.accept();
-					executor.submit(()->handleClient(s));
+					executor.execute(()->handleClient(s));
 				}
 			}catch(IOException e){
 				if(running){

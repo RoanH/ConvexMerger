@@ -146,7 +146,7 @@ public class JoinMenu extends Screen{
 		self = new HumanPlayer(name.getText());
 		connecting = true;
 		msg = "Connecting...";
-		executor.submit(()->{
+		executor.execute(()->{
 			try{
 				con = ClientConnection.connect(host.getText(), self);
 				if(con.isConnected()){

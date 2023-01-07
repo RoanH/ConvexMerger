@@ -24,10 +24,12 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
 
 import javax.swing.event.ChangeListener;
 
@@ -169,13 +171,13 @@ public class TextField{
 				try{
 					text += Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
 					changeListener.onTextChange(text);
-				}catch(Exception ignore){
+				}catch(IllegalStateException | UnsupportedFlavorException | IOException ignore){
 					//copy paste just fails
 				}
 			}else if(event.isControlDown() && event.getKeyCode() == KeyEvent.VK_C){
 				try{
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
-				}catch(Exception ignore){
+				}catch(IllegalStateException ignore){
 					//copy paste just fails
 				}
 			}else if(!event.isControlDown() && !event.isAltDown() && event.getKeyChar() != KeyEvent.CHAR_UNDEFINED){

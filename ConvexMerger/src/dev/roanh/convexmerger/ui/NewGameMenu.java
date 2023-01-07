@@ -347,7 +347,7 @@ public class NewGameMenu extends Screen implements GeneratorProgressListener, Te
 				p1.name.handleKeyEvent(event);
 			}else if(p2.name != null){
 				p2.name.handleKeyEvent(event);
-			}else if(p2.name != null){
+			}else if(p3.name != null){
 				p3.name.handleKeyEvent(event);
 			}else if(p4.name != null){
 				p4.name.handleKeyEvent(event);

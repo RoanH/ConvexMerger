@@ -271,10 +271,10 @@ public class ResultOverlay{
 				g.drawImage(
 					Theme.CROWN_ICON_LARGE,
 					(int)(offset + (BAR_WIDTH - fm.stringWidth(str) - CROWN_GAP - Theme.CROWN_ICON_LARGE_SIZE) / 2.0F),
-					(int)(y - (Theme.CROWN_ICON_LARGE_SIZE - (fm.getAscent() - fm.getDescent() - fm.getLeading())) / 2 - (fm.getAscent() - fm.getDescent() - fm.getLeading()) - 1),
+					(int)(y - (Theme.CROWN_ICON_LARGE_SIZE - (fm.getAscent() - fm.getDescent() - fm.getLeading())) / 2.0F - (fm.getAscent() - fm.getDescent() - fm.getLeading()) - 1.0F),
 					null
 				);
-				offset += (CROWN_GAP + Theme.CROWN_ICON_LARGE_SIZE) / 2;
+				offset += (CROWN_GAP + Theme.CROWN_ICON_LARGE_SIZE) / 2.0F;
 			}
 			g.drawString(str, offset + (BAR_WIDTH - fm.stringWidth(str)) / 2.0F, y);
 		}

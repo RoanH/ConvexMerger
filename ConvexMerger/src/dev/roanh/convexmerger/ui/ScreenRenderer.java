@@ -49,11 +49,11 @@ public class ScreenRenderer extends JPanel implements MouseListener, MouseMotion
 	/**
 	 * Executor service used to run animations.
 	 */
-	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(this);
+	private final transient ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(this);
 	/**
 	 * The active screen to render.
 	 */
-	private Screen screen;
+	private transient Screen screen;
 	/**
 	 * Whether to render the FPS counter.
 	 */

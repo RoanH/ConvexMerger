@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+  <!-- https://spotbugs.readthedocs.io/en/stable/filter.html -->
+  
+  <Match>
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </Or>
+  </Match>
+  
+  <Match>
+    <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    <Class name="dev.roanh.convexmerger.player.HumanPlayer"/>
+  </Match>
+  
+  <Match>
+    <Bug pattern="DE_MIGHT_IGNORE"/>
+    <Class name="dev.roanh.convexmerger.ui.TextField"/>
+    <Method name="handleKeyEvent"/>
+  </Match>
+  
+  <Match>
+    <Bug pattern="SE_BAD_FIELD"/>
+    <Class name="dev.roanh.convexmerger.game.ConvexObject"/>
+    <Field name="points"/>
+  </Match>
+  
+  <Match>
+    <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    <Or>
+      <Class name="dev.roanh.convexmerger.game.SegmentPartitionTree$LineSegment"/>
+      <Class name="dev.roanh.convexmerger.game.VerticalDecomposition$Line"/>
+    </Or>
+  </Match>
+  
+  <Match>
+    <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
+    <Class name="dev.roanh.convexmerger.animation.ExampleAnimation"/>
+    <Method name="render"/>
+  </Match>
+  
+  <Match>
+    <!-- Enforced from another class, if violated in the future the NPE will immediately signal this while a null check would hide it -->
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    <Class name="dev.roanh.convexmerger.player.HumanPlayer"/>
+    <Method name="executeMove"/>
+    <Field name="game"/>
+  </Match>
+  
+  <Match>
+    <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    <Or>
+      <Class name="dev.roanh.convexmerger.game.VerticalDecomposition$DecompVertex"/>
+      <Class name="dev.roanh.convexmerger.game.VerticalDecomposition$Trapezoid"/>
+      <Class name="dev.roanh.convexmerger.ui.NewGameMenu"/>
+      <Class name="dev.roanh.convexmerger.ui.ScreenRenderer"/>
+    </Or>
+  </Match>
+  
+  <Match>
+    <Bug pattern="NO_NOTIFY_NOT_NOTIFYALL"/>
+    <Class name="dev.roanh.convexmerger.player.HumanPlayer"/>
+    <Method name="handleClaim"/>
+  </Match>
+  
+</FindBugsFilter>

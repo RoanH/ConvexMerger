@@ -82,12 +82,13 @@ public class ExampleAnimation extends Animation{
 	@Override
 	protected boolean render(Graphics2D g){
 		switch(state){
+		default:
 		case 0:
 			first.setOwner(null);
 			second.setOwner(null);
 			third.setOwner(null);
 			time = System.currentTimeMillis();
-			state++;
+			state = 1;
 			//$FALL-THROUGH$
 		case 1:
 			first.render(g);

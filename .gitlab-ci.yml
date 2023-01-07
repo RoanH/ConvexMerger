@@ -22,6 +22,19 @@ endings:
   script: curl ${SERVER}ci/lf.sh | bash
   stage: check
 
+spotbugs:
+  allow_failure: true
+  script:
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :check
+    - mv ./build/reports/spotbugs/main/spotbugs.html ../spotbugs.html
+  stage: check
+  artifacts:
+    name: "SpotBugs Report"
+    expire_in: 1 week
+    when: always
+    paths:
+      - spotbugs.html
+
 pending:
   allow_failure: true
   script: curl ${SERVER}ci/pending.sh | bash

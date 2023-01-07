@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -1238,7 +1239,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 * Represents a vertex in the search structure of the decomposition.
 	 * @author Emu
 	 */
-	protected class DecompVertex{
+	protected static class DecompVertex{
 		/**
 		 * The type of the vertex.
 		 */
@@ -1975,7 +1976,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 * Contains references to segments that include it.
 	 * @author Emu
 	 */
-	protected class DecompositionPoint extends Point2D{
+	protected static class DecompositionPoint extends Point2D{
 		/**
 		 * The point of this structure.
 		 */
@@ -2008,6 +2009,11 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		@Override
 		public boolean equals(Object other){
 			return other instanceof DecompositionPoint ? ((DecompositionPoint)other).getPoint() == point : false;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(point);
 		}
 		
 		/**

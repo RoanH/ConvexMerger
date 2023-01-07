@@ -739,19 +739,19 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		private Point2D boundClip(Point2D tl, Point2D tr, Point2D bl, Point2D br, int out){
 			Point2D p = null;
 			
-			if((out & Rectangle2D.OUT_BOTTOM) > 0){
+			if((out & Rectangle2D.OUT_BOTTOM) != 0){
 				p = ConvexUtil.interceptClosed(tl, tr, p1, p2);
 			}
 			
-			if(p == null && (out & Rectangle2D.OUT_TOP) > 0){
+			if(p == null && (out & Rectangle2D.OUT_TOP) != 0){
 				p = ConvexUtil.interceptClosed(bl, br, p1, p2);
 			}
 			
-			if(p == null && (out & Rectangle2D.OUT_LEFT) > 0){
+			if(p == null && (out & Rectangle2D.OUT_LEFT) != 0){
 				p = ConvexUtil.interceptClosed(tl, bl, p1, p2);
 			}
 			
-			if(p == null && (out & Rectangle2D.OUT_RIGHT) > 0){
+			if(p == null && (out & Rectangle2D.OUT_RIGHT) != 0){
 				p = ConvexUtil.interceptClosed(tr, br, p1, p2);
 			}
 			

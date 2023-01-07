@@ -367,7 +367,7 @@ public class ConvexUtil{
 			second.get(0).getX(),
 			second.get(0).getY()
 		);
-		int nccw = ccw;
+		int nccw;
 		int lidx = 0;
 		int ridx = 0;
 
