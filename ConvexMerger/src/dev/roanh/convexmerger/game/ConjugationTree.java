@@ -489,19 +489,16 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private static Comparator<Point2D> angularComparator(Line2D vector){
 		Point2D leftp = vector.getP1();
 		Point2D rightp = vector.getP2();
-		return new Comparator<Point2D>(){
-			@Override
-			public int compare(Point2D p1, Point2D p2){
-				Point2D base = new Point2D.Double(rightp.getX() - leftp.getX(), rightp.getY() - leftp.getY());
-				Point2D v1 = new Point2D.Double(p1.getX() - leftp.getX(), p1.getY() - leftp.getY());
-				Point2D v2 = new Point2D.Double(p2.getX() - leftp.getX(), p2.getY() - leftp.getY());
-				int ccw1 = vector.relativeCCW(p1);
-				int ccw2 = vector.relativeCCW(p2);
-				double a1 = (ccw1 == 0 ? 1 : ccw1) * Math.acos((v1.getX()) * (base.getX()) + (v1.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
-				double a2 = (ccw2 == 0 ? 1 : ccw2) * Math.acos((v2.getX()) * (base.getX()) + (v2.getY()) * (base.getY()) / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v2.getX() * v2.getX() + v2.getY() * v2.getY())));
-				
-				return Double.compare(a1, a2);
-			}
+		return (p1, p2)->{
+			Point2D base = new Point2D.Double(rightp.getX() - leftp.getX(), rightp.getY() - leftp.getY());
+			Point2D v1 = new Point2D.Double(p1.getX() - leftp.getX(), p1.getY() - leftp.getY());
+			Point2D v2 = new Point2D.Double(p2.getX() - leftp.getX(), p2.getY() - leftp.getY());
+			int ccw1 = vector.relativeCCW(p1) >= 0 ? 1 : -1;
+			int ccw2 = vector.relativeCCW(p2) >= 0 ? 1 : -1;
+			double a1 = ccw1 * Math.acos(v1.getX() * base.getX() + v1.getY() * base.getY() / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
+			double a2 = ccw2 * Math.acos(v2.getX() * base.getX() + v2.getY() * base.getY() / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v2.getX() * v2.getX() + v2.getY() * v2.getY())));
+
+			return Double.compare(a1, a2);
 		};
 	}
 	
