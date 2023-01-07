@@ -421,17 +421,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 		};
 	}
-	/**
-	 * 
-	 * @param left The first sorted point list.
-	 * @param right The second sorted point list.
-	 * @param used The set of used lines.
-	 * @param maxDistance The maximum distance in the list to travel.
-	 * @return The list-wise closest segment. The distance is minimized
-	 * 		   first on <code>left</code> list, then on the <code>right</code> list.
-	 * 		   If no unused line is found after reaching maxDistance, the segment between
-	 * 		   the median points of the two sorted point lists is returned.
-	 */
+
 	/**
 	 * Searches for lines that are not marked as used and similar to the segment
 	 * between the median points of two sorted point lists.
@@ -458,6 +448,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 							return line;
 						}
 					}
+					
 					if(rsz - j >= 0){
 						line = Line.orientedLine(left.get(lsz + i), right.get(rsz - j));
 						if(!used.contains(line)){
@@ -467,7 +458,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				}
 			}
 			
-			if(lsz - i >= 0){				
+			if(lsz - i >= 0){
 				for(int j = 0; j <= maxDistance; j++){
 					if(rsz + j < right.size()){
 						line = Line.orientedLine(left.get(lsz - i), right.get(rsz + j));
@@ -475,6 +466,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 							return line;
 						}
 					}
+					
 					if(rsz - j >= 0){
 						line = Line.orientedLine(left.get(lsz - i), right.get(rsz - j));
 						if(!used.contains(line)){
