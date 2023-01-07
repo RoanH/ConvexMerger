@@ -424,8 +424,10 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				rp = right.get(rsz);
 			}
 			
+			line = Line.orientedLine(lp, rp);
 			used.add(line);
-			c = angularComparator(new Line2D.Double(lp, rp));
+			c = angularComparator(line);
+			
 			Collections.sort(left, c);
 			Collections.sort(right, c);
 			
