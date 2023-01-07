@@ -92,6 +92,6 @@ public class Segment extends Line2D{
 	
 	@Override
 	public String toString(){
-		return "LineSegment[p1=(" + p1.getX() + "," + p1.getY() + "),p2=(" + p2.getX() + "," + p2.getY() + ")]";
+		return "Segment[p1=(" + p1.getX() + "," + p1.getY() + "),p2=(" + p2.getX() + "," + p2.getY() + ")]";
 	}
 }
