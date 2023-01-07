@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.ui.Theme;
@@ -38,6 +40,7 @@ import dev.roanh.convexmerger.ui.Theme;
  * Implementation of a conjugation tree inspired by the
  * description in a paper by Herbert Edelsbrunner and Emo Welzl.
  * @author Roan
+ * @author Emu
  * @param <T> The metadata storage type.
  * @see <a href="https://doi.org/10.1016/0020-0190(86)90088-8">Edelsbrunner, Herbert and Welzl, Emo, 
  *      "Halfplanar range search in linear space and O(n^0.695) query time", in Information Processing
@@ -345,51 +348,165 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param parent The parent conjugation tree node.
 	 * @return The computed conjugate line and its supporting points.
 	 */
-	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
-		//TODO this is a naive temporary solution, @emu have fun
+	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
+		//Handle empty leaf cells.
+		if(left.isEmpty()){
+			return new ConjugateData(null, right.get(0), new Line2D.Double(parent.on.get(0), right.get(0)));
+		}else if(right.isEmpty()){
+			return new ConjugateData(left.get(0), null, new Line2D.Double(parent.on.get(0), left.get(0)));
+		}
 		
-		ConjugateData data = new ConjugateData();
-		for(Point2D p1 : left){
-			for(Point2D p2 : right){
-				Line2D conj = new Line2D.Double(p1, p2);
-				
-				int val = 0;
-				for(Point2D lp : left){
-					if(lp != p1){
-						val += conj.relativeCCW(lp);
+		Comparator<Point2D> c = segmentProjectionComparator(parent.bisector);
+		Collections.sort(left, c);
+		Collections.sort(right, c);
+
+		int lsz = left.size() / 2;
+		int rsz = right.size() / 2;
+		Point2D lp = left.get(lsz);
+		Point2D rp = right.get(rsz);
+		
+		Set<Segment> used = new HashSet<Segment>();
+		do{
+			Segment line = orientedLine(lp, rp);
+			//Search for candidate conjugate lines similar to the current candidate.
+			if(used.contains(line)){
+				line = findUnusedSegment(left, right, used, line, 10);
+			}
+			used.add(line);
+			c = angularComparator(line);
+			
+			Collections.sort(left, c);
+			Collections.sort(right, c);
+			
+			//If lp and rp are median points of the left and right lists respectively, a conjugate of the bisector passes through them.
+			if((left.get(lsz) == lp || (lsz % 2 == 0 && left.get(lsz / 2 + 1) == lp))){
+				if(right.get(rsz) == rp || (rsz % 2 == 0 && right.get(rsz % 2 + 1) == rp)){
+					return new ConjugateData(lp, rp, new Line2D.Double(lp, rp));
+				}else{
+					rp = right.get(rsz);
+				}
+			}else{
+				lp = left.get(lsz);
+			}
+		}while(true);
+	}
+	
+	/**
+	 * Sorts the points on the order of their projections onto a segment, 
+	 * from the direction of its first point to the direction of its second point.
+	 * @param segment The segment on which to project
+	 * @return A comparator that orders points on their projection along a segment.
+	 */
+	private static final Comparator<Point2D> segmentProjectionComparator(Line2D segment){
+		double cx = (segment.getX1() + segment.getX2()) / 2.0D;
+		double cy = (segment.getY1() + segment.getY2()) / 2.0D;
+
+		//The segment rotated by 90 degrees around its centre point.
+		Line2D rotated = new Line2D.Double(
+			new Point2D.Double(segment.getY1() - cy + cx, -segment.getX1() - cx + cy), 
+			new Point2D.Double(segment.getY2() - cy + cx, -segment.getX2() - cx + cy)
+		);
+		
+		return (p1, p2)->Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
+	}
+
+	/**
+	 * Searches for lines that are not marked as used and similar to the segment
+	 * between the median points of two sorted point lists.
+	 * @param left The first sorted point list.
+	 * @param right The second sorted point list.
+	 * @param used The set of used lines.
+	 * @param fallback The original segment to return in case no segment is found.
+	 * @param maxDistance The maximum distance in the list to travel.
+	 * @return The list-wise closest segment. The distance is minimized
+	 *         first on <code>left</code> list, then on the <code>right</code> list.
+	 *         If no unused line is found after reaching maxDistance, the segment between
+	 *         the median points of the two sorted point lists is returned.
+	 */
+	private static final Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback, int maxDistance){
+		int lsz = left.size() / 2;
+		int rsz = right.size() / 2;
+		Segment line;
+		for(int i = 0; i <= maxDistance; i++){
+			if(lsz + i < left.size()){
+				for(int j = 0; j <= maxDistance; j++){
+					if(rsz + j < right.size()){
+						line = orientedLine(left.get(lsz + i), right.get(rsz + j));
+						if(!used.contains(line)){
+							return line;
+						}
+					}
+					
+					if(rsz - j >= 0){
+						line = orientedLine(left.get(lsz + i), right.get(rsz - j));
+						if(!used.contains(line)){
+							return line;
+						}
 					}
 				}
-				
-				if(Math.abs(val) > 1){
-					continue;
-				}
-				
-				val = 0;
-				for(Point2D rp : right){
-					if(p2 != rp){
-						val += conj.relativeCCW(rp);
+			}
+			
+			if(lsz - i >= 0){
+				for(int j = 0; j <= maxDistance; j++){
+					if(rsz + j < right.size()){
+						line = orientedLine(left.get(lsz - i), right.get(rsz + j));
+						if(!used.contains(line)){
+							return line;
+						}
 					}
-				}
-				
-				if(Math.abs(val) <= 1){
-					data.conjugate = conj;
-					data.leftOn = p1;
-					data.rightOn = p2;
-					return data;
+					
+					if(rsz - j >= 0){
+						line = orientedLine(left.get(lsz - i), right.get(rsz - j));
+						if(!used.contains(line)){
+							return line;
+						}
+					}
 				}
 			}
 		}
 		
-		//handle empty leaf cells
-		if(left.isEmpty()){
-			data.rightOn = right.get(0);
-			data.conjugate = new Line2D.Double(parent.on.get(0), right.get(0));
-		}else{
-			data.leftOn = left.get(0);
-			data.conjugate = new Line2D.Double(parent.on.get(0), left.get(0));
-		}
+		return fallback;
+	}
+	
+	/**
+	 * A comparator that compares points based on their angle to a
+	 * fixed point, relative to the angle of a fixed "base" vector.
+	 * The orientation of the points relative to the vector matters,
+	 * as angles <code> &gt; PI rad</code> are considered as negative.
+	 * @param vector The fixed "base" vector, represented as a line.
+	 * @return A comparator that sorts points based on their angle
+	 *         to the base vector.
+	 */
+	private static final Comparator<Point2D> angularComparator(Line2D vector){
+		Point2D leftp = vector.getP1();
+		Point2D rightp = vector.getP2();
+		return (p1, p2)->{
+			Point2D base = new Point2D.Double(rightp.getX() - leftp.getX(), rightp.getY() - leftp.getY());
+			Point2D v1 = new Point2D.Double(p1.getX() - leftp.getX(), p1.getY() - leftp.getY());
+			Point2D v2 = new Point2D.Double(p2.getX() - leftp.getX(), p2.getY() - leftp.getY());
+			int ccw1 = vector.relativeCCW(p1) >= 0 ? 1 : -1;
+			int ccw2 = vector.relativeCCW(p2) >= 0 ? 1 : -1;
+			double a1 = ccw1 * Math.acos(v1.getX() * base.getX() + v1.getY() * base.getY() / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
+			double a2 = ccw2 * Math.acos(v2.getX() * base.getX() + v2.getY() * base.getY() / (Math.sqrt(base.getX() * base.getX() + base.getY() * base.getY()) * Math.sqrt(v2.getX() * v2.getX() + v2.getY() * v2.getY())));
 
-		return data;
+			return Double.compare(a1, a2);
+		};
+	}
+	
+	/**
+	 * Create an oriented line segment given two points.
+	 * The orientation is from left-bottom to right-top.
+	 * @param p1 The first point.
+	 * @param p2 The second point.
+	 * @return An oriented line segment where the first point
+	 *         is the leftmost-lower point, and the second
+	 *         point is the rightmost-upper point.
+	 */
+	private static final Segment orientedLine(Point2D p1, Point2D p2){
+		Comparator<java.lang.Double> c = java.lang.Double::compare;
+		Point2D leftp = c.compare(p1.getX(), p2.getX()) == 0 ? (c.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2) : (c.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2);
+		Point2D rightp = leftp.equals(p1) ? p2 : p1;
+		return new Segment(leftp, rightp);
 	}
 	
 	/**
@@ -413,5 +530,17 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		 * null if the left point set was empty.
 		 */
 		private Point2D rightOn;
+		
+		/**
+		 * Constructs a new conjugate line data object.
+		 * @param left The point from the left point set.
+		 * @param right The point from the right point set.
+		 * @param conj The conjugate line.
+		 */
+		private ConjugateData(Point2D left, Point2D right, Line2D conj){
+			leftOn = left;
+			rightOn = right;
+			conjugate = conj;
+		}
 	}
 }

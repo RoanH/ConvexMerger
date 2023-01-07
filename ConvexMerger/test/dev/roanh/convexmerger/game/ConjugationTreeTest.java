@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import dev.roanh.convexmerger.Constants;
 
 public class ConjugationTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(
@@ -49,7 +52,7 @@ public class ConjugationTreeTest{
 	
 	@Test
 	public void constructionPoints(){
-		ConjugationTree<Void> tree = new ConjugationTree<>(testPoints);
+		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
 		
 		List<ConjugationTree<Void>> leaves = tree.streamLeafCells().collect(Collectors.toList());
 		assertEquals(16, leaves.size());
@@ -88,5 +91,36 @@ public class ConjugationTreeTest{
 				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
 			}
 		});
+	}
+	
+	@Test
+	@Timeout(1)
+	public void colinTest(){
+		SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(Arrays.asList(
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(0.0D, 0.0D),
+				new Point2D.Double(0.0D, 10.0D),
+				new Point2D.Double(10.0D, 10.0D),
+				new Point2D.Double(10.0D, 0.0D)
+			))),
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, Constants.PLAYFIELD_HEIGHT)
+			))),
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, 0.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH, 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, 10.0D),
+				new Point2D.Double(Constants.PLAYFIELD_WIDTH - 10.0D, 0.0D)
+			))),
+			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
+				new Point2D.Double(0.0D, Constants.PLAYFIELD_HEIGHT),
+				new Point2D.Double(0.0D, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(10.0D, Constants.PLAYFIELD_HEIGHT - 10.0D),
+				new Point2D.Double(10.0D, Constants.PLAYFIELD_HEIGHT)
+			)))
+		));
 	}
 }

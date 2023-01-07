@@ -639,15 +639,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 	 * Represents a line segment between two end points.
 	 * @author Roan
 	 */
-	public static final class LineSegment extends Line2D{
-		/**
-		 * First end point of the line.
-		 */
-		private Point2D p1;
-		/**
-		 * Second end point of the line.
-		 */
-		private Point2D p2;
+	public static final class LineSegment extends Segment{
 		/**
 		 * The line segment this line segment was derived
 		 * from or null if this line segment was not derived.
@@ -684,8 +676,7 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 * @param p2 The second end point of the line.
 		 */
 		public LineSegment(Point2D p1, Point2D p2){
-			this.p1 = p1;
-			this.p2 = p2;
+			super(p1, p2);
 		}
 		
 		/**
@@ -814,57 +805,6 @@ public class SegmentPartitionTree<T extends PartitionTree<SegmentPartitionTree.L
 		 */
 		private LineSegment getOriginalSegment(){
 			return original == null ? this : original;
-		}
-
-		@Override
-		public Rectangle2D getBounds2D(){
-			return new Rectangle2D.Double(
-				Math.min(p1.getX(), p2.getX()),
-				Math.min(p1.getY(), p2.getY()),
-				Math.abs(p1.getX() - p2.getX()),
-				Math.abs(p1.getY() - p2.getY())
-			);
-		}
-
-		@Override
-		public double getX1(){
-			return p1.getX();
-		}
-
-		@Override
-		public double getY1(){
-			return p1.getY();
-		}
-
-		@Override
-		public Point2D getP1(){
-			return p1;
-		}
-
-		@Override
-		public double getX2(){
-			return p2.getX();
-		}
-
-		@Override
-		public double getY2(){
-			return p2.getY();
-		}
-
-		@Override
-		public Point2D getP2(){
-			return p2;
-		}
-
-		@Override
-		public void setLine(double x1, double y1, double x2, double y2){
-			p1 = new Point2D.Double(x1, y1);
-			p2 = new Point2D.Double(x2, y2);
-		}
-		
-		@Override
-		public String toString(){
-			return "Segment[p1=(" + p1.getX() + "," + p1.getY() + "),p2=(" + p2.getX() + "," + p2.getY() + ")]";
 		}
 	}
 }
