@@ -1,4 +1,4 @@
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -19,8 +19,11 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.convexmerger.Constants;
-import dev.roanh.convexmerger.game.VerticalDecomposition.Line;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
 import dev.roanh.convexmerger.player.GreedyPlayer;
+import dev.roanh.convexmerger.util.VerticalDecomposition.Line;
 
 public class VerticalDecompTest{
 	

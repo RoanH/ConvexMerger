@@ -27,8 +27,8 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.ConvexUtil;
 import dev.roanh.convexmerger.ui.Theme;
+import dev.roanh.convexmerger.util.ConvexUtil;
 
 /**
  * Animation that plays when two objects are merged

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,8 +29,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
-import dev.roanh.convexmerger.game.SegmentPartitionTree.SegmentPartitionTreeConstructor;
+import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.util.SegmentPartitionTree.LineSegment;
+import dev.roanh.convexmerger.util.SegmentPartitionTree.SegmentPartitionTreeConstructor;
 
 public class SegmentPartitionTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(

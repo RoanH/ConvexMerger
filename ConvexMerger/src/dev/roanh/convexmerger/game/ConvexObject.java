@@ -27,9 +27,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
+import dev.roanh.convexmerger.animation.RenderableObject;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.Theme;
+import dev.roanh.convexmerger.util.ConjugationTree;
+import dev.roanh.convexmerger.util.ConvexUtil;
+import dev.roanh.convexmerger.util.KDTree;
+import dev.roanh.convexmerger.util.SegmentPartitionTree;
+import dev.roanh.convexmerger.util.SegmentPartitionTree.LineSegment;
 
 /**
  * Defines a convex object shown in the game

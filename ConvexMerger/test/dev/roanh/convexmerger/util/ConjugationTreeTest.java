@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.game.ConvexObject;
 
 public class ConjugationTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(

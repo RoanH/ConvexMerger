@@ -22,15 +22,15 @@
   
   <Match>
     <Bug pattern="SE_BAD_FIELD"/>
-    <Class name="dev.roanh.convexmerger.game.ConvexObject"/>
+    <Class name="dev.roanh.convexmerger.util.ConvexObject"/>
     <Field name="points"/>
   </Match>
   
   <Match>
     <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
     <Or>
-      <Class name="dev.roanh.convexmerger.game.SegmentPartitionTree$LineSegment"/>
-      <Class name="dev.roanh.convexmerger.game.VerticalDecomposition$Line"/>
+      <Class name="dev.roanh.convexmerger.util.SegmentPartitionTree$LineSegment"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$Line"/>
     </Or>
   </Match>
   
@@ -51,8 +51,8 @@
   <Match>
     <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
     <Or>
-      <Class name="dev.roanh.convexmerger.game.VerticalDecomposition$DecompVertex"/>
-      <Class name="dev.roanh.convexmerger.game.VerticalDecomposition$Trapezoid"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$DecompVertex"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$Trapezoid"/>
       <Class name="dev.roanh.convexmerger.ui.NewGameMenu"/>
       <Class name="dev.roanh.convexmerger.ui.ScreenRenderer"/>
     </Or>

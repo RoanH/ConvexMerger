@@ -16,11 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.animation;
 
 import java.awt.Graphics2D;
-
-import dev.roanh.convexmerger.animation.Animation;
 
 /**
  * Represents an object that can be rendered and animated.

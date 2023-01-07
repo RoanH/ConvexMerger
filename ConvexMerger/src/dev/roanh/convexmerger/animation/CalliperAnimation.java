@@ -26,8 +26,8 @@ import java.util.List;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
-import dev.roanh.convexmerger.game.ConvexUtil;
 import dev.roanh.convexmerger.ui.Theme;
+import dev.roanh.convexmerger.util.ConvexUtil;
 
 /**
  * Animation to visualise the callipers used

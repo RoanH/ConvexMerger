@@ -41,11 +41,11 @@ import dev.roanh.convexmerger.animation.CalliperAnimation;
 import dev.roanh.convexmerger.animation.ProxyAnimation;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
-import dev.roanh.convexmerger.game.SegmentPartitionTree;
-import dev.roanh.convexmerger.game.GameState.GameStateListener;
-import dev.roanh.convexmerger.game.VerticalDecomposition;
+import dev.roanh.convexmerger.game.GameStateListener;
 import dev.roanh.convexmerger.player.HumanPlayer;
 import dev.roanh.convexmerger.player.Player;
+import dev.roanh.convexmerger.util.SegmentPartitionTree;
+import dev.roanh.convexmerger.util.VerticalDecomposition;
 
 /**
  * Main panel responsible for rendering the current game state.

@@ -28,10 +28,15 @@ import java.util.stream.Stream;
 import dev.roanh.convexmerger.animation.Animation;
 import dev.roanh.convexmerger.animation.ClaimAnimation;
 import dev.roanh.convexmerger.animation.MergeAnimation;
-import dev.roanh.convexmerger.game.SegmentPartitionTree.LineSegment;
 import dev.roanh.convexmerger.player.Player;
 import dev.roanh.convexmerger.ui.MessageDialog;
 import dev.roanh.convexmerger.ui.Theme.PlayerTheme;
+import dev.roanh.convexmerger.util.ConjugationTree;
+import dev.roanh.convexmerger.util.ConvexUtil;
+import dev.roanh.convexmerger.util.KDTree;
+import dev.roanh.convexmerger.util.SegmentPartitionTree;
+import dev.roanh.convexmerger.util.VerticalDecomposition;
+import dev.roanh.convexmerger.util.SegmentPartitionTree.LineSegment;
 
 /**
  * Class managing the main game state, data,
@@ -504,42 +509,5 @@ public class GameState{
 	 */
 	public void abort(){
 		listeners.forEach(GameStateListener::abort);
-	}
-	
-	/**
-	 * Interface that receives game state updates.
-	 * @author Roan
-	 */
-	public static abstract interface GameStateListener{
-		
-		/**
-		 * Called when a player claims a new object.
-		 * @param player The player that made the claim.
-		 * @param obj The object that was claimed.
-		 */
-		public abstract void claim(Player player, ConvexObject obj);
-		
-		/**
-		 * Called when a player performs a merge.
-		 * @param player The player that performed the merge.
-		 * @param source The object the merge was started from.
-		 * @param target The target object of the merge.
-		 * @param result The object resulting from the merge.
-		 * @param absorbed The objects absorbed in the merge.
-		 * @throws InterruptedException When the player was
-		 *         interrupted while making its move. Signalling
-		 *         that the game was aborted.
-		 */
-		public abstract void merge(Player player, ConvexObject source, ConvexObject target, ConvexObject result, List<ConvexObject> absorbed) throws InterruptedException;
-		
-		/**
-		 * Called when the game ends.
-		 */
-		public abstract void end();
-		
-		/**
-		 * Called when the game is aborted (forcefully terminated).
-		 */
-		public abstract void abort();
 	}
 }

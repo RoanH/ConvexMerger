@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import dev.roanh.convexmerger.Constants;
+import dev.roanh.convexmerger.util.ConvexUtil;
 
 /**
  * Generator to generate a playfield of randomly placed convex objects

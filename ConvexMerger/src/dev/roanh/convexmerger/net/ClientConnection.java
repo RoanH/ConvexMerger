@@ -26,7 +26,7 @@ import java.util.List;
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.game.GameState;
-import dev.roanh.convexmerger.game.GameState.GameStateListener;
+import dev.roanh.convexmerger.game.GameStateListener;
 import dev.roanh.convexmerger.net.packet.Packet;
 import dev.roanh.convexmerger.net.packet.PacketGameEnd;
 import dev.roanh.convexmerger.net.packet.PacketGameInit;

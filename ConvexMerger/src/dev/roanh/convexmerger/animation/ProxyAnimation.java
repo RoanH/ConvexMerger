@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dev.roanh.convexmerger.game.RenderableObject;
-
 /**
  * Animation that renders the object it is initialised with.
  * @author Roan

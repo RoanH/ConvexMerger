@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.convexmerger.game;
+package dev.roanh.convexmerger.util;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -35,6 +35,8 @@ import java.util.stream.Stream;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.animation.Animation;
+import dev.roanh.convexmerger.animation.RenderableObject;
+import dev.roanh.convexmerger.game.ConvexObject;
 import dev.roanh.convexmerger.ui.Theme;
 
 /**
