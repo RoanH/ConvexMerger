@@ -376,55 +376,9 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		do{
 			Line line = Line.orientedLine(lp, rp);
 			//Search for candidate conjugate lines similar to the current candidate.
-			if_case: if(used.contains(line)){
-				for(int i = 0; i <= 10; i++){
-					if(lsz + i < left.size()){
-						lp = left.get(lsz + i);
-						
-						for(int j = 0; j <= 10; j++){
-							if(rsz + j < right.size()){
-								rp = right.get(rsz + j);
-								line = Line.orientedLine(lp, rp);
-								if(!used.contains(line)){
-									break if_case;
-								}
-							}
-							if(rsz - j >= 0){
-								rp = right.get(rsz - j);
-								line = Line.orientedLine(lp, rp);
-								if(!used.contains(line)){
-									break if_case;
-								}
-							}
-						}
-					}
-					
-					if(lsz - i >= 0){
-						lp = left.get(lsz - i);
-						
-						for(int j = 0; j <= 10; j++){
-							if(rsz + j < right.size()){
-								rp = right.get(rsz + j);
-								line = Line.orientedLine(lp, rp);
-								if(!used.contains(line)){
-									break if_case;
-								}
-							}
-							if(rsz - j >= 0){
-								rp = right.get(rsz - j);
-								line = Line.orientedLine(lp, rp);
-								if(!used.contains(line)){
-									break if_case;
-								}
-							}
-						}
-					}
-				}
-				//reset right point to original in case nothing nearby is found
-				rp = right.get(rsz);
+			if(used.contains(line)){
+				line = findUnusedSegment(left, right, used, line, 10);
 			}
-			
-			line = Line.orientedLine(lp, rp);
 			used.add(line);
 			c = angularComparator(line);
 			
@@ -466,6 +420,71 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				return Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
 			}
 		};
+	}
+	/**
+	 * 
+	 * @param left The first sorted point list.
+	 * @param right The second sorted point list.
+	 * @param used The set of used lines.
+	 * @param maxDistance The maximum distance in the list to travel.
+	 * @return The list-wise closest segment. The distance is minimized
+	 * 		   first on <code>left</code> list, then on the <code>right</code> list.
+	 * 		   If no unused line is found after reaching maxDistance, the segment between
+	 * 		   the median points of the two sorted point lists is returned.
+	 */
+	/**
+	 * Searches for lines that are not marked as used and similar to the segment
+	 * between the median points of two sorted point lists.
+	 * @param left The first sorted point list.
+	 * @param right The second sorted point list.
+	 * @param used The set of used lines.
+	 * @param fallback The original segment to return in case no segment is found.
+	 * @param maxDistance The maximum distance in the list to travel.
+	 * @return The list-wise closest segment. The distance is minimized
+	 * 		   first on <code>left</code> list, then on the <code>right</code> list.
+	 * 		   If no unused line is found after reaching maxDistance, the segment between
+	 * 		   the median points of the two sorted point lists is returned.
+	 */
+	private static Line findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Line> used, Line fallback, int maxDistance){
+		int lsz = left.size() / 2;
+		int rsz = right.size() / 2;
+		Line line;
+		for(int i = 0; i <= maxDistance; i++){
+			if(lsz + i < left.size()){
+				for(int j = 0; j <= maxDistance; j++){
+					if(rsz + j < right.size()){
+						line = Line.orientedLine(left.get(lsz + i), right.get(rsz + j));
+						if(!used.contains(line)){
+							return line;
+						}
+					}
+					if(rsz - j >= 0){
+						line = Line.orientedLine(left.get(lsz + i), right.get(rsz - j));
+						if(!used.contains(line)){
+							return line;
+						}
+					}
+				}
+			}
+			
+			if(lsz - i >= 0){				
+				for(int j = 0; j <= maxDistance; j++){
+					if(rsz + j < right.size()){
+						line = Line.orientedLine(left.get(lsz - i), right.get(rsz + j));
+						if(!used.contains(line)){
+							return line;
+						}
+					}
+					if(rsz - j >= 0){
+						line = Line.orientedLine(left.get(lsz - i), right.get(rsz - j));
+						if(!used.contains(line)){
+							return line;
+						}
+					}
+				}
+			}
+		}
+		return fallback;
 	}
 	
 	/**
