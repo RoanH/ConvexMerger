@@ -361,6 +361,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 			return data;
 		}
+		
 		Comparator<Point2D> c = segmentProjectionComparator(parent.bisector);
 		Collections.sort(left, c);
 		Collections.sort(right, c);
@@ -406,18 +407,16 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @return A comparator that orders points on their projection along a segment.
 	 */
 	private static Comparator<Point2D> segmentProjectionComparator(Line2D segment){
-		double cx = (segment.getP1().getX() + segment.getP2().getX()) / 2;
-		double cy = (segment.getP1().getY() + segment.getP2().getY()) / 2;
+		double cx = (segment.getX1() + segment.getX2()) / 2.0D;
+		double cy = (segment.getY1() + segment.getY2()) / 2.0D;
 
 		//The segment rotated by 90 degrees around its centre point.
-		Line2D rotated = new Line2D.Double(new Point2D.Double((segment.getY1() - cy) + cx, -(segment.getX1() - cx) + cy), 
-										   new Point2D.Double((segment.getY2() - cy) + cx, -(segment.getX2() - cx) + cy));
-		return new Comparator<Point2D>(){
-			@Override
-			public int compare(Point2D p1, Point2D p2){
-				return Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
-			}
-		};
+		Line2D rotated = new Line2D.Double(
+			new Point2D.Double(segment.getY1() - cy + cx, -segment.getX1() - cx + cy), 
+			new Point2D.Double(segment.getY2() - cy + cx, -segment.getX2() - cx + cy)
+		);
+		
+		return (p1, p2)->Double.compare(rotated.ptLineDist(p1) * rotated.relativeCCW(p1), rotated.ptLineDist(p2) * rotated.relativeCCW(p2));
 	}
 
 	/**
@@ -474,6 +473,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 				}
 			}
 		}
+		
 		return fallback;
 	}
 	
