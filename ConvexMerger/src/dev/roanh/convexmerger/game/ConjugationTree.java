@@ -397,7 +397,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param segment The segment on which to project
 	 * @return A comparator that orders points on their projection along a segment.
 	 */
-	private static Comparator<Point2D> segmentProjectionComparator(Line2D segment){
+	private static final Comparator<Point2D> segmentProjectionComparator(Line2D segment){
 		double cx = (segment.getX1() + segment.getX2()) / 2.0D;
 		double cy = (segment.getY1() + segment.getY2()) / 2.0D;
 
@@ -423,7 +423,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * 		   If no unused line is found after reaching maxDistance, the segment between
 	 * 		   the median points of the two sorted point lists is returned.
 	 */
-	private static Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback, int maxDistance){
+	private static final Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback, int maxDistance){
 		int lsz = left.size() / 2;
 		int rsz = right.size() / 2;
 		Segment line;
@@ -477,7 +477,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @return A comparator that sorts points based on their angle
 	 * to the base vector.
 	 */
-	private static Comparator<Point2D> angularComparator(Line2D vector){
+	private static final Comparator<Point2D> angularComparator(Line2D vector){
 		Point2D leftp = vector.getP1();
 		Point2D rightp = vector.getP2();
 		return (p1, p2)->{
@@ -502,7 +502,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * 		   is the leftmost-lower point, and the second
 	 * 		   point is the rightmost-upper point.
 	 */
-	public static Segment orientedLine(Point2D p1, Point2D p2){
+	private static final Segment orientedLine(Point2D p1, Point2D p2){
 		Comparator<java.lang.Double> c = java.lang.Double::compare;
 		Point2D leftp = c.compare(p1.getX(), p2.getX()) == 0 ? (c.compare(p1.getY(), p2.getY()) <= 0 ? p1 : p2) : (c.compare(p1.getX(), p2.getX()) < 0 ? p1 : p2);
 		Point2D rightp = leftp.equals(p1) ? p2 : p1;
