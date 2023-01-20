@@ -268,7 +268,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 
 	@Override
 	public boolean isLeafCell(){
-		return bisector == null;
+		return left == null && right == null;
 	}
 	
 	@Override
@@ -383,6 +383,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			//If lp and rp are median points of the left and right lists respectively, a conjugate of the bisector passes through them.
 			if((left.get(lsz) == lp || (lsz % 2 == 0 && left.get(lsz / 2 + 1) == lp))){
 				if(right.get(rsz) == rp || (rsz % 2 == 0 && right.get(rsz % 2 + 1) == rp)){
+					assert lp != null && rp != null;
 					return new ConjugateData(lp, rp, new Line2D.Double(lp, rp));
 				}else{
 					rp = right.get(rsz);

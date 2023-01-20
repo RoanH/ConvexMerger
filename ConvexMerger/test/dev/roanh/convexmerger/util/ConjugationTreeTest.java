@@ -22,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,11 +53,16 @@ public class ConjugationTreeTest{
 	@Test
 	public void constructionPoints(){
 		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
-		List<ConjugationTree<Void>> leaves = tree.streamLeafCells().collect(Collectors.toList());
 
 		assertEquals(31L, tree.streamCells().count());
-		assertEquals(16, leaves.size());
-		leaves.forEach(leaf->assertEquals(4, leaf.getDepth()));
+		assertEquals(16L, tree.streamLeafCells().count());
+		tree.streamCells().forEach(cell->{
+			if(!cell.isLeafCell()){
+				assertEquals(1, cell.getPoints().size());
+			}else{
+				assertEquals(4, cell.getDepth());
+			}
+		});
 		
 		testTree(tree);
 	}
@@ -150,27 +153,16 @@ public class ConjugationTreeTest{
 	}
 	
 	private void testTree(ConjugationTree<?> tree){
-		List<ConjugationTree<?>> leaves = tree.streamLeafCells().collect(Collectors.toList());
-		
-		for(ConjugationTree<?> leaf : leaves){
-			//all leaves have no bisector and thus no points
-			assertEquals(0, leaf.getPoints().size());
-			assertNull(leaf.getBisector());
-		}
-		
-		//all internal nodes have exactly one point
-		Deque<ConjugationTree<?>> nodes = new LinkedList<ConjugationTree<?>>();
-		while(!nodes.isEmpty()){
-			ConjugationTree<?> node = nodes.pop();
-			if(!node.isLeafCell()){
-				assertEquals(1, node.getPoints().size());
-			}
-		}
-		
-		//assert that all bisectors are also conjugates
+		//assert that all bisectors are also conjugates and that leaves have no points and inner nodes have points
 		tree.streamCells().forEach(cell->{
-			if(cell.getDepth() > 0 && !cell.isLeafCell()){
-				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
+			if(cell.isLeafCell()){
+				assertTrue(cell.getPoints().isEmpty());
+			}else{
+				assertFalse(cell.getPoints().isEmpty());
+
+				if(cell.getDepth() > 0){
+					assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
+				}
 			}
 		});
 		
