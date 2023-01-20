@@ -370,19 +370,47 @@ public class VerticalDecompTest{
 	}
 
 	@Test
-	public void edgeCasesFixedWithGetLeftmostBelow() throws InterruptedException{
+	public void edgeCasesFixedWithGetLeftmostBelow0() throws InterruptedException{
 		testSpecific("3Y657GF3UY8PP82I89LY");// 8->12->63; 31->47->91
+	}
+	
+	@Test
+	public void edgeCasesFixedWithGetLeftmostBelow1() throws InterruptedException{
 		testSpecific("3Y657GF2ZJSAPANVG50E");// 52->91
+	}
+	
+	@Test
+	public void edgeCasesFixedWithGetLeftmostBelow2() throws InterruptedException{
 		testSpecific("3Y657GF162MOIVY34A16");
+	}
+	
+	@Test
+	public void edgeCasesFixedWithGetLeftmostBelow3() throws InterruptedException{
 		testSpecific("3Y657GF39AOQSOYS0Y0C");
 	}
 
 	@Test
-	public void shortCuttingEdgeCases() throws InterruptedException{
+	public void shortCuttingEdgeCases0() throws InterruptedException{
 		testSpecific("3Y64YQ039ZZB4UZQQ680");
+	}
+	
+	@Test
+	public void shortCuttingEdgeCases1() throws InterruptedException{
 		testSpecific("3Y64YQ00WHENOONSIUGC");
+	}
+	
+	@Test
+	public void shortCuttingEdgeCases2() throws InterruptedException{
 		testSpecific("3Y64YQ01OUDN6ZGF6D6V");
+	}
+	
+	@Test
+	public void shortCuttingEdgeCases3() throws InterruptedException{
 		testSpecific("3Y64YQ02I2KJYKBFBBPE");// 2->31->8
+	}
+	
+	@Test
+	public void shortCuttingEdgeCases4() throws InterruptedException{
 		testSpecific("3Y64YQ02J1WPAP9NM7O8");// 3->39
 	}
 
