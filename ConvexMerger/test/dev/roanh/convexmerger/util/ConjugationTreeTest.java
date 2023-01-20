@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -129,56 +130,56 @@ public class ConjugationTreeTest{
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest0(){
-		testSeed("3ZGRJD43F20COCERMV59");
+		testConstructionSeed("3ZGRJD43F20COCERMV59");
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest1(){
-		testSeed("3ZGRJD42GZYECMFRN0NQ");
+		testConstructionSeed("3ZGRJD42GZYECMFRN0NQ");
 	}
 
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest2(){
-		testSeed("3ZGRJD4163DXEYWINF8G");
+		testConstructionSeed("3ZGRJD4163DXEYWINF8G");
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest3(){
-		testSeed("3ZGRJD42I9EX87S8Y04P");
+		testConstructionSeed("3ZGRJD42I9EX87S8Y04P");
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest4(){
-		testSeed("3ZGRJD41OQ741AD949KW");
+		testConstructionSeed("3ZGRJD41OQ741AD949KW");
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest5(){
-		testSeed("3ZGRJD43QZ02Q4C61DYX");
+		testConstructionSeed("3ZGRJD43QZ02Q4C61DYX");
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest6(){
-		testSeed("3ZGRJD433ZR2AVHZ7Y7O");
+		testConstructionSeed("3ZGRJD433ZR2AVHZ7Y7O");
 	}
 	
 	@Test
-	@Timeout(2)
+	@Timeout(1)
 	public void conjugationComputationTest7(){
-		testSeed("3ZGRJD40WD57FXXT815Q");
+		testConstructionSeed("3ZGRJD40WD57FXXT815Q");
 	}
 	
-	private void testSeed(String seed){
-		PlayfieldGenerator gen = new PlayfieldGenerator(seed);
-		new GameState(gen, Arrays.asList(new GreedyPlayer()));
+	private void testConstructionSeed(String seed){
+		List<ConvexObject> objects = new PlayfieldGenerator(seed).generatePlayfield();
+		SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(objects);
 	}
 }
 
