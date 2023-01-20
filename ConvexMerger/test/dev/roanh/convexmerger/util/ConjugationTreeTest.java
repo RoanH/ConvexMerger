@@ -54,13 +54,13 @@ public class ConjugationTreeTest{
 	public void constructionPoints(){
 		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
 
-		assertEquals(31L, tree.streamCells().count());
-		assertEquals(16L, tree.streamLeafCells().count());
+		assertEquals(29L, tree.streamCells().count());
+		assertEquals(15L, tree.streamLeafCells().count());
 		tree.streamCells().forEach(cell->{
-			if(!cell.isLeafCell()){
-				assertEquals(1, cell.getPoints().size());
+			if(cell.isLeafCell()){
+				assertTrue(cell.getDepth() >= 3 && cell.getDepth() <= 4);
 			}else{
-				assertEquals(4, cell.getDepth());
+				assertEquals(1, cell.getPoints().size());
 			}
 		});
 		
@@ -159,7 +159,6 @@ public class ConjugationTreeTest{
 				assertTrue(cell.getPoints().isEmpty());
 			}else{
 				assertFalse(cell.getPoints().isEmpty());
-
 				if(cell.getDepth() > 0){
 					assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
 				}

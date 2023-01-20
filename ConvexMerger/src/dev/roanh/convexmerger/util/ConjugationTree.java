@@ -53,10 +53,12 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private ConjugationTree<T> parent;
 	/**
 	 * The bisector of this tree node (a conjugate of the parent bisector).
+	 * Cells without a bisector are leaf nodes.
 	 */
 	private Line2D bisector;
 	/**
-	 * The points in this cell on the bisector line.
+	 * The points in this cell on the bisector line. Only inner nodes
+	 * have points, leaf nodes do not (since they have no bisector).
 	 */
 	private List<Point2D> on = new ArrayList<Point2D>(2);
 	/**
@@ -166,12 +168,14 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		
 		//construct children
 		if(!leftPoints.isEmpty() || !rightPoints.isEmpty()){
+			assert !this.on.isEmpty();
 			ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
 			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn == null ? data.rightOn : data.leftOn);
 			List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
-			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate, hulls.get(0));
-			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate, hulls.get(1));
+			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.leftOn == null ? null : data.conjugate, hulls.get(0));
+			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.rightOn == null ? null : data.conjugate, hulls.get(1));
 		}else if(bisector != null){
+			assert !this.on.isEmpty();
 			List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
 			left = new ConjugationTree<T>(this, leftPoints, null, null, hulls.get(0));
 			right = new ConjugationTree<T>(this, rightPoints, null, null, hulls.get(1));
@@ -268,7 +272,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 
 	@Override
 	public boolean isLeafCell(){
-		return left == null && right == null;
+		return bisector == null;
 	}
 	
 	@Override
