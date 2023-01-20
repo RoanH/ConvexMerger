@@ -53,10 +53,12 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	private ConjugationTree<T> parent;
 	/**
 	 * The bisector of this tree node (a conjugate of the parent bisector).
+	 * Cells without a bisector are leaf nodes.
 	 */
 	private Line2D bisector;
 	/**
-	 * The points in this cell on the bisector line.
+	 * The points in this cell on the bisector line. Only inner nodes
+	 * have points, leaf nodes do not (since they have no bisector).
 	 */
 	private List<Point2D> on = new ArrayList<Point2D>(2);
 	/**
@@ -166,12 +168,14 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 		
 		//construct children
 		if(!leftPoints.isEmpty() || !rightPoints.isEmpty()){
+			assert !this.on.isEmpty();
 			ConjugateData data = computeConjugate(leftPoints, rightPoints, this);
 			data.conjugate = clipLine(parent, extendLine(data.conjugate), data.leftOn == null ? data.rightOn : data.leftOn);
 			List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
-			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.conjugate, hulls.get(0));
-			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.conjugate, hulls.get(1));
+			left = new ConjugationTree<T>(this, leftPoints, data.leftOn, data.leftOn == null ? null : data.conjugate, hulls.get(0));
+			right = new ConjugationTree<T>(this, rightPoints, data.rightOn, data.rightOn == null ? null : data.conjugate, hulls.get(1));
 		}else if(bisector != null){
+			assert !this.on.isEmpty();
 			List<List<Point2D>> hulls = ConvexUtil.splitHull(hull, bisector);
 			left = new ConjugationTree<T>(this, leftPoints, null, null, hulls.get(0));
 			right = new ConjugationTree<T>(this, rightPoints, null, null, hulls.get(1));
@@ -348,7 +352,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param parent The parent conjugation tree node.
 	 * @return The computed conjugate line and its supporting points.
 	 */
-	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){		
+	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
 		//Handle empty leaf cells.
 		if(left.isEmpty()){
 			return new ConjugateData(null, right.get(0), new Line2D.Double(parent.on.get(0), right.get(0)));
@@ -370,17 +374,20 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			Segment line = orientedLine(lp, rp);
 			//Search for candidate conjugate lines similar to the current candidate.
 			if(used.contains(line)){
-				line = findUnusedSegment(left, right, used, line, 10);
+				line = findUnusedSegment(left, right, used, line);
 			}
 			used.add(line);
-			c = angularComparator(line);
 			
-			Collections.sort(left, c);
+			//Sort the right points w.r.t. the left candidate point and the left points w.r.t. the right candidate point.
+			c = angularComparator(line);
 			Collections.sort(right, c);
+			c = angularComparator(new Line2D.Double(line.getP2(), line.getP1()));
+			Collections.sort(left, c);
 			
 			//If lp and rp are median points of the left and right lists respectively, a conjugate of the bisector passes through them.
 			if((left.get(lsz) == lp || (lsz % 2 == 0 && left.get(lsz / 2 + 1) == lp))){
 				if(right.get(rsz) == rp || (rsz % 2 == 0 && right.get(rsz % 2 + 1) == rp)){
+					assert lp != null && rp != null;
 					return new ConjugateData(lp, rp, new Line2D.Double(lp, rp));
 				}else{
 					rp = right.get(rsz);
@@ -417,19 +424,18 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param right The second sorted point list.
 	 * @param used The set of used lines.
 	 * @param fallback The original segment to return in case no segment is found.
-	 * @param maxDistance The maximum distance in the list to travel.
 	 * @return The list-wise closest segment. The distance is minimized
 	 *         first on <code>left</code> list, then on the <code>right</code> list.
 	 *         If no unused line is found after reaching maxDistance, the segment between
 	 *         the median points of the two sorted point lists is returned.
 	 */
-	private static final Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback, int maxDistance){
+	private static final Segment findUnusedSegment(List<Point2D> left, List<Point2D> right, Set<Segment> used, Segment fallback){
 		int lsz = left.size() / 2;
 		int rsz = right.size() / 2;
 		Segment line;
-		for(int i = 0; i <= maxDistance; i++){
+		for(int i = 0; i <= left.size(); i++){
 			if(lsz + i < left.size()){
-				for(int j = 0; j <= maxDistance; j++){
+				for(int j = 0; j <= right.size(); j++){
 					if(rsz + j < right.size()){
 						line = orientedLine(left.get(lsz + i), right.get(rsz + j));
 						if(!used.contains(line)){
@@ -447,7 +453,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 			}
 			
 			if(lsz - i >= 0){
-				for(int j = 0; j <= maxDistance; j++){
+				for(int j = 0; j <= right.size(); j++){
 					if(rsz + j < right.size()){
 						line = orientedLine(left.get(lsz - i), right.get(rsz + j));
 						if(!used.contains(line)){

@@ -22,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +30,7 @@ import org.junit.jupiter.api.Timeout;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
 
 public class ConjugationTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(
@@ -54,44 +53,18 @@ public class ConjugationTreeTest{
 	@Test
 	public void constructionPoints(){
 		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
-		
-		List<ConjugationTree<Void>> leaves = tree.streamLeafCells().collect(Collectors.toList());
-		assertEquals(16, leaves.size());
-		
-		for(ConjugationTree<Void> leaf : leaves){
-			//all leaves have no bisector and thus no points
-			assertEquals(0, leaf.getPoints().size());
-			assertNull(leaf.getBisector());
-			
-			//all leaves are at depth 4
-			assertEquals(4, leaf.getDepth());
-		}
-		
-		//all internal nodes have exactly one point
-		Deque<ConjugationTree<Void>> nodes = new LinkedList<ConjugationTree<Void>>();
-		while(!nodes.isEmpty()){
-			ConjugationTree<Void> node = nodes.pop();
-			if(!node.isLeafCell()){
-				assertEquals(1, node.getPoints().size());
-			}
-		}
-		
-		//the root is at depth 0
-		assertEquals(0, tree.getDepth());
-	}
-	
-	@Test
-	public void constructionConjugates(){
-		ConjugationTree<Void> tree = new ConjugationTree<Void>(testPoints);
 
-		assertEquals(31L, tree.streamCells().count());
-		
-		//assert that all bisectors are also conjugates
+		assertEquals(29L, tree.streamCells().count());
+		assertEquals(15L, tree.streamLeafCells().count());
 		tree.streamCells().forEach(cell->{
-			if(cell.getDepth() > 0 && !cell.isLeafCell()){
-				assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
+			if(cell.isLeafCell()){
+				assertTrue(cell.getDepth() >= 3 && cell.getDepth() <= 4);
+			}else{
+				assertEquals(1, cell.getPoints().size());
 			}
 		});
+		
+		testTree(tree);
 	}
 	
 	@Test
@@ -123,5 +96,76 @@ public class ConjugationTreeTest{
 				new Point2D.Double(10.0D, Constants.PLAYFIELD_HEIGHT)
 			)))
 		));
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest0(){
+		testConstructionSeed("3ZGRJD43F20COCERMV59");
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest1(){
+		testConstructionSeed("3ZGRJD42GZYECMFRN0NQ");
+	}
+
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest2(){
+		testConstructionSeed("3ZGRJD4163DXEYWINF8G");
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest3(){
+		testConstructionSeed("3ZGRJD42I9EX87S8Y04P");
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest4(){
+		testConstructionSeed("3ZGRJD41OQ741AD949KW");
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest5(){
+		testConstructionSeed("3ZGRJD43QZ02Q4C61DYX");
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest6(){
+		testConstructionSeed("3ZGRJD433ZR2AVHZ7Y7O");
+	}
+	
+	@Test
+	@Timeout(1)
+	public void conjugationComputationTest7(){
+		testConstructionSeed("3ZGRJD40WD57FXXT815Q");
+	}
+	
+	private void testConstructionSeed(String seed){
+		testTree(new ConjugationTree<Void>(new PlayfieldGenerator(seed).generatePlayfield().stream().flatMap(obj->{
+			return obj.getPoints().stream();
+		}).collect(Collectors.toList())));
+	}
+	
+	private void testTree(ConjugationTree<?> tree){
+		//assert that all bisectors are also conjugates and that leaves have no points and inner nodes have points
+		tree.streamCells().forEach(cell->{
+			if(cell.isLeafCell()){
+				assertTrue(cell.getPoints().isEmpty());
+			}else{
+				assertFalse(cell.getPoints().isEmpty());
+				if(cell.getDepth() > 0){
+					assertNotNull(ConvexUtil.interceptClosed(cell.getBisector(), cell.getParent().getBisector()));
+				}
+			}
+		});
+		
+		//the root is at depth 0
+		assertEquals(0, tree.getDepth());
 	}
 }

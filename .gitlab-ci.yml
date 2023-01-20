@@ -25,7 +25,7 @@ endings:
 spotbugs:
   allow_failure: true
   script:
-    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :check
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :spotbugsMain
     - mv ./build/reports/spotbugs/main/spotbugs.html ../spotbugs.html
   stage: check
   artifacts:
