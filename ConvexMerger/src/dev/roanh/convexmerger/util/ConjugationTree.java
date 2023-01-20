@@ -348,7 +348,7 @@ public class ConjugationTree<T> extends PartitionTree<T, ConjugationTree<T>>{
 	 * @param parent The parent conjugation tree node.
 	 * @return The computed conjugate line and its supporting points.
 	 */
-	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){	
+	private static final ConjugateData computeConjugate(List<Point2D> left, List<Point2D> right, ConjugationTree<?> parent){
 		//Handle empty leaf cells.
 		if(left.isEmpty()){
 			return new ConjugateData(null, right.get(0), new Line2D.Double(parent.on.get(0), right.get(0)));

@@ -32,6 +32,9 @@ import org.junit.jupiter.api.Timeout;
 
 import dev.roanh.convexmerger.Constants;
 import dev.roanh.convexmerger.game.ConvexObject;
+import dev.roanh.convexmerger.game.GameState;
+import dev.roanh.convexmerger.game.PlayfieldGenerator;
+import dev.roanh.convexmerger.player.GreedyPlayer;
 
 public class ConjugationTreeTest{
 	private static final List<Point2D> testPoints = Arrays.asList(
@@ -124,4 +127,59 @@ public class ConjugationTreeTest{
 			)))
 		));
 	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest0(){
+		testSeed("3ZGRJD43F20COCERMV59");
+	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest1(){
+		testSeed("3ZGRJD42GZYECMFRN0NQ");
+	}
+
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest2(){
+		testSeed("3ZGRJD4163DXEYWINF8G");
+	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest3(){
+		testSeed("3ZGRJD42I9EX87S8Y04P");
+	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest4(){
+		testSeed("3ZGRJD41OQ741AD949KW");
+	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest5(){
+		testSeed("3ZGRJD43QZ02Q4C61DYX");
+	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest6(){
+		testSeed("3ZGRJD433ZR2AVHZ7Y7O");
+	}
+	
+	@Test
+	@Timeout(2)
+	public void conjugationComputationTest7(){
+		testSeed("3ZGRJD40WD57FXXT815Q");
+	}
+	
+	private void testSeed(String seed){
+		PlayfieldGenerator gen = new PlayfieldGenerator(seed);
+		new GameState(gen, Arrays.asList(new GreedyPlayer()));
+	}
 }
+
+
