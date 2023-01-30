@@ -261,6 +261,14 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		return searchStructure.queryPoint(point);
 	}
 	
+	/**
+	 * Computes the height of the vertical decomposition as the
+	 * length of the longest path to any trapezoid in the search structure.
+	 * Note that the implementation for this method is not very
+	 * efficient, so a call to this method may take relatively long to complete.
+	 * @return The height of the vertical decomposition.
+	 * @see Trapezoid#getDepth()
+	 */
 	public int getHeight(){
 		return trapezoids.stream().mapToInt(Trapezoid::getDepth).max().orElse(0);
 	}
