@@ -253,9 +253,12 @@ public class PerformanceTest{
 		
 		for(int i = -10; i < 100; i++){
 			PlayfieldGenerator gen = new PlayfieldGenerator();
-			//gen.setRange(10, 20);
-			gen.setRange(0, 100);
-			//gen.setRange(50, 100);
+			//gen.setRange(10, 20);//small
+			gen.setRange(10, 25);
+			//gen.setRange(15, 30);
+			//gen.setRange(20, 40);
+			//gen.setRange(0, 100);//medium
+			//gen.setRange(50, 100);//large
 			
 			gen.setCoverage(70);
 			gen.setScaling(240);
