@@ -95,12 +95,16 @@ public class PerformanceTest{
 	public static void segmentDistribution() throws InterruptedException{
 		Map<Integer, LongSummaryStatistics> avgByLevelKdCount = new HashMap<Integer, LongSummaryStatistics>();
 		Map<Integer, DoubleSummaryStatistics> avgByLevelKdAvg = new HashMap<Integer, DoubleSummaryStatistics>();
+		Map<Integer, IntSummaryStatistics> avgByLevelKdMax = new HashMap<Integer, IntSummaryStatistics>();
 		Map<Integer, LongSummaryStatistics> avgByLevelCjCount = new HashMap<Integer, LongSummaryStatistics>();
 		Map<Integer, DoubleSummaryStatistics> avgByLevelCjAvg = new HashMap<Integer, DoubleSummaryStatistics>();
+		Map<Integer, IntSummaryStatistics> avgByLevelCjMax = new HashMap<Integer, IntSummaryStatistics>();
 		Map<Integer, LongSummaryStatistics> avgByLevelKdCountPost = new HashMap<Integer, LongSummaryStatistics>();
 		Map<Integer, DoubleSummaryStatistics> avgByLevelKdAvgPost = new HashMap<Integer, DoubleSummaryStatistics>();
+		Map<Integer, IntSummaryStatistics> avgByLevelKdMaxPost = new HashMap<Integer, IntSummaryStatistics>();
 		Map<Integer, LongSummaryStatistics> avgByLevelCjCountPost = new HashMap<Integer, LongSummaryStatistics>();
 		Map<Integer, DoubleSummaryStatistics> avgByLevelCjAvgPost = new HashMap<Integer, DoubleSummaryStatistics>();
+		Map<Integer, IntSummaryStatistics> avgByLevelCjMaxPost = new HashMap<Integer, IntSummaryStatistics>();
 
 		for(int i = 0; i < 100; i++){
 			PlayfieldGenerator gen = new PlayfieldGenerator();
@@ -119,11 +123,13 @@ public class PerformanceTest{
 			kd.streamCells().forEach(cell->data.computeIfAbsent(cell.getDepth(), v->new IntSummaryStatistics()).accept(cell.getData().size()));
 			data.entrySet().stream().forEach(e->avgByLevelKdCount.computeIfAbsent(e.getKey(), v->new LongSummaryStatistics()).accept(e.getValue().getSum()));
 			data.entrySet().stream().forEach(e->avgByLevelKdAvg.computeIfAbsent(e.getKey(), v->new DoubleSummaryStatistics()).accept(e.getValue().getAverage()));
+			data.entrySet().stream().forEach(e->avgByLevelKdMax.computeIfAbsent(e.getKey(), v->new IntSummaryStatistics()).accept(e.getValue().getMax()));
 
 			data.clear();
 			cj.streamCells().forEach(cell->data.computeIfAbsent(cell.getDepth(), v->new IntSummaryStatistics()).accept(cell.getData().size()));
 			data.entrySet().stream().forEach(e->avgByLevelCjCount.computeIfAbsent(e.getKey(), v->new LongSummaryStatistics()).accept(e.getValue().getSum()));
 			data.entrySet().stream().forEach(e->avgByLevelCjAvg.computeIfAbsent(e.getKey(), v->new DoubleSummaryStatistics()).accept(e.getValue().getAverage()));
+			data.entrySet().stream().forEach(e->avgByLevelCjMax.computeIfAbsent(e.getKey(), v->new IntSummaryStatistics()).accept(e.getValue().getMax()));
 			
 			while(!state.isFinished()){
 				state.executePlayerTurn();
@@ -133,11 +139,13 @@ public class PerformanceTest{
 			kd.streamCells().forEach(cell->data.computeIfAbsent(cell.getDepth(), v->new IntSummaryStatistics()).accept(cell.getData().size()));
 			data.entrySet().stream().forEach(e->avgByLevelKdCountPost.computeIfAbsent(e.getKey(), v->new LongSummaryStatistics()).accept(e.getValue().getSum()));
 			data.entrySet().stream().forEach(e->avgByLevelKdAvgPost.computeIfAbsent(e.getKey(), v->new DoubleSummaryStatistics()).accept(e.getValue().getAverage()));
+			data.entrySet().stream().forEach(e->avgByLevelKdMaxPost.computeIfAbsent(e.getKey(), v->new IntSummaryStatistics()).accept(e.getValue().getMax()));
 
 			data.clear();
 			cj.streamCells().forEach(cell->data.computeIfAbsent(cell.getDepth(), v->new IntSummaryStatistics()).accept(cell.getData().size()));
 			data.entrySet().stream().forEach(e->avgByLevelCjCountPost.computeIfAbsent(e.getKey(), v->new LongSummaryStatistics()).accept(e.getValue().getSum()));
 			data.entrySet().stream().forEach(e->avgByLevelCjAvgPost.computeIfAbsent(e.getKey(), v->new DoubleSummaryStatistics()).accept(e.getValue().getAverage()));
+			data.entrySet().stream().forEach(e->avgByLevelCjMaxPost.computeIfAbsent(e.getKey(), v->new IntSummaryStatistics()).accept(e.getValue().getMax()));
 		}
 		
 		System.out.println("depth sum kd: ");
@@ -150,6 +158,11 @@ public class PerformanceTest{
 			System.out.println(i + " | " + avgByLevelKdAvg.get(i).getAverage());
 		}
 		
+		System.out.println("depth max kd: ");
+		for(int i = 0; i <= avgByLevelKdMax.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
+			System.out.println(i + " | " + avgByLevelKdMax.get(i).getAverage());
+		}
+		
 		System.out.println("depth sum cj: ");
 		for(int i = 0; i <= avgByLevelCjCount.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
 			System.out.println(i + " | " + avgByLevelCjCount.get(i).getAverage());
@@ -158,6 +171,11 @@ public class PerformanceTest{
 		System.out.println("depth avg cj: ");
 		for(int i = 0; i <= avgByLevelCjAvg.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
 			System.out.println(i + " | " + avgByLevelCjAvg.get(i).getAverage());
+		}
+		
+		System.out.println("depth max cj: ");
+		for(int i = 0; i <= avgByLevelCjMax.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
+			System.out.println(i + " | " + avgByLevelCjMax.get(i).getAverage());
 		}
 		
 		System.out.println("depth sum kd post: ");
@@ -170,6 +188,11 @@ public class PerformanceTest{
 			System.out.println(i + " | " + avgByLevelKdAvgPost.get(i).getAverage());
 		}
 		
+		System.out.println("depth max kd post: ");
+		for(int i = 0; i <= avgByLevelKdMaxPost.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
+			System.out.println(i + " | " + avgByLevelKdMaxPost.get(i).getAverage());
+		}
+		
 		System.out.println("depth sum cj post: ");
 		for(int i = 0; i <= avgByLevelCjCountPost.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
 			System.out.println(i + " | " + avgByLevelCjCountPost.get(i).getAverage());
@@ -178,6 +201,11 @@ public class PerformanceTest{
 		System.out.println("depth avg cj post: ");
 		for(int i = 0; i <= avgByLevelCjAvgPost.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
 			System.out.println(i + " | " + avgByLevelCjAvgPost.get(i).getAverage());
+		}
+		
+		System.out.println("depth max cj post: ");
+		for(int i = 0; i <= avgByLevelCjMaxPost.keySet().stream().mapToInt(Integer::intValue).max().orElse(0); i++){
+			System.out.println(i + " | " + avgByLevelCjMaxPost.get(i).getAverage());
 		}
 	}
 	
