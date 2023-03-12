@@ -58,12 +58,12 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	/**
 	 * The trapezoids of the decomposition.
 	 */
-	private List<Trapezoid> trapezoids = new CopyOnWriteArrayList<Trapezoid>();
+	private final List<Trapezoid> trapezoids = new CopyOnWriteArrayList<Trapezoid>();
 	/**
 	 * The search structure of the decomposition. 
 	 * It is a DAG with 3 types of vertices (leaf, point, and segment).
 	 */
-	private List<DecompVertex> searchStructure = new ArrayList<DecompVertex>();
+	private final DecompVertex searchStructure;
 	/**
 	 * The list of segments that have been added to the decomposition. 
 	 */
@@ -111,7 +111,7 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 		DecompVertex initialVertex = new DecompVertex(initialTrapezoid);
 		trapezoids.add(initialTrapezoid);
 		initialTrapezoid.computeDecompLines();
-		searchStructure.add(initialVertex);
+		searchStructure = initialVertex;
 	}
 	
 	/**
@@ -258,7 +258,19 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 	 *         the given position.
 	 */
 	public Trapezoid queryTrapezoid(Point2D point){
-		return searchStructure.get(0).queryPoint(point);
+		return searchStructure.queryPoint(point);
+	}
+	
+	/**
+	 * Computes the height of the vertical decomposition as the
+	 * length of the longest path to any trapezoid in the search structure.
+	 * Note that the implementation for this method is not very
+	 * efficient, so a call to this method may take relatively long to complete.
+	 * @return The height of the vertical decomposition.
+	 * @see Trapezoid#getDepth()
+	 */
+	public int getHeight(){
+		return trapezoids.stream().mapToInt(Trapezoid::getDepth).max().orElse(0);
 	}
 	
 	/**
@@ -1561,6 +1573,34 @@ public class VerticalDecomposition extends RenderableObject implements GameState
 
 			if(!leftPoints.isEmpty() && !rightPoints.isEmpty()){
 				computeDecompLines();
+			}
+		}
+		
+		/**
+		 * Computes the maximum depth of this trapezoid in the search structure.
+		 * Note that this will return the length of the longest path through the
+		 * search structure DAG if more than one path leads to this trapezoid.
+		 * Furthermore, note that this computation is relatively expensive.
+		 * @return The maximum depth of this trapezoid.
+		 */
+		public int getDepth(){
+			return computeDepth(searchStructure);
+		}
+		
+		/**
+		 * Computes the longest path from the given search structure vertex to
+		 * the vertex associated with this trapezoid.
+		 * @param root The vertex to treat as the search structure root.
+		 * @return The maximum depth of this trapezoid in the search structure
+		 *         rooted at the given vertex.
+		 */
+		private int computeDepth(DecompVertex root){
+			if(root == vertex){
+				return 0;
+			}else if(root.type == DecompVertexType.LEAF){
+				return -1;
+			}else{
+				return 1 + Math.max(computeDepth(root.left), computeDepth(root.right));
 			}
 		}
 		

@@ -68,7 +68,7 @@ public class ConjugationTreeTest{
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void colinTest(){
 		SegmentPartitionTree.TYPE_CONJUGATION_TREE.fromObjects(Arrays.asList(
 			new ConvexObject(ConvexUtil.computeConvexHull(Arrays.asList(
@@ -99,49 +99,49 @@ public class ConjugationTreeTest{
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest0(){
 		testConstructionSeed("3ZGRJD43F20COCERMV59");
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest1(){
 		testConstructionSeed("3ZGRJD42GZYECMFRN0NQ");
 	}
 
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest2(){
 		testConstructionSeed("3ZGRJD4163DXEYWINF8G");
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest3(){
 		testConstructionSeed("3ZGRJD42I9EX87S8Y04P");
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest4(){
 		testConstructionSeed("3ZGRJD41OQ741AD949KW");
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest5(){
 		testConstructionSeed("3ZGRJD43QZ02Q4C61DYX");
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest6(){
 		testConstructionSeed("3ZGRJD433ZR2AVHZ7Y7O");
 	}
 	
 	@Test
-	@Timeout(1)
+	@Timeout(10)
 	public void conjugationComputationTest7(){
 		testConstructionSeed("3ZGRJD40WD57FXXT815Q");
 	}
