@@ -69,15 +69,15 @@ public class InfoMenu extends Screen{
 	/**
 	 * Height of the credits box.
 	 */
-	private static final int CREDITS_HEIGHT = 174;
+	private static final int CREDITS_HEIGHT = 196;
 	/**
 	 * Height of the shortcuts box.
 	 */
-	private static final int KEYS_HEIGHT = 258;
+	private static final int KEYS_HEIGHT = 280;
 	/**
 	 * Width of a keyboard key frame.
 	 */
-	private static final double KEY_WIDTH = 31.0D;
+	private static final double KEY_WIDTH = 32.0D;
 	/**
 	 * The latest version of the program.
 	 */
@@ -157,35 +157,36 @@ public class InfoMenu extends Screen{
 		
 		x += BOX_INSETS;
 		y += BOX_HEADER_HEIGHT + BOX_TEXT_OFFSET * 2.0D;
+		final int extra = 3;
 		drawKeyFrame(g, x, y, "F3");
-		g.drawString("Show FPS and frame render time", (float)(x + KEY_WIDTH + SPACING), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		g.drawString("Show FPS and frame render time", (float)(x + KEY_WIDTH + SPACING + extra), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "F11");
-		g.drawString("Toggle full screen mode", (float)(x + KEY_WIDTH + SPACING), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		g.drawString("Toggle full screen mode", (float)(x + KEY_WIDTH + SPACING + extra), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "Ctrl");
-		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "R");
-		g.drawString("Show game progress", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING + extra, y, "R");
+		g.drawString("Show game progress", (float)(x + (KEY_WIDTH + SPACING + extra) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "Ctrl");
-		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "C");
-		g.drawString("Show object centroids", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING + extra, y, "C");
+		g.drawString("Show object centroids", (float)(x + (KEY_WIDTH + SPACING + extra) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "Ctrl");
-		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "D");
-		g.drawString("Show vertical decomposition (works on the new game menu)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING + extra, y, "D");
+		g.drawString("Show vertical decomposition (works on the new game menu)", (float)(x + (KEY_WIDTH + SPACING + extra) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "Ctrl");
-		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "S");
-		g.drawString("Show segment partition tree (conjugation tree)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING + extra, y, "S");
+		g.drawString("Show segment partition tree (conjugation tree)", (float)(x + (KEY_WIDTH + SPACING + extra) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "Ctrl");
-		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "K");
-		g.drawString("Show segment partition Tree (kd-tree)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
-		y += fm.getHeight() + SPACING;
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING + extra, y, "K");
+		g.drawString("Show segment partition Tree (kd-tree)", (float)(x + (KEY_WIDTH + SPACING + extra) * 2.0D), (float)(y + fm.getAscent()));
+		y += fm.getHeight() + SPACING + extra;
 		drawKeyFrame(g, x, y, "Ctrl");
-		drawKeyFrame(g, x + KEY_WIDTH + SPACING, y, "M");
-		g.drawString("Show merge callipers (used to compute merge lines)", (float)(x + (KEY_WIDTH + SPACING) * 2.0D), (float)(y + fm.getAscent()));
+		drawKeyFrame(g, x + KEY_WIDTH + SPACING + extra, y, "M");
+		g.drawString("Show merge callipers (used to compute merge lines)", (float)(x + (KEY_WIDTH + SPACING + extra) * 2.0D), (float)(y + fm.getAscent()));
 	}
 	
 	/**
@@ -439,9 +440,10 @@ public class InfoMenu extends Screen{
 		}
 		
 		credits.add(new SimpleEntry<String, String>("Roan (RoanH): ", "Game Design & Implementation"));
+		credits.add(new SimpleEntry<String, String>("Emiliyan: ", "Vertical Decomposition"));
+		credits.add(new SimpleEntry<String, String>("Irina: ", "Algorithms Advisor"));
 		credits.add(new SimpleEntry<String, String>("RockRoller: ", "UI Design & Logo"));
 		credits.add(new SimpleEntry<String, String>("Thiam-Wai: ", "Playfield Generation"));
-		credits.add(new SimpleEntry<String, String>("Emiliyan: ", "Vertical Decomposition"));
 		credits.add(new SimpleEntry<String, String>("Phosphor Icons: ", "UI Icons"));
 		credits.add(new SimpleEntry<String, String>("Cadson Demak: ", "Pridi Font"));
 		
