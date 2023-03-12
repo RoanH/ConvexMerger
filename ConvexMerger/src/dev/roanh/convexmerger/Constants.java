@@ -26,7 +26,7 @@ public final class Constants{
 	/**
 	 * Current game version.
 	 */
-	public static final String VERSION = "v1.1";//don't forget build.gradle
+	public static final String VERSION = "v1.2";//don't forget build.gradle
 	/**
 	 * Game and window title.
 	 */
