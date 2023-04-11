@@ -36,6 +36,8 @@ references:
       affiliation: "Eindhoven University of Technology"
       email: e.greshkov@student.tue.nl
     type: report
+    url: 'https://research.roanh.dev/ConvexMerger%20Report%20v1.2.pdf'
+    date-published: 2023-03-29
     department: "Department of Mathematics and Computer Science"
     institution:
       name: "Eindhoven University of Technology"
