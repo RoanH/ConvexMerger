@@ -33,14 +33,14 @@ GitHub repository: [here](https://github.com/RoanH/ConvexMerger)
 The game has built in support for playing online multiplayer. Here one player will act as the host and all other players will connect to this host. If the host and all other players are on the same local network (e.g. WiFi), then players can connect to the host using the local IPv4 address of the host. If you want to play with remote players, then it is required for the host to portforward port 11111 and players can then connect using the external IP of the host. Please make sure you know what you are doing if you set this up and only play with people you trust.
 
 ## Algorithms
-This project was started for a course on geometric algorithms at the Eindhoven University of Technology and further extended during a capita selecta on the same topic. As a result the internal logic for this game was designed around interesting geometric algorithms and most of the major algorithms can be visualised using the keybinds listed on the information screen. Detailed information about the capita selecta project where the game was extended can be found in our report titled [ConvexMerger: Algorithmic Optimisations & Challenges](https://research.roanh.dev/ConvexMerger%20Report%20v1.3.pdf). This report also contains a detailed description of all the visualisations and animations.
+This project was started for a course on geometric algorithms at the Eindhoven University of Technology and further extended during an algorithms capita selecta. As a result the internal logic for this game was designed around interesting geometric algorithms and most of the major algorithms can be visualised using the keybinds listed on the information screen. Detailed information about the capita selecta project where the game was extended can be found in our report titled [ConvexMerger: Algorithmic Optimisations & Challenges](https://research.roanh.dev/ConvexMerger%20Report%20v1.3.pdf). This report also contains a detailed description of all the visualisations and animations.
 
 ## Credits
-- [Roan](https://github.com/RoanH): Game Design & Implementation
-- [Emiliyan](https://github.com/Kroasana): Vertical Decomposition
-- [Irina](https://www.tue.nl/en/research/researchers/irina-kostitsyna): Algorithms Advisor
+- [Roan Hofland](https://github.com/RoanH): Game Design & Implementation
+- [Emiliyan Greshkov](https://github.com/Kroasana): Vertical Decomposition
+- [Irina Kostitsyna](https://www.tue.nl/en/research/researchers/irina-kostitsyna): Algorithms Advisor
 - [RockRoller](https://github.com/RockRoller01): UI Design & Logo
-- [Thiam-Wai](https://github.com/CTW121): Playfield Generation
+- [Thiam Wai Chua](https://github.com/CTW121): Playfield Generation
 - [Phosphor Icons](https://phosphoricons.com/): UI Icons
 - [Cadson Demak](https://fonts.google.com/specimen/Pridi): Pridi Font
 
@@ -50,4 +50,4 @@ This is an [Eclipse](https://www.eclipse.org/) + [Gradle](https://gradle.org/) p
 ## History
 Project development started: 20th of November, 2021.    
 Project due date (2IMA25 course): 30th of January, 2022.    
-Project release (2IMG05 course): 12th of March, 2023.
+Project release (2IMA05 course): 12th of March, 2023.
