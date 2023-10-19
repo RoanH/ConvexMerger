@@ -5,7 +5,7 @@ ConvexMerger is an area maximisation game based on the idea of merging convex sh
 
 ## Example Game
 A short example game between two AIs is shown below.    
-![example game](https://i.imgur.com/48W3hwE.gif)
+![example game](https://media.roanh.dev/convexmerger/example.gif)
 
 ## Rules
 The goal of the game is to maximise the area of the playfield you own by claiming and merging objects into new convex objects. In every turn you can do the following:
@@ -13,7 +13,7 @@ The goal of the game is to maximise the area of the playfield you own by claimin
 2. Click an object you already own and then select a second object either owned by you or unowned. If there are no objects on what will become the boundary of the new convex object the merge will succeed. Objects fully contained in the newly created convex object will be stolen from their current owner.
 
 The game ends when the player whose turn it is has no possible moves available. You can visualise merging two objects as spanning an elastic band around both objects, the resulting shape is the new convex object. A merge of two objects is shown below:    
-![merge](https://i.imgur.com/6ofU8Ys.gif)
+![merge](https://media.roanh.dev/convexmerger/merge.gif)
 
 ## Playfield Options
 When generating the playfield you can control the object size, density and spacing. The exact function of these parameters is as follows:
