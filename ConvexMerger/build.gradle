@@ -1,54 +1,27 @@
 plugins{
-	id 'java-library'
 	id 'eclipse'
+	id 'java'
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'edu.sc.seis.launch4j' version '2.5.1'
+	id 'com.github.spotbugs' version '5.0.14'
 	id 'jacoco'
-	id 'com.github.spotbugs' version '5.0.13'
 }
 
 sourceSets{
 	main{
-		java{
-			srcDirs = ['src']
-		}
-		resources{
-			srcDirs = ['assets']
-		}
+		java.srcDirs = ['src']
+		resources.srcDirs = ['resources']
 	}
-	test{
-		java{
-			srcDir 'test'
-		}
-		resources{
-			srcDir 'test'
-		}
-	}
+
+	test.java.srcDirs = ['test']
 }
 
-spotbugs{
-	showProgress = true
-	effort = 'max'
-	reportLevel = 'low'
-	excludeFilter = file("exclude.xml")
+dependencies{
+	implementation 'dev.roanh.util:util:2.4'
+	testImplementation(platform('org.junit:junit-bom:5.8.1'))
+	testImplementation('org.junit.jupiter:junit-jupiter')
 }
-
-spotbugsMain{
-	reports{
-		html{
-			required = true
-			outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
-			stylesheet = 'fancy-hist.xsl'
-		}
-	}
-}
-
-eclipse.classpath.downloadJavadoc = true
-compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 1.8
-version = 'v1.2'//don't forget Constants.java
-shadowJar.archiveName = 'ConvexMerger-' + version + '.jar'
 
 repositories{
 	//Local cache
@@ -61,27 +34,34 @@ repositories{
 	mavenCentral();
 }
 
-dependencies{
-	implementation 'dev.roanh.util:util:2.4'
-	testImplementation(platform('org.junit:junit-bom:5.8.1'))
-	testImplementation('org.junit.jupiter:junit-jupiter')
+version = findProperty("refName") ?: 'SNAPSHOT'
+if(version.matches("v\\d+\\.\\d+")){
+	version = version.substring(1)
 }
 
-test{
-	useJUnitPlatform()
-	dependsOn 'cleanTest'
-	
-	testLogging{
-		events "passed", "skipped", "failed"
+eclipse.classpath.downloadSources = true
+eclipse.classpath.downloadJavadoc = true
+compileJava.options.encoding = 'UTF-8'
+sourceCompatibility = 1.8
+javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
+shadowJar.archiveName = 'ConvexMerger-v' + version + '.jar'
+application.mainClassName = 'dev.roanh.convexmerger.Main'
+
+spotbugs{
+	showProgress = true
+	effort = 'max'
+	reportLevel = 'low'
+	excludeFilter = file("$rootDir/exclude.xml")
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask){
+	reports{
+		html{
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+			stylesheet = 'fancy-hist.xsl'
+		}
 	}
-}
-
-javadoc{
-	options.memberLevel = JavadocMemberLevel.PRIVATE
-}
-
-application{
-	mainClassName = 'dev.roanh.convexmerger.Main'
 }
 
 launch4j{
@@ -90,9 +70,10 @@ launch4j{
 	icon = "${projectDir}/icon.ico"
 	jreMinVersion = project.sourceCompatibility
 	bundledJrePath = "%JAVA_HOME%"
-	outfile = project.name + '-' + project.version + '.exe'
-	fileDescription = project.name
-	version = project.version.substring(1)
-	textVersion = project.version.substring(1)
+	outfile = rootProject.name + '-v' + project.version + '.exe'
+	fileDescription = "ConvexMerger"
+	productName = rootProject.name
+	version = project.version
+	textVersion = project.version
 	copyright = "Roan Hofland"
 }
