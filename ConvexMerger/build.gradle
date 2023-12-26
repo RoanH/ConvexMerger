@@ -17,11 +17,6 @@ sourceSets{
 	test.java.srcDirs = ['test']
 }
 
-dependencies{
-	implementation 'dev.roanh.util:util:2.4'
-	testImplementation(platform('org.junit:junit-bom:5.8.1'))
-	testImplementation('org.junit.jupiter:junit-jupiter')
-}
 
 repositories{
 	//Local cache
@@ -46,6 +41,15 @@ sourceCompatibility = 1.8
 javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
 shadowJar.archiveName = 'ConvexMerger-v' + version + '.jar'
 application.mainClassName = 'dev.roanh.convexmerger.Main'
+
+test{
+	useJUnitPlatform()
+	dependsOn 'cleanTest'
+
+	testLogging{
+		events "passed", "skipped", "failed"
+	}
+}
 
 spotbugs{
 	showProgress = true
