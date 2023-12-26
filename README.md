@@ -1,4 +1,4 @@
-# <img src="ConvexMerger/assets/assets/logo/64.png" width="40"/> ConvexMerger [![](https://img.shields.io/github/release/RoanH/ConvexMerger.svg)](https://github.com/RoanH/ConvexMerger/releases) [![](https://img.shields.io/github/downloads/RoanH/ConvexMerger/total.svg)](#downloads)
+# <img src="ConvexMerger/resources/assets/logo/64.png" width="40"/> ConvexMerger [![](https://img.shields.io/github/release/RoanH/ConvexMerger.svg)](https://github.com/RoanH/ConvexMerger/releases) [![](https://img.shields.io/github/downloads/RoanH/ConvexMerger/total.svg)](#downloads)
 ConvexMerger is an area maximisation game based on the idea of merging convex shapes. The goal of the game is to claim as large an area as possible while competing against your opponents that try to do the same. To do this you can either claim new objects for your own or merge already claimed objects with other objects to also claim the area between them. It is possible to play the game with up to 4 players of which some can be AIs and it is also possible to play online multiplayer. The game ends when the active player has no moves left.
 
 [Jump directly to downloads](#downloads)
