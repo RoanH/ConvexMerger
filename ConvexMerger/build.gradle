@@ -47,6 +47,15 @@ javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
 shadowJar.archiveName = 'ConvexMerger-v' + version + '.jar'
 application.mainClassName = 'dev.roanh.convexmerger.Main'
 
+test{
+	useJUnitPlatform()
+	dependsOn 'cleanTest'
+
+	testLogging{
+		events "passed", "skipped", "failed"
+	}
+}
+
 spotbugs{
 	showProgress = true
 	effort = 'max'
