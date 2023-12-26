@@ -18,7 +18,10 @@ sourceSets{
 }
 
 dependencies{
-	implementation 'dev.roanh.util:util:2.4'
+	//Util
+	implementation 'dev.roanh.util:util:2.5'
+	
+	//Testing
 	testImplementation(platform('org.junit:junit-bom:5.10.0'))
 	testImplementation('org.junit.jupiter:junit-jupiter')
 }
