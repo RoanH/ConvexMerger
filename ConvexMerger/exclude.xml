@@ -6,7 +6,9 @@
     <Or>
       <Bug pattern="EI_EXPOSE_REP"/>
       <Bug pattern="EI_EXPOSE_REP2"/>
+      <Bug pattern="EI_EXPOSE_STATIC_REP2"/>
       <Bug pattern="MS_CANNOT_BE_FINAL"/>
+      <Bug pattern="MS_EXPOSE_REP"/>
       <Bug pattern="MS_PKGPROTECT"/>
     </Or>
   </Match>
