@@ -72,7 +72,7 @@
   </Match>
   
   <Match>
-    <!-- Should not happen, but if it does it should not cause a crash, meant first testing only -->
+    <!-- Should not happen, but if it does it should not cause a crash, meant for testing only -->
     <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
     <Class name="dev.roanh.convexmerger.game.ConvexObject"/>
   </Match>
