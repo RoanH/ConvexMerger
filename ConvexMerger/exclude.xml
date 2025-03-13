@@ -78,7 +78,7 @@
   </Match>
   
   <Match>
-    <!-- Exact floating point comparison is intended here, if there is even the slightly difference the other branch should be used -->
+    <!-- Exact floating point comparison is intended here, if there is even a slight difference the other branch should be used -->
     <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
     <Class name="dev.roanh.convexmerger.util.ConjugationTree"/>
     <Method name="extendLine"/>
