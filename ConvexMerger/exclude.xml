@@ -71,4 +71,23 @@
     <Method name="handleClaim"/>
   </Match>
   
+  <Match>
+    <!-- Should not happen, but if it does it should not cause a crash, meant first testing only -->
+    <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
+    <Class name="dev.roanh.convexmerger.game.ConvexObject"/>
+  </Match>
+  
+  <Match>
+    <!-- Exact floating point comparison is intended here, if there is even the slightly difference the other branch should be used -->
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+    <Class name="dev.roanh.convexmerger.util.ConjugationTree"/>
+    <Method name="extendLine"/>
+  </Match>
+  
+  <Match>
+    <!-- Accepted technical debt... seems to work but some of these are iffy -->
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+    <Class name="dev.roanh.convexmerger.util.VerticalDecomposition"/>
+  </Match>
+  
 </FindBugsFilter>
