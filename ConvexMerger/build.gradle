@@ -1,12 +1,14 @@
 plugins{
 	id 'eclipse'
-	id 'java'
 	id 'application'
-	id 'com.github.johnrengelman.shadow' version '7.1.2'
-	id 'edu.sc.seis.launch4j' version '2.5.1'
-	id 'com.github.spotbugs' version '5.0.14'
+	id 'com.gradleup.shadow' version '8.3.2'
+	id 'edu.sc.seis.launch4j' version '3.0.5'
+	id 'com.github.spotbugs' version '6.0.18'
 	id 'jacoco'
 }
+
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
 
 sourceSets{
 	main{
@@ -22,7 +24,7 @@ dependencies{
 	implementation 'dev.roanh.util:util:2.5'
 	
 	//Testing
-	testImplementation(platform('org.junit:junit-bom:5.10.0'))
+	testImplementation(platform('org.junit:junit-bom:5.11.1'))
 	testImplementation('org.junit.jupiter:junit-jupiter')
 }
 
@@ -45,10 +47,15 @@ if(version.matches("v\\d+\\.\\d+")){
 eclipse.classpath.downloadSources = true
 eclipse.classpath.downloadJavadoc = true
 compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+jacocoTestReport.reports.xml.required = true
 sourceCompatibility = 1.8
 javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
-shadowJar.archiveName = 'ConvexMerger-v' + version + '.jar'
-application.mainClassName = 'dev.roanh.convexmerger.Main'
+javadoc.options.encoding = 'UTF-8'
+shadowJar.archiveBaseName = 'ConvexMerger'
+shadowJar.archiveVersion = 'v' + version
+shadowJar.archiveClassifier = ''
+application.mainClass = 'dev.roanh.convexmerger.Main'
 
 test{
 	useJUnitPlatform()
@@ -56,13 +63,14 @@ test{
 
 	testLogging{
 		events "passed", "skipped", "failed"
+		showStandardStreams = true
 	}
 }
 
 spotbugs{
 	showProgress = true
-	effort = 'max'
-	reportLevel = 'low'
+	effort = Effort.valueOf('MAX')
+	reportLevel = Confidence.valueOf('LOW')
 	excludeFilter = file("$rootDir/exclude.xml")
 }
 
@@ -76,13 +84,17 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask){
 	}
 }
 
+shadowJar{
+	mergeServiceFiles()
+}
+
 launch4j{
 	jarTask = project.tasks.shadowJar
-	mainClassName = application.mainClassName
+	mainClassName = application.mainClass
 	icon = "${projectDir}/icon.ico"
-	jreMinVersion = project.sourceCompatibility
+	jreMinVersion = project.sourceCompatibility.toString()
 	bundledJrePath = "%JAVA_HOME%"
-	outfile = rootProject.name + '-v' + project.version + '.exe'
+	outfile = 'ConvexMerger-v' + project.version + '.exe'
 	fileDescription = "ConvexMerger"
 	productName = rootProject.name
 	version = project.version

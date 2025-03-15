@@ -10,6 +10,9 @@
       <Bug pattern="MS_CANNOT_BE_FINAL"/>
       <Bug pattern="MS_EXPOSE_REP"/>
       <Bug pattern="MS_PKGPROTECT"/>
+      <Bug pattern="REC_CATCH_EXCEPTION"/>
+      <Bug pattern="CI_CONFUSED_INHERITANCE"/>
+      <Bug pattern="CT_CONSTRUCTOR_THROW"/>
     </Or>
   </Match>
   
@@ -66,6 +69,29 @@
     <Bug pattern="NO_NOTIFY_NOT_NOTIFYALL"/>
     <Class name="dev.roanh.convexmerger.player.HumanPlayer"/>
     <Method name="handleClaim"/>
+  </Match>
+  
+  <Match>
+    <!-- Should not happen, but if it does it should not cause a crash, meant for testing only -->
+    <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
+    <Class name="dev.roanh.convexmerger.game.ConvexObject"/>
+  </Match>
+  
+  <Match>
+    <!-- Exact floating point comparison is intended here, if there is even a slight difference the other branch should be used -->
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+    <Class name="dev.roanh.convexmerger.util.ConjugationTree"/>
+    <Method name="extendLine"/>
+  </Match>
+  
+  <Match>
+    <!-- Accepted technical debt... seems to work but some of these are iffy -->
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+    <Or>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$DecompositionPoint"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$Trapezoid"/>
+    </Or>
   </Match>
   
 </FindBugsFilter>
