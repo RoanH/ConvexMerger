@@ -87,7 +87,11 @@
   <Match>
     <!-- Accepted technical debt... seems to work but some of these are iffy -->
     <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
-    <Class name="dev.roanh.convexmerger.util.VerticalDecomposition"/>
+    <Or>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$DecompositionPoint"/>
+      <Class name="dev.roanh.convexmerger.util.VerticalDecomposition$Trapezoid"/>
+    </Or>
   </Match>
   
 </FindBugsFilter>
