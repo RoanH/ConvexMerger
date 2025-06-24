@@ -1,0 +1,20 @@
+initscript{
+	repositories{
+		gradlePluginPortal()
+	}
+
+	dependencies{
+		classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:6.1.0.5360"
+	}
+}
+
+allprojects{
+	apply plugin: org.sonarqube.gradle.SonarQubePlugin
+
+	sonar{
+		properties{
+			property "sonar.projectKey", "roan_convexmerger_e5f173c5-c0ba-4d49-8439-0dc5c1a6f068"
+			property "sonar.projectName", "ConvexMerger"
+		}
+	}
+}
