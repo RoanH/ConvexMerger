@@ -1,3 +1,21 @@
+/*
+ * ConvexMerger:  An area maximisation game based on the idea of merging convex shapes.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev), Emiliyan Greshkov and contributors.
+ * GitHub Repository: https://github.com/RoanH/ConvexMerger
+ *
+ * ConvexMerger is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ConvexMerger is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.convexmerger.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -348,7 +366,7 @@ public class VerticalDecompTest{
 		testSpecific("3Y657GF2ENJVQR6KVR2I");
 	}
 
-	@Test 
+	@Test
 	public void edgeCaseSeed5() throws InterruptedException{
 		//The start trapezoid of the merge is the one on the left of the line that was newly added to the object
 		testSpecific("3Y64YQO2OCQZUAWQT6OQ");// 9->18->25->15->31
